@@ -269,7 +269,7 @@ if(!G.spec[a[0]])G.score+=10;G.spec[a[0]]=(G.spec[a[0]]||0)+1;if(!S.alb[a[0]]){G
 // ===== v4 graphics =====
 const OC=(w,h)=>{let c=document.createElement('canvas');c.width=Math.max(1,w*D|0);c.height=Math.max(1,h*D|0);let x=c.getContext('2d');x.setTransform(D,0,0,D,0,0);return[c,x]};
 const GC={};let gcKey='';
-const hr=new Date().getHours(),DAYT=hr<6||hr>=21?'night':hr<9?'dawn':hr>=18?'dusk':'day';
+const hr=new Date().getHours(),DAYT=(location.search.match(/[?&]t=(\w+)/)||[])[1]||(hr<6||hr>=21?'night':hr<9?'dawn':hr>=18?'dusk':'day');
 const TINT={day:null,dawn:'rgba(255,190,150,.18)',dusk:'rgba(255,140,170,.22)',night:'rgba(60,60,140,.35)'};
 function mix(a,b,t){let p=s=>[1,3,5].map(i=>parseInt(s.slice(i,i+2),16)),A=p(a),Bc=p(b);return'rgb('+A.map((v,i)=>v+(Bc[i]-v)*t|0)+')'}
 function puffs(x,cx,cy,r,col,shade){[[0,0,1],[-.7,.2,.7],[.7,.2,.75],[-.3,-.35,.75],[.35,-.3,.65],[-1.05,.38,.45],[1.05,.38,.45]].forEach(([a,b,s])=>{let px=cx+a*r,py=cy+b*r,pr=r*s,g=x.createRadialGradient(px-pr*.3,py-pr*.45,pr*.1,px,py,pr);g.addColorStop(0,'#fff');g.addColorStop(.55,col);g.addColorStop(1,shade);x.fillStyle=g;x.beginPath();x.arc(px,py,pr,0,7);x.fill()})}
@@ -291,8 +291,21 @@ function buildBg(){let k=BI+'|'+W+'|'+H;if(gcKey==k)return;gcKey=k;let I=isl();
  let[dc,dx]=OC(W,H);g=dx.createLinearGradient(0,0,0,H);g.addColorStop(0,'#8486b8');g.addColorStop(1,'rgba(160,165,205,.2)');dx.fillStyle=g;dx.fillRect(0,0,W,H);GC.storm=dc;
  let[mc,mx]=OC(W,H);g=mx.createLinearGradient(0,0,0,H);g.addColorStop(0,'#3d3a86');g.addColorStop(.7,'rgba(110,100,180,.5)');g.addColorStop(1,'rgba(160,150,220,.1)');mx.fillStyle=g;mx.fillRect(0,0,W,H);for(let i=0;i<90;i++){mx.fillStyle=`rgba(255,255,255,${.4+R()*.6})`;mx.beginPath();mx.arc(R()*W,R()*H*.55,R()*1.5+.3,0,7);mx.fill()}GC.moon=mc;
  // parallax layers: far cloud bank, near cloud bank (2x width for scrolling)
- const bank=(y,h,a,sz,col)=>{let[c,x]=OC(W*2,h);x.fillStyle=col;x.globalAlpha=a;for(let i=0;i<W*2;i+=sz*.8){let r=sz*(.6+R()*.6);x.beginPath();x.arc(i,h*.55+R()*h*.1,r,0,7);x.fill();x.beginPath();x.arc(W*2+i,h*.6,r,0,7);x.fill();x.beginPath();x.arc(i-W*2,h*.6,r,0,7);x.fill()}x.globalAlpha=1;x.globalCompositeOperation='destination-in';let fg=x.createLinearGradient(0,0,0,h);fg.addColorStop(0,'#000');fg.addColorStop(.55,'rgba(0,0,0,.8)');fg.addColorStop(1,'rgba(0,0,0,0)');x.fillStyle=fg;x.fillRect(0,0,W*2,h);return{c,y,h}};
- GC.far=bank(H*.45,H*.18,.35,40,'#ffffff');GC.near=bank(H*.66,H*.22,.45,56,'#ffffff');
+ // parallax cloud banks: merged blob silhouettes, shaded + blurred once into cached sprites (3 depth layers, normal+storm variants)
+ const night=DAYT=='night'||BI==6,PAL={day:['#ffffff','#f3f5ff','#aeb4dc'],dawn:['#fff6ec','#ffe6dc','#c9a2c2'],dusk:['#fff0f2','#f6d9e4','#b598c4'],night:['#c4cff8','#6c71b0','#3a3a7a'],storm:['#d2d3e0','#9c9eb4','#5b5c78']};
+ const bank=(L,storm)=>{let[top,body,sh]=PAL[storm?'storm':night?'night':DAYT],fade=[.5,.25,0][L],sk=B.sky[1];top=mix(top,sk,fade*.6);body=mix(body,sk,fade);sh=mix(sh,sk,fade*1.1);
+  let SW=W*1.6,h=H*[.13,.16,.2][L],pad=40,cw=SW+pad*2,ch=h+pad*2,[mc,m]=OC(cw,ch),base=pad+h*.82,rr=h*[.30,.32,.34][L];
+  let rs=R,seg=[];for(let x=0;x<SW;){let len=SW*(.18+rs()*.22);seg.push([x,len]);x+=len+SW*(.04+rs()*.1)}
+  let blobs=[];seg.forEach(([x0,len])=>{for(let i=0;i<len/rr*3.2;i++){let t=i/(len/rr*3.2),x=x0+t*len,env=Math.sin(Math.PI*t)**.7,r=rr*(.45+rs()*.55)*(.35+.65*env);blobs.push([x,base-r*(.25+rs()*.55)-env*rr*.5,r])}
+   for(let i=0;i<4;i++){let x=x0+len*(.2+rs()*.6),r=rr*(.6+rs()*.35);blobs.push([x,base-r*.8-rr*.25,r])}});
+  m.fillStyle='#fff';const blob=(bx,by,r)=>{for(let dx of[-SW,0,SW]){m.beginPath();m.arc(pad+bx+dx,by,r,0,7);m.fill()}};blobs.forEach(b=>blob(...b));
+  m.clearRect(0,base,cw,ch);m.fillRect(0,base-1,0,0);
+  m.globalCompositeOperation='source-atop';let g=m.createLinearGradient(0,base-rr*2.2,0,base);g.addColorStop(0,top);g.addColorStop(.45,body);g.addColorStop(1,sh);m.fillStyle=g;m.fillRect(0,0,cw,ch);
+  blobs.forEach(([bx,by,r])=>{for(let dx of[-SW,0,SW]){let X0=pad+bx+dx,q=m.createRadialGradient(X0-r*.25,by-r*.45,r*.05,X0,by,r);q.addColorStop(0,night&&!storm?'rgba(225,235,255,.35)':'rgba(255,255,255,.28)');q.addColorStop(.6,'rgba(255,255,255,0)');m.fillStyle=q;m.beginPath();m.arc(X0,by,r,0,7);m.fill()}});
+  m.globalCompositeOperation='destination-in';g=m.createLinearGradient(0,base-rr*.6,0,base);g.addColorStop(0,'#000');g.addColorStop(1,'rgba(0,0,0,.25)');m.fillStyle=g;m.fillRect(0,0,cw,ch);
+  let[c,x]=OC(SW,h+pad);x.setTransform(1,0,0,1,0,0);x.filter=`blur(${[3.5,2.5,1.6][L]*D}px)`;x.drawImage(mc,pad*D,0,SW*D,(h+pad)*D,0,0,SW*D,(h+pad)*D);x.filter='none';
+  return c};
+ GC.banks=[0,1,2].map(L=>({c:bank(L,0),s:bank(L,1),SW:W*1.6,h:H*[.13,.16,.2][L]+40,y:H*[.48,.6,.74][L],sp:[3,6,12][L],pp:[5,11,20][L],a:[.72,.85,.95][L],ph:L*2.1}));
  // distant floating islets
  let[fc,fx]=OC(W,H);[[.14,.3,26],[.88,.42,18],[.5,.22,12]].forEach(([a,b,s])=>{let x=a*W,y=b*H;fx.globalAlpha=.35;fx.fillStyle=B.base;fx.beginPath();fx.moveTo(x-s,y);fx.quadraticCurveTo(x,y+s*1.4,x+s,y);fx.fill();fx.fillStyle=B.top;fx.beginPath();fx.ellipse(x,y,s,s*.25,0,0,7);fx.fill()});GC.islets=fc;
  // island
@@ -333,7 +346,7 @@ function drawBg(n,dt,anyDark,moon){buildBg();let I=isl();
  // parallax
  let px=ptr?(ptr.x/W-.5):0;GC.px=(GC.px||0)+(px-(GC.px||0))*.05;
  X.drawImage(GC.islets,-GC.px*8,Math.sin(n/3000)*4,W,H);
- [[GC.far,6,10],[GC.near,14,22]].forEach(([L,sp,pp])=>{let o=((n/1000*sp)%(W*2));X.drawImage(L.c,-o-GC.px*pp,L.y-L.h,W*2,L.h);X.drawImage(L.c,W*2-o-GC.px*pp,L.y-L.h,W*2,L.h)});
+ {let wS=WX&&(WX.k=='storm'||WX.k=='rain')?.55:0,sA=Math.max(stormA,wS);GC.banks.forEach(L=>{let o=((n/1000*L.sp)%L.SW)+GC.px*L.pp,br=1+Math.sin(n/4200+L.ph)*.025,hh=L.h*br,yy=L.y-hh+Math.sin(n/5300+L.ph)*2;for(let k=-1;k<2;k++){let xx=k*L.SW-o;if(xx>W||xx+L.SW<0)continue;if(sA<.98){X.globalAlpha=L.a*(1-sA);X.drawImage(L.c,xx,yy,L.SW,hh)}if(sA>.02){X.globalAlpha=L.a*sA;X.drawImage(L.s,xx,yy,L.SW,hh)}}});X.globalAlpha=1}
  if(flash>0){X.fillStyle=`rgba(255,255,235,${flash*.8})`;X.fillRect(0,0,W,H);flash-=dt*3}
  // island
  let bob=Math.sin(n/1400)*4,ii=GC.isl;GC.bob=bob;
