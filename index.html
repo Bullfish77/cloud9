@@ -13,7 +13,15 @@ canvas{display:block;width:100vw;height:100vh}
 .scr>*{position:relative}
 @keyframes scrIn{from{opacity:0;transform:scale(.98)}to{opacity:1;transform:none}}
 @keyframes drift{to{transform:translateX(24px)}}
-.scr.mid{justify-content:center}
+.scr.mid{justify-content:flex-start}.scr.mid>:first-child{margin-top:auto}.scr.mid>:last-child{margin-bottom:auto}
+.scr{height:100%;height:100dvh;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding-top:max(14px,env(safe-area-inset-top));padding-bottom:max(20px,env(safe-area-inset-bottom))}
+#menu h1{font-size:52px}#menu .panel{padding:10px 14px;margin:6px 0}#menu button.big{margin:4px 0;padding-top:12px;padding-bottom:12px}
+.mgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;width:min(360px,94vw);margin:8px 0}
+.mgrid button{min-width:0!important;margin:0!important;padding:8px 2px!important;font-size:12px!important;line-height:1.15;display:flex;flex-direction:column;align-items:center;gap:2px;position:relative}.mgrid button b{font-size:22px;line-height:1}
+.wxbtn{border:0;font:inherit;cursor:pointer;color:var(--ink);background:rgba(255,255,255,.65);border-radius:16px;padding:5px 12px;font-weight:800;font-size:14px;margin:4px;box-shadow:0 3px 0 #d4caf7}
+#wxSheet{position:fixed;inset:0;z-index:50;background:rgba(60,40,120,.35);display:flex;align-items:flex-end;justify-content:center;touch-action:pan-y}
+#wxSheet>.panel{width:min(440px,100%);max-height:85dvh;overflow-y:auto;margin:0!important;border-radius:24px 24px 0 0;padding:16px 16px max(18px,env(safe-area-inset-bottom));box-sizing:border-box;background:rgba(255,255,255,.92)}
+#menu details{font-size:12px;margin-top:6px}#menu details .hint{margin:4px 0}
 .scr h1{font-size:62px;margin:0;font-weight:900;letter-spacing:-1px;background:linear-gradient(180deg,#a28cff,#7a5fe0 60%,#ff8fc8);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 4px 0 #fff) drop-shadow(0 10px 18px rgba(120,90,220,.3));animation:float 4s ease-in-out infinite}
 @keyframes float{50%{transform:translateY(-6px)}}
 .scr h2{margin:8px 0;font-weight:900;font-size:24px}
@@ -116,13 +124,13 @@ button.sm{padding:8px 12px;font-size:14px;margin:2px}.hbar b{font-size:16px;back
 <canvas id="c"></canvas>
 <div id="hud" class="hide"><button id="quit">✕</button><span class="pill" id="time">60s</span><span class="pill" id="score">0 ✨</span><span class="pill" id="energy">⚡0</span><span class="pill" id="wxh" style="display:none;font-size:12px"></span><div id="ldBar"></div></div>
 <div id="goal" class="hide"></div><div id="toast"></div>
-<div id="menu" class="scr mid"><h1>Cloud9</h1><p style="margin:4px">Dein Himmel. Deine Ruhe.</p>
+<div id="menu" class="scr mid"><h1>Cloud9</h1><p style="margin:0 0 4px">Dein Himmel. Deine Ruhe.</p>
 <div class="panel"><div id="prof" style="font-weight:900"></div><div id="rank" class="rank"></div><div id="xpbar"><div id="xpfill"></div></div><small id="xptxt" style="font-weight:700"></small><br><span class="coins" id="mCoins"></span>
 <p id="streak" style="margin:10px 0 2px;font-weight:700"></p><p id="daily" style="font-size:14px;margin:2px 0 0"></p></div>
-<div id="wxb" class="wxb" style="display:none"></div><div id="wxp" class="panel" style="font-size:14px"></div>
+<div id="wxb" class="wxb hide"></div><button class="wxbtn" id="wxBtn">🌦️ Wetter</button>
 <button class="big" id="bMap">🗺️ Abenteuer</button><button class="big" id="bDaily">☁️ Wolke-9-Challenge</button>
-<button class="big" id="bHome">🏝️ Meine Insel<span class="badge" id="homeBadge"></span></button><div><button class="sec" id="bShop">🛍️ Laden</button><button class="sec" id="bCraft">⚗️ Kombinieren</button></div><div><button class="sec" id="bCol">Wolken</button><button class="sec" id="bSnd" onclick="sndPanel()">🔊 Sound</button><button class="sec" id="bAlb">Tieralbum</button></div><button class="big" id="bFr">💌 Freunde &amp; Wolken <span id="frBadge"></span></button><button class="big" id="bLb">🏆 Bestenliste</button>
-<p class="hint panel">Ziehen = Wolke erschaffen &amp; bewegen · Gedrückt halten = Regen 🌧️ · Lange halten = Gewitter ⚡ · Freier Himmel = Sonne ☀️ · Tiere kommen, wenn ihre Bedingungen erfüllt sind</p></div>
+<button class="big" id="bHome">🏝️ Meine Insel<span class="badge" id="homeBadge"></span></button><div class="mgrid"><button class="sec" id="bShop"><b>🛍️</b>Laden</button><button class="sec" id="bCraft"><b>⚗️</b>Kombi&shy;nieren</button><button class="sec" id="bCol"><b>☁️</b>Wolken</button><button class="sec" id="bAlb"><b>🐾</b>Tiere</button><button class="sec" id="bFr"><b>💌</b>Freunde<span id="frBadge"></span></button><button class="sec" id="bLb"><b>🏆</b>Bestenliste</button><button class="sec" id="bSnd" onclick="sndPanel()"><b>🔊</b>Sound</button><button class="sec" id="bHelp"><b>❔</b>Hilfe</button></div><details id="helpBox" style="display:none"><p class="hint panel" style="font-size:13px">Ziehen = Wolke erschaffen &amp; bewegen · Gedrückt halten = Regen 🌧️ · Lange halten = Gewitter ⚡ · Freier Himmel = Sonne ☀️ · Tiere kommen, wenn ihre Bedingungen erfüllt sind</p></details></div>
+<div id="wxSheet" class="hide"><div class="panel"><div style="text-align:right"><button class="sec" id="wxClose" style="min-width:0;padding:4px 12px">✕</button></div><div id="wxp" style="font-size:14px"></div></div></div>
 <div id="mapScr" class="scr hide"><h2>🗺️ Weltkarte</h2><small id="mapStars"></small><div id="mapList" style="width:100%;display:flex;flex-direction:column;align-items:center"></div><button class="sec back">Zurück</button></div>
 <div id="colScr" class="scr hide"><h2>☁️ Wolken-Sammlung</h2><small id="colCnt"></small><div class="tabs">Seltenheit: <span style="color:#999">Gewöhnlich</span> · <span style="color:#3a9">Ungewöhnlich</span> · <span style="color:#36f">Selten</span> · <span style="color:#a4f">Episch</span> · <span style="color:#e90">Legendär</span></div><div id="colGrid" class="grid"></div><button class="sec back">Zurück</button></div>
 <div id="albScr" class="scr hide"><h2>🐾 Tieralbum</h2><small id="albCnt"></small><div id="albGrid" class="grid"></div><button class="sec back">Zurück</button></div>
@@ -248,7 +256,7 @@ $('streak').textContent='🔥 Serie: '+S.streak+' Tage · Bestwert: '+S.best;$('
 const SCR=['menu','mapScr','colScr','albScr','end','frScr','sendScr','lbScr','homeScr','shopScr','craftScr','ldScr'];
 function show(id){SCR.forEach(i=>$(i).classList.toggle('hide',i!==id));['hud','goal'].forEach(i=>$(i).classList.toggle('hide',id!==null));HOMEON=id==='homeScr';if(id==='menu'){menu();try{menu13()}catch(e){}}}
 // audio
-// ===== Cloud9 Sound-Engine v14 (prozedural, WebAudio) =====
+// ===== Cloud9 Sound-Engine v15 (sauber/warm) (prozedural, WebAudio) =====
 const SND=(()=>{
 const ST=(()=>{try{return Object.assign({m:.7,e:.8,mute:false},JSON.parse(localStorage.c9snd||'{}'))}catch(e){return{m:.7,e:.8,mute:false}}})();
 function saveSt(){try{localStorage.c9snd=JSON.stringify(ST)}catch(e){}}
@@ -270,40 +278,41 @@ let ctx=null,out,mus,musLP,sfx,rev,dly,crk,rain,rainG,patG,stormG,players=[],tim
 function R(){return Math.random()}
 function mkRng(s){return()=>{s=(s*1664525+1013904223)>>>0;return s/4294967296}}
 function noiseBuf(c,sec,f){let b=c.createBuffer(1,c.sampleRate*sec,c.sampleRate),d=b.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=f?f(i,d):R()*2-1;return b}
-function impulse(c,sec,dec){let n=c.sampleRate*sec,b=c.createBuffer(2,n,c.sampleRate);for(let ch=0;ch<2;ch++){let d=b.getChannelData(ch);for(let i=0;i<n;i++)d[i]=(R()*2-1)*Math.pow(1-i/n,dec)}return b}
+function impulse(c,sec,dec){let n=Math.floor(c.sampleRate*sec),b=c.createBuffer(2,n,c.sampleRate),k=Math.exp(-2*Math.PI*3500/c.sampleRate);for(let ch=0;ch<2;ch++){let d=b.getChannelData(ch),y=0,y2=0;for(let i=0;i<n;i++){y=y*k+(R()*2-1)*(1-k);y2=y2*k+y*(1-k);let fi=Math.min(1,i/(c.sampleRate*.01));d[i]=y2*3*fi*Math.pow(1-i/n,dec)}}return b}
 function build(c){ctx=c;offline=(typeof OfflineAudioContext!='undefined'&&c instanceof OfflineAudioContext);
- let lim=c.createDynamicsCompressor();lim.threshold.value=-10;lim.knee.value=6;lim.ratio.value=8;lim.attack.value=.004;lim.release.value=.2;
- out=c.createGain();out.connect(lim).connect(c.destination);
- rev=c.createConvolver();rev.buffer=impulse(c,2.6,3);let rg=c.createGain();rg.gain.value=.9;rev.connect(rg).connect(out);let hp=c.createBiquadFilter();hp.type='highpass';hp.frequency.value=280;hp.connect(rev);
+ let lim=c.createDynamicsCompressor();lim.threshold.value=-18;lim.knee.value=12;lim.ratio.value=3;lim.attack.value=.02;lim.release.value=.3;
+ let lim2=c.createDynamicsCompressor();lim2.threshold.value=-8;lim2.knee.value=2;lim2.ratio.value=20;lim2.attack.value=.003;lim2.release.value=.15;let mg=c.createGain();mg.gain.value=.6;
+ let warm=c.createBiquadFilter();warm.type='lowpass';warm.frequency.value=7000;warm.Q.value=.5;let dc=c.createBiquadFilter();dc.type='highpass';dc.frequency.value=30;
+ out=c.createGain();out.connect(dc).connect(warm).connect(lim).connect(lim2).connect(mg).connect(c.destination);
+ rev=c.createConvolver();rev.buffer=impulse(c,1.8,3.5);let rg=c.createGain();rg.gain.value=.5;rev.connect(rg).connect(out);let hp=c.createBiquadFilter();hp.type='highpass';hp.frequency.value=280;hp.connect(rev);
  dly=c.createDelay(1);let fb=c.createGain(),dl=c.createBiquadFilter();dl.type='lowpass';dl.frequency.value=1800;fb.gain.value=.32;dly.connect(dl).connect(fb).connect(dly);let dg=c.createGain();dg.gain.value=.35;dl.connect(dg).connect(out);
  mus=c.createGain();musLP=c.createBiquadFilter();musLP.type='lowpass';musLP.frequency.value=2600;musLP.Q.value=.5;mus.connect(musLP).connect(out);let ms=c.createGain();ms.gain.value=.45;musLP.connect(ms).connect(hp);let md=c.createGain();md.gain.value=.18;let mh=c.createBiquadFilter();mh.type='highpass';mh.frequency.value=500;musLP.connect(mh).connect(md).connect(dly);
  sfx=c.createGain();sfx.connect(out);let sr=c.createGain();sr.gain.value=.3;sfx.connect(sr).connect(hp);
- // Vinyl-Knistern
- crk=c.createBufferSource();crk.buffer=noiseBuf(c,4,()=>{let r=R();return r<.0004?(R()*2-1)*.9:r<.003?(R()*2-1)*.15:(R()*2-1)*.012});crk.loop=true;let cf=c.createBiquadFilter();cf.type='bandpass';cf.frequency.value=3000;cf.Q.value=.6;let cg=c.createGain();cg.gain.value=.22;crk.connect(cf).connect(cg).connect(mus);crk.start();
+ // (v15: Vinyl-Knistern entfernt – war die Hauptursache fürs Kratzen)
  // Regen-Ambience (Wetter, Musikbus) + Prasseln (Effektbus)
  let rb=noiseBuf(c,3,(i,d)=>{let w=R()*2-1;return i?d[i-1]*.6+w*.4:w});
  rain=c.createBufferSource();rain.buffer=rb;rain.loop=true;let rf=c.createBiquadFilter();rf.type='lowpass';rf.frequency.value=1400;rainG=c.createGain();rainG.gain.value=0;rain.connect(rf).connect(rainG).connect(out);rain.start();
- let pat=c.createBufferSource();pat.buffer=noiseBuf(c,2,()=>R()<.02?(R()*2-1):(R()*2-1)*.05);pat.loop=true;let pf=c.createBiquadFilter();pf.type='bandpass';pf.frequency.value=2500;pf.Q.value=.8;patG=c.createGain();patG.gain.value=0;pat.connect(pf).connect(patG).connect(sfx);pat.start();
+ let pat=c.createBufferSource();pat.buffer=noiseBuf(c,2,(i,d)=>{let w=(R()<.01?(R()*2-1)*.35:(R()*2-1)*.04);return i?d[i-1]*.5+w*.5:w});pat.loop=true;let pf=c.createBiquadFilter();pf.type='lowpass';pf.frequency.value=2200;pf.Q.value=.5;patG=c.createGain();patG.gain.value=0;pat.connect(pf).connect(patG).connect(sfx);pat.start();
  vol();}
-function vol(){if(!ctx)return;let t=ctx.currentTime;mus.gain.setTargetAtTime(ST.mute?0:ST.m*.9,t,.1);sfx.gain.setTargetAtTime(ST.mute?0:ST.e,t,.05);out.gain.value=.9}
+function vol(){if(!ctx)return;let t=ctx.currentTime;mus.gain.setTargetAtTime(ST.mute?0:ST.m*1.3,t,.1);sfx.gain.setTargetAtTime(ST.mute?0:ST.e,t,.05);out.gain.setTargetAtTime(.8,t,.05)}
 // ---- Stimmen ----
-function env(g,t,a,peak,d){g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(peak,t+a);g.gain.exponentialRampToValueAtTime(.0005,t+a+d)}
-function osc(type,f,t,stop,dest){let o=ctx.createOscillator();o.type=type;o.frequency.setValueAtTime(f,t);o.connect(dest);o.start(t);o.stop(stop);return o}
-function voice(t,dur,dest){if(!offline&&voices>28)return null;voices++;let g=ctx.createGain();g.connect(dest);
+function env(g,t,a,peak,d){a=Math.max(a,.006);g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(peak,t+a);g.gain.setTargetAtTime(0,t+a,Math.max(.01,d/5));g.gain.setValueAtTime(0,t+a+d*1.4+.02)}
+function osc(type,f,t,stop,dest){let o=ctx.createOscillator();o.type=type;o.frequency.setValueAtTime(f,t);o.connect(dest);o.start(t);o.stop(Math.max(stop,t+.05)+.6);return o}
+function voice(t,dur,dest){if(!offline&&voices>16)return null;voices++;let g=ctx.createGain();g.connect(dest);
  if(!offline)setTimeout(()=>voices--,(t-ctx.currentTime+dur+.1)*1000);return g}
 function inst(kind,m,t,vel,dest){dest=dest||mus;let f=mtof(m);
- if(kind=='ep'){let g=voice(t,2.2,dest,.35,.25);if(!g)return;env(g,t,.008,.16*vel,2);osc('sine',f,t,t+2.3,g);let g2=ctx.createGain();g2.connect(g);env(g2,t,.002,.5,.25);osc('sine',f*2.003,t,t+.4,g2);let g3=ctx.createGain();g3.connect(g);env(g3,t,.001,.25,.06);osc('sine',f*7,t,t+.1,g3)}
- else if(kind=='kal'){let g=voice(t,1.4,dest,.4,.3);if(!g)return;env(g,t,.003,.18*vel,1.2);osc('sine',f,t,t+1.4,g);let g2=ctx.createGain();g2.connect(g);env(g2,t,.001,.35,.12);osc('sine',f*5.4,t,t+.2,g2)}
- else if(kind=='mar'){let g=voice(t,.8,dest,.3,.2);if(!g)return;env(g,t,.002,.2*vel,.6);osc('sine',f,t,t+.8,g);let g2=ctx.createGain();g2.connect(g);env(g2,t,.001,.4,.05);osc('sine',f*4,t,t+.1,g2)}
- else if(kind=='bell'){let g=voice(t,2.5,dest,.5,.3);if(!g)return;env(g,t,.002,.12*vel,2.4);osc('sine',f,t,t+2.6,g);osc('sine',f*2.76,t,t+1,g);}
+ if(kind=='ep'){let g=voice(t,2.2,dest,.35,.25);if(!g)return;env(g,t,.008,.16*vel,2);osc('sine',f,t,t+2.3,g);let g2=ctx.createGain();g2.connect(g);env(g2,t,.002,.5,.25);osc('sine',f*2.003,t,t+.4,g2)}
+ else if(kind=='kal'){let g=voice(t,1.4,dest,.4,.3);if(!g)return;env(g,t,.003,.18*vel,1.2);osc('sine',f,t,t+1.4,g);let g2=ctx.createGain();g2.connect(g);env(g2,t,.004,.15,.12);osc('sine',f*3,t,t+.2,g2)}
+ else if(kind=='mar'){let g=voice(t,.8,dest,.3,.2);if(!g)return;env(g,t,.002,.2*vel,.6);osc('sine',f,t,t+.8,g);let g2=ctx.createGain();g2.connect(g);env(g2,t,.004,.2,.06);osc('sine',f*2,t,t+.1,g2)}
+ else if(kind=='bell'){let g=voice(t,2.5,dest,.5,.3);if(!g)return;env(g,t,.002,.12*vel,2.4);osc('sine',f,t,t+2.6,g);let g2=ctx.createGain();g2.connect(g);env(g2,t,.006,.3,.6);osc('sine',f*2.76,t,t+1,g2);}
 }
-function pad(ch,t,len,vel,lp){let g=voice(t,len+1,mus,.6);if(!g)return;let f=ctx.createBiquadFilter();f.type='lowpass';f.frequency.value=lp*.45;f.connect(g);g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.035*vel,t+len*.35);g.gain.linearRampToValueAtTime(0,t+len+.8);ch.forEach(m=>{osc('triangle',mtof(m),t,t+len+.9,f).detune.value=-6;osc('sine',mtof(m),t,t+len+.9,f).detune.value=7})}
-function bass(m,t,len,vel){let g=voice(t,len,mus,0);if(!g)return;let f=ctx.createBiquadFilter();f.type='lowpass';f.frequency.value=420;f.connect(g);env(g,t,.01,.22*vel,len);osc('triangle',mtof(m),t,t+len+.05,f);osc('sine',mtof(m),t,t+len+.05,f)}
-function kick(t,v){let g=voice(t,.4,mus,0);if(!g)return;env(g,t,.002,.55*v,.32);let o=osc('sine',120,t,t+.4,g);o.frequency.exponentialRampToValueAtTime(42,t+.12)}
+function pad(ch,t,len,vel,lp){let g=voice(t,len+1,mus,.6);if(!g)return;let f=ctx.createBiquadFilter();f.type='lowpass';f.frequency.value=lp*.45;f.connect(g);g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.035*vel,t+len*.35);g.gain.linearRampToValueAtTime(0,t+len+.8);ch.slice(0,4).forEach((m,i)=>{osc(i%2?'sine':'triangle',mtof(m),t,t+len+.9,f).detune.value=i%2?5:-5})}
+function bass(m,t,len,vel){let g=voice(t,len,mus,0);if(!g)return;let f=ctx.createBiquadFilter();f.type='lowpass';f.frequency.value=420;f.connect(g);env(g,t,.01,.22*vel,len);osc('sine',mtof(m),t,t+len+.05,f)}
+function kick(t,v){let g=voice(t,.4,mus,0);if(!g)return;env(g,t,.006,.4*v,.32);let o=osc('sine',110,t,t+.4,g);o.frequency.exponentialRampToValueAtTime(42,t+.12)}
 let NB=null;function nb(){if(!NB||NB.sr!==ctx.sampleRate||NB.c!==ctx){NB=noiseBuf(ctx,1);NB.c=ctx;NB.sr=ctx.sampleRate}return NB}
-function noise(t,len,type,fq,q,peak,dest,a=.001,sendR=0){let g=voice(t,len,dest,sendR);if(!g)return null;let s=ctx.createBufferSource();s.buffer=nb();let f=ctx.createBiquadFilter();f.type=type;f.frequency.setValueAtTime(fq,t);f.Q.value=q;s.connect(f).connect(g);env(g,t,a,peak,len);s.start(t,R()*.5);s.stop(t+len+a+.05);return{g,f}}
-function snare(t,v){noise(t,.18,'bandpass',1800,.7,.16*v,mus,.001,.25);let g=voice(t,.12,mus,0);if(g){env(g,t,.002,.08*v,.1);osc('triangle',190,t,t+.15,g)}}
-function hat(t,v){noise(t,.04,'highpass',7500,.5,.06*v,mus)}
+function noise(t,len,type,fq,q,peak,dest,a=.001,sendR=0){let g=voice(t,len,dest,sendR);if(!g)return null;let s=ctx.createBufferSource();s.buffer=nb();let f=ctx.createBiquadFilter();f.type=type;f.frequency.setValueAtTime(fq,t);f.Q.value=q;s.connect(f).connect(g);env(g,t,a,peak,len);s.start(t,R()*.5);s.stop(t+len*1.4+a+.1);return{g,f}}
+function snare(t,v){noise(t,.16,'lowpass',2200,.5,.07*v,mus,.006)}
+function hat(t,v){noise(t,.05,'bandpass',5500,.8,.018*v,mus,.004)}
 // ---- Sequencer ----
 function newPlayer(key,n){let th=T[key]||T.menu,g=ctx.createGain();g.gain.value=0;g.connect(mus);let t0=ctx.currentTime+.08;return{key,th,night:n,g,step:0,t0,next:t0,rng:mkRng(key.length*977+key.charCodeAt(key.length-1)*31),motif:null,bar:0}}
 function chordAt(p){let c=p.th.prog[p.bar%p.th.prog.length];return[p.th.root+c[0],c[1]]}
@@ -317,7 +326,7 @@ function schedStep(p,t){let th=p.th,n=p.night,s=p.step%16,bar=Math.floor(p.step/
  if(s==0||(s==10&&!n)||(s==7&&I>.6))kick(t,dv);
  if(!n&&(s==4||s==12))snare(t,dv);
  if(s%2==0&&!(n&&s%4))hat(t,dv*(s%4?.7:1));
- if(I>.4&&s%2==1&&p.rng()<I*.6)hat(t,.5);
+ 
  // Melodie: Motiv pro 2 Takte, wiederholt mit Variation
  if(!p.motif||bar%4==0&&s==0){let rg=mkRng(bar*131+th.root*7+(p.key.length));p.motif=[];for(let i=0;i<32;i++)p.motif.push(rg()<th.dens*(i%2?0.45:1)?Math.floor(rg()*th.scale.length*1.6):-1)}
  let mi=p.motif[(p.step%32)];if(mi>=0&&(p.rng()<(n?.7:.85+I*.15))){let oct=Math.floor(mi/th.scale.length),deg=th.scale[mi%th.scale.length],m=th.root+12+deg+oct*12;
@@ -325,7 +334,7 @@ function schedStep(p,t){let th=p.th,n=p.night,s=p.step%16,bar=Math.floor(p.step/
   if(s%4==0){let ct=ch.map(x=>(r+x)%12);if(!ct.includes(m%12)){let best=m;for(let d=1;d<3;d++){if(ct.includes((m+d)%12)){best=m+d;break}if(ct.includes((m-d+12)%12)){best=m-d;break}}m=best}}
   inst(n&&th.lead!='bell'?'kal':th.lead,m,t,(n?.5:.7)*(s%4?0.8:1))}
  mus=save;p.step++;p.next=p.t0+p.step*sp+(p.step%2?sp*th.sw:0);}
-function pump(ahead){if(!ctx)return;let until=ctx.currentTime+ahead;players.forEach(p=>{if(p.dead&&p.next>p.dead)return;while(p.next<until){schedStep(p,p.next)}});
+function pump(ahead){if(!ctx)return;let until=ctx.currentTime+ahead;players.forEach(p=>{if(p.dead&&p.next>p.dead)return;if(p.next<ctx.currentTime+.05){p.t0+=ctx.currentTime+.1-p.next;p.next=ctx.currentTime+.1}while(p.next<until){schedStep(p,p.next)}});
  musLP.frequency.setTargetAtTime((night?.6:1)*(1+inten*.35)*((players[players.length-1]||{th:T.menu}).th.lp),ctx.currentTime,.8);
  rainG.gain.setTargetAtTime(ST.mute?0:rainLv*.25*ST.m,ctx.currentTime,1);patG.gain.setTargetAtTime(patLv*.7,ctx.currentTime,.15)}
 function setScene(key,n){if(!ctx)return;n=!!n;if(key===cur&&n===night)return;cur=key;night=n;let t=ctx.currentTime,fade=offline?.01:2;
@@ -338,10 +347,10 @@ function chime(i,t,v=1){let[r,ch]=key(),sc=[0,2,4,7,9,12,14,16,19,21,24],m=r+12+
 function tone(f,t,len,type,peak,dest,glide){let g=voice(t,len,dest||sfx,.2);if(!g)return;env(g,t,.004,peak,len);let o=osc(type||'sine',f,t,t+len+.05,g);if(glide)o.frequency.exponentialRampToValueAtTime(glide,t+len);return o}
 const BIRD='🦋🦅🦉🦜🦩🐧'.split(''),BIG=['🐻‍❄️','🐋','🐉','🐪','🦭'];
 function animal(e){if(!ensure())return;let t=ctx.currentTime+.01+tOff,h=0;for(const c of e)h=(h*31+c.codePointAt(0))%997;let p=.85+(h%30)/100;
- if(e=='🐝'){let g=voice(t,.6,sfx,.1);if(g){env(g,t,.03,.06,.5);let o=osc('sawtooth',210,t,t+.6,g);let l=ctx.createOscillator(),lg=ctx.createGain();l.frequency.value=28;lg.gain.value=25;l.connect(lg).connect(o.frequency);l.start(t);l.stop(t+.6)}return}
+ if(e=='🐝'){let g=voice(t,.6,sfx,.1);if(g){env(g,t,.03,.06,.5);let bf=ctx.createBiquadFilter();bf.type='lowpass';bf.frequency.value=900;bf.connect(g);let o=osc('triangle',210,t,t+.6,bf);let l=ctx.createOscillator(),lg=ctx.createGain();l.frequency.value=28;lg.gain.value=25;l.connect(lg).connect(o.frequency);l.start(t);l.stop(t+.6)}return}
  if(BIG.includes(e)){tone(140*p,t,.5,'triangle',.2,0,90*p);tone(280*p,t+.05,.4,'sine',.08,0,180*p);if(e=='🐉')noise(t,.5,'lowpass',900,.5,.12,sfx,.05);if(e=='🐋')tone(320,t+.2,1.2,'sine',.08,0,520);return}
  if(BIRD.some(b=>e.includes(b))||e=='🦇'){for(let i=0;i<3;i++){let s=t+i*.09;tone(2000*p,s,.07,'sine',.12,0,3200*p)}return}
- if(e=='🦎'||e=='🦂'||e=='🪼'){tone(1400*p,t,.05,'square',.04);tone(1800*p,t+.07,.05,'square',.04);return}
+ if(e=='🦎'||e=='🦂'||e=='🪼'){tone(1400*p,t,.06,'triangle',.05);tone(1800*p,t+.07,.06,'triangle',.05);return}
  // kleine Fellnasen: süßes Quietschen
  tone(900*p,t,.12,'sine',.16,0,1500*p);tone(1300*p,t+.13,.14,'sine',.12,0,1000*p)}
 let tOff=0;function sfxPlay(k,a){if(!ensure())return;let t=ctx.currentTime+.01+tOff;switch(k){
@@ -349,12 +358,12 @@ let tOff=0;function sfxPlay(k,a){if(!ensure())return;let t=ctx.currentTime+.01+t
  case 'press':tone(330,t,.25,'sine',.06,0,250);noise(t,.3,'lowpass',500,.7,.05,sfx,.03);break;
  case 'whoosh':{let n=noise(t,.45,'bandpass',300,1.2,.14,sfx,.12,.3);if(n)n.f.frequency.exponentialRampToValueAtTime(1800,t+.5);break}
  case 'bloom':{chime(2+((R()*4)|0),t,.9);chime(5+((R()*3)|0),t+.08,.6);break}
- case 'thunder':{let n=noise(t,1.8,'lowpass',380,.4,.5,sfx,.02,.6);if(n)n.f.frequency.exponentialRampToValueAtTime(90,t+1.8);let g=voice(t,2,sfx,0);if(g){env(g,t,.03,.45,1.8);let o=osc('sine',58,t,t+2,g);o.frequency.exponentialRampToValueAtTime(30,t+1.8)}noise(t,.08,'highpass',2000,.5,.2,sfx,.001,.4);break}
- case 'coin':tone(1046,t,.18,'square',.035);tone(1046,t,.18,'sine',.1);tone(1568,t+.08,.35,'sine',.1);tone(2093,t+.08,.2,'triangle',.03);break;
+ case 'thunder':{let n=noise(t,1.8,'lowpass',380,.4,.5,sfx,.02,.6);if(n)n.f.frequency.exponentialRampToValueAtTime(90,t+1.8);let g=voice(t,2,sfx,0);if(g){env(g,t,.03,.45,1.8);let o=osc('sine',58,t,t+2,g);o.frequency.exponentialRampToValueAtTime(30,t+1.8)}noise(t,.1,'lowpass',2500,.5,.1,sfx,.01);break}
+ case 'coin':tone(1046,t,.18,'sine',.1);tone(1568,t+.08,.35,'sine',.1);tone(2093,t+.08,.2,'triangle',.03);break;
  case 'card':chime(2+(a||0),t,.7);break;
  case 'star':{let i=a||0;[0,4,7].forEach((x,j)=>tone(mtof(76+i*4+x),t+j*.05,.5,'sine',.1));chime(7+i*2,t+.15,.7);break}
  case 'celebrate':[0,2,4,5,7].forEach((d,i)=>chime(d,t+i*.07,.8));break;
- case 'levelup':{let[r]=key();[0,4,7,12].forEach((x,i)=>{tone(mtof(r+x),t+i*.11,.3,'triangle',.08);tone(mtof(r+12+x),t+i*.11,.3,'sine',.07)});[0,4,7,12].forEach(x=>tone(mtof(r+12+x),t+.48,1.1,'triangle',.05));noise(t+.48,.6,'highpass',6000,.5,.04,sfx);break}
+ case 'levelup':{let[r]=key();[0,4,7,12].forEach((x,i)=>{tone(mtof(r+x),t+i*.11,.3,'triangle',.08);tone(mtof(r+12+x),t+i*.11,.3,'sine',.07)});[0,4,7,12].forEach(x=>tone(mtof(r+12+x),t+.48,1.1,'triangle',.05));noise(t+.48,.6,'bandpass',5000,.7,.015,sfx,.02);break}
  case 'lose':tone(440,t,.35,'sine',.08,0,392);tone(349,t+.3,.6,'sine',.08,0,330);break;
  case 'newcloud':chime(4,t);chime(7,t+.1);chime(9,t+.2);break;
  case 'newanimal':[0,4,7,9].forEach((d,i)=>chime(d+3,t+i*.08,.8));break;
@@ -364,7 +373,7 @@ let tOff=0;function sfxPlay(k,a){if(!ensure())return;let t=ctx.currentTime+.01+t
  case 'nope':tone(300,t,.12,'triangle',.08,0,220);tone(220,t+.12,.18,'triangle',.08,0,180);break;
  case 'craft':{let n=noise(t,.5,'bandpass',600,2,.08,sfx,.1);if(n)n.f.frequency.exponentialRampToValueAtTime(3000,t+.5);[0,2,4,7].forEach((d,i)=>chime(d+2,t+.4+i*.08,.8));break}
 }}
-function ensure(){if(ctx&&offline)return true;if(!ctx){try{build(new(window.AudioContext||window.webkitAudioContext)());timer=setInterval(()=>{if(ctx.state=='running')pump(.15)},25)}catch(e){return false}}if(ctx.state=='suspended'&&!document.hidden)ctx.resume().catch(()=>{});return true}
+function ensure(){if(ctx&&offline)return true;if(!ctx){try{let AC=window.AudioContext||window.webkitAudioContext,c;try{c=new AC({latencyHint:'playback'})}catch(e){c=new AC()}build(c);timer=setInterval(()=>{if(!offline&&ctx.state=='running')pump(.6)},90)}catch(e){return false}}if(ctx.state=='suspended'&&!document.hidden)ctx.resume().catch(()=>{});return true}
 document.addEventListener('visibilitychange',()=>{if(!ctx||offline)return;if(document.hidden)ctx.suspend();else ctx.resume()});
 return{ensure,setScene,sfx:sfxPlay,animal,ST,vol:()=>{saveSt();vol()},set inten(v){inten=v},set rain(v){rainLv=v},set pat(v){patLv=v},get ctx(){return ctx},get offline(){return offline},_build:build,set _at(v){tOff=v},_pump:pump,_T:T,
  get players(){return players},_reset(){players=[];cur='';night=false;inten=0;rainLv=0;patLv=0}};
@@ -952,7 +961,7 @@ function wxBonus(){if(!WX)return null;let k=WX.k,n=!WX.day,b=[];
  if(k=='cloudy')b.push('☁️ Heute normales Wetter – kein Extra');
  if(n)b.push('🌙 Nacht: Mondwolken 3× häufiger');return b}
 function wxMult(i){if(!WX)return 1;let k=WX.k,m=1;if(k=='rain'&&i==15)m*=3;if(k=='snow'&&(i==8||i==11))m*=3;if(k=='storm'&&(i==10||i==23))m*=3;if(k=='wind'&&(i==6||i==23))m*=2;if(!WX.day&&i==17)m*=3;return m}
-function wxRender(){let ic=WX?(WX.k=='clear'&&!WX.day?'🌙':WXI[WX.k]+(WX.day?'':'🌙')):'',t=WX?ic+' '+Math.round(WX.t)+'° '+(WX.city||'📍 Dein Ort'):'';[['wxb',t],['wxh',WX?ic+' '+Math.round(WX.t)+'°':'']].forEach(([id,v])=>{let e=$(id);e.textContent=v;e.style.display=v?'':'none'});
+function wxRender(){let ic=WX?(WX.k=='clear'&&!WX.day?'🌙':WXI[WX.k]+(WX.day?'':'🌙')):'',t=WX?ic+' '+Math.round(WX.t)+'° '+(WX.city||'📍 Dein Ort'):'';[['wxBtn',t||'🌦️ Wetter'],['wxb',t],['wxh',WX?ic+' '+Math.round(WX.t)+'°':'']].forEach(([id,v])=>{let e=$(id);e.textContent=v;e.style.display=v?'':'none'});
  let p=$('wxp');if(!p)return;let h;
  if(WXS.on===false)h='<b>🌦️ Echtes Wetter</b><br><small>Ausgeschaltet.</small><br><button class="sec" id="wxOn">Einschalten</button>';
  else if(WXS.on==null)h='<b>🌦️ Echtes Wetter</b><br><small>Cloud9 kann das Wetter an deinem Ort nutzen: Regnet es draußen, gibt es mehr Regenbogenwolken, bei Schnee mehr Schneewolken … Dein Standort wird nur grob (gerundet) an den Wetterdienst Open-Meteo geschickt, sonst nirgendwohin.</small><br><button class="sec" id="wxGeo">📍 Standort nutzen</button><button class="sec" id="wxNo">Nein danke</button>';
@@ -1242,4 +1251,7 @@ addEventListener('resize',()=>{if(HOMEON)hRes()});
 Object.assign(window.C9,{setLd:(c,a)=>{PEND={c,a}},ldUse,openHome,renderShop,renderCraft,preStart,RECIPES,coinGain});
 menu13();
 
+
+(()=>{const W=$('wxSheet');$('wxBtn').onclick=()=>{W.classList.remove('hide');wxRender()};$('wxClose').onclick=()=>W.classList.add('hide');W.addEventListener('click',e=>{if(e.target===W)W.classList.add('hide')});
+const H=$('helpBox');$('bHelp').onclick=()=>{let o=H.style.display=='none';H.style.display=o?'':'none';H.open=o;if(o)H.scrollIntoView({behavior:'smooth',block:'nearest'})};})();
 </script></body></html>
