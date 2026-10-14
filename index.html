@@ -83,6 +83,12 @@ button.sec:active{box-shadow:0 1px 0 #d4caf7}
 @keyframes gSp{0%{opacity:0;transform:translateY(0)}20%{opacity:1}100%{opacity:0;transform:translateY(-120px)}}
 #gift.claimed .gc{animation:gOut 1s ease-in both}
 @keyframes gOut{to{transform:translateY(-60vh) scale(.5);opacity:0}}
+
+.lbt{display:flex;gap:6px;justify-content:center;margin:6px 0}.lbt button{margin:0;padding:8px 14px;font-size:14px}.lbt button.on{background:#8d7bf0;color:#fff}
+#lbList{width:100%;max-height:52vh;overflow:auto;padding:6px 10px;box-sizing:border-box}
+.lbr{display:flex;align-items:center;gap:8px;padding:6px 4px;border-radius:12px;font-size:15px}.lbr i{font-style:normal;width:32px;font-weight:900;text-align:right}
+.lbr span.n{flex:1;text-align:left;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.lbr b{font-weight:900}
+.lbr.me{background:linear-gradient(90deg,#ffe28a,#ffc4dd);box-shadow:0 2px 8px rgba(200,140,0,.25)}
 </style></head><body>
 <canvas id="c"></canvas>
 <div id="hud" class="hide"><button id="quit">✕</button><span class="pill" id="time">60s</span><span class="pill" id="score">0 ✨</span><span class="pill" id="energy">⚡0</span><span class="pill" id="wxh" style="display:none;font-size:12px"></span></div>
@@ -92,7 +98,7 @@ button.sec:active{box-shadow:0 1px 0 #d4caf7}
 <p id="streak" style="margin:10px 0 2px;font-weight:700"></p><p id="daily" style="font-size:14px;margin:2px 0 0"></p></div>
 <div id="wxb" class="wxb" style="display:none"></div><div id="wxp" class="panel" style="font-size:14px"></div>
 <button class="big" id="bMap">🗺️ Abenteuer</button><button class="big" id="bDaily">☁️ Wolke-9-Challenge</button>
-<div><button class="sec" id="bCol">Wolken</button><button class="sec" id="bAlb">Tieralbum</button></div><button class="big" id="bFr">💌 Freunde &amp; Wolken <span id="frBadge"></span></button>
+<div><button class="sec" id="bCol">Wolken</button><button class="sec" id="bAlb">Tieralbum</button></div><button class="big" id="bFr">💌 Freunde &amp; Wolken <span id="frBadge"></span></button><button class="big" id="bLb">🏆 Bestenliste</button>
 <p class="hint panel">Ziehen = Wolke erschaffen &amp; bewegen · Gedrückt halten = Regen 🌧️ · Lange halten = Gewitter ⚡ · Freier Himmel = Sonne ☀️ · Tiere kommen, wenn ihre Bedingungen erfüllt sind</p></div>
 <div id="mapScr" class="scr hide"><h2>🗺️ Weltkarte</h2><small id="mapStars"></small><div id="mapList" style="width:100%;display:flex;flex-direction:column;align-items:center"></div><button class="sec back">Zurück</button></div>
 <div id="colScr" class="scr hide"><h2>☁️ Wolken-Sammlung</h2><small id="colCnt"></small><div class="tabs">Seltenheit: <span style="color:#999">Gewöhnlich</span> · <span style="color:#3a9">Ungewöhnlich</span> · <span style="color:#36f">Selten</span> · <span style="color:#a4f">Episch</span> · <span style="color:#e90">Legendär</span></div><div id="colGrid" class="grid"></div><button class="sec back">Zurück</button></div>
@@ -103,6 +109,13 @@ button.sec:active{box-shadow:0 1px 0 #d4caf7}
 <button class="big" id="bSend">☁️ Wolke verschicken</button><button class="sec" id="bInv">🔗 Freunde einladen</button>
 <small id="sendLeft" style="font-weight:700"></small>
 <div class="panel" id="frList"></div><button class="sec back">Zurück</button></div>
+<div id="lbScr" class="scr hide"><h2>🏆 Bestenliste</h2>
+<div class="lbt" id="lbTabs"><button class="sec on" data-t="daily">Heute</button><button class="sec" data-t="total">Allzeit</button><button class="sec" data-t="level">Level</button></div>
+<select class="inp hide" id="lbLv" style="width:auto"></select>
+<div class="panel" id="lbName" style="display:none"><small>Wie sollen dich alle sehen?</small><input class="inp" id="lbNm" maxlength="16" placeholder="Dein Spitzname"><button class="sec" id="lbNmOk">Speichern</button></div>
+<div class="panel" id="lbList"></div><small id="lbMe" style="font-weight:700"></small>
+<label style="font-size:13px;margin:6px"><input type="checkbox" id="lbOff"> Meine Punkte nicht hochladen</label>
+<button class="sec back">Zurück</button></div>
 <div id="sendScr" class="scr hide"><h2>☁️ Wolke verschicken</h2><small id="sendTo" style="font-weight:700"></small>
 <div id="sendGrid" class="grid"></div>
 <div class="panel"><input class="inp" id="sendMsg" maxlength="60" placeholder="Kurze Nachricht (optional)"><div class="pick" id="pkE"></div></div>
@@ -205,7 +218,7 @@ function gv(g,k){return k=='leaves'?g.leaves|0:k=='species'?Object.keys(g.spec).
 function menu(){let l=plv(S.xp);$('prof').textContent='⭐ Spielerlevel '+l;$('xpfill').style.width=Math.min(100,(S.xp-lvXp(l))/(lvXp(l+1)-lvXp(l))*100)+'%';
 let nx=REWARDS.find(r=>r[0]>l);$('xptxt').textContent=(S.xp|0)+' XP'+(nx?' · Lv '+nx[0]+': '+nx[1]:' · alle Belohnungen frei');
 $('streak').textContent='🔥 Serie: '+S.streak+' Tage · Bestwert: '+S.best;$('daily').textContent='Heute ('+BIOMES[DB].e+' '+BIOMES[DB].n+'): '+goalStr(dailyGoals)}
-const SCR=['menu','mapScr','colScr','albScr','end','frScr','sendScr'];
+const SCR=['menu','mapScr','colScr','albScr','end','frScr','sendScr','lbScr'];
 function show(id){SCR.forEach(i=>$(i).classList.toggle('hide',i!==id));['hud','goal'].forEach(i=>$(i).classList.toggle('hide',id!==null));if(id==='menu')menu()}
 // audio
 let AC,master;function audio(){if(AC)return;try{AC=new(window.AudioContext||window.webkitAudioContext)();master=AC.createGain();master.gain.value=.12;master.connect(AC.destination);
@@ -226,7 +239,7 @@ let CEL=null;
 function finish(){if(G.done)return;G.done=true;ptr=null;let win=goalsMet(),bonus=0,st=0;
 if(win&&G.mode=='level'){bonus=Math.max(0,Math.ceil(G.t))*3;G.score+=bonus;let L=LEVELS[G.li];st=1+(G.score>=L[3])+(G.score>=L[4]);S.stars[G.li]=Math.max(S.stars[G.li]||0,st)}
 if(G.mode=='daily'&&win&&S.last!==today){let y=new Date(Date.now()-864e5).toISOString().slice(0,10);S.streak=S.last===y?S.streak+1:1;S.last=today}
-let xp0=S.xp,l0=plv(S.xp),xp=Math.round(G.score*(win?1:.5))+st*20;S.xp+=xp;let l1=plv(S.xp);S.best=Math.max(S.best,G.score);save();
+let xp0=S.xp,l0=plv(S.xp),xp=Math.round(G.score*(win?1:.5))+st*20;S.xp+=xp;let l1=plv(S.xp);S.best=Math.max(S.best,G.score);save();try{lbAfter(win)}catch(e){}
 G.res={win,bonus,st,xp,xp0,l0,l1};
 ['hud','goal'].forEach(i=>$(i).classList.add('hide'));
 if(!win){showRewards();return}
@@ -877,4 +890,41 @@ function openInvite(raw){let o;try{o=b64d(raw)}catch(e){return}if(!o||typeof o.u
 function route(){let h=location.hash,m;if((m=h.match(/^#gift=([\w-]+)/)))openGift(m[1]);else if((m=h.match(/^#from=([\w-]+)/)))openInvite(m[1]);else return;
  history.replaceState(null,'',location.pathname+location.search)}
 addEventListener('hashchange',route);route();
+// ---- v12 Weltweite Bestenliste (Supabase, nur öffentlicher Publishable-Key) ----
+const SB_URL='https://pnqmcbiuwkpfxrhbhrnb.supabase.co/rest/v1/',SB_KEY='sb_publishable_bp_kvpxg85CXtbtpHlromw_s7QF9KrY';
+const uuid=()=>crypto.randomUUID?crypto.randomUUID():'10000000-1000-4000-8000-100000000000'.replace(/[018]/g,c=>(c^crypto.getRandomValues(new Uint8Array(1))[0]&15>>c/4).toString(16));
+S.lb=S.lb||{};if(!S.lb.pid)S.lb.pid=uuid();S.lb.q=S.lb.q||[];save();
+const BAD=['fick','fuck','arsch','hure','nazi','hitler','fotze','wichs','schlampe','bitch','shit','scheiss','scheiß','nigg','neger','penis','vagina','porn','sex','kotz','idiot','spast','missgeburt','cunt','dick','hurensohn','kanake','schwuchtel','heil'];
+const badName=n=>{let t=n.toLowerCase().replace(/[0@]/g,'o').replace(/[1!|]/g,'i').replace(/3/g,'e').replace(/4/g,'a').replace(/5|\$/g,'s').replace(/[^a-zäöüß]/g,'');return BAD.some(w=>t.includes(w))};
+async function sb(path,body){let r=await fetch(SB_URL+path,{method:body?'POST':'GET',headers:{apikey:SB_KEY,'Content-Type':'application/json',Prefer:'return=minimal'},body:body?JSON.stringify(body):undefined});
+ if(!r.ok){let e=new Error('http '+r.status);e.status=r.status;throw e}return r.status==204||r.status==201?null:r.json()}
+function lbQueue(o){if(S.lb.off)return;o.ts=Date.now();S.lb.q=S.lb.q.filter(x=>!(x.mode==o.mode&&x.level==o.level&&x.day==o.day&&x.score<=o.score));S.lb.q.push(o);if(S.lb.q.length>20)S.lb.q=S.lb.q.slice(-20);save();lbFlush()}
+let lbBusy=false;
+async function lbFlush(){if(lbBusy||S.lb.off||!S.lb.q.length||!S.me.n||badName(S.me.n)||!navigator.onLine&&navigator.onLine!==undefined)return;lbBusy=true;
+ try{while(S.lb.q.length){let o=S.lb.q[0],row={player_id:S.lb.pid,nickname:S.me.n.slice(0,20),avatar:FA[S.me.a]||'🐰',score:Math.max(0,Math.min(100000,o.score|0)),mode:o.mode,level:o.level||null,day:o.day||null};
+  try{await sb('scores',row);S.lb.q.shift();save()}catch(e){if(e.status>=400&&e.status<500){S.lb.q.shift();save()}else throw e}}}
+ catch(e){setTimeout(lbFlush,30000)}finally{lbBusy=false}}
+addEventListener('online',lbFlush);
+function lbAfter(win){if(S.lb.off)return;if(win&&G.mode=='daily')lbQueue({mode:'daily',score:G.score,day:today});
+ if(win&&G.mode=='level')lbQueue({mode:'level',level:G.li+1,score:G.score});lbQueue({mode:'total',score:Math.min(100000,S.xp|0)});
+ if(!S.me.n)setTimeout(()=>toast('🏆 Gib in der Bestenliste deinen Spitznamen ein, um mitzuspielen!'),2500)}
+let LB={t:'daily',lv:1};
+$('lbLv').innerHTML=LEVELS.map((_,i)=>`<option value="${i+1}">Level ${i+1}</option>`).join('');
+function lbNameUi(){$('lbName').style.display=(S.me.n&&!badName(S.me.n))||S.lb.off?'none':'block'}
+async function renderLb(){lbNameUi();$('lbOff').checked=!!S.lb.off;$('lbLv').classList.toggle('hide',LB.t!='level');
+ $('lbTabs').querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.t==LB.t));let el=$('lbList');el.innerHTML='<small>Lädt… ☁️</small>';$('lbMe').textContent='';
+ let a={p_mode:LB.t};if(LB.t=='level')a.p_level=LB.lv;if(LB.t=='daily')a.p_day=today;let key=JSON.stringify(a);
+ try{let [rows,me]=await Promise.all([sb('rpc/lb_top',a),sb('rpc/lb_rank',Object.assign({p_player:S.lb.pid},a))]);if(JSON.stringify(Object.assign({p_mode:LB.t},LB.t=='level'?{p_level:LB.lv}:{},LB.t=='daily'?{p_day:today}:{}))!==key)return;
+  el.innerHTML=rows.length?rows.map(r=>`<div class="lbr${r.player_id==S.lb.pid?' me':''}"><i>${r.rank<=3?['🥇','🥈','🥉'][r.rank-1]:r.rank+'.'}</i><span>${esc(r.avatar||'☁️')}</span><span class="n">${esc(r.nickname)}${r.player_id==S.lb.pid?' (Du)':''}</span><b>${r.score}</b></div>`).join('')
+   :'<small>Noch niemand hier – sei die/der Erste! ☁️</small>';
+  let m=me&&me[0];$('lbMe').textContent=m?'Dein Platz: '+m.rank+'. mit '+m.score+(LB.t=='total'?' XP':' Punkten'):(S.lb.q.length?'Deine Punkte warten auf Upload ⏳':'Du bist hier noch nicht eingetragen');
+  let me1=el.querySelector('.me');if(me1)me1.scrollIntoView({block:'center'})}
+ catch(e){el.innerHTML='<small>Keine Verbindung 📡 – deine Punkte werden später automatisch hochgeladen.</small><br><button class="sec" id="lbRetry">Nochmal versuchen</button>';$('lbRetry').onclick=renderLb}}
+$('bLb').onclick=()=>{LB.lv=Math.max(1,Math.min(LEVELS.length,(S.stars.length||1)));$('lbLv').value=LB.lv;show('lbScr');renderLb();lbFlush()};
+$('lbTabs').onclick=e=>{let t=e.target.dataset&&e.target.dataset.t;if(t){LB.t=t;renderLb()}};
+$('lbLv').onchange=e=>{LB.lv=+e.target.value;renderLb()};
+$('lbOff').onchange=e=>{S.lb.off=e.target.checked;if(S.lb.off)S.lb.q=[];save();lbNameUi();toast(S.lb.off?'Punkte werden nicht mehr hochgeladen':'Bestenliste ist wieder an 🏆')};
+$('lbNmOk').onclick=()=>{let n=$('lbNm').value.trim().slice(0,16);if(!n)return toast('Gib einen Spitznamen ein ✏️');if(badName(n))return toast('Bitte wähle einen netten Namen 😇');
+ S.me.n=n;save();toast('Hallo '+n+'! 🏆');lbFlush();setTimeout(renderLb,800)};
+lbFlush();
 </script></body></html>
