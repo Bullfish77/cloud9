@@ -60,13 +60,15 @@ button.sec:active{box-shadow:0 1px 0 #d4caf7}
 .rc{width:90px;margin:5px;padding:10px 2px;border-radius:18px;background:#fff;box-shadow:0 6px 14px rgba(90,70,170,.18);font-size:12px;font-weight:700;transform:scale(0);animation:pop .45s forwards}.rc b{display:block;font-size:32px}
 .rc.lvup{background:linear-gradient(135deg,#ffe98a,#ff9ad5)}
 .hint{font-size:12.5px;max-width:320px;line-height:1.5;font-weight:600}
+.wxb{background:rgba(255,255,255,.55);border-radius:14px;padding:3px 10px;font-weight:800;font-size:14px;margin:4px}
 </style></head><body>
 <canvas id="c"></canvas>
-<div id="hud" class="hide"><button id="quit">✕</button><span class="pill" id="time">60s</span><span class="pill" id="score">0 ✨</span><span class="pill" id="energy">⚡0</span></div>
+<div id="hud" class="hide"><button id="quit">✕</button><span class="pill" id="time">60s</span><span class="pill" id="score">0 ✨</span><span class="pill" id="energy">⚡0</span><span class="pill" id="wxh" style="display:none;font-size:12px"></span></div>
 <div id="goal" class="hide"></div><div id="toast"></div>
 <div id="menu" class="scr mid"><h1>Cloud9</h1><p style="margin:4px">Dein Himmel. Deine Ruhe.</p>
 <div class="panel"><div id="prof" style="font-weight:900"></div><div id="xpbar"><div id="xpfill"></div></div><small id="xptxt" style="font-weight:700"></small>
 <p id="streak" style="margin:10px 0 2px;font-weight:700"></p><p id="daily" style="font-size:14px;margin:2px 0 0"></p></div>
+<div id="wxb" class="wxb" style="display:none"></div><div id="wxp" class="panel" style="font-size:14px"></div>
 <button class="big" id="bMap">🗺️ Abenteuer</button><button class="big" id="bDaily">☁️ Wolke-9-Challenge</button>
 <div><button class="sec" id="bCol">Wolken</button><button class="sec" id="bAlb">Tieralbum</button></div>
 <p class="hint panel">Ziehen = Wolke erschaffen &amp; bewegen · Gedrückt halten = Regen 🌧️ · Lange halten = Gewitter ⚡ · Freier Himmel = Sonne ☀️ · Tiere kommen, wenn ihre Bedingungen erfüllt sind</p></div>
@@ -178,11 +180,11 @@ function blip(f,d=.2,t='triangle'){if(!AC)return;try{let o=AC.createOscillator()
 const vib=p=>{try{navigator.vibrate&&navigator.vibrate(p)}catch(e){}};
 let tT=0;function toast(s){let t=$('toast');t.textContent=s;t.style.opacity=1;t.style.transform='translateX(-50%)';clearTimeout(tT);tT=setTimeout(()=>{t.style.opacity=0;t.style.transform='translateX(-50%) translateY(-6px)'},1800)}
 let clouds=[],drops=[],plants=[],animals=[],parts=[],G=null,ptr=null,flash=0,sun=0,B=BIOMES[0],BI=0;
-function rollType(){let ws=TYPES.map((t,i)=>{let w=TIERS[t[3]][1];if(t[4]===BI)w*=3;if(t[3]>=2&&has(3))w*=1.3;return w}),s=ws.reduce((a,b)=>a+b),r=R()*s;
+function rollType(){let ws=TYPES.map((t,i)=>{let w=TIERS[t[3]][1];if(t[4]===BI)w*=3;if(t[3]>=2&&has(3))w*=1.3;return w*wxMult(i)}),s=ws.reduce((a,b)=>a+b),r=R()*s;
 for(let i=0;i<ws.length;i++){r-=ws[i];if(r<0)return i}return 0}
 const isl=()=>({x:W/2,y:H*.68,w:Math.min(W*.82,340)});
 function start(mode,li){audio();let L=mode=='level'?LEVELS[li]:null;BI=L?L[0]:DB;B=BIOMES[BI];
-G={mode,li,b:BI,goals:L?L[1]:dailyGoals,t:(L?L[2]:75)+(has(2)?5:0),score:0,plants:0,animals:0,energy:has(5)?1:0,snow:0,leaves:0,rain:0,sunT:0,sunNow:0,spec:{},seen:{},done:false,newC:0,newA:0,newCL:[],newAL:[]};CEL=null;$('cel').classList.add('hide');
+G={mode,li,b:BI,goals:L?L[1]:dailyGoals,t:(L?L[2]:75)+(has(2)?5:0),score:0,plants:0,animals:0,energy:(has(5)?1:0)+(WX&&WX.k=='storm'?1:0),snow:0,leaves:0,rain:0,sunT:0,sunNow:0,spec:{},seen:{},done:false,newC:0,newA:0,newCL:[],newAL:[]};CEL=null;$('cel').classList.add('hide');
 clouds=[];drops=[];plants=[];animals=[];parts=[];ptr=null;sun=0;show(null);
 $('goal').textContent=goalStr(G.goals,G);toast(L?(li==BOSS?'👑 Boss: ':B.e+' ')+B.n+' – Level '+(li+1):'☁️ Wolke-9-Challenge');if(L&&B.rule&&(li==0||LEVELS[li-1][0]!==L[0]||!S.stars[li]))setTimeout(()=>{if(G&&!G.done&&G.li===li)toast(B.e+' '+B.rule)},1900);}
 function goalsMet(){return Object.entries(G.goals).every(([k,n])=>gv(G,k)>=n)}
@@ -446,7 +448,7 @@ if(c.dark>.3&&drops.length<600){let rate=c.dark*.6*(c.type==3?1.6:c.type==2?.6:c
 drops.push({x:c.x+(R()-.5)*c.r*1.4,y:c.y+c.r*.5,v:sn?90:200,s:sn,ty:c.type,ph:R()*6})}rate-=1}}
 if(c.type==15&&c.dark>.5&&R()<dt*.5&&animals.length<10)spawnAnimal(I,1);
 if(c.x<-80)c.x=W+60;if(c.x>W+80)c.x=-60});
-drops.forEach(d=>{d.y+=d.v*dt;if(WIND)d.x+=WIND*dt*.7;if(d.s)d.x+=Math.sin(n/300+d.ph)*.5;if(Math.abs(d.x-I.x)<I.w/2-10&&d.y>I.y-8){d.dead=1;G.rain++;
+drops.forEach(d=>{d.y+=d.v*dt;if(WIND)d.x+=WIND*dt*.7;if(d.s)d.x+=Math.sin(n/300+d.ph)*.5;if(Math.abs(d.x-I.x)<I.w/2-10&&d.y>I.y-8){d.dead=1;G.rain++;if(WX&&WX.k=='rain'&&G.rain%10==0)G.score+=2;
 let m=(d.ty==14?2:1)*(d.ty==19?2:1)*(d.ty==4?1.5:1);
 if(d.s){G.snow++;if(G.snow%4==0)G.score+=Math.round(m*(d.ty==11?2:1))}
 if(BI==1&&d.ty!=9&&d.ty!=12&&R()<.5)return;if(BI==4&&d.ty!=21&&R()<.6){if(R()<.2&&parts.length<260)parts.push({x:d.x,y:I.y-6,vx:(R()-.5)*.6,vy:-1.2,l:.7,col:'#ffd8c8'});return}
@@ -454,7 +456,7 @@ let p=plants.find(p=>Math.abs(p.x-d.x)<16),gr=.02*(d.ty==5||d.ty==22?2:1)*(BI==3
 if(p){if(p.h<1){p.h+=gr;if(p.h>=1){p.h=1;G.plants++;G.score+=Math.round(10*m*(d.ty==24?3:1));blip(660,.3);vib(15);burst(p.x,I.y-40,'#a4f0b8')}}}else if(plants.length<14)plants.push({x:d.x,h:.05,hue:R()*360})}if(d.y>H)d.dead=1});
 drops=drops.filter(d=>!d.dead);if(BI==5){let gw=plants.filter(p=>p.h>=1).length,l0=G.leaves|0;G.leaves+=dt*gw*.12*(.6+WIND/40);if((G.leaves|0)>l0)G.score+=(G.leaves|0)-l0}
 let cap=BI==2?Math.floor(G.snow/8)+plants.filter(p=>p.h>=1).length:plants.filter(p=>p.h>=1).length+(G.energy>0?1:0);
-if((sun>.6||moon)&&cap>animals.length&&animals.length<10&&R()<dt*.6)spawnAnimal(I);
+if((sun>.6||moon)&&cap>animals.length&&animals.length<10&&R()<dt*.6*(WX&&WX.k=='clear'&&WX.day?1.5:1))spawnAnimal(I);
 $('time').textContent=Math.ceil(G.t)+'s';$('score').textContent=G.score+' ✨';$('energy').textContent='⚡'+G.energy;
 $('goal').textContent=(G.mode=='level'?'Level '+(G.li+1)+': ':'☁️ Wolke 9: ')+goalStr(G.goals,G);
 if(G.mode=='level'&&goalsMet())finish();else if(G.t<=0)finish()}
@@ -464,4 +466,39 @@ drawDrops();clouds.forEach(c=>cloud(c,n));drawParts(dt);drawBolt(dt);X.drawImage
 if(CEL)celStep(dt,I,n);if(clouds.length>7)clouds.shift();requestAnimationFrame(loop)}
 show('menu');requestAnimationFrame(loop);
 window.C9={start,finish,get CEL(){return CEL},get animals(){return animals},get G(){return G},S,LEVELS,TYPES,ANIMALS,renderMap,renderCol,renderAlb,show,fps:()=>fpsA};
+/* ===== Echtes Wetter (v6) ===== */
+let WXS=JSON.parse(localStorage.c9wx||'{"on":null}'),WX=null;
+const saveWX=()=>{try{localStorage.c9wx=JSON.stringify(WXS)}catch(e){}};
+function wxKind(c,wind){if([95,96,99].includes(c))return'storm';if([71,73,75,77,85,86].includes(c))return'snow';if((c>=51&&c<=67)||(c>=80&&c<=82))return'rain';if(wind>=25)return'wind';if(c<=1)return'clear';return'cloudy'}
+const WXI={storm:'⛈️',snow:'❄️',rain:'🌧️',wind:'🌬️',clear:'☀️',cloudy:'⛅'};
+const WXN={storm:'Gewitter',snow:'Schnee',rain:'Regen',wind:'Wind',clear:'Klar',cloudy:'Bewölkt'};
+function wxBonus(){if(!WX)return null;let k=WX.k,n=!WX.day,b=[];
+ if(k=='rain')b.push('🌈 Regenbogenwolken 3× häufiger','💧 +2 Punkte je 10 Regentropfen');
+ if(k=='snow')b.push('❄️ Schnee- & Hagelwolken 3× häufiger');
+ if(k=='storm')b.push('⛈️ Gewitterwolken 3× häufiger','⚡ +1 Start-Energie');
+ if(k=='wind')b.push('🌬️ Wind- & Sturmwolken 2× häufiger');
+ if(k=='clear'&&!n)b.push('☀️ Tiere kommen 50% schneller');
+ if(k=='cloudy')b.push('☁️ Heute normales Wetter – kein Extra');
+ if(n)b.push('🌙 Nacht: Mondwolken 3× häufiger');return b}
+function wxMult(i){if(!WX)return 1;let k=WX.k,m=1;if(k=='rain'&&i==15)m*=3;if(k=='snow'&&(i==8||i==11))m*=3;if(k=='storm'&&(i==10||i==23))m*=3;if(k=='wind'&&(i==6||i==23))m*=2;if(!WX.day&&i==17)m*=3;return m}
+function wxRender(){let ic=WX?(WX.k=='clear'&&!WX.day?'🌙':WXI[WX.k]+(WX.day?'':'🌙')):'',t=WX?ic+' '+Math.round(WX.t)+'° '+(WX.city||'📍 Dein Ort'):'';[['wxb',t],['wxh',WX?ic+' '+Math.round(WX.t)+'°':'']].forEach(([id,v])=>{let e=$(id);e.textContent=v;e.style.display=v?'':'none'});
+ let p=$('wxp');if(!p)return;let h;
+ if(WXS.on===false)h='<b>🌦️ Echtes Wetter</b><br><small>Ausgeschaltet.</small><br><button class="sec" id="wxOn">Einschalten</button>';
+ else if(WXS.on==null)h='<b>🌦️ Echtes Wetter</b><br><small>Cloud9 kann das Wetter an deinem Ort nutzen: Regnet es draußen, gibt es mehr Regenbogenwolken, bei Schnee mehr Schneewolken … Dein Standort wird nur grob (gerundet) an den Wetterdienst Open-Meteo geschickt, sonst nirgendwohin.</small><br><button class="sec" id="wxGeo">📍 Standort nutzen</button><button class="sec" id="wxNo">Nein danke</button>';
+ else h='<b>🎁 Wetterbonus des Tages</b>'+(WX?' <small>('+WXN[WX.k]+(WX.day?'':', Nacht')+(WX.city?', '+WX.city:'')+(WX.old?', offline':'')+')</small><br><small>'+wxBonus().join('<br>')+'</small>':'<br><small>'+(WXS.err||'Wetter wird geladen …')+'</small>')+'<br><button class="sec" id="wxGeo">📍 Standort</button><button class="sec" id="wxOff">Wetter aus</button>';
+ h+='<div style="margin-top:4px'+(WXS.on===false?';display:none':'')+'"><input id="wxCity" placeholder="Stadt suchen …" style="padding:6px;border-radius:10px;border:0;width:55%"><button class="sec" id="wxGo">Suchen</button></div>';
+ p.innerHTML=h;let on=(id,f)=>{let e=$(id);if(e)e.onclick=f};
+ on('wxGeo',wxGeo);on('wxNo',()=>{WXS.on=false;saveWX();wxRender()});on('wxOff',()=>{WXS.on=false;WX=null;saveWX();wxRender()});on('wxOn',()=>{WXS.on=true;saveWX();wxLoad()});
+ on('wxGo',()=>wxCity($('wxCity').value))}
+function wxGeo(){if(!navigator.geolocation){WXS.err='Kein Standort verfügbar – such deine Stadt.';wxRender();return}
+ navigator.geolocation.getCurrentPosition(p=>{WXS.on=true;WXS.lat=Math.round(p.coords.latitude*10)/10;WXS.lon=Math.round(p.coords.longitude*10)/10;WXS.city='';WXS.err='';WXS.c=null;saveWX();wxLoad()},()=>{WXS.on=true;WXS.err='Standort nicht erlaubt – such einfach deine Stadt.';saveWX();wxRender()},{timeout:10000,maximumAge:36e5})}
+async function wxCity(q){q=(q||'').trim();if(!q)return;try{let r=await(await fetch('https://geocoding-api.open-meteo.com/v1/search?count=1&language=de&name='+encodeURIComponent(q))).json(),g=r.results&&r.results[0];
+ if(!g){WXS.err='Stadt nicht gefunden.';wxRender();return}WXS.on=true;WXS.lat=Math.round(g.latitude*10)/10;WXS.lon=Math.round(g.longitude*10)/10;WXS.city=g.name;WXS.err='';WXS.c=null;saveWX();wxLoad()}catch(e){WXS.err='Offline – Suche nicht möglich.';wxRender()}}
+async function wxLoad(){if(!WXS.on||WXS.lat==null){wxRender();return}let c=WXS.c;
+ if(c&&Date.now()-c.ts<18e5){WX=c;wxRender();return}
+ try{let r=await(await fetch('https://api.open-meteo.com/v1/forecast?latitude='+WXS.lat+'&longitude='+WXS.lon+'&current=weather_code,temperature_2m,is_day,wind_speed_10m')).json(),u=r.current;
+  WX={k:wxKind(u.weather_code,u.wind_speed_10m),code:u.weather_code,t:u.temperature_2m,day:u.is_day==1,w:u.wind_speed_10m,city:WXS.city,ts:Date.now()};WXS.c=WX;WXS.err='';saveWX()}
+ catch(e){if(c&&Date.now()-c.ts<216e5){WX=Object.assign({},c,{old:1})}else{WX=null;WXS.err='Offline – heute ohne Wetterbonus.'}}wxRender()}
+addEventListener('online',()=>{if(WXS.c)WXS.c.ts=0;wxLoad()});
+wxLoad();
 </script></body></html>
