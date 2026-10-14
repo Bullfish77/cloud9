@@ -121,7 +121,7 @@ button.sm{padding:8px 12px;font-size:14px;margin:2px}.hbar b{font-size:16px;back
 <p id="streak" style="margin:10px 0 2px;font-weight:700"></p><p id="daily" style="font-size:14px;margin:2px 0 0"></p></div>
 <div id="wxb" class="wxb" style="display:none"></div><div id="wxp" class="panel" style="font-size:14px"></div>
 <button class="big" id="bMap">🗺️ Abenteuer</button><button class="big" id="bDaily">☁️ Wolke-9-Challenge</button>
-<button class="big" id="bHome">🏝️ Meine Insel<span class="badge" id="homeBadge"></span></button><div><button class="sec" id="bShop">🛍️ Laden</button><button class="sec" id="bCraft">⚗️ Kombinieren</button></div><div><button class="sec" id="bCol">Wolken</button><button class="sec" id="bAlb">Tieralbum</button></div><button class="big" id="bFr">💌 Freunde &amp; Wolken <span id="frBadge"></span></button><button class="big" id="bLb">🏆 Bestenliste</button>
+<button class="big" id="bHome">🏝️ Meine Insel<span class="badge" id="homeBadge"></span></button><div><button class="sec" id="bShop">🛍️ Laden</button><button class="sec" id="bCraft">⚗️ Kombinieren</button></div><div><button class="sec" id="bCol">Wolken</button><button class="sec" id="bSnd" onclick="sndPanel()">🔊 Sound</button><button class="sec" id="bAlb">Tieralbum</button></div><button class="big" id="bFr">💌 Freunde &amp; Wolken <span id="frBadge"></span></button><button class="big" id="bLb">🏆 Bestenliste</button>
 <p class="hint panel">Ziehen = Wolke erschaffen &amp; bewegen · Gedrückt halten = Regen 🌧️ · Lange halten = Gewitter ⚡ · Freier Himmel = Sonne ☀️ · Tiere kommen, wenn ihre Bedingungen erfüllt sind</p></div>
 <div id="mapScr" class="scr hide"><h2>🗺️ Weltkarte</h2><small id="mapStars"></small><div id="mapList" style="width:100%;display:flex;flex-direction:column;align-items:center"></div><button class="sec back">Zurück</button></div>
 <div id="colScr" class="scr hide"><h2>☁️ Wolken-Sammlung</h2><small id="colCnt"></small><div class="tabs">Seltenheit: <span style="color:#999">Gewöhnlich</span> · <span style="color:#3a9">Ungewöhnlich</span> · <span style="color:#36f">Selten</span> · <span style="color:#a4f">Episch</span> · <span style="color:#e90">Legendär</span></div><div id="colGrid" class="grid"></div><button class="sec back">Zurück</button></div>
@@ -248,9 +248,146 @@ $('streak').textContent='🔥 Serie: '+S.streak+' Tage · Bestwert: '+S.best;$('
 const SCR=['menu','mapScr','colScr','albScr','end','frScr','sendScr','lbScr','homeScr','shopScr','craftScr','ldScr'];
 function show(id){SCR.forEach(i=>$(i).classList.toggle('hide',i!==id));['hud','goal'].forEach(i=>$(i).classList.toggle('hide',id!==null));HOMEON=id==='homeScr';if(id==='menu'){menu();try{menu13()}catch(e){}}}
 // audio
-let AC,master;function audio(){if(AC)return;try{AC=new(window.AudioContext||window.webkitAudioContext)();master=AC.createGain();master.gain.value=.12;master.connect(AC.destination);
-[220,277,330,415].forEach((f,i)=>{let o=AC.createOscillator(),g=AC.createGain(),l=AC.createOscillator(),lg=AC.createGain();o.type='sine';o.frequency.value=f/2;l.frequency.value=.07+i*.03;lg.gain.value=.15;l.connect(lg).connect(g.gain);g.gain.value=.2;o.connect(g).connect(master);o.start();l.start()})}catch(e){}}
-function blip(f,d=.2,t='triangle'){if(!AC)return;try{let o=AC.createOscillator(),g=AC.createGain();o.type=t;o.frequency.value=f;g.gain.setValueAtTime(.3,AC.currentTime);g.gain.exponentialRampToValueAtTime(.001,AC.currentTime+d);o.connect(g).connect(master);o.start();o.stop(AC.currentTime+d)}catch(e){}}
+// ===== Cloud9 Sound-Engine v14 (prozedural, WebAudio) =====
+const SND=(()=>{
+const ST=(()=>{try{return Object.assign({m:.7,e:.8,mute:false},JSON.parse(localStorage.c9snd||'{}'))}catch(e){return{m:.7,e:.8,mute:false}}})();
+function saveSt(){try{localStorage.c9snd=JSON.stringify(ST)}catch(e){}}
+const mtof=m=>440*Math.pow(2,(m-69)/12);
+// Akkorde als Halbtöne über Grundton
+const M7=[0,4,7,11],m7=[0,3,7,10],D7=[0,4,7,10],M9=[0,4,7,11,14],m9=[0,3,7,10,14],S4=[0,5,7,10],M6=[0,4,7,9];
+const T={
+ menu:  {bpm:72,root:60,prog:[[0,M9],[9,m7],[5,M7],[7,S4]],lead:'ep',  scale:[0,2,4,7,9],lp:2400,dens:.45,sw:.18},
+ home:  {bpm:78,root:62,prog:[[0,M7],[4,m7],[5,M9],[7,D7]],lead:'kal', scale:[0,2,4,7,9],lp:2800,dens:.5,sw:.15},
+ b0:    {bpm:82,root:65,prog:[[0,M9],[7,M7],[9,m7],[5,M9]],lead:'kal', scale:[0,2,4,7,9],lp:3200,dens:.55,sw:.14}, // Wiese F
+ b1:    {bpm:76,root:62,prog:[[0,m9],[3,M7],[10,D7],[0,m7]],lead:'mar', scale:[0,1,4,5,7,8,10],lp:2600,dens:.5,sw:.2}, // Wüste D phryg.-dom.
+ b2:    {bpm:68,root:67,prog:[[0,M9],[5,M7],[2,m9],[7,S4]],lead:'bell',scale:[0,2,4,7,11],lp:3600,dens:.35,sw:.08}, // Polar G
+ b3:    {bpm:90,root:64,prog:[[0,M7],[2,m7],[5,M6],[7,D7]],lead:'mar', scale:[0,2,4,7,9],lp:3400,dens:.65,sw:.22}, // Tropen E
+ b4:    {bpm:80,root:57,prog:[[0,m9],[8,M7],[3,M7],[10,S4]],lead:'ep', scale:[0,3,5,7,10],lp:2000,dens:.5,sw:.16}, // Vulkan A-moll
+ b5:    {bpm:74,root:63,prog:[[9,m7],[2,D7],[7,M7],[0,M9]],lead:'ep', scale:[0,2,4,7,9],lp:2300,dens:.45,sw:.2},  // Herbst Eb ii-V
+ b6:    {bpm:66,root:61,prog:[[0,M9],[5,m9],[10,M7],[3,M9]],lead:'kal',scale:[0,2,4,7,9,11],lp:2600,dens:.4,sw:.12} // Lagune Db
+};
+let ctx=null,out,mus,musLP,sfx,rev,dly,crk,rain,rainG,patG,stormG,players=[],timer=null,cur='',night=false,inten=0,rainLv=0,patLv=0,voices=0,offline=false;
+function R(){return Math.random()}
+function mkRng(s){return()=>{s=(s*1664525+1013904223)>>>0;return s/4294967296}}
+function noiseBuf(c,sec,f){let b=c.createBuffer(1,c.sampleRate*sec,c.sampleRate),d=b.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=f?f(i,d):R()*2-1;return b}
+function impulse(c,sec,dec){let n=c.sampleRate*sec,b=c.createBuffer(2,n,c.sampleRate);for(let ch=0;ch<2;ch++){let d=b.getChannelData(ch);for(let i=0;i<n;i++)d[i]=(R()*2-1)*Math.pow(1-i/n,dec)}return b}
+function build(c){ctx=c;offline=(typeof OfflineAudioContext!='undefined'&&c instanceof OfflineAudioContext);
+ let lim=c.createDynamicsCompressor();lim.threshold.value=-10;lim.knee.value=6;lim.ratio.value=8;lim.attack.value=.004;lim.release.value=.2;
+ out=c.createGain();out.connect(lim).connect(c.destination);
+ rev=c.createConvolver();rev.buffer=impulse(c,2.6,3);let rg=c.createGain();rg.gain.value=.9;rev.connect(rg).connect(out);let hp=c.createBiquadFilter();hp.type='highpass';hp.frequency.value=280;hp.connect(rev);
+ dly=c.createDelay(1);let fb=c.createGain(),dl=c.createBiquadFilter();dl.type='lowpass';dl.frequency.value=1800;fb.gain.value=.32;dly.connect(dl).connect(fb).connect(dly);let dg=c.createGain();dg.gain.value=.35;dl.connect(dg).connect(out);
+ mus=c.createGain();musLP=c.createBiquadFilter();musLP.type='lowpass';musLP.frequency.value=2600;musLP.Q.value=.5;mus.connect(musLP).connect(out);let ms=c.createGain();ms.gain.value=.45;musLP.connect(ms).connect(hp);let md=c.createGain();md.gain.value=.18;let mh=c.createBiquadFilter();mh.type='highpass';mh.frequency.value=500;musLP.connect(mh).connect(md).connect(dly);
+ sfx=c.createGain();sfx.connect(out);let sr=c.createGain();sr.gain.value=.3;sfx.connect(sr).connect(hp);
+ // Vinyl-Knistern
+ crk=c.createBufferSource();crk.buffer=noiseBuf(c,4,()=>{let r=R();return r<.0004?(R()*2-1)*.9:r<.003?(R()*2-1)*.15:(R()*2-1)*.012});crk.loop=true;let cf=c.createBiquadFilter();cf.type='bandpass';cf.frequency.value=3000;cf.Q.value=.6;let cg=c.createGain();cg.gain.value=.22;crk.connect(cf).connect(cg).connect(mus);crk.start();
+ // Regen-Ambience (Wetter, Musikbus) + Prasseln (Effektbus)
+ let rb=noiseBuf(c,3,(i,d)=>{let w=R()*2-1;return i?d[i-1]*.6+w*.4:w});
+ rain=c.createBufferSource();rain.buffer=rb;rain.loop=true;let rf=c.createBiquadFilter();rf.type='lowpass';rf.frequency.value=1400;rainG=c.createGain();rainG.gain.value=0;rain.connect(rf).connect(rainG).connect(out);rain.start();
+ let pat=c.createBufferSource();pat.buffer=noiseBuf(c,2,()=>R()<.02?(R()*2-1):(R()*2-1)*.05);pat.loop=true;let pf=c.createBiquadFilter();pf.type='bandpass';pf.frequency.value=2500;pf.Q.value=.8;patG=c.createGain();patG.gain.value=0;pat.connect(pf).connect(patG).connect(sfx);pat.start();
+ vol();}
+function vol(){if(!ctx)return;let t=ctx.currentTime;mus.gain.setTargetAtTime(ST.mute?0:ST.m*.9,t,.1);sfx.gain.setTargetAtTime(ST.mute?0:ST.e,t,.05);out.gain.value=.9}
+// ---- Stimmen ----
+function env(g,t,a,peak,d){g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(peak,t+a);g.gain.exponentialRampToValueAtTime(.0005,t+a+d)}
+function osc(type,f,t,stop,dest){let o=ctx.createOscillator();o.type=type;o.frequency.setValueAtTime(f,t);o.connect(dest);o.start(t);o.stop(stop);return o}
+function voice(t,dur,dest){if(!offline&&voices>28)return null;voices++;let g=ctx.createGain();g.connect(dest);
+ if(!offline)setTimeout(()=>voices--,(t-ctx.currentTime+dur+.1)*1000);return g}
+function inst(kind,m,t,vel,dest){dest=dest||mus;let f=mtof(m);
+ if(kind=='ep'){let g=voice(t,2.2,dest,.35,.25);if(!g)return;env(g,t,.008,.16*vel,2);osc('sine',f,t,t+2.3,g);let g2=ctx.createGain();g2.connect(g);env(g2,t,.002,.5,.25);osc('sine',f*2.003,t,t+.4,g2);let g3=ctx.createGain();g3.connect(g);env(g3,t,.001,.25,.06);osc('sine',f*7,t,t+.1,g3)}
+ else if(kind=='kal'){let g=voice(t,1.4,dest,.4,.3);if(!g)return;env(g,t,.003,.18*vel,1.2);osc('sine',f,t,t+1.4,g);let g2=ctx.createGain();g2.connect(g);env(g2,t,.001,.35,.12);osc('sine',f*5.4,t,t+.2,g2)}
+ else if(kind=='mar'){let g=voice(t,.8,dest,.3,.2);if(!g)return;env(g,t,.002,.2*vel,.6);osc('sine',f,t,t+.8,g);let g2=ctx.createGain();g2.connect(g);env(g2,t,.001,.4,.05);osc('sine',f*4,t,t+.1,g2)}
+ else if(kind=='bell'){let g=voice(t,2.5,dest,.5,.3);if(!g)return;env(g,t,.002,.12*vel,2.4);osc('sine',f,t,t+2.6,g);osc('sine',f*2.76,t,t+1,g);}
+}
+function pad(ch,t,len,vel,lp){let g=voice(t,len+1,mus,.6);if(!g)return;let f=ctx.createBiquadFilter();f.type='lowpass';f.frequency.value=lp*.45;f.connect(g);g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.035*vel,t+len*.35);g.gain.linearRampToValueAtTime(0,t+len+.8);ch.forEach(m=>{osc('triangle',mtof(m),t,t+len+.9,f).detune.value=-6;osc('sine',mtof(m),t,t+len+.9,f).detune.value=7})}
+function bass(m,t,len,vel){let g=voice(t,len,mus,0);if(!g)return;let f=ctx.createBiquadFilter();f.type='lowpass';f.frequency.value=420;f.connect(g);env(g,t,.01,.22*vel,len);osc('triangle',mtof(m),t,t+len+.05,f);osc('sine',mtof(m),t,t+len+.05,f)}
+function kick(t,v){let g=voice(t,.4,mus,0);if(!g)return;env(g,t,.002,.55*v,.32);let o=osc('sine',120,t,t+.4,g);o.frequency.exponentialRampToValueAtTime(42,t+.12)}
+let NB=null;function nb(){if(!NB||NB.sr!==ctx.sampleRate||NB.c!==ctx){NB=noiseBuf(ctx,1);NB.c=ctx;NB.sr=ctx.sampleRate}return NB}
+function noise(t,len,type,fq,q,peak,dest,a=.001,sendR=0){let g=voice(t,len,dest,sendR);if(!g)return null;let s=ctx.createBufferSource();s.buffer=nb();let f=ctx.createBiquadFilter();f.type=type;f.frequency.setValueAtTime(fq,t);f.Q.value=q;s.connect(f).connect(g);env(g,t,a,peak,len);s.start(t,R()*.5);s.stop(t+len+a+.05);return{g,f}}
+function snare(t,v){noise(t,.18,'bandpass',1800,.7,.16*v,mus,.001,.25);let g=voice(t,.12,mus,0);if(g){env(g,t,.002,.08*v,.1);osc('triangle',190,t,t+.15,g)}}
+function hat(t,v){noise(t,.04,'highpass',7500,.5,.06*v,mus)}
+// ---- Sequencer ----
+function newPlayer(key,n){let th=T[key]||T.menu,g=ctx.createGain();g.gain.value=0;g.connect(mus);let t0=ctx.currentTime+.08;return{key,th,night:n,g,step:0,t0,next:t0,rng:mkRng(key.length*977+key.charCodeAt(key.length-1)*31),motif:null,bar:0}}
+function chordAt(p){let c=p.th.prog[p.bar%p.th.prog.length];return[p.th.root+c[0],c[1]]}
+function schedStep(p,t){let th=p.th,n=p.night,s=p.step%16,bar=Math.floor(p.step/16);p.bar=bar;let[r,ch]=chordAt(p),I=Math.min(1,inten),dest=p.g,save=mus;mus=dest;
+ let sp=60/(th.bpm*(n?.86:1))/4;
+ if(s==0){let notes=ch.map(x=>r+x);pad(notes,t,sp*16,n?1.2:1,th.lp);let tw=th.lead=='ep'?'ep':th.lead=='bell'?'bell':'ep';notes.slice(0,4).forEach((m,i)=>inst(tw,m,t+i*.012,.55));bass(r-24,t,sp*6,1)}
+ if(s==10&&!n)bass(r-24+(ch[2]||7),t,sp*4,.8);
+ if(s==8&&th.lead!='ep'&&th.lead!='bell')ch.slice(1,4).forEach((x,i)=>inst('ep',r+x,t+i*.015,.35));
+ // Drums
+ let dv=n?.45:.8+I*.25;
+ if(s==0||(s==10&&!n)||(s==7&&I>.6))kick(t,dv);
+ if(!n&&(s==4||s==12))snare(t,dv);
+ if(s%2==0&&!(n&&s%4))hat(t,dv*(s%4?.7:1));
+ if(I>.4&&s%2==1&&p.rng()<I*.6)hat(t,.5);
+ // Melodie: Motiv pro 2 Takte, wiederholt mit Variation
+ if(!p.motif||bar%4==0&&s==0){let rg=mkRng(bar*131+th.root*7+(p.key.length));p.motif=[];for(let i=0;i<32;i++)p.motif.push(rg()<th.dens*(i%2?0.45:1)?Math.floor(rg()*th.scale.length*1.6):-1)}
+ let mi=p.motif[(p.step%32)];if(mi>=0&&(p.rng()<(n?.7:.85+I*.15))){let oct=Math.floor(mi/th.scale.length),deg=th.scale[mi%th.scale.length],m=th.root+12+deg+oct*12;
+  // nah an Akkordtönen bleiben
+  if(s%4==0){let ct=ch.map(x=>(r+x)%12);if(!ct.includes(m%12)){let best=m;for(let d=1;d<3;d++){if(ct.includes((m+d)%12)){best=m+d;break}if(ct.includes((m-d+12)%12)){best=m-d;break}}m=best}}
+  inst(n&&th.lead!='bell'?'kal':th.lead,m,t,(n?.5:.7)*(s%4?0.8:1))}
+ mus=save;p.step++;p.next=p.t0+p.step*sp+(p.step%2?sp*th.sw:0);}
+function pump(ahead){if(!ctx)return;let until=ctx.currentTime+ahead;players.forEach(p=>{if(p.dead&&p.next>p.dead)return;while(p.next<until){schedStep(p,p.next)}});
+ musLP.frequency.setTargetAtTime((night?.6:1)*(1+inten*.35)*((players[players.length-1]||{th:T.menu}).th.lp),ctx.currentTime,.8);
+ rainG.gain.setTargetAtTime(ST.mute?0:rainLv*.25*ST.m,ctx.currentTime,1);patG.gain.setTargetAtTime(patLv*.7,ctx.currentTime,.15)}
+function setScene(key,n){if(!ctx)return;n=!!n;if(key===cur&&n===night)return;cur=key;night=n;let t=ctx.currentTime,fade=offline?.01:2;
+ players.forEach(p=>{p.g.gain.cancelScheduledValues(t);p.g.gain.setValueAtTime(p.g.gain.value,t);p.g.gain.linearRampToValueAtTime(0,t+fade);p.dead=t+fade});
+ let p=newPlayer(key,n);p.g.gain.setValueAtTime(0,t);p.g.gain.linearRampToValueAtTime(n?.8:1,t+fade);players.push(p);
+ if(!offline)setTimeout(()=>{players=players.filter(q=>!q.dead||q.dead>ctx.currentTime);},fade*1000+300)}
+// ---- Effekte ----
+function key(){let p=players[players.length-1];return p?chordAt(p):[60,M7]}
+function chime(i,t,v=1){let[r,ch]=key(),sc=[0,2,4,7,9,12,14,16,19,21,24],m=r+12+sc[Math.max(0,i)%sc.length];inst('kal',m,t,v,sfx)}
+function tone(f,t,len,type,peak,dest,glide){let g=voice(t,len,dest||sfx,.2);if(!g)return;env(g,t,.004,peak,len);let o=osc(type||'sine',f,t,t+len+.05,g);if(glide)o.frequency.exponentialRampToValueAtTime(glide,t+len);return o}
+const BIRD='🦋🦅🦉🦜🦩🐧'.split(''),BIG=['🐻‍❄️','🐋','🐉','🐪','🦭'];
+function animal(e){if(!ensure())return;let t=ctx.currentTime+.01+tOff,h=0;for(const c of e)h=(h*31+c.codePointAt(0))%997;let p=.85+(h%30)/100;
+ if(e=='🐝'){let g=voice(t,.6,sfx,.1);if(g){env(g,t,.03,.06,.5);let o=osc('sawtooth',210,t,t+.6,g);let l=ctx.createOscillator(),lg=ctx.createGain();l.frequency.value=28;lg.gain.value=25;l.connect(lg).connect(o.frequency);l.start(t);l.stop(t+.6)}return}
+ if(BIG.includes(e)){tone(140*p,t,.5,'triangle',.2,0,90*p);tone(280*p,t+.05,.4,'sine',.08,0,180*p);if(e=='🐉')noise(t,.5,'lowpass',900,.5,.12,sfx,.05);if(e=='🐋')tone(320,t+.2,1.2,'sine',.08,0,520);return}
+ if(BIRD.some(b=>e.includes(b))||e=='🦇'){for(let i=0;i<3;i++){let s=t+i*.09;tone(2000*p,s,.07,'sine',.12,0,3200*p)}return}
+ if(e=='🦎'||e=='🦂'||e=='🪼'){tone(1400*p,t,.05,'square',.04);tone(1800*p,t+.07,.05,'square',.04);return}
+ // kleine Fellnasen: süßes Quietschen
+ tone(900*p,t,.12,'sine',.16,0,1500*p);tone(1300*p,t+.13,.14,'sine',.12,0,1000*p)}
+let tOff=0;function sfxPlay(k,a){if(!ensure())return;let t=ctx.currentTime+.01+tOff;switch(k){
+ case 'tap':tone(1200,t,.05,'sine',.08,0,900);break;
+ case 'press':tone(330,t,.25,'sine',.06,0,250);noise(t,.3,'lowpass',500,.7,.05,sfx,.03);break;
+ case 'whoosh':{let n=noise(t,.45,'bandpass',300,1.2,.14,sfx,.12,.3);if(n)n.f.frequency.exponentialRampToValueAtTime(1800,t+.5);break}
+ case 'bloom':{chime(2+((R()*4)|0),t,.9);chime(5+((R()*3)|0),t+.08,.6);break}
+ case 'thunder':{let n=noise(t,1.8,'lowpass',380,.4,.5,sfx,.02,.6);if(n)n.f.frequency.exponentialRampToValueAtTime(90,t+1.8);let g=voice(t,2,sfx,0);if(g){env(g,t,.03,.45,1.8);let o=osc('sine',58,t,t+2,g);o.frequency.exponentialRampToValueAtTime(30,t+1.8)}noise(t,.08,'highpass',2000,.5,.2,sfx,.001,.4);break}
+ case 'coin':tone(1046,t,.18,'square',.035);tone(1046,t,.18,'sine',.1);tone(1568,t+.08,.35,'sine',.1);tone(2093,t+.08,.2,'triangle',.03);break;
+ case 'card':chime(2+(a||0),t,.7);break;
+ case 'star':{let i=a||0;[0,4,7].forEach((x,j)=>tone(mtof(76+i*4+x),t+j*.05,.5,'sine',.1));chime(7+i*2,t+.15,.7);break}
+ case 'celebrate':[0,2,4,5,7].forEach((d,i)=>chime(d,t+i*.07,.8));break;
+ case 'levelup':{let[r]=key();[0,4,7,12].forEach((x,i)=>{tone(mtof(r+x),t+i*.11,.3,'triangle',.08);tone(mtof(r+12+x),t+i*.11,.3,'sine',.07)});[0,4,7,12].forEach(x=>tone(mtof(r+12+x),t+.48,1.1,'triangle',.05));noise(t+.48,.6,'highpass',6000,.5,.04,sfx);break}
+ case 'lose':tone(440,t,.35,'sine',.08,0,392);tone(349,t+.3,.6,'sine',.08,0,330);break;
+ case 'newcloud':chime(4,t);chime(7,t+.1);chime(9,t+.2);break;
+ case 'newanimal':[0,4,7,9].forEach((d,i)=>chime(d+3,t+i*.08,.8));break;
+ case 'gift':for(let i=0;i<6;i++)tone(2000+R()*1800,t+i*.06,.25,'sine',.05);chime(7,t+.35);break;
+ case 'claim':case 'send':chime(4,t);chime(7,t+.09);chime(11,t+.18);break;
+ case 'place':tone(500,t,.08,'sine',.12,0,350);noise(t,.06,'lowpass',900,.5,.08,sfx);break;
+ case 'nope':tone(300,t,.12,'triangle',.08,0,220);tone(220,t+.12,.18,'triangle',.08,0,180);break;
+ case 'craft':{let n=noise(t,.5,'bandpass',600,2,.08,sfx,.1);if(n)n.f.frequency.exponentialRampToValueAtTime(3000,t+.5);[0,2,4,7].forEach((d,i)=>chime(d+2,t+.4+i*.08,.8));break}
+}}
+function ensure(){if(ctx&&offline)return true;if(!ctx){try{build(new(window.AudioContext||window.webkitAudioContext)());timer=setInterval(()=>{if(ctx.state=='running')pump(.15)},25)}catch(e){return false}}if(ctx.state=='suspended'&&!document.hidden)ctx.resume().catch(()=>{});return true}
+document.addEventListener('visibilitychange',()=>{if(!ctx||offline)return;if(document.hidden)ctx.suspend();else ctx.resume()});
+return{ensure,setScene,sfx:sfxPlay,animal,ST,vol:()=>{saveSt();vol()},set inten(v){inten=v},set rain(v){rainLv=v},set pat(v){patLv=v},get ctx(){return ctx},get offline(){return offline},_build:build,set _at(v){tOff=v},_pump:pump,_T:T,
+ get players(){return players},_reset(){players=[];cur='';night=false;inten=0;rainLv=0;patLv=0}};
+})();
+
+let AC=null;function audio(){if(SND.ensure()){AC=SND.ctx;sndScene()}}
+function blip(f,d=.2){SND.sfx('tap')}
+function sndScene(){if(!SND.ctx||SND.offline)return;let vis=SCR.find(i=>!$(i).classList.contains('hide')),k='menu';
+ if(HOMEON||vis=='homeScr'||vis=='shopScr')k='home';else if(!vis&&G&&G.goals)k='b'+(G.b!=null?G.b:BI);else if(vis=='end'&&G&&G.goals)k='b'+(G.b!=null?G.b:BI);
+ let nt=DAYT=='night'||(WX&&WX.day===false)||(k=='b6'&&DAYT!='day');SND.setScene(k,nt);
+ let storm=WX&&WX.k=='storm',wet=WX&&(WX.k=='rain'||storm);SND.rain=wet?(storm?.8:.6):0;
+ let play=!vis&&G&&G.goals&&!G.done;SND.inten=(play&&G.t<15?.7:0)+(storm?.3:0);SND.pat=play&&ptr&&ptr.c&&ptr.c.dark>.5?Math.min(1,ptr.c.dark):0}
+setInterval(sndScene,250);
+document.addEventListener('pointerdown',e=>{audio();if(e.target.closest&&e.target.closest('button,.card,.cfa'))SND.sfx('tap')},{capture:true});
+function sndPanel(){let o=$('sndP');if(!o){o=document.createElement('div');o.id='sndP';o.style.cssText='position:fixed;inset:0;background:rgba(40,30,80,.45);display:flex;align-items:center;justify-content:center;z-index:99';
+ o.innerHTML=`<div class="panel" style="min-width:260px;max-width:90vw;background:#fff;border-radius:22px;padding:18px;text-align:left"><h3 style="margin:0 0 10px">🔊 Musik & Sound</h3>
+ <label>🎵 Musik <input id="sMv" type="range" min="0" max="100" style="width:100%"></label><br><label>✨ Effekte <input id="sEv" type="range" min="0" max="100" style="width:100%"></label><br>
+ <label style="display:block;margin:10px 0"><input id="sMu" type="checkbox"> 🔇 Alles stumm</label><button class="big" id="sOk" style="width:100%">Fertig</button></div>`;document.body.appendChild(o);
+ let S2=SND.ST,u=()=>{S2.m=$('sMv').value/100;S2.e=$('sEv').value/100;S2.mute=$('sMu').checked;SND.vol();sndBtn()};
+ $('sMv').oninput=u;$('sEv').oninput=u;$('sEv').onchange=()=>SND.sfx('bloom');$('sMu').onchange=u;$('sOk').onclick=()=>o.style.display='none';o.onclick=e=>{if(e.target===o)o.style.display='none'}}
+ $('sMv').value=SND.ST.m*100;$('sEv').value=SND.ST.e*100;$('sMu').checked=SND.ST.mute;o.style.display='flex'}
+function sndBtn(){let b=$('bSnd');if(b)b.textContent=SND.ST.mute?'🔇 Sound':'🔊 Sound'}
+
 const vib=p=>{try{navigator.vibrate&&navigator.vibrate(p)}catch(e){}};
 let tT=0;function toast(s){let t=$('toast');t.textContent=s;t.style.opacity=1;t.style.transform='translateX(-50%)';clearTimeout(tT);tT=setTimeout(()=>{t.style.opacity=0;t.style.transform='translateX(-50%) translateY(-6px)'},1800)}
 let clouds=[],drops=[],plants=[],animals=[],parts=[],G=null,ptr=null,flash=0,sun=0,B=BIOMES[0],BI=0;
@@ -275,11 +412,11 @@ animals.forEach((a,i)=>{a.cx=a.x;a.i=i});
 for(let i=0;i<70;i++)CEL.conf.push({x:R()*W,y:-R()*H*.6,vy:60+R()*90,vx:(R()-.5)*40,r:R()*6,vr:(R()-.5)*8,c:`hsl(${R()*360|0},90%,65%)`});
 $('celT').textContent=G.mode=='level'?'Level '+(G.li+1)+' geschafft!':'Wolke 9 erreicht!';
 $('celStars').innerHTML=G.mode=='level'?'<span>⭐</span><span>⭐</span><span>⭐</span>':'<span>💜</span>';
-$('cel').classList.remove('hide');blip(660,.3);setTimeout(()=>blip(880,.4),150);vib([30,40,30])}
+$('cel').classList.remove('hide');SND.sfx('celebrate');vib([30,40,30])}
 $('cel').onclick=()=>{if(CEL)endCel()};
 function endCel(){CEL=null;$('cel').classList.add('hide');showRewards()}
 function celStep(dt,I,n){CEL.t+=dt;let t=CEL.t,ns=G.mode=='level'?G.res.st:1;
-let want=Math.min(ns,Math.floor((t-.9)/.6)+1);while(CEL.starsShown<want){let sp=$('celStars').children[CEL.starsShown];if(sp)sp.classList.add('on');blip([784,988,1319][CEL.starsShown]||1319,.35);vib(25);burst(W/2+(CEL.starsShown-1)*60,130,'#ffe680',20);CEL.starsShown++}
+let want=Math.min(ns,Math.floor((t-.9)/.6)+1);while(CEL.starsShown<want){let sp=$('celStars').children[CEL.starsShown];if(sp)sp.classList.add('on');SND.sfx('star',CEL.starsShown);vib(25);burst(W/2+(CEL.starsShown-1)*60,130,'#ffe680',20);CEL.starsShown++}
 if(R()<dt*6)burst(I.x+(R()-.5)*I.w,I.y-60-R()*120,`hsl(${R()*360|0},90%,75%)`,8);
 CEL.conf.forEach(c=>{c.y+=c.vy*dt;c.x+=c.vx*dt+Math.sin(t*3+c.r)*.6;c.r+=c.vr*dt;if(c.y>H+10&&t<4){c.y=-10;c.x=R()*W}X.save();X.translate(c.x,c.y);X.rotate(c.r);X.fillStyle=c.c;X.fillRect(-4,-2.5,8,5);X.restore()});
 if(t>5.2)endCel()}
@@ -296,7 +433,7 @@ function mascot(I,n,t){let x=I.x,y=I.y-110+Math.sin(t*5)*12,r=30;X.fillStyle='#f
 X.fillStyle='#5a4a9a';X.beginPath();X.arc(x-10,y-2,3,0,7);X.arc(x+10,y-2,3,0,7);X.fill();X.strokeStyle='#5a4a9a';X.lineWidth=2.5;X.beginPath();X.arc(x,y+4,8,.1,Math.PI-.1);X.stroke();
 X.fillStyle='#ffb3d1';X.beginPath();X.arc(x-18,y+5,4,0,7);X.arc(x+18,y+5,4,0,7);X.fill();
 let w=Math.sin(t*10)*.6;X.strokeStyle='#fff';X.lineWidth=7;X.lineCap='round';X.beginPath();X.moveTo(x-r*1.1,y+4);X.lineTo(x-r*1.6,y-20+w*10);X.moveTo(x+r*1.1,y+4);X.lineTo(x+r*1.6,y-20-w*10);X.stroke()}
-function countUp(el,to,ms,pre,suf){let t0=performance.now();(function f(){let p=Math.min(1,(performance.now()-t0)/ms);el.textContent=pre+Math.round(to*(1-Math.pow(1-p,3)))+suf;if(p<1)requestAnimationFrame(f);else blip(990,.12)})()}
+function countUp(el,to,ms,pre,suf){let t0=performance.now();(function f(){let p=Math.min(1,(performance.now()-t0)/ms);el.textContent=pre+Math.round(to*(1-Math.pow(1-p,3)))+suf;if(p<1)requestAnimationFrame(f);else SND.sfx('coin')})()}
 function showRewards(){let r=G.res,win=r.win,st=r.st;
 $('endT').textContent=win?(G.mode=='level'?'Level geschafft! 🎉':'Wolke 9 erreicht! 🎉'):'Fast geschafft!';
 $('stars').textContent=G.mode=='level'?('⭐'.repeat(st)+'☆'.repeat(3-st)):(win?'☁️💜':'☁️');
@@ -306,14 +443,14 @@ rows.forEach((x,i)=>setTimeout(()=>{let el=$('ct'+i);if(el)countUp(el,x[1],700,x
 let lvp=l=>Math.min(100,(S.xp-lvXp(l))/(lvXp(l+1)-lvXp(l))*100),p0=Math.max(0,Math.min(100,(r.xp0-lvXp(r.l0))/(lvXp(r.l0+1)-lvXp(r.l0))*100));
 $('lvtxt').textContent='⭐ Spielerlevel '+r.l0;let f=$('lvfill');f.style.transition='none';f.style.width=p0+'%';
 let d0=rows.length*350;setTimeout(()=>{f.style.transition='width .9s ease-out';f.style.width=(r.l1>r.l0?100:lvp(r.l1))+'%';
-if(r.l1>r.l0)setTimeout(()=>{$('lvtxt').textContent='⭐ Spielerlevel '+r.l1+' – Level-Up!';blip(1319,.5);vib([40,30,40]);f.style.transition='none';f.style.width='0';setTimeout(()=>{f.style.transition='width .6s';f.style.width=lvp(r.l1)+'%'},30)},950)},d0);
+if(r.l1>r.l0)setTimeout(()=>{$('lvtxt').textContent='⭐ Spielerlevel '+r.l1+' – Level-Up!';SND.sfx('levelup');vib([40,30,40]);f.style.transition='none';f.style.width='0';setTimeout(()=>{f.style.transition='width .6s';f.style.width=lvp(r.l1)+'%'},30)},950)},d0);
 let c=[],dl=d0/1000+1;
 if(r.l1>r.l0){c.push(`<div class="rc lvup"><b>⭐</b>Spielerlevel ${r.l1}!</div>`);REWARDS.filter(x=>x[0]>r.l0&&x[0]<=r.l1).forEach(x=>c.push(`<div class="rc lvup"><b>🎁</b>${x[1]}</div>`));let k0=rankOf(r.l0),k1=rankOf(r.l1);if(k0!==k1)c.push(`<div class="rc lvup"><b>${k1[2]}</b>Neuer Rang: ${k1[1]}</div>`)}
 G.newCL.forEach(ti=>{let t=TYPES[ti];c.push(`<div class="rc card t${t[3]}"><b>${t[1]}</b>${t[0]}<br><small>${TIERS[t[3]][0]}</small></div>`)});
 G.newAL.forEach(e=>{let a=ANIMALS.find(x=>x[0]==e);c.push(`<div class="rc"><b>${aim(e)}</b>${a[1]}<br><small>Neu im Album</small></div>`)});
 $('endR').innerHTML=c.length?'<div style="width:100%;font-size:13px;opacity:0;animation:fin .3s forwards;animation-delay:'+dl+'s">Neu freigeschaltet</div>'+c.map((h,i)=>h.replace('class="rc','style="animation-delay:'+(dl+.15+i*.18)+'s" class="rc')).join(''):'';
-c.forEach((_,i)=>setTimeout(()=>blip(700+i*80,.15),(dl+.15+i*.18)*1000));
-let nx=G.mode=='level'&&win&&G.li<LEVELS.length-1;$('bNext').classList.toggle('hide',!nx);show('end');['hud','goal'].forEach(i=>$(i).classList.add('hide'));if(!win)blip(440,.5)}
+c.forEach((_,i)=>setTimeout(()=>SND.sfx('card',i),(dl+.15+i*.18)*1000));
+let nx=G.mode=='level'&&win&&G.li<LEVELS.length-1;$('bNext').classList.toggle('hide',!nx);show('end');['hud','goal'].forEach(i=>$(i).classList.add('hide'));if(!win)SND.sfx('lose')}
 function unlocked(i){return i==0||(S.stars[i-1]||0)>=1}
 function renderMap(){let h='',tot=0;BIOMES.forEach((b,bi)=>{let cur=-1;LEVELS.forEach((L,i)=>{if(cur<0&&unlocked(i)&&!S.stars[i])cur=i});h+=`<div class="biome" data-e="${b.e}" style="background:${b.card}"><h3>${b.e} ${b.n}${b.rule?'<small class="rule">'+b.rule+'</small>':''}</h3><div class="lvrow">`;
 LEVELS.forEach((L,i)=>{if(L[0]!==bi)return;let s=S.stars[i]||0,u=unlocked(i);tot+=s;h+=`<div class="lv ${u?'':'locked'} ${i==cur?'cur':''} ${i==BOSS?'boss':''}" data-l="${i}">${u?(i==BOSS?'👑':i+1):'🔒'}<small>${'⭐'.repeat(s)+'☆'.repeat(3-s)}</small></div>`});h+='</div><div class="pad"></div></div>'});
@@ -328,18 +465,18 @@ $('again').onclick=()=>preStart(G.mode,G.li);$('home').onclick=()=>show('menu');
 $('quit').onclick=()=>{if(G&&!G.done){G.done=true;ptr=null;G.mode=='level'?(renderMap(),show('mapScr')):show('menu')}};
 function pos(e){return{x:e.clientX,y:e.clientY}}
 C.addEventListener('pointerdown',e=>{if(!G||G.done)return;audio();let p=pos(e),hit=clouds.find(c=>Math.hypot(c.x-p.x,c.y-p.y)<c.r*1.2);
-if(!hit&&p.y<H*.58){let ti=rollType(),t=TYPES[ti];hit={x:p.x,y:p.y,r:has(4)?20:14,dark:0,type:ti,vx:0,life:1};clouds.push(hit);G.seen[ti]=1;
-if(!S.col[ti]){S.col[ti]=1;G.newC++;G.newCL.push(ti);blip(880,.5);burst(p.x,p.y,'#ffe680',24);toast('Neue Wolke: '+t[1]+' '+t[0]+' ('+TIERS[t[3]][0]+')')}else{S.col[ti]++;if(t[3]>=2)toast(t[1]+' '+t[0]+'!')}save();
+if(!hit&&p.y<H*.58){let ti=rollType(),t=TYPES[ti];hit={_n:1,x:p.x,y:p.y,r:has(4)?20:14,dark:0,type:ti,vx:0,life:1};clouds.push(hit);G.seen[ti]=1;
+if(!S.col[ti]){S.col[ti]=1;G.newC++;G.newCL.push(ti);SND.sfx('newcloud');burst(p.x,p.y,'#ffe680',24);toast('Neue Wolke: '+t[1]+' '+t[0]+' ('+TIERS[t[3]][0]+')')}else{S.col[ti]++;if(t[3]>=2)toast(t[1]+' '+t[0]+'!')}save();
 if(ti==6||ti==23){clouds.forEach(c=>{if(c!==hit)c.vx+=(c.x<p.x?-1:1)*(6+R()*6)});for(let i=0;i<20;i++)parts.push({x:p.x,y:p.y,vx:(R()-.5)*9,vy:(R()-.5)*2,l:1,col:'#c8f0d0'})}
 if(ti==7){G.t+=4;toast('🌫️ +4 Sekunden')}if(ti==18){G.score+=50;burst(p.x,p.y,'#fff',30)}}
-ptr={c:hit,x:p.x,y:p.y,t:0};blip(440,.1)});
+ptr={c:hit,x:p.x,y:p.y,t:0};SND.sfx(hit._n?'whoosh':'press');hit._n=0});
 C.addEventListener('pointermove',e=>{if(!ptr||!ptr.c)return;let p=pos(e),d=Math.hypot(p.x-ptr.x,p.y-ptr.y);ptr.c.x+=p.x-ptr.x;ptr.c.y=Math.max(70,Math.min(H*.55,ptr.c.y+p.y-ptr.y));ptr.c.vx=(p.x-ptr.x);if(ptr.c.r<55)ptr.c.r+=d*(has(4)?.12:.08);ptr.x=p.x;ptr.y=p.y;if(d>3)ptr.t=Math.max(0,ptr.t-.02)});
 const up=()=>{ptr=null};C.addEventListener('pointerup',up);C.addEventListener('pointercancel',up);
 function burst(x,y,col,n=14){for(let i=0;i<n&&parts.length<300;i++)parts.push({x,y,vx:(R()-.5)*4,vy:(R()-.5)*4,l:1,col})}
 function spawnAnimal(I,force){let el=ANIMALS.filter(a=>inB(a,BI)&&a[4](G));if(!el.length)return;
 let fresh=el.filter(a=>!animals.some(x=>x.e===a[0])),a=(fresh.length&&R()<.75?fresh:el)[R()*(fresh.length&&R()<.75?fresh:el).length|0];
 if(!a)return;animals.push({x:I.x+(R()-.5)*I.w*.6,e:a[0],ph:R()*6});G.animals++;G.score+=20;
-if(!G.spec[a[0]])G.score+=10;G.spec[a[0]]=(G.spec[a[0]]||0)+1;if(!S.alb[a[0]]){G.newA++;G.newAL.push(a[0]);toast('Neues Tier: '+a[0]+' '+a[1]);blip(1200,.4)}S.alb[a[0]]=(S.alb[a[0]]||0)+1;save();blip(990,.25);vib(20);burst(I.x,I.y-20,'#fff6a0')}
+if(!G.spec[a[0]])G.score+=10;G.spec[a[0]]=(G.spec[a[0]]||0)+1;if(!S.alb[a[0]]){G.newA++;G.newAL.push(a[0]);toast('Neues Tier: '+a[0]+' '+a[1]);SND.sfx('newanimal')}S.alb[a[0]]=(S.alb[a[0]]||0)+1;save();SND.animal(a[0]);vib(20);burst(I.x,I.y-20,'#fff6a0')}
 // ===== v4 graphics =====
 const OC=(w,h)=>{let c=document.createElement('canvas');c.width=Math.max(1,w*D|0);c.height=Math.max(1,h*D|0);let x=c.getContext('2d');x.setTransform(D,0,0,D,0,0);return[c,x]};
 const GC={};let gcKey='';
@@ -776,7 +913,7 @@ drawBg(n,dt,anyDark,moon);drawDeco(n,I);biomeFx(n,dt,I);
 if(G&&!G.done){G.t-=dt;G.sunNow=sun;if(sun>.7)G.sunT+=dt;
 if(ptr&&ptr.c){ptr.t+=dt;let c=ptr.c;c.dark=Math.min(1,c.dark+dt*.45);if(ptr.t>.5&&R()<.3)vib(5);
 let st=(c.type==10||c.type==23?1.1:2.2)*(has(7)?.75:1)*(G.cp=='bolt'?.87:1);
-if(c.dark>.95&&ptr.t>st){flash=.8;mkBolt(c.x,c.y+c.r*.5,I.y);for(let i=0;i<16&&parts.length<300;i++)parts.push({x:c.x,y:c.y+c.r,vx:(R()-.5)*7,vy:(R()-.5)*7,l:1.1,col:'#fff27a',big:1.3});let m=(c.type==19?2:1)*(c.type==14?2:1)*(c.type==20?2:1);G.energy+=(c.type==16?2:1)*(BI==4?2:1);if(BI==4)toast('🌋 Doppelte Energie! ⚡+'+(c.type==16?4:2));if(BI==6){plants.forEach(p=>{if(p.h<1){p.h=Math.min(1,p.h+.25);if(p.h>=1){G.plants++;G.score+=10*(c.type==24?3:1)}}});burst(I.x,I.y-20,'#b8f4ff',24)}G.score+=15*m;blip(70,.8,'sawtooth');vib([60,30,90]);burst(c.x,c.y+c.r,'#fff27a');c.dark=.4;ptr.t=0}}
+if(c.dark>.95&&ptr.t>st){flash=.8;mkBolt(c.x,c.y+c.r*.5,I.y);for(let i=0;i<16&&parts.length<300;i++)parts.push({x:c.x,y:c.y+c.r,vx:(R()-.5)*7,vy:(R()-.5)*7,l:1.1,col:'#fff27a',big:1.3});let m=(c.type==19?2:1)*(c.type==14?2:1)*(c.type==20?2:1);G.energy+=(c.type==16?2:1)*(BI==4?2:1);if(BI==4)toast('🌋 Doppelte Energie! ⚡+'+(c.type==16?4:2));if(BI==6){plants.forEach(p=>{if(p.h<1){p.h=Math.min(1,p.h+.25);if(p.h>=1){G.plants++;G.score+=10*(c.type==24?3:1)}}});burst(I.x,I.y-20,'#b8f4ff',24)}G.score+=15*m;SND.sfx('thunder');vib([60,30,90]);burst(c.x,c.y+c.r,'#fff27a');c.dark=.4;ptr.t=0}}
 WIND=BI==5?(18+Math.sin(n/2600)*16+Math.max(0,Math.sin(n/900))*14):0;clouds.forEach(c=>{if(c!==(ptr&&ptr.c)){c.x+=WIND*dt+c.vx*dt*20+Math.sin(n/2e3+c.y)*.2;c.vx*=.97;c.dark=Math.max(0,c.dark-dt*.08)}
 if(c.gt>0){c.gt-=dt;c.dark=Math.max(c.dark,.85);if(R()<dt*2)G.score+=2}if(c.dark>.3&&drops.length<600){let rate=c.dark*.6*(c.gt>0?2:1)*(c.type==3?1.6:c.type==2?.6:c.type==12?2.5:1);while(rate>0){if(R()<Math.min(1,rate)){let sn=c.type==8||c.type==11||BI==2;
 drops.push({x:c.x+(R()-.5)*c.r*1.4,y:c.y+c.r*.5,v:sn?90:200,s:sn,ty:c.type,ph:R()*6})}rate-=1}}
@@ -787,7 +924,7 @@ let m=(d.ty==14?2:1)*(d.ty==19?2:1)*(d.ty==4?1.5:1);
 if(d.s){G.snow++;if(G.cp=='snow'&&R()<.2)G.snow++;if(G.snow%4==0)G.score+=Math.round(m*(d.ty==11?2:1))}
 if(BI==1&&d.ty!=9&&d.ty!=12&&R()<.5)return;if(BI==4&&d.ty!=21&&R()<.6){if(R()<.2&&parts.length<260)parts.push({x:d.x,y:I.y-6,vx:(R()-.5)*.6,vy:-1.2,l:.7,col:'#ffd8c8'});return}
 let p=plants.find(p=>Math.abs(p.x-d.x)<16),gr=.02*(d.ty==5||d.ty==22?2:1)*(BI==3?1.3:1)*(BI==6?.5:1)*(d.s?.5:1)*(G.cp=='grow'?1.25:1);
-if(p){if(p.h<1){p.h+=gr;if(p.h>=1){p.h=1;G.plants++;G.score+=Math.round(10*m*(d.ty==24?3:1));blip(660,.3);vib(15);burst(p.x,I.y-40,'#a4f0b8')}}}else if(plants.length<14)plants.push({x:d.x,h:.05,hue:R()*360})}if(d.y>H)d.dead=1});
+if(p){if(p.h<1){p.h+=gr;if(p.h>=1){p.h=1;G.plants++;G.score+=Math.round(10*m*(d.ty==24?3:1));SND.sfx('bloom');vib(15);burst(p.x,I.y-40,'#a4f0b8')}}}else if(plants.length<14)plants.push({x:d.x,h:.05,hue:R()*360})}if(d.y>H)d.dead=1});
 drops=drops.filter(d=>!d.dead);if(BI==5){let gw=plants.filter(p=>p.h>=1).length,l0=G.leaves|0;G.leaves+=dt*gw*.12*(.6+WIND/40)*(G.cp=='leaf'?1.2:1);if((G.leaves|0)>l0)G.score+=(G.leaves|0)-l0}
 let cap=BI==2?Math.floor(G.snow/8)+plants.filter(p=>p.h>=1).length:plants.filter(p=>p.h>=1).length+(G.energy>0?1:0);
 if((sun>.6||moon)&&cap>animals.length&&animals.length<10&&R()<dt*.6*(G.cp=='ani'?1.2:1)*(WX&&WX.k=='clear'&&WX.day?1.5:1))spawnAnimal(I);
@@ -882,7 +1019,7 @@ function openSend(to){if(needName())return;SEND={t:-1,to:to||null};let f=to&&S.f
  $('sendTo').textContent=(f?'An '+f.n+' · ':'')+'Heute noch '+sendsLeft()+' / '+MAXS;
  $('sendGrid').innerHTML=TYPES.map((t,i)=>S.col[i]?`<div class="card t${t[3]}" data-i="${i}"><b>${t[1]}</b>${t[0]}<br><small>${TIERS[t[3]][0]}</small></div>`:'').join('')||'<small>Spiel zuerst eine Runde, um Wolken zu sammeln ☁️</small>';
  $('sendMsg').value='';$('pkE').innerHTML=FE.map(e=>`<span>${e}</span>`).join('');$('shareBox').classList.add('hide');$('bDoSend').classList.remove('hide');show('sendScr')}
-$('sendGrid').onclick=e=>{let c=e.target.closest('.card');if(!c)return;SEND.t=+c.dataset.i;$('sendGrid').querySelectorAll('.card').forEach(x=>x.classList.toggle('sel',x===c));blip(700,.15)};
+$('sendGrid').onclick=e=>{let c=e.target.closest('.card');if(!c)return;SEND.t=+c.dataset.i;$('sendGrid').querySelectorAll('.card').forEach(x=>x.classList.toggle('sel',x===c));SND.sfx('tap')};
 $('pkE').onclick=e=>{if(e.target.tagName=='SPAN'){let m=$('sendMsg');m.value=(m.value+e.target.textContent).slice(0,60)}};
 async function shareLink(url,text,title){$('shareUrl').value=url;$('shareBox').classList.remove('hide');
  if(navigator.share){try{await navigator.share({title,text,url});$('shareT').textContent='Geteilt! 💜';return}catch(e){if(e&&e.name=='AbortError'){$('shareT').textContent='Link bereit – teile ihn, wann du willst:';return}}}
@@ -892,7 +1029,7 @@ $('bDoSend').onclick=()=>{if(SEND.t<0)return toast('Wähle eine Wolke aus ☁️
  let t=TYPES[SEND.t],g={v:1,u:S.me.u,n:S.me.n,a:S.me.a,c:S.me.c,t:SEND.t,m:$('sendMsg').value.trim().slice(0,60),d:today,id:Date.now().toString(36)+Math.random().toString(36).slice(2,6)};g.k=ghash(gbody(g));
  S.gs.n++;if(SEND.to){let f=touchFr(SEND.to,{});f.sent++}xpGain(15);
  let url=GIFT_URL+'#gift='+b64e(g),txt=`☁️ ${S.me.n} schenkt dir eine ${t[0]}-Wolke ${t[1]} in Cloud9!${g.m?' „'+g.m+'“':''} Tipp auf den Link, um sie abzuholen 🎁`;
- $('bDoSend').classList.add('hide');$('sendTo').textContent='Verschickt! +15 XP · Heute noch '+sendsLeft()+' / '+MAXS;burst(W/2,H*.3,'#ffc4dd',30);blip(880,.4);shareLink(url,txt,'Cloud9 – Wolkengeschenk')};
+ $('bDoSend').classList.add('hide');$('sendTo').textContent='Verschickt! +15 XP · Heute noch '+sendsLeft()+' / '+MAXS;burst(W/2,H*.3,'#ffc4dd',30);SND.sfx('send');shareLink(url,txt,'Cloud9 – Wolkengeschenk')};
 $('bFr').onclick=()=>{renderFr();show('frScr')};$('bSend').onclick=()=>openSend();$('sendBack').onclick=()=>{renderFr();show('frScr')};
 $('bInv').onclick=()=>{if(needName())return;let url=GIFT_URL+'#from='+b64e({u:S.me.u,n:S.me.n,a:S.me.a,c:S.me.c});$('shareBox').classList.add('hide');
  shareLink(url,`☁️ Spiel mit mir Cloud9! Forme Wolken, lass es regnen und schick mir Wolken – ich bin „${S.me.n}“ ${FA[S.me.a]}`,'Cloud9 – Einladung').then(()=>toast($('shareT').textContent))};
@@ -907,10 +1044,10 @@ function openGift(raw){let g;try{g=b64d(raw)}catch(e){g=null}let err=validGift(g
  let t=TYPES[g.t];el.innerHTML=Array.from({length:12},(_,i)=>`<span class="sp" style="left:${8+i*7.5}%;top:${30+(i*37)%40}%;animation-delay:${i*.2}s">${['✨','💜','⭐'][i%3]}</span>`).join('')+
  `<h2 class="gm" style="animation-delay:.2s">🎁 Ein Wolkengeschenk!</h2>${giftCloud(g.t)}<div class="panel gm"><div style="display:flex;align-items:center;gap:10px;justify-content:center"><span class="av" style="background:${FC[g.c]||FC[0]}">${FA[g.a]||FA[0]}</span><b style="font-size:18px">${esc(g.n)}</b></div>
  <p style="margin:8px 0 4px">schickt dir eine <b>${t[1]} ${esc(t[0])}</b> <small>(${TIERS[t[3]][0]})</small></p>${g.m?`<p style="font-size:18px;margin:4px 0">„${esc(g.m)}“</p>`:''}<small>${esc(t[5])} · regnet in deiner nächsten Runde Bonus</small></div>
- <button class="big gm" id="gClaim">☁️ Abholen (+25 XP)</button>`;el.classList.remove('hide');blip(660,.3);
+ <button class="big gm" id="gClaim">☁️ Abholen (+25 XP)</button>`;el.classList.remove('hide');SND.sfx('gift');
  $('gClaim').onclick=()=>{S.gc[g.id]=Date.now();for(let k in S.gc)if(Date.now()-S.gc[k]>30*864e5)delete S.gc[k];
   S.col[g.t]=(S.col[g.t]||0)+1;S.gq.push({t:g.t,n:g.n});if(S.gq.length>5)S.gq.shift();let f=touchFr(g.u,g);f.got++;xpGain(25);
-  el.classList.add('claimed');blip(880,.5);vib&&vib([30,30,60]);$('gClaim').textContent='✓ Abgeholt! '+g.n+' ist jetzt dein Freund';
+  el.classList.add('claimed');SND.sfx('claim');vib&&vib([30,30,60]);$('gClaim').textContent='✓ Abgeholt! '+g.n+' ist jetzt dein Freund';
   setTimeout(()=>{el.classList.add('hide');renderFr();show('frScr');toast('🎁 Die Wolke kommt in deiner nächsten Runde!')},1300)}}
 function openInvite(raw){let o;try{o=b64d(raw)}catch(e){return}if(!o||typeof o.u!='string'||typeof o.n!='string'||o.n.length>16||o.u===S.me.u)return;
  let f=touchFr(o.u,{n:o.n,a:o.a|0,c:o.c|0});save();toast(FA[f.a]+' '+o.n+' ist jetzt dein Freund!')}
@@ -1011,16 +1148,16 @@ let n=giftsReady(),th=THEMES[S.home.theme]||THEMES[0];$('hInfo').innerHTML=HED?'
 let inv=Object.entries(S.home.inv).filter(([k,n])=>n>0);$('hInv').innerHTML=inv.length?inv.map(([k,n])=>`<span data-k="${k}"><img src="${decoImg(k)}">×${n}</span>`).join(''):'<small>Keine Deko im Lager – kauf welche im Laden 🛍️</small>';
 $('hInv').querySelectorAll('span').forEach(s=>s.onclick=()=>hPlace(s.dataset.k))}
 function cellFree(c,r,skip){return!S.home.deco.some(d=>d!==skip&&d.c==c&&d.r==r)}
-function hPlace(k){let g=hGeo();for(let r=0;r<g.rows;r++)for(let c=0;c<g.cols;c++)if(cellFree(c,r)){S.home.deco.push({k,c,r});S.home.inv[k]--;save();hUi();blip(880,.15);toast(DECO[k][0]+' platziert – zum Verschieben ziehen');return}toast('Kein Platz mehr – erweitere deine Insel 🏝️')}
+function hPlace(k){let g=hGeo();for(let r=0;r<g.rows;r++)for(let c=0;c<g.cols;c++)if(cellFree(c,r)){S.home.deco.push({k,c,r});S.home.inv[k]--;save();hUi();SND.sfx('place');toast(DECO[k][0]+' platziert – zum Verschieben ziehen');return}toast('Kein Platz mehr – erweitere deine Insel 🏝️')}
 function hPos(e){let b=HC.getBoundingClientRect();return{x:e.clientX-b.left,y:e.clientY-b.top}}
 function hCell(g,p){let c=Math.round((p.x-g.cx)/g.cw+(g.cols-1)/2),r=Math.round((p.y-g.ch*.35-g.cy)/g.ch+(g.rows-1)/2);return c>=0&&r>=0&&c<g.cols&&r<g.rows?[c,r]:null}
 function hDown(e){let p=hPos(e),g=hGeo();if(HED){let best=null,bd=1e9;S.home.deco.forEach(d=>{let[x,y]=cellXY(g,d.c,d.r),dd=Math.hypot(x-p.x,y-g.cw*.3-p.y);if(dd<g.cw*.75&&dd<bd){bd=dd;best=d}});if(best){HDR={d:best,x:p.x,y:p.y};try{HC.setPointerCapture(e.pointerId)}catch(_){}}return}
-let best=null,bd=1e9;HA.forEach(a=>{let dd=Math.hypot(a.sx-p.x,a.sy-p.y);if(dd<bd){bd=dd;best=a}});if(best&&bd<g.cw*.8){if(!S.home.got[best.e]){let gf=GIFTS[best.e];S.home.got[best.e]=1;S.home.items[gf[0]]=(S.home.items[gf[0]]||0)+1;coinGain(gf[2]);HFT.push({x:best.sx,y:best.sy-40,s:gf[0]+' +'+gf[2]+' 🪙',l:1.4});burst2(best.sx,best.sy-30);blip(1046,.2);setTimeout(()=>blip(1318,.2),90);vib(15);hUi()}else{best.hop=1;blip(660,.08);let an=ANIMALS.find(x=>x[0]==best.e);toast(best.e+' '+(an?an[1]:'')+' freut sich 💜')}}}
+let best=null,bd=1e9;HA.forEach(a=>{let dd=Math.hypot(a.sx-p.x,a.sy-p.y);if(dd<bd){bd=dd;best=a}});if(best&&bd<g.cw*.8){if(!S.home.got[best.e]){let gf=GIFTS[best.e];S.home.got[best.e]=1;S.home.items[gf[0]]=(S.home.items[gf[0]]||0)+1;coinGain(gf[2]);HFT.push({x:best.sx,y:best.sy-40,s:gf[0]+' +'+gf[2]+' 🪙',l:1.4});burst2(best.sx,best.sy-30);SND.sfx('coin');SND.animal(best.e);vib(15);hUi()}else{best.hop=1;SND.animal(best.e);let an=ANIMALS.find(x=>x[0]==best.e);toast(best.e+' '+(an?an[1]:'')+' freut sich 💜')}}}
 function burst2(x,y){for(let i=0;i<12;i++)HFT.push({x,y,vx:(R()-.5)*120,vy:-R()*120,l:.8,dot:`hsl(${R()*360|0},90%,78%)`})}
 function hMove(e){if(!HDR)return;let p=hPos(e);HDR.x=p.x;HDR.y=p.y}
 function hUp(e){if(!HDR)return;let g=hGeo(),p=hPos(e),cell=hCell(g,{x:p.x,y:p.y+g.cw*.3}),d=HDR.d;HDR=null;
 if(!cell){S.home.deco=S.home.deco.filter(x=>x!==d);S.home.inv[d.k]=(S.home.inv[d.k]||0)+1;toast(DECO[d.k][0]+' eingelagert 📦')}
-else{let o=S.home.deco.find(x=>x!==d&&x.c==cell[0]&&x.r==cell[1]);if(o){o.c=d.c;o.r=d.r}d.c=cell[0];d.r=cell[1];blip(780,.1)}save();hUi()}
+else{let o=S.home.deco.find(x=>x!==d&&x.c==cell[0]&&x.r==cell[1]);if(o){o.c=d.c;o.r=d.r}d.c=cell[0];d.r=cell[1];SND.sfx('place')}save();hUi()}
 function hSky(){if(GC.hsky)return GC.hsky;let th=THEMES[S.home.theme]||THEMES[0],[c,x]=OC(HW,HH),g=x.createLinearGradient(0,0,0,HH);g.addColorStop(0,th.sky[0]);g.addColorStop(1,th.sky[1]);x.fillStyle=g;x.fillRect(0,0,HW,HH);
 if(th.night)for(let i=0;i<70;i++){x.fillStyle='rgba(255,255,255,'+(.3+R()*.7)+')';x.beginPath();x.arc(R()*HW,R()*HH*.7,R()*1.4+.3,0,7);x.fill()}
 return GC.hsky=c}
@@ -1055,7 +1192,7 @@ if(SHT=='deco')h=Object.entries(DECO).map(([k,d])=>{let own=(S.home.inv[k]||0)+S
 else if(SHT=='sec')h=SECS.map((s,i)=>i==0?'':`<div class="card shc wide ${i<S.home.sec?'own':''}" data-s="${i}"><b>🏝️</b><div>${s[3]}</div><small>${s[0]}×${s[1]} Felder</small>${i<S.home.sec?'<small>✅ Freigeschaltet</small>':i==S.home.sec?`<button class="buy">🪙 ${s[2]}</button>`:'<small>🔒 Erst Teil '+i+'</small>'}</div>`).join('');
 else h=THEMES.map((th,i)=>{let own=S.home.themes.includes(i);return`<div class="card shc wide" data-th="${i}" style="background:linear-gradient(160deg,${th.sky[0]},${th.top})"><b>${th.e}</b><div>${th.n}</div>${S.home.theme==i?'<small>✅ Aktiv</small>':own?'<button class="buy sec2">Benutzen</button>':`<button class="buy">🪙 ${th.p}</button>`}</div>`}).join('');
 $('shGrid').innerHTML=h;$('shGrid').querySelectorAll('.buy').forEach(b=>b.onclick=()=>{let c=b.closest('.card');shopBuy(c.dataset)})}
-function pay(p){if(S.home.coins<p){toast('Nicht genug Wolkentaler 🪙 – spiel Runden & sammle Geschenke');blip(220,.2);return false}S.home.coins-=p;blip(1046,.15);setTimeout(()=>blip(1318,.2),80);vib(15);return true}
+function pay(p){if(S.home.coins<p){toast('Nicht genug Wolkentaler 🪙 – spiel Runden & sammle Geschenke');SND.sfx('nope');return false}S.home.coins-=p;SND.sfx('coin');vib(15);return true}
 function shopBuy(d){if(d.k){if(!pay(DECO[d.k][1]))return;S.home.inv[d.k]=(S.home.inv[d.k]||0)+1;toast(DECO[d.k][0]+' gekauft! Platziere es auf deiner Insel ✏️')}
 else if(d.s){let i=+d.s;if(i!=S.home.sec||!pay(SECS[i][2]))return;S.home.sec=i+1;toast('🏝️ '+SECS[i][3]+' freigeschaltet – deine Insel ist gewachsen!')}
 else if(d.th){let i=+d.th;if(!S.home.themes.includes(i)){if(!pay(THEMES[i].p))return;S.home.themes.push(i)}S.home.theme=i;delete GC.hsky;toast(THEMES[i].e+' '+THEMES[i].n+' aktiv')}
@@ -1065,14 +1202,14 @@ let CF=[];const spare=t=>(S.col[t]||0)-1;
 function recipeFor(a,b){return RECIPES.findIndex(r=>(r[0]==a&&r[1]==b)||(r[0]==b&&r[1]==a))}
 function cloudChip(t){let e=TYPES[t];return`<span class="cc t${e[3]}" style="background:${e[2]}">${e[1]}</span>`}
 function renderCraft(){let cs=$('cfGrid');cs.innerHTML=TYPES.map((t,i)=>{let n=S.col[i]||0;if(!n)return'';let used=CF.filter(x=>x==i).length,sp=spare(i)-used;return`<div class="card cfc t${t[3]} ${sp<1?'lock':''} ${used?'sel':''}" data-t="${i}"><b>${t[1]}</b>${t[0]}<br><small>×${n}${n>1?' ('+(n-1)+' doppelt)':''}</small></div>`}).join('')||'<small>Noch keine Wolken</small>';
-cs.querySelectorAll('.cfc').forEach(c=>c.onclick=()=>{let t=+c.dataset.t,used=CF.filter(x=>x==t).length;if(spare(t)-used<1)return toast('Du brauchst eine doppelte '+TYPES[t][0]+' – eine bleibt immer in der Sammlung');if(CF.length>=2)CF=[];CF.push(t);blip(700+CF.length*120,.1);renderCraft()});
+cs.querySelectorAll('.cfc').forEach(c=>c.onclick=()=>{let t=+c.dataset.t,used=CF.filter(x=>x==t).length;if(spare(t)-used<1)return toast('Du brauchst eine doppelte '+TYPES[t][0]+' – eine bleibt immer in der Sammlung');if(CF.length>=2)CF=[];CF.push(t);SND.sfx('card',CF.length);renderCraft()});
 ['cfA','cfB'].forEach((id,i)=>$(id).innerHTML=CF[i]!=null?cloudChip(CF[i]):'❔');let ri=CF.length==2?recipeFor(CF[0],CF[1]):-1;
 $('cfR').innerHTML=CF.length<2?'❔':ri<0?'✖️':S.rec[ri]?cloudChip(RECIPES[ri][2]):'✨';$('cfGo').disabled=CF.length<2;
 let nd=Object.keys(S.rec).length;$('cfCnt').textContent=nd+' / '+RECIPES.length;
 $('cfBook').innerHTML=RECIPES.map((r,i)=>S.rec[i]?`<div class="rcp">${cloudChip(r[0])}+${cloudChip(r[1])}=${cloudChip(r[2])}<small>${TYPES[r[2]][0]}</small></div>`:`<div class="rcp lockr">${S.col[r[0]]?cloudChip(r[0]):'<span class="cc">❔</span>'}+<span class="cc">❔</span>=<span class="cc">❔</span><small>${TIERS[TYPES[r[2]][3]][0]}</small></div>`).join('')}
-function doCraft(){if(CF.length<2)return;let[a,b]=CF,ri=recipeFor(a,b);if(ri<0){toast('Diese Wolken mögen sich nicht 🙈 – probier eine andere Kombi');blip(200,.3);CF=[];renderCraft();return}
+function doCraft(){if(CF.length<2)return;let[a,b]=CF,ri=recipeFor(a,b);if(ri<0){toast('Diese Wolken mögen sich nicht 🙈 – probier eine andere Kombi');SND.sfx('nope');CF=[];renderCraft();return}
 if(a==b?spare(a)<2:(spare(a)<1||spare(b)<1))return toast('Nicht genug Doppelte');let res=RECIPES[ri][2],fresh=!S.col[res],first=!S.rec[ri];S.col[a]--;S.col[b]--;S.col[res]=(S.col[res]||0)+1;S.rec[ri]=1;CF=[];save();
-let el=$('cfR');el.innerHTML=cloudChip(res);el.classList.remove('pop');void el.offsetWidth;el.classList.add('pop');blip(880,.2);setTimeout(()=>blip(1175,.3),120);setTimeout(()=>blip(1568,.4),240);vib([20,30,40]);
+let el=$('cfR');el.innerHTML=cloudChip(res);el.classList.remove('pop');void el.offsetWidth;el.classList.add('pop');SND.sfx('craft');vib([20,30,40]);
 toast((first?'📖 Neues Rezept! ':'')+TYPES[res][1]+' '+TYPES[res][0]+(fresh?' – neu in deiner Sammlung!':' +1'));if(first)coinGain(10*(TYPES[res][3]+1));setTimeout(renderCraft,700)}
 // ---------- Loadout & companion ----------
 let LDM=null;
@@ -1081,15 +1218,15 @@ function renderLd(){let[mode,li]=LDM;S.ld.c=S.ld.c.filter(t=>S.col[t]&&TYPES[t][
 $('ldT').textContent=mode=='level'?'🎒 Level '+(li+1)+' – Ausrüsten':'🎒 Wolke-9-Challenge';$('ldG').textContent='Ziel: '+goalStr(mode=='level'?LEVELS[li][1]:dailyGoals)+(mode=='level'&&S.stars[li]?' · '+'⭐'.repeat(S.stars[li]):'');
 $('ldSel').innerHTML=[0,1,2].map(i=>S.ld.c[i]!=null?cloudChip(S.ld.c[i]):'<span class="cc">＋</span>').join('');
 $('ldGrid').innerHTML=TYPES.map((t,i)=>{if(!S.col[i]||t[3]>=4)return'';return`<div class="card cfc t${t[3]} ${S.ld.c.includes(i)?'sel':''}" data-t="${i}"><b>${t[1]}</b>${t[0]}</div>`}).join('')||'<small>Noch keine Wolken</small>';
-$('ldGrid').querySelectorAll('.cfc').forEach(c=>c.onclick=()=>{let t=+c.dataset.t,k=S.ld.c.indexOf(t);if(k>=0)S.ld.c.splice(k,1);else{if(S.ld.c.length>=3)return toast('Maximal 3 Wolken');S.ld.c.push(t);toast(TYPES[t][1]+' '+TYPES[t][0]+': '+TYPES[t][5])}save();blip(760,.08);renderLd()});
+$('ldGrid').querySelectorAll('.cfc').forEach(c=>c.onclick=()=>{let t=+c.dataset.t,k=S.ld.c.indexOf(t);if(k>=0)S.ld.c.splice(k,1);else{if(S.ld.c.length>=3)return toast('Maximal 3 Wolken');S.ld.c.push(t);toast(TYPES[t][1]+' '+TYPES[t][0]+': '+TYPES[t][5])}save();SND.sfx('tap');renderLd()});
 let al=ANIMALS.filter(a=>S.alb[a[0]]&&COMP[a[0]]);$('ldA').innerHTML=`<div class="card cfa ${!S.ld.a?'sel':''}" data-e=""><b>🚫</b>Keiner</div>`+al.map(a=>`<div class="card cfa ${S.ld.a==a[0]?'sel':''}" data-e="${a[0]}"><img src="${animalImg(a[0])}">${a[1]}<br><small>${CPK[COMP[a[0]]][0]}</small></div>`).join('');
-$('ldA').querySelectorAll('.cfa').forEach(c=>c.onclick=()=>{S.ld.a=c.dataset.e||null;save();blip(760,.08);renderLd()});
+$('ldA').querySelectorAll('.cfa').forEach(c=>c.onclick=()=>{S.ld.a=c.dataset.e||null;save();SND.sfx('tap');renderLd()});
 $('ldAd').textContent=S.ld.a?S.ld.a+' '+ANIMALS.find(a=>a[0]==S.ld.a)[1]+': '+CPK[COMP[S.ld.a]][1]:'Wähle ein Tier als Begleiter für einen kleinen Bonus'}
 function ldApply(){G.cp=null;G.cpe=null;G.ld=[];let p=PEND;PEND=null;if(p){if(p.a&&S.alb[p.a]&&COMP[p.a]){G.cp=COMP[p.a];G.cpe=p.a}G.ld=(p.c||[]).filter(t=>S.col[t]&&TYPES[t][3]<4).slice(0,3).map(t=>({t,n:1}))}if(G.cp=='time')G.t+=4;ldBar()}
 function ldBar(){let b=$('ldBar');if(!G||(!G.ld.length&&!G.cp)){b.innerHTML='';return}
 b.innerHTML=(G.cpe?`<span class="cpc" title="${CPK[G.cp][1]}"><img src="${animalImg(G.cpe)}">${CPK[G.cp][0]}</span>`:'')+G.ld.map((l,i)=>`<button class="ldc ${l.n?'':'used'}" data-i="${i}" style="background:${TYPES[l.t][2]}">${TYPES[l.t][1]}<small>${l.n?'×'+l.n:'✓'}</small></button>`).join('');
 b.querySelectorAll('.ldc').forEach(x=>x.onpointerdown=e=>{e.stopPropagation();e.preventDefault();ldUse(+x.dataset.i)})}
-function ldUse(i){if(!G||G.done)return;let l=G.ld[i];if(!l||!l.n)return;l.n--;let ti=l.t,x=W*(.3+R()*.4),y=H*.26,c={x,y,r:30,dark:0,type:ti,vx:0,life:1};clouds.push(c);G.seen[ti]=1;burst(x,y,'#fff',22);blip(990,.2);
+function ldUse(i){if(!G||G.done)return;let l=G.ld[i];if(!l||!l.n)return;l.n--;let ti=l.t,x=W*(.3+R()*.4),y=H*.26,c={x,y,r:30,dark:0,type:ti,vx:0,life:1};clouds.push(c);G.seen[ti]=1;burst(x,y,'#fff',22);SND.sfx('whoosh');
 if(ti==6||ti==23)clouds.forEach(o=>{if(o!==c)o.vx+=(o.x<x?-1:1)*(6+R()*6)});if(ti==7){G.t+=4;toast('🌫️ +4 Sekunden')}if(ti==18){G.score+=50}toast('🎒 '+TYPES[ti][1]+' '+TYPES[ti][0]+' eingesetzt');ldBar()}
 // ---------- leaderboard titles ----------
 let LBX={t:0,m:{}};async function lbLv13(){if(Date.now()-LBX.t<60000)return;try{let r=await sb('rpc/lb_top',{p_mode:'total'});LBX.m={};(r||[]).forEach(x=>LBX.m[x.player_id]=x.score);LBX.t=Date.now()}catch(e){}}
