@@ -61,6 +61,28 @@ button.sec:active{box-shadow:0 1px 0 #d4caf7}
 .rc.lvup{background:linear-gradient(135deg,#ffe98a,#ff9ad5)}
 .hint{font-size:12.5px;max-width:320px;line-height:1.5;font-weight:600}
 .wxb{background:rgba(255,255,255,.55);border-radius:14px;padding:3px 10px;font-weight:800;font-size:14px;margin:4px}
+
+.av{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:50%;font-size:26px;border:3px solid #fff;box-shadow:0 4px 10px rgba(90,70,170,.18);flex:none}
+.pick{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin:6px 0}
+.pick span{cursor:pointer;width:36px;height:36px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:22px;border:3px solid transparent;background:rgba(255,255,255,.6)}
+.pick span.on{border-color:#8d7bf0;transform:scale(1.08)}
+.inp{font-family:var(--f);font-size:16px;font-weight:700;color:var(--ink);border:2px solid #fff;border-radius:16px;padding:10px 12px;width:100%;box-sizing:border-box;background:rgba(255,255,255,.8);outline:none}
+.inp:focus{border-color:#c9bdf8}
+.fr{display:flex;align-items:center;gap:10px;text-align:left;margin:6px 0}
+.fr div{flex:1;font-size:13px;line-height:1.35}.fr b{font-size:16px}
+.fr button{padding:9px 12px;font-size:13px;margin:0}
+.card.sel{border-color:#8d7bf0;box-shadow:0 0 0 3px #c9bdf8,0 6px 16px rgba(90,70,170,.2)}
+#gift{position:fixed;inset:0;z-index:30;display:flex;flex-direction:column;align-items:center;justify-content:center;background:radial-gradient(80% 50% at 50% 35%,rgba(255,255,255,.85),transparent),linear-gradient(180deg,#ffd6ec,#e6dcff 50%,#cde8ff);color:var(--ink);text-align:center;padding:20px;box-sizing:border-box;overflow:hidden}
+#gift .gc{position:relative;width:200px;height:120px;animation:gIn 1.6s cubic-bezier(.2,.8,.3,1) both,float 4s 1.6s ease-in-out infinite}
+#gift .gc i{position:absolute;background:#fff;border-radius:50%;box-shadow:inset -6px -10px 18px rgba(170,150,230,.25)}
+#gift .gc b{position:absolute;left:50%;top:52%;transform:translate(-50%,-50%);font-size:52px;filter:drop-shadow(0 4px 4px rgba(0,0,0,.12))}
+#gift .gm{animation:gFade .6s 1.2s both}
+#gift .sp{position:absolute;font-size:18px;animation:gSp 2.4s linear infinite;opacity:0}
+@keyframes gIn{0%{transform:translate(-120vw,-30px) scale(.6) rotate(-8deg)}100%{transform:none}}
+@keyframes gFade{0%{opacity:0;transform:translateY(14px)}100%{opacity:1;transform:none}}
+@keyframes gSp{0%{opacity:0;transform:translateY(0)}20%{opacity:1}100%{opacity:0;transform:translateY(-120px)}}
+#gift.claimed .gc{animation:gOut 1s ease-in both}
+@keyframes gOut{to{transform:translateY(-60vh) scale(.5);opacity:0}}
 </style></head><body>
 <canvas id="c"></canvas>
 <div id="hud" class="hide"><button id="quit">✕</button><span class="pill" id="time">60s</span><span class="pill" id="score">0 ✨</span><span class="pill" id="energy">⚡0</span><span class="pill" id="wxh" style="display:none;font-size:12px"></span></div>
@@ -70,11 +92,23 @@ button.sec:active{box-shadow:0 1px 0 #d4caf7}
 <p id="streak" style="margin:10px 0 2px;font-weight:700"></p><p id="daily" style="font-size:14px;margin:2px 0 0"></p></div>
 <div id="wxb" class="wxb" style="display:none"></div><div id="wxp" class="panel" style="font-size:14px"></div>
 <button class="big" id="bMap">🗺️ Abenteuer</button><button class="big" id="bDaily">☁️ Wolke-9-Challenge</button>
-<div><button class="sec" id="bCol">Wolken</button><button class="sec" id="bAlb">Tieralbum</button></div>
+<div><button class="sec" id="bCol">Wolken</button><button class="sec" id="bAlb">Tieralbum</button></div><button class="big" id="bFr">💌 Freunde &amp; Wolken <span id="frBadge"></span></button>
 <p class="hint panel">Ziehen = Wolke erschaffen &amp; bewegen · Gedrückt halten = Regen 🌧️ · Lange halten = Gewitter ⚡ · Freier Himmel = Sonne ☀️ · Tiere kommen, wenn ihre Bedingungen erfüllt sind</p></div>
 <div id="mapScr" class="scr hide"><h2>🗺️ Weltkarte</h2><small id="mapStars"></small><div id="mapList" style="width:100%;display:flex;flex-direction:column;align-items:center"></div><button class="sec back">Zurück</button></div>
 <div id="colScr" class="scr hide"><h2>☁️ Wolken-Sammlung</h2><small id="colCnt"></small><div class="tabs">Seltenheit: <span style="color:#999">Gewöhnlich</span> · <span style="color:#3a9">Ungewöhnlich</span> · <span style="color:#36f">Selten</span> · <span style="color:#a4f">Episch</span> · <span style="color:#e90">Legendär</span></div><div id="colGrid" class="grid"></div><button class="sec back">Zurück</button></div>
 <div id="albScr" class="scr hide"><h2>🐾 Tieralbum</h2><small id="albCnt"></small><div id="albGrid" class="grid"></div><button class="sec back">Zurück</button></div>
+<div id="frScr" class="scr hide"><h2>💌 Freunde</h2>
+<div class="panel"><div style="display:flex;align-items:center;gap:10px"><span class="av" id="meAv"></span><input class="inp" id="meName" maxlength="16" placeholder="Dein Spitzname"></div>
+<div class="pick" id="pkA"></div><div class="pick" id="pkC"></div></div>
+<button class="big" id="bSend">☁️ Wolke verschicken</button><button class="sec" id="bInv">🔗 Freunde einladen</button>
+<small id="sendLeft" style="font-weight:700"></small>
+<div class="panel" id="frList"></div><button class="sec back">Zurück</button></div>
+<div id="sendScr" class="scr hide"><h2>☁️ Wolke verschicken</h2><small id="sendTo" style="font-weight:700"></small>
+<div id="sendGrid" class="grid"></div>
+<div class="panel"><input class="inp" id="sendMsg" maxlength="60" placeholder="Kurze Nachricht (optional)"><div class="pick" id="pkE"></div></div>
+<button class="big" id="bDoSend">💌 Senden</button><div class="panel hide" id="shareBox" style="font-size:13px"><b id="shareT"></b><input class="inp" id="shareUrl" readonly style="font-size:12px;margin-top:6px"><button class="sec" id="bCopy">📋 Link kopieren</button></div>
+<button class="sec" id="sendBack">Zurück</button></div>
+<div id="gift" class="hide"></div>
 <div id="cel" class="hide"><h2 id="celT"></h2><div id="celStars"></div><div id="celSkip">Tippen zum Überspringen</div></div>
 <div id="end" class="scr mid hide"><h2 id="endT"></h2><div id="stars"></div><div id="endS"></div><div id="lvtxt" style="font-size:13px;margin-top:6px"></div><div id="lvbar"><div id="lvfill"></div></div><div id="endR" class="cards"></div>
 <button id="bNext">Weiter ▶</button><button id="again">Nochmal</button><button class="sec" id="home">Menü</button></div>
@@ -171,7 +205,7 @@ function gv(g,k){return k=='leaves'?g.leaves|0:k=='species'?Object.keys(g.spec).
 function menu(){let l=plv(S.xp);$('prof').textContent='⭐ Spielerlevel '+l;$('xpfill').style.width=Math.min(100,(S.xp-lvXp(l))/(lvXp(l+1)-lvXp(l))*100)+'%';
 let nx=REWARDS.find(r=>r[0]>l);$('xptxt').textContent=(S.xp|0)+' XP'+(nx?' · Lv '+nx[0]+': '+nx[1]:' · alle Belohnungen frei');
 $('streak').textContent='🔥 Serie: '+S.streak+' Tage · Bestwert: '+S.best;$('daily').textContent='Heute ('+BIOMES[DB].e+' '+BIOMES[DB].n+'): '+goalStr(dailyGoals)}
-const SCR=['menu','mapScr','colScr','albScr','end'];
+const SCR=['menu','mapScr','colScr','albScr','end','frScr','sendScr'];
 function show(id){SCR.forEach(i=>$(i).classList.toggle('hide',i!==id));['hud','goal'].forEach(i=>$(i).classList.toggle('hide',id!==null));if(id==='menu')menu()}
 // audio
 let AC,master;function audio(){if(AC)return;try{AC=new(window.AudioContext||window.webkitAudioContext)();master=AC.createGain();master.gain.value=.12;master.connect(AC.destination);
@@ -185,7 +219,7 @@ for(let i=0;i<ws.length;i++){r-=ws[i];if(r<0)return i}return 0}
 const isl=()=>({x:W/2,y:H*.68,w:Math.min(W*.82,340)});
 function start(mode,li){audio();let L=mode=='level'?LEVELS[li]:null;BI=L?L[0]:DB;B=BIOMES[BI];
 G={mode,li,b:BI,goals:L?L[1]:dailyGoals,t:(L?L[2]:75)+(has(2)?5:0),score:0,plants:0,animals:0,energy:(has(5)?1:0)+(WX&&WX.k=='storm'?1:0),snow:0,leaves:0,rain:0,sunT:0,sunNow:0,spec:{},seen:{},done:false,newC:0,newA:0,newCL:[],newAL:[]};CEL=null;$('cel').classList.add('hide');
-clouds=[];drops=[];plants=[];animals=[];parts=[];ptr=null;sun=0;show(null);
+clouds=[];drops=[];plants=[];animals=[];parts=[];ptr=null;sun=0;show(null);if(S.gq&&S.gq.length){let q=S.gq.shift();save();clouds.push({x:W*.5,y:H*.28,r:26,dark:0,type:q.t,vx:0,life:1,gt:7,gn:q.n});G.seen[q.t]=1;setTimeout(()=>{if(G&&!G.done)toast('🎁 Geschenk von '+q.n+': '+TYPES[q.t][1]+' regnet Bonus!')},2600)}
 $('goal').textContent=goalStr(G.goals,G);toast(L?(li==BOSS?'👑 Boss: ':B.e+' ')+B.n+' – Level '+(li+1):'☁️ Wolke-9-Challenge');if(L&&B.rule&&(li==0||LEVELS[li-1][0]!==L[0]||!S.stars[li]))setTimeout(()=>{if(G&&!G.done&&G.li===li)toast(B.e+' '+B.rule)},1900);}
 function goalsMet(){return Object.entries(G.goals).every(([k,n])=>gv(G,k)>=n)}
 let CEL=null;
@@ -704,7 +738,7 @@ if(ptr&&ptr.c){ptr.t+=dt;let c=ptr.c;c.dark=Math.min(1,c.dark+dt*.45);if(ptr.t>.
 let st=(c.type==10||c.type==23?1.1:2.2)*(has(7)?.75:1);
 if(c.dark>.95&&ptr.t>st){flash=.8;mkBolt(c.x,c.y+c.r*.5,I.y);for(let i=0;i<16&&parts.length<300;i++)parts.push({x:c.x,y:c.y+c.r,vx:(R()-.5)*7,vy:(R()-.5)*7,l:1.1,col:'#fff27a',big:1.3});let m=(c.type==19?2:1)*(c.type==14?2:1)*(c.type==20?2:1);G.energy+=(c.type==16?2:1)*(BI==4?2:1);if(BI==4)toast('🌋 Doppelte Energie! ⚡+'+(c.type==16?4:2));if(BI==6){plants.forEach(p=>{if(p.h<1){p.h=Math.min(1,p.h+.25);if(p.h>=1){G.plants++;G.score+=10*(c.type==24?3:1)}}});burst(I.x,I.y-20,'#b8f4ff',24)}G.score+=15*m;blip(70,.8,'sawtooth');vib([60,30,90]);burst(c.x,c.y+c.r,'#fff27a');c.dark=.4;ptr.t=0}}
 WIND=BI==5?(18+Math.sin(n/2600)*16+Math.max(0,Math.sin(n/900))*14):0;clouds.forEach(c=>{if(c!==(ptr&&ptr.c)){c.x+=WIND*dt+c.vx*dt*20+Math.sin(n/2e3+c.y)*.2;c.vx*=.97;c.dark=Math.max(0,c.dark-dt*.08)}
-if(c.dark>.3&&drops.length<600){let rate=c.dark*.6*(c.type==3?1.6:c.type==2?.6:c.type==12?2.5:1);while(rate>0){if(R()<Math.min(1,rate)){let sn=c.type==8||c.type==11||BI==2;
+if(c.gt>0){c.gt-=dt;c.dark=Math.max(c.dark,.85);if(R()<dt*2)G.score+=2}if(c.dark>.3&&drops.length<600){let rate=c.dark*.6*(c.gt>0?2:1)*(c.type==3?1.6:c.type==2?.6:c.type==12?2.5:1);while(rate>0){if(R()<Math.min(1,rate)){let sn=c.type==8||c.type==11||BI==2;
 drops.push({x:c.x+(R()-.5)*c.r*1.4,y:c.y+c.r*.5,v:sn?90:200,s:sn,ty:c.type,ph:R()*6})}rate-=1}}
 if(c.type==15&&c.dark>.5&&R()<dt*.5&&animals.length<10)spawnAnimal(I,1);
 if(c.x<-80)c.x=W+60;if(c.x>W+80)c.x=-60});
@@ -774,4 +808,73 @@ async function wxLoad(){if(!WXS.on||WXS.lat==null){wxRender();return}let c=WXS.c
  catch(e){if(c&&Date.now()-c.ts<216e5){WX=Object.assign({},c,{old:1})}else{WX=null;WXS.err='Offline – heute ohne Wetterbonus.'}}wxRender()}
 addEventListener('online',()=>{if(WXS.c)WXS.c.ts=0;wxLoad()});
 wxLoad();
+
+// ---- v11 Freunde & Wolken verschicken ----
+const FA=['🐰','🐧','🦊','🐻','🐱','🐼','🦄','🐝','🐸','🐨'],FC=['#ffc4dd','#cdbcff','#bfe3ff','#c4f2d6','#fff0b3','#ffd2b8'],FE=['💜','☀️','🌈','😘','🎉','🌸','⚡','😎'];
+const GIFT_URL='https://bullfish77.github.io/cloud9/',G_SALT='c9☁️wolke9',MAXS=3;
+if(!S.me)S.me={n:'',a:0,c:0,u:Math.random().toString(36).slice(2,10)};S.fr=S.fr||{};S.gc=S.gc||{};S.gq=S.gq||[];S.gs=S.gs||{d:'',n:0};save();
+const esc=t=>String(t).replace(/[&<>"']/g,c=>'&#'+c.charCodeAt(0)+';');
+const yday=()=>new Date(Date.now()-864e5).toISOString().slice(0,10);
+function ghash(str){let h=2166136261;for(const ch of G_SALT+str+G_SALT){h^=ch.codePointAt(0);h=Math.imul(h,16777619)>>>0}return h.toString(36)}
+const b64e=o=>btoa(unescape(encodeURIComponent(JSON.stringify(o)))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+const b64d=t=>JSON.parse(decodeURIComponent(escape(atob(t.replace(/-/g,'+').replace(/_/g,'/')))));
+function gbody(g){return[g.v,g.u,g.n,g.a,g.c,g.t,g.m,g.d,g.id].join('|')}
+function sendsLeft(){if(S.gs.d!==today)S.gs={d:today,n:0};return MAXS-S.gs.n}
+function meAv(el,a,c){el.textContent=FA[a]||FA[0];el.style.background=FC[c]||FC[0]}
+function touchFr(u,o){let f=S.fr[u]||(S.fr[u]={n:o.n,a:o.a,c:o.c,st:0,day:'',got:0,sent:0});if(o.n){f.n=o.n;f.a=o.a;f.c=o.c}
+ if(f.day!==today){f.st=f.day===yday()?f.st+1:1;f.day=today}return f}
+function xpGain(x){S.xp+=x;save()}
+function renderFr(){let me=S.me;$('meName').value=me.n;meAv($('meAv'),me.a,me.c);
+ $('pkA').innerHTML=FA.map((a,i)=>`<span data-i="${i}" class="${i==me.a?'on':''}">${a}</span>`).join('');
+ $('pkC').innerHTML=FC.map((c,i)=>`<span data-i="${i}" class="${i==me.c?'on':''}" style="background:${c}"></span>`).join('');
+ let l=sendsLeft();$('sendLeft').textContent='Heute noch '+l+' / '+MAXS+' Wolken verschickbar · +15 XP pro Wolke';
+ let fs=Object.entries(S.fr).sort((a,b)=>(b[1].day>a[1].day)-(b[1].day<a[1].day));
+ $('frList').innerHTML=fs.length?'<b>Deine Freunde ('+fs.length+')</b>'+fs.map(([u,f])=>{let alive=f.day===today||f.day===yday();
+ return`<div class="fr"><span class="av" style="background:${FC[f.c]||FC[0]}">${FA[f.a]||FA[0]}</span><div><b>${esc(f.n)}</b><br>${alive&&f.st?'🔥 '+f.st+(f.st==1?' Tag':' Tage')+' Geschenk-Serie':'💤 Serie pausiert'}<br><small>🎁 ${f.got} erhalten · 💌 ${f.sent} geschickt</small></div><button data-u="${esc(u)}">☁️ Zurück&shy;schicken</button></div>`}).join('')
+ :'<small>Noch keine Freunde. Schick eine Wolke oder lade jemanden ein – wer dir eine Wolke schenkt, landet hier! 💜</small>';
+ $('frList').querySelectorAll('button').forEach(b=>b.onclick=()=>openSend(b.dataset.u))}
+$('pkA').onclick=e=>{let i=e.target.dataset.i;if(i!=null){S.me.a=+i;save();renderFr()}};
+$('pkC').onclick=e=>{let i=e.target.dataset.i;if(i!=null){S.me.c=+i;save();renderFr()}};
+$('meName').oninput=e=>{S.me.n=e.target.value.trim().slice(0,16);save()};
+let SEND={t:-1,to:null};
+function needName(){if(!S.me.n){toast('Gib zuerst deinen Spitznamen ein ✏️');$('meName').focus();return true}}
+function openSend(to){if(needName())return;SEND={t:-1,to:to||null};let f=to&&S.fr[to];
+ $('sendTo').textContent=(f?'An '+f.n+' · ':'')+'Heute noch '+sendsLeft()+' / '+MAXS;
+ $('sendGrid').innerHTML=TYPES.map((t,i)=>S.col[i]?`<div class="card t${t[3]}" data-i="${i}"><b>${t[1]}</b>${t[0]}<br><small>${TIERS[t[3]][0]}</small></div>`:'').join('')||'<small>Spiel zuerst eine Runde, um Wolken zu sammeln ☁️</small>';
+ $('sendMsg').value='';$('pkE').innerHTML=FE.map(e=>`<span>${e}</span>`).join('');$('shareBox').classList.add('hide');$('bDoSend').classList.remove('hide');show('sendScr')}
+$('sendGrid').onclick=e=>{let c=e.target.closest('.card');if(!c)return;SEND.t=+c.dataset.i;$('sendGrid').querySelectorAll('.card').forEach(x=>x.classList.toggle('sel',x===c));blip(700,.15)};
+$('pkE').onclick=e=>{if(e.target.tagName=='SPAN'){let m=$('sendMsg');m.value=(m.value+e.target.textContent).slice(0,60)}};
+async function shareLink(url,text,title){$('shareUrl').value=url;$('shareBox').classList.remove('hide');
+ if(navigator.share){try{await navigator.share({title,text,url});$('shareT').textContent='Geteilt! 💜';return}catch(e){if(e&&e.name=='AbortError'){$('shareT').textContent='Link bereit – teile ihn, wann du willst:';return}}}
+ try{await navigator.clipboard.writeText(text+'\n'+url);$('shareT').textContent='Link kopiert! Füge ihn in WhatsApp & Co. ein 📋'}catch(e){$('shareT').textContent='Kopiere diesen Link und schick ihn deinen Freunden:'}}
+$('bCopy').onclick=async()=>{let i=$('shareUrl');try{await navigator.clipboard.writeText(i.value);toast('Link kopiert 📋')}catch(e){i.select();document.execCommand&&document.execCommand('copy');toast('Link markiert – jetzt kopieren')}};
+$('bDoSend').onclick=()=>{if(SEND.t<0)return toast('Wähle eine Wolke aus ☁️');if(sendsLeft()<=0)return toast('Für heute sind alle 3 Wolken verschickt – morgen wieder! 🌙');
+ let t=TYPES[SEND.t],g={v:1,u:S.me.u,n:S.me.n,a:S.me.a,c:S.me.c,t:SEND.t,m:$('sendMsg').value.trim().slice(0,60),d:today,id:Date.now().toString(36)+Math.random().toString(36).slice(2,6)};g.k=ghash(gbody(g));
+ S.gs.n++;if(SEND.to){let f=touchFr(SEND.to,{});f.sent++}xpGain(15);
+ let url=GIFT_URL+'#gift='+b64e(g),txt=`☁️ ${S.me.n} schenkt dir eine ${t[0]}-Wolke ${t[1]} in Cloud9!${g.m?' „'+g.m+'“':''} Tipp auf den Link, um sie abzuholen 🎁`;
+ $('bDoSend').classList.add('hide');$('sendTo').textContent='Verschickt! +15 XP · Heute noch '+sendsLeft()+' / '+MAXS;burst(W/2,H*.3,'#ffc4dd',30);blip(880,.4);shareLink(url,txt,'Cloud9 – Wolkengeschenk')};
+$('bFr').onclick=()=>{renderFr();show('frScr')};$('bSend').onclick=()=>openSend();$('sendBack').onclick=()=>{renderFr();show('frScr')};
+$('bInv').onclick=()=>{if(needName())return;let url=GIFT_URL+'#from='+b64e({u:S.me.u,n:S.me.n,a:S.me.a,c:S.me.c});$('shareBox').classList.add('hide');
+ shareLink(url,`☁️ Spiel mit mir Cloud9! Forme Wolken, lass es regnen und schick mir Wolken – ich bin „${S.me.n}“ ${FA[S.me.a]}`,'Cloud9 – Einladung').then(()=>toast($('shareT').textContent))};
+function validGift(g){if(!g||g.v!==1||typeof g.n!='string'||typeof g.id!='string'||typeof g.u!='string')return'kaputt';
+ if(!(g.t>=0&&g.t<TYPES.length&&(g.t|0)===g.t))return'kaputt';if(g.n.length>16||String(g.m||'').length>60||g.id.length>20)return'kaputt';
+ if(ghash(gbody(g))!==g.k)return'gefälscht';let age=(Date.parse(today)-Date.parse(g.d))/864e5;if(!(age>=-1))return'kaputt';if(age>7)return'abgelaufen';
+ if(g.u===S.me.u)return'eigene';if(S.gc[g.id])return'schon';return''}
+function giftCloud(t){let e=TYPES[t];return`<div class="gc">${[[10,40,80],[60,10,90],[110,35,80],[40,50,110]].map(p=>`<i style="left:${p[0]}px;top:${p[1]}px;width:${p[2]}px;height:${p[2]}px;background:${e[2]}"></i>`).join('')}<b>${e[1]}</b></div>`}
+function openGift(raw){let g;try{g=b64d(raw)}catch(e){g=null}let err=validGift(g),el=$('gift');el.className='';
+ let msgs={kaputt:'Dieser Geschenk-Link ist leider kaputt 😢',gefälscht:'Diese Wolke ist nicht echt – der Link wurde verändert 🕵️',abgelaufen:'Oh nein, diese Wolke ist schon weitergezogen (älter als 7 Tage) 🌬️',eigene:'Das ist deine eigene Wolke – schick den Link einem Freund! 💌',schon:'Diese Wolke hast du schon abgeholt ☁️✓'};
+ if(err){el.innerHTML=`<h2>☁️ Cloud9</h2><div class="panel">${msgs[err]}</div><button class="big" id="gOk">Weiter</button>`;$('gOk').onclick=()=>el.classList.add('hide');return}
+ let t=TYPES[g.t];el.innerHTML=Array.from({length:12},(_,i)=>`<span class="sp" style="left:${8+i*7.5}%;top:${30+(i*37)%40}%;animation-delay:${i*.2}s">${['✨','💜','⭐'][i%3]}</span>`).join('')+
+ `<h2 class="gm" style="animation-delay:.2s">🎁 Ein Wolkengeschenk!</h2>${giftCloud(g.t)}<div class="panel gm"><div style="display:flex;align-items:center;gap:10px;justify-content:center"><span class="av" style="background:${FC[g.c]||FC[0]}">${FA[g.a]||FA[0]}</span><b style="font-size:18px">${esc(g.n)}</b></div>
+ <p style="margin:8px 0 4px">schickt dir eine <b>${t[1]} ${esc(t[0])}</b> <small>(${TIERS[t[3]][0]})</small></p>${g.m?`<p style="font-size:18px;margin:4px 0">„${esc(g.m)}“</p>`:''}<small>${esc(t[5])} · regnet in deiner nächsten Runde Bonus</small></div>
+ <button class="big gm" id="gClaim">☁️ Abholen (+25 XP)</button>`;el.classList.remove('hide');blip(660,.3);
+ $('gClaim').onclick=()=>{S.gc[g.id]=Date.now();for(let k in S.gc)if(Date.now()-S.gc[k]>30*864e5)delete S.gc[k];
+  S.col[g.t]=(S.col[g.t]||0)+1;S.gq.push({t:g.t,n:g.n});if(S.gq.length>5)S.gq.shift();let f=touchFr(g.u,g);f.got++;xpGain(25);
+  el.classList.add('claimed');blip(880,.5);vib&&vib([30,30,60]);$('gClaim').textContent='✓ Abgeholt! '+g.n+' ist jetzt dein Freund';
+  setTimeout(()=>{el.classList.add('hide');renderFr();show('frScr');toast('🎁 Die Wolke kommt in deiner nächsten Runde!')},1300)}}
+function openInvite(raw){let o;try{o=b64d(raw)}catch(e){return}if(!o||typeof o.u!='string'||typeof o.n!='string'||o.n.length>16||o.u===S.me.u)return;
+ let f=touchFr(o.u,{n:o.n,a:o.a|0,c:o.c|0});save();toast(FA[f.a]+' '+o.n+' ist jetzt dein Freund!')}
+function route(){let h=location.hash,m;if((m=h.match(/^#gift=([\w-]+)/)))openGift(m[1]);else if((m=h.match(/^#from=([\w-]+)/)))openInvite(m[1]);else return;
+ history.replaceState(null,'',location.pathname+location.search)}
+addEventListener('hashchange',route);route();
 </script></body></html>
