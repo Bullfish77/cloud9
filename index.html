@@ -733,14 +733,27 @@ function wxRender(){let ic=WX?(WX.k=='clear'&&!WX.day?'🌙':WXI[WX.k]+(WX.day?'
  if(WXS.on===false)h='<b>🌦️ Echtes Wetter</b><br><small>Ausgeschaltet.</small><br><button class="sec" id="wxOn">Einschalten</button>';
  else if(WXS.on==null)h='<b>🌦️ Echtes Wetter</b><br><small>Cloud9 kann das Wetter an deinem Ort nutzen: Regnet es draußen, gibt es mehr Regenbogenwolken, bei Schnee mehr Schneewolken … Dein Standort wird nur grob (gerundet) an den Wetterdienst Open-Meteo geschickt, sonst nirgendwohin.</small><br><button class="sec" id="wxGeo">📍 Standort nutzen</button><button class="sec" id="wxNo">Nein danke</button>';
  else h='<b>🎁 Wetterbonus des Tages</b>'+(WX?' <small>('+WXN[WX.k]+(WX.day?'':', Nacht')+(WX.city?', '+WX.city:'')+(WX.old?', offline':'')+')</small><br><small>'+wxBonus().join('<br>')+'</small>':'<br><small>'+(WXS.err||'Wetter wird geladen …')+'</small>')+'<br><button class="sec" id="wxGeo">📍 Standort</button><button class="sec" id="wxOff">Wetter aus</button>';
- h+='<div style="margin-top:4px'+(WXS.on===false?';display:none':'')+'"><input id="wxCity" placeholder="Stadt suchen …" style="padding:6px;border-radius:10px;border:0;width:55%"><button class="sec" id="wxGo">Suchen</button></div>';
- p.innerHTML=h;let on=(id,f)=>{let e=$(id);if(e)e.onclick=f};
+ h+='<form id="wxF" action="#" autocomplete="off" style="margin-top:6px;position:relative;z-index:5'+(WXS.on===false?';display:none':'')+'"><input id="wxCity" type="search" enterkeyhint="search" inputmode="search" placeholder="Stadt suchen …" style="padding:8px;border-radius:10px;border:0;width:55%;font-size:16px;pointer-events:auto"> <button class="sec" id="wxGo" type="submit">Suchen</button><div id="wxMsg" style="font-size:13px;margin-top:4px"></div><div id="wxRes"></div></form>';
+ let keep=$('wxCity')&&$('wxCity').value;p.innerHTML=h;if(keep)$('wxCity').value=keep;let on=(id,f)=>{let e=$(id);if(e)e.onclick=f};
  on('wxGeo',wxGeo);on('wxNo',()=>{WXS.on=false;saveWX();wxRender()});on('wxOff',()=>{WXS.on=false;WX=null;saveWX();wxRender()});on('wxOn',()=>{WXS.on=true;saveWX();wxLoad()});
- on('wxGo',()=>wxCity($('wxCity').value))}
+ let f=$('wxF');if(f)f.onsubmit=e=>{e.preventDefault();e.stopPropagation();wxCity($('wxCity').value);return false};
+ ['wxCity','wxF'].forEach(id=>{let e=$(id);if(e)['touchstart','touchmove','touchend','pointerdown','mousedown','keydown'].forEach(t=>e.addEventListener(t,ev=>ev.stopPropagation(),{passive:true}))})}
 function wxGeo(){if(!navigator.geolocation){WXS.err='Kein Standort verfügbar – such deine Stadt.';wxRender();return}
  navigator.geolocation.getCurrentPosition(p=>{WXS.on=true;WXS.lat=Math.round(p.coords.latitude*10)/10;WXS.lon=Math.round(p.coords.longitude*10)/10;WXS.city='';WXS.err='';WXS.c=null;saveWX();wxLoad()},()=>{WXS.on=true;WXS.err='Standort nicht erlaubt – such einfach deine Stadt.';saveWX();wxRender()},{timeout:10000,maximumAge:36e5})}
-async function wxCity(q){q=(q||'').trim();if(!q)return;try{let r=await(await fetch('https://geocoding-api.open-meteo.com/v1/search?count=1&language=de&name='+encodeURIComponent(q))).json(),g=r.results&&r.results[0];
- if(!g){WXS.err='Stadt nicht gefunden.';wxRender();return}WXS.on=true;WXS.lat=Math.round(g.latitude*10)/10;WXS.lon=Math.round(g.longitude*10)/10;WXS.city=g.name;WXS.err='';WXS.c=null;saveWX();wxLoad()}catch(e){WXS.err='Offline – Suche nicht möglich.';wxRender()}}
+let wxSeq=0;
+function wxEsc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>'&#'+c.charCodeAt(0)+';')}
+async function wxCity(q){q=(q||'').trim();let m=$('wxMsg'),L=$('wxRes');if(!m)return;L.innerHTML='';
+ if(q.length<2){m.textContent='Bitte mindestens 2 Buchstaben eingeben.';return}
+ let i=$('wxCity');if(i)i.blur();m.textContent='🔎 Suche …';let my=++wxSeq,r;
+ let U=l=>fetch('https://geocoding-api.open-meteo.com/v1/search?count=8&format=json&language='+l+'&name='+encodeURIComponent(q)).then(x=>{if(!x.ok)throw 0;return x.json()});
+ let rs=await Promise.allSettled([U('de'),U('en')]);if(rs.every(o=>o.status!='fulfilled')){if(my==wxSeq)m.textContent='⚠️ Keine Verbindung – bitte später nochmal versuchen.';return}
+ if(my!=wxSeq||!$('wxRes'))return;let M={},ql=q.toLowerCase();rs.forEach(o=>{if(o.status=='fulfilled')((o.value&&o.value.results)||[]).forEach(c=>{if(!M[c.id])M[c.id]=c})});
+ let g=Object.values(M).sort((a,b)=>((b.name||'').toLowerCase()==ql)-((a.name||'').toLowerCase()==ql)||(b.population||0)-(a.population||0)).slice(0,5);
+ if(!g.length){$('wxMsg').textContent='😕 Keine Stadt gefunden.';return}
+ $('wxMsg').textContent='Tippe auf deine Stadt:';
+ $('wxRes').innerHTML=g.map((c,k)=>'<button type="button" class="sec wxRes" data-k="'+k+'" style="display:block;width:100%;margin:3px 0;text-align:left;touch-action:manipulation">📍 '+wxEsc(c.name)+'<small> '+wxEsc([c.admin1,c.country].filter(Boolean).join(', '))+'</small></button>').join('');
+ $('wxRes').querySelectorAll('.wxRes').forEach(bt=>bt.onclick=e=>{e.preventDefault();let c=g[+bt.dataset.k];wxPick(c)})}
+function wxPick(g){WXS.on=true;WXS.lat=Math.round(g.latitude*100)/100;WXS.lon=Math.round(g.longitude*100)/100;WXS.city=g.name;WXS.err='';WXS.c=null;WX=null;saveWX();let i=$('wxCity');if(i)i.value='';wxLoad().then(()=>{if(WX&&!WX.old)toast('🌦️ Wetter für '+g.name+' geladen')})}
 async function wxLoad(){if(!WXS.on||WXS.lat==null){wxRender();return}let c=WXS.c;
  if(c&&Date.now()-c.ts<18e5){WX=c;wxRender();return}
  try{let r=await(await fetch('https://api.open-meteo.com/v1/forecast?latitude='+WXS.lat+'&longitude='+WXS.lon+'&current=weather_code,temperature_2m,is_day,wind_speed_10m')).json(),u=r.current;
