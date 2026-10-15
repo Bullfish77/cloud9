@@ -1,4 +1,4 @@
-<!-- cloud9 v33 -->
+<!-- cloud9 v34 -->
 <!DOCTYPE html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><title>Cloud9</title><link rel="icon" href="data:,"><link rel="preconnect" href="https://fonts.gstatic.com"><link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet"><meta name="theme-color" content="#ffd6ec">
 <style>:root{--ink:#4b3f7a;--acc:#8d7bf0;--acc2:#ff8fc8;--glass:rgba(255,255,255,.55);--gb:rgba(255,255,255,.7);--f:'Nunito','Baloo 2',ui-rounded,'SF Pro Rounded','Segoe UI',system-ui,sans-serif}
 html,body{margin:0;height:100%;overflow:hidden;background:#cfe6ff;font-family:var(--f);touch-action:none;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent}
@@ -2079,7 +2079,12 @@ window.C9.v26={HY}})();
 (function(){
 const Q=()=>Math.min(3,devicePixelRatio||1)*2;
 const SPR={};
-function spr(k,w,h,ax,ay,fn){let id=k+Q();if(SPR[id])return SPR[id];let q=Q(),c=document.createElement('canvas');c.width=Math.ceil(w*q);c.height=Math.ceil(h*q);let x=c.getContext('2d');x.scale(q,q);x.translate(ax,ay);x.lineJoin='round';x.lineCap='round';fn(x);return SPR[id]={c,w,h,ax,ay}}
+function spr(k,w,h,ax,ay,fn){let id=k+Q();if(SPR[id])return SPR[id];let q=Q(),P=Math.max(w,h),W2=w+2*P,H2=h+2*P,c=document.createElement('canvas');c.width=Math.ceil(W2*q);c.height=Math.ceil(H2*q);let x=c.getContext('2d');x.scale(q,q);x.translate(ax+P,ay+P);x.lineJoin='round';x.lineCap='round';fn(x);
+ // v34: generous padding, then crop to the real drawn bounds; ground = lowest solid pixel (ignores faint glows)
+ let d=x.getImageData(0,0,c.width,c.height).data,cw=c.width,ch=c.height,x0=cw,y0=ch,x1=-1,y1=-1,gy=-1;for(let yy=0;yy<ch;yy++)for(let xx=0;xx<cw;xx++){let a=d[(yy*cw+xx)*4+3];if(a>2){if(xx<x0)x0=xx;if(xx>x1)x1=xx;if(yy<y0)y0=yy;if(yy>y1)y1=yy}if(a>90&&yy>gy)gy=yy}
+ if(x1<0)return SPR[id]={c,w:W2,h:H2,ax:ax+P,ay:ay+P};x0=Math.max(0,x0-2);y0=Math.max(0,y0-2);x1=Math.min(cw-1,x1+2);y1=Math.min(ch-1,y1+2);if(gy<0)gy=y1;
+ let o=document.createElement('canvas');o.width=x1-x0+1;o.height=y1-y0+1;o.getContext('2d').drawImage(c,-x0,-y0);let ow=o.width/q,oh=o.height/q;
+ return SPR[id]={c:o,w:ow,h:oh,ax:(ax+P)-x0/q,ay:(gy+1-y0)/q,full:{x0,y0,x1,y1,cw,ch}}}
 function put(s,x,y,sc,rot){X.save();X.translate(x,y);if(rot)X.rotate(rot);X.scale(sc,sc);X.drawImage(s.c,-s.ax,-s.ay,s.w,s.h);X.restore()}
 const OL='rgba(90,60,140,.45)';
 function ol(x,w){x.strokeStyle=OL;x.lineWidth=w||2;x.stroke()}
@@ -2252,11 +2257,11 @@ function land(th){let B=V.iboxes(),key=[th,HW,HH,B.map(b=>[b.l|0,b.t|0,b.r|0,b.b
 // more sprites, medium size, 80% opacity, incl. sides
 const SCN={4:['lolly','cotton','cane','lolly2','lolly4','cotton2','cane2','lolly3','lolly5','gumA'],0:['tulA','dai','tulB','shr','tulC','dai2','tulA','dai3','tulB'],1:['tree','lan','tree2','lan2','tree','tree2','lan','tree2'],2:['pine','sm','pine2','pine3','pine4','pine','pine2','pine3'],3:['shA','shB','shC','shA2','shB2','shA','shC','shB']};
 const hit=V.hit;
-function layout(list){let B=V.iboxes(),A=B[0],out=[],W=HW,H=HH,M=6;
- const tryPut=(s,cx,by,maxH,maxSc)=>{let sc=Math.min(maxSc,maxH/s.h);if(sc<.35)return false;let w=s.w*sc,h=s.h*sc,r={l:cx-w/2,r:cx+w/2,t:by-h,b:by};if(r.l<M||r.r>W-M||r.t<M||r.b>H-M)return false;if(B.some(b=>hit(r,b)))return false;if(out.some(o=>hit(r,{l:o.l-3,r:o.r+3,t:o.t-3,b:o.b+3})))return false;out.push(Object.assign(r,{s,sc}));return true};
+function layout(list){let B=V.iboxes(),A=B[0],out=[],W=HW,H=HH,M=6,FL=0;
+ const tryPut=(s,cx,by,maxH,maxSc)=>{let sc=Math.min(maxSc,maxH/s.h);if(sc<.35)return false;let w=s.w*sc,h=s.h*sc,r={l:cx-s.ax*sc,r:cx+(s.w-s.ax)*sc,t:by-s.ay*sc,b:by+(s.h-s.ay)*sc,cx,by};if(FL){r.t-=2;r.b+=10*sc;r.l=Math.min(r.l,cx-16*sc);r.r=Math.max(r.r,cx+16*sc)}if(r.b>H-M){let dy=r.b-(H-M);r.t-=dy;r.b-=dy;r.by-=dy}if(r.l<M||r.r>W-M||r.t<M||r.b>H-M)return false;if(B.some(b=>hit(r,b)))return false;if(out.some(o=>hit(r,{l:o.l-3,r:o.r+3,t:o.t-3,b:o.b+3})))return false;out.push(Object.assign(r,{s,sc,fl:FL}));return true};
  let k=0;const nxt=()=>list[k++%list.length];const T=(cx,by,mh,ms)=>{if(out.length>=10)return;for(let i=0;i<list.length;i++){if(tryPut(nxt(),cx,by,mh,ms))return}};
  let band=H-M-A.b;if(band>18){[.07,.93,.2,.8,.34,.66].forEach(f=>T(W*f,H-M,band-2,1))}
- let top=A.t-M;if(top>18){[.07,.93,.2,.8].forEach(f=>T(W*f,A.t-2,top-2,.8))}
+ let top=A.t-M;if(top>30){FL=1;[.07,.93,.2,.8].forEach(f=>T(W*f,A.t-14,top-16,.8));FL=0}
  let sl=A.l-M,sr=W-M-A.r;[.45,.7,.9].forEach(fy=>{let y=A.t+(A.b-A.t)*fy;if(sl>16)T(A.l/2,y,999,Math.min(.8,sl/30));if(sr>16)T((A.r+W)/2,y,999,Math.min(.8,sr/30))});
  return out}
 let K='',LO=[];
@@ -2272,7 +2277,7 @@ hSky=function(){let c=window.C9V29SKY();if(X!==HX)return c;X.drawImage(c,0,0,HW,
  try{L=land(th);if(key!==K){K=key;LO=layout(SCN[th].map(n=>T.sprites[n]&&T.sprites[n]()).filter(Boolean))}}finally{HV.z=sv.z;HV.px=sv.px;HV.py=sv.py}
  let k=HV.z/z0,bob=0;X.save();X.translate(hOX(),hOY());X.scale(k,k);X.translate(-O0x,-O0y);V33.T=[hOX(),hOY(),k,O0x,O0y];
  if(L)X.drawImage(L,L.ox||0,0,3*HW,2*HH);
- let t=performance.now()/1000;X.save();X.globalAlpha=.8;LO.forEach((o,i)=>{X.save();X.translate((o.l+o.r)/2,o.b);X.rotate(.025*Math.sin(t*1.2+i*1.7));X.scale(o.sc,o.sc);X.drawImage(o.s.c,-o.s.ax,-o.s.ay,o.s.w,o.s.h);X.restore()});X.restore();X.restore();return BLANK};
+ let t=performance.now()/1000;X.save();X.globalAlpha=.8;LO.forEach((o,i)=>{if(o.fl){X.save();X.globalAlpha=.9;puffs(X,o.cx,o.by+4*o.sc,11*o.sc,'#fff','#e9e2ff');X.restore()}X.save();X.translate(o.cx,o.by);X.rotate(.025*Math.sin(t*1.2+i*1.7));X.scale(o.sc,o.sc);X.drawImage(o.s.c,-o.s.ax,-o.s.ay,o.s.w,o.s.h);X.restore()});X.restore();X.restore();return BLANK};
 const V33={};window.C9.v33={screenRects:()=>{let[ox,oy,k,x0,y0]=V33.T||[0,0,1,0,0];return LO.map(o=>({l:ox+(o.l-x0)*k,r:ox+(o.r-x0)*k,t:oy+(o.t-y0)*k,b:oy+(o.b-y0)*k}))}};
 window.C9.v30={layout:()=>LO.map(o=>({l:o.l,r:o.r,t:o.t,b:o.b})),land};
 })();
