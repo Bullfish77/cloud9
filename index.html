@@ -1,4 +1,4 @@
-<!-- cloud9 v32 -->
+<!-- cloud9 v33 -->
 <!DOCTYPE html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><title>Cloud9</title><link rel="icon" href="data:,"><link rel="preconnect" href="https://fonts.gstatic.com"><link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet"><meta name="theme-color" content="#ffd6ec">
 <style>:root{--ink:#4b3f7a;--acc:#8d7bf0;--acc2:#ff8fc8;--glass:rgba(255,255,255,.55);--gb:rgba(255,255,255,.7);--f:'Nunito','Baloo 2',ui-rounded,'SF Pro Rounded','Segoe UI',system-ui,sans-serif}
 html,body{margin:0;height:100%;overflow:hidden;background:#cfe6ff;font-family:var(--f);touch-action:none;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent}
@@ -2246,8 +2246,9 @@ const LAND={
 };
 let LKEY='',LC=null;
 function land(th){let B=V.iboxes(),key=[th,HW,HH,B.map(b=>[b.l|0,b.t|0,b.r|0,b.b|0].join()).join()].join();if(key===LKEY)return LC;LKEY=key;
- let q=Q(),c=document.createElement('canvas');c.width=HW*q|0;c.height=HH*q|0;let x=c.getContext('2d');x.scale(q,q);let A=B[0],y0=Math.max(A.b,HH*.74);
- x.save();x.beginPath();x.rect(0,A.b,HW,HH);x.rect(0,0,HW,Math.max(0,A.t));x.clip();x.globalAlpha=.75;try{LAND[th]&&LAND[th](x,HW,HH,y0,A.t)}catch(e){console.warn(e)}x.restore();return LC=c}
+ let q=Math.min(2,Q()),c=document.createElement('canvas');c.width=3*HW*q|0;c.height=2*HH*q|0;let x=c.getContext('2d');x.scale(q,q);x.translate(HW,0);let A=B[0],y0=Math.max(A.b,HH*.74);
+ x.save();x.beginPath();x.rect(-HW,A.b,3*HW,2*HH);x.rect(-HW,0,3*HW,Math.max(0,A.t));x.clip();x.globalAlpha=.75;try{[-HW,0,HW].forEach(dx=>{x.save();x.translate(dx,0);if(dx){x.beginPath();x.rect(0,A.b,HW,2*HH);x.clip()}LAND[th]&&LAND[th](x,HW,HH,y0,dx?-1:A.t);x.restore()})}catch(e){console.warn(e)}
+ try{let d=x.getImageData((1.5*HW)*q|0,(HH-3)*q|0,1,1).data;if(d[3]>10){x.globalAlpha=1;x.fillStyle=`rgba(${d[0]},${d[1]},${d[2]},${d[3]/255})`;x.fillRect(-HW,HH-1,3*HW,HH+1)}}catch(e){}x.restore();c.ox=-HW;return LC=c}
 // more sprites, medium size, 80% opacity, incl. sides
 const SCN={4:['lolly','cotton','cane','lolly2','lolly4','cotton2','cane2','lolly3','lolly5','gumA'],0:['tulA','dai','tulB','shr','tulC','dai2','tulA','dai3','tulB'],1:['tree','lan','tree2','lan2','tree','tree2','lan','tree2'],2:['pine','sm','pine2','pine3','pine4','pine','pine2','pine3'],3:['shA','shB','shC','shA2','shB2','shA','shC','shB']};
 const hit=V.hit;
@@ -2266,9 +2267,13 @@ const oSky=hSky;hSky=function(){let r=oSky();if(X!==HX)return r;let th=S.home.th
 const BLANK=document.createElement('canvas');BLANK.width=BLANK.height=1;
 const baseSky=window.C9V29BASE;
 hSky=function(){let c=window.C9V29SKY();if(X!==HX)return c;X.drawImage(c,0,0,HW,HH);let th=S.home.theme|0,T=TH[th];if(!T||!SCN[th])return BLANK;
- let L=land(th);if(L)X.drawImage(L,0,0,HW,HH);
- let key=[th,HW,HH,HV.z.toFixed(3),HV.px|0,HV.py|0,S.home.sec].join();if(key!==K){K=key;LO=layout(SCN[th].map(n=>T.sprites[n]&&T.sprites[n]()).filter(Boolean))}
- let t=performance.now()/1000;X.save();X.globalAlpha=.8;LO.forEach((o,i)=>{X.save();X.translate((o.l+o.r)/2,o.b);X.rotate(.025*Math.sin(t*1.2+i*1.7));X.scale(o.sc,o.sc);X.drawImage(o.s.c,-o.s.ax,-o.s.ay,o.s.w,o.s.h);X.restore()});X.restore();return BLANK};
+ // v33: layout + land are computed once at the reference (fit) camera, then drawn with the live camera transform → zoom/pan with the island
+ let z0=hFit(),sv={z:HV.z,px:HV.px,py:HV.py};HV.z=z0;HV.px=HV.py=0;let O0x=hOX(),O0y=hOY(),L,key=[th,HW,HH,S.home.sec,z0.toFixed(4)].join();
+ try{L=land(th);if(key!==K){K=key;LO=layout(SCN[th].map(n=>T.sprites[n]&&T.sprites[n]()).filter(Boolean))}}finally{HV.z=sv.z;HV.px=sv.px;HV.py=sv.py}
+ let k=HV.z/z0,bob=0;X.save();X.translate(hOX(),hOY());X.scale(k,k);X.translate(-O0x,-O0y);V33.T=[hOX(),hOY(),k,O0x,O0y];
+ if(L)X.drawImage(L,L.ox||0,0,3*HW,2*HH);
+ let t=performance.now()/1000;X.save();X.globalAlpha=.8;LO.forEach((o,i)=>{X.save();X.translate((o.l+o.r)/2,o.b);X.rotate(.025*Math.sin(t*1.2+i*1.7));X.scale(o.sc,o.sc);X.drawImage(o.s.c,-o.s.ax,-o.s.ay,o.s.w,o.s.h);X.restore()});X.restore();X.restore();return BLANK};
+const V33={};window.C9.v33={screenRects:()=>{let[ox,oy,k,x0,y0]=V33.T||[0,0,1,0,0];return LO.map(o=>({l:ox+(o.l-x0)*k,r:ox+(o.r-x0)*k,t:oy+(o.t-y0)*k,b:oy+(o.b-y0)*k}))}};
 window.C9.v30={layout:()=>LO.map(o=>({l:o.l,r:o.r,t:o.t,b:o.b})),land};
 })();
 </script><script>
