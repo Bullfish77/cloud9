@@ -1,4 +1,4 @@
-<!-- cloud9 v28 -->
+<!-- cloud9 v29 -->
 <!DOCTYPE html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><title>Cloud9</title><link rel="icon" href="data:,"><link rel="preconnect" href="https://fonts.gstatic.com"><link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet"><meta name="theme-color" content="#ffd6ec">
 <style>:root{--ink:#4b3f7a;--acc:#8d7bf0;--acc2:#ff8fc8;--glass:rgba(255,255,255,.55);--gb:rgba(255,255,255,.7);--f:'Nunito','Baloo 2',ui-rounded,'SF Pro Rounded','Segoe UI',system-ui,sans-serif}
 html,body{margin:0;height:100%;overflow:hidden;background:#cfe6ff;font-family:var(--f);touch-action:none;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent}
@@ -2192,5 +2192,37 @@ const oStep=hStep;hStep=function(list,g,dt){if(list===HA){let T=TH[thI()];if(T){
 const P=[];for(let i=0;i<24;i++)P.push({i,x:(i*.6180339)%1,y:(i*.3819)%1,v:.6+((i*7)%10)/14,ph:i*1.9});
 const oDraw=homeDraw;homeDraw=function(n,dt){oDraw(n,dt);if(!HX)return;let T=TH[thI()];if(!T||!T.fx)return;let t=n/1000;withCtx(HX,()=>{X.save();try{for(let i=0;i<T.fx.n;i++)T.fx.draw(P[i],t,HW,HH)}catch(e){}X.restore()})};
 window.C9.v27={TH,SPR};
+})();
+</script><script>
+// ===== v29: ruhigere Themen – nichts mehr auf/über der Insel, Szenerie nur in freien Bereichen =====
+(function(){
+const TH=C9.v27.TH,SPR=C9.v27.SPR;
+// sprites reused from v27 + a few calm ones built via v27 sprites
+const pick=(t,k)=>t.sprites[k]&&t.sprites[k]();
+const SCN={4:['lolly','cotton','cane','lolly2','lolly4'],0:['tulA','dai','tulB','shr','tulC'],1:['tree','lan','tree2','lan2'],2:['pine','sm','pine2','pine3'],3:['shA','shB','shC','shA2']};
+Object.keys(TH).forEach(k=>{let T=TH[k];T.sky=null;T.rim=[];});
+// Zuckerwatte: only icing drips (no sprinkles on the crust)
+{let T=TH[4],o=T.surf;T.surf=function(g,t){let{cx,cy,rx,ry}=g;X.save();X.globalAlpha=.85;X.fillStyle='#fff';X.beginPath();let N=22;X.moveTo(cx-rx,cy);for(let i=0;i<=N;i++){let a=Math.PI-i/N*Math.PI,x=cx+Math.cos(a)*rx,y=cy+Math.sin(a)*ry,d=i%3==1?12:i%3==2?7:4;X.lineTo(x,y+2);X.quadraticCurveTo(x+rx*.07,y+d+5,x+rx*.14*Math.sin(a),y+2+Math.sin(a)*2)}X.lineTo(cx+rx,cy);X.ellipse(cx,cy,rx,ry,0,0,Math.PI);X.closePath();X.fill();X.restore()}}
+// fewer, fainter particles
+TH[4].fx.n=4;TH[0].fx.n=3;TH[1].fx.n=6;TH[2].fx.n=10;TH[3].fx.n=6;
+// island screen bounds (disc+side, and the narrow underside tip)
+function iboxes(){let g=hGeo(),z=HV.z,ox=hOX(),oy=hOY(),p=6,bz=4*z,X0=x=>ox+x*z,Y0=y=>oy+y*z;return[{l:X0(g.cx-g.rx)-p,r:X0(g.cx+g.rx)+p,t:Y0(g.cy-g.ry)-bz-p,b:Y0(g.cy+g.ry*1.12)+bz+p},{l:X0(g.cx-g.rx*.45)-p,r:X0(g.cx+g.rx*.45)+p,t:Y0(g.cy),b:Y0(g.cy+g.ry*1.4)+bz+p}]}
+function ibox(){let B=iboxes();return{l:B[0].l,r:B[0].r,t:B[0].t,b:B[1].b}}
+function inBox(b,x,y){return x>b.l&&x<b.r&&y>b.t&&y<b.b}
+const hit=(r,b)=>!(r.r<b.l||r.l>b.r||r.b<b.t||r.t>b.b);
+function layout(list){let B=iboxes(),A=B[0],out=[],W=HW,H=HH,M=6;
+ const tryPut=(s,cx,by,maxH,maxSc)=>{let sc=Math.min(maxSc,maxH/s.h);if(sc<.4)return false;let w=s.w*sc,h=s.h*sc,r={l:cx-w/2,r:cx+w/2,t:by-h,b:by};if(r.l<M||r.r>W-M||r.t<M||r.b>H-M)return false;if(B.some(b=>hit(r,b)))return false;if(out.some(o=>hit(r,{l:o.l-4,r:o.r+4,t:o.t-4,b:o.b+4})))return false;out.push(Object.assign(r,{s,sc}));return true};
+ let k=0;const nxt=()=>list[k++%list.length];
+ let band=H-M-A.b;if(band>20)[.1,.9,.22,.78].forEach(fx=>{if(out.length<4){let s=nxt();if(!tryPut(s,W*fx,H-M,band-2,.85))k--}});
+ let top=A.t-M;if(top>20)[.08,.92].forEach(fx=>{if(out.length<5){let s=nxt();if(!tryPut(s,W*fx,A.t-2,top-2,.7))k--}});
+ return out.slice(0,5)}
+let LK='',LO=[];
+const BLANK=document.createElement('canvas');BLANK.width=BLANK.height=1;
+const oSky=hSky;hSky=function(){let c=oSky();if(X!==HX)return c;X.drawImage(c,0,0,HW,HH);let T=TH[S.home.theme|0],names=SCN[S.home.theme|0];if(!T||!names)return BLANK;
+ let key=[S.home.theme,HW,HH,HV.z.toFixed(3),HV.px|0,HV.py|0,S.home.sec].join();if(key!==LK){LK=key;LO=layout(names.map(n=>pick(T,n)).filter(Boolean))}
+ let t=performance.now()/1000;X.save();X.globalAlpha=.62;LO.forEach((o,i)=>{let cx=(o.l+o.r)/2;X.save();X.translate(cx,o.b);X.rotate(.02*Math.sin(t*1.2+i*1.7));X.scale(o.sc,o.sc);X.drawImage(o.s.c,-o.s.ax,-o.s.ay,o.s.w,o.s.h);X.restore()});X.restore();return BLANK};
+// particles: never drawn over the island
+for(const k in TH){let f=TH[k].fx;if(!f)continue;let d=f.draw;f.draw=function(p,t,W,H){let sv=X.globalAlpha;X.save();X.beginPath();X.rect(0,0,W,H);iboxes().forEach(b=>X.rect(b.r,b.t,b.l-b.r,b.b-b.t));X.clip('evenodd');X.globalAlpha=sv*.6;d(p,t,W,H);X.restore()}}
+window.C9.v29={ibox,iboxes,hit,layout:()=>LO.map(o=>({l:o.l,r:o.r,t:o.t,b:o.b})),inBox};
 })();
 </script></body></html>
