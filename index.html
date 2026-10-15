@@ -1560,7 +1560,7 @@ function wishSheet(){wishGen();let l=H.wish.l;hSheet('<h3>📜 Tierwünsche <sma
  $('hSheet').querySelectorAll('[data-w]').forEach(b=>b.onclick=()=>{let w=l[+b.dataset.w];if(w.c||w.p<w.n)return;w.c=1;coinGain(w.r);addFp(w.e,10);SND.sfx('claim');vib(25);toast('🎉 '+w.e+' ist glücklich! +'+w.r+' 🪙 +1 ❤️');save();wishBadge();hUi();wishSheet()})}
 window.C9V20.wishSheet=wishSheet;
 // ---- hTap override ----
-const oTap=hTap;hTap=function(p){closeRad();if(WM)return;let g=hGeo(),best=null,bd=1e9;HA.forEach(a=>{if(a.sx==null)return;let Z=hZone(g,a),dd=Math.hypot(a.sx-p.x,a.sy-p.y);if(Z.m=='swim')dd=Math.min(dd,Math.hypot(a.sx-p.x,a.sy+12-p.y));if(dd<bd){bd=dd;best=a}});
+const oTap=hTap;hTap=function(p){closeRad();if(WM||window.C9VIS)return;let g=hGeo(),best=null,bd=1e9;HA.forEach(a=>{if(a.sx==null)return;let Z=hZone(g,a),dd=Math.hypot(a.sx-p.x,a.sy-p.y);if(Z.m=='swim')dd=Math.min(dd,Math.hypot(a.sx-p.x,a.sy+12-p.y));if(dd<bd){bd=dd;best=a}});
  let bed=null,bb=1e9;H.deco.forEach(d=>{if(d.k!='feld')return;let[x,y]=cellXY(g,d.c,d.r),dd=Math.hypot(x-p.x,y-8-p.y);if(dd<g.cw*.55&&dd<bb){bb=dd;bed=d}});if(bed&&(!best||bb<bd*.9))return bedSheet(bed);
  if(best&&bd<g.cw*.75){if(!S.home.got[best.e])return oTap(p);best.hop=.6;SND.animal(best.e);openRad(best);return}
  oTap(p)};
@@ -1574,9 +1574,9 @@ const oDA=hDrawAnimal;hDrawAnimal=function(a,x,y,s,n,t,Z,hy,speed){let sl=DK_.sl
   else{oDA(a,x,y,s,n,t,Z,hy+Math.sin(k*Math.PI)*36*s,speed)}
   X.restore();return}}
  oDA(a,x,y,s,n,t,Z,hy,speed);
- if(hearts(a.e)>=10){X.font='12px sans-serif';X.textAlign='center';X.fillText('👑',x,y-hy-46*s)}
+ if(!window.C9VIS&&hearts(a.e)>=10){X.font='12px sans-serif';X.textAlign='center';X.fillText('👑',x,y-hy-46*s)}
  if(sl){X.font='800 '+(10+Math.sin(t*2+a.ph)*2|0)+'px Nunito,sans-serif';X.fillStyle='#fff';X.strokeStyle='#5a5aa0';X.lineWidth=3;X.textAlign='center';let k=(t*.5+a.ph)%1;X.globalAlpha=1-k;X.strokeText('z',x+12*s+k*8,y-hy-36*s-k*16);X.fillText('z',x+12*s+k*8,y-hy-36*s-k*16);X.globalAlpha=1;X.strokeText('Z',x+8*s,y-hy-30*s);X.fillText('Z',x+8*s,y-hy-30*s)}
- let w=H.wish.d===today&&H.wish.l.find(w=>w.e==a.e&&!w.c);if(w&&S.home.got[a.e]){let by=(Z.m=='swim'?y-2*s:y-hy)-44*s+Math.sin(t*3+a.ph+1)*3,bx=x-10*s;X.fillStyle=w.p>=w.n?'rgba(255,240,170,.95)':'rgba(255,255,255,.92)';X.beginPath();X.arc(bx,by,12,0,7);X.fill();dE(bx+5,by+12,3,3,X.fillStyle);dE(bx+8,by+17,1.8,1.8,X.fillStyle);X.font='13px sans-serif';X.textAlign='center';X.textBaseline='middle';X.fillText(w.p>=w.n?'✅':w.i,bx,by+1)}};
+ let w=!window.C9VIS&&H.wish.d===today&&H.wish.l.find(w=>w.e==a.e&&!w.c);if(w&&S.home.got[a.e]){let by=(Z.m=='swim'?y-2*s:y-hy)-44*s+Math.sin(t*3+a.ph+1)*3,bx=x-10*s;X.fillStyle=w.p>=w.n?'rgba(255,240,170,.95)':'rgba(255,255,255,.92)';X.beginPath();X.arc(bx,by,12,0,7);X.fill();dE(bx+5,by+12,3,3,X.fillStyle);dE(bx+8,by+17,1.8,1.8,X.fillStyle);X.font='13px sans-serif';X.textAlign='center';X.textBaseline='middle';X.fillText(w.p>=w.n?'✅':w.i,bx,by+1)}};
 let DK_=dayK();
 const oStep=hStep;hStep=function(list,g,dt){if(DK_.sleep)list.forEach(a=>{if(!a.fl&&!a.tk&&hZone(g,a).m!='swim')a.w=Math.max(a.w,1)});oStep(list,g,dt)};
 // ---- world overlay: day/night, weather, fireflies, lantern glow, watering cloud ----
@@ -1588,7 +1588,7 @@ const oHD=homeDraw;homeDraw=function(n,dt){if(n-lastU>1000){lastU=n;DK_=dayK();b
  if(dk>.02){X.globalCompositeOperation='multiply';let c=a=>Math.round(255-(255-a)*dk*.85);X.fillStyle=`rgb(${c(105)},${c(115)},${c(190)})`;X.fillRect(0,0,HW,HH);X.globalCompositeOperation='source-over';
   let top=hOY()-g.ry*1.05*HV.z;ST.forEach(([sx,sy,r,ph])=>{let y=sy*HH*.45;if(y>top-6)return;X.globalAlpha=dk*(.5+Math.sin(t*2+ph)*.4);dE(sx*HW,y,r,r,'#fff')});X.globalAlpha=dk;X.font='26px sans-serif';X.textAlign='center';X.textBaseline='middle';X.fillText('🌙',HW-34,Math.min(36,top-10)>14?36:36);X.globalAlpha=1}
  let bob=Math.sin(t*1.1)*3;X.save();X.translate(hOX(),hOY()+bob*HV.z);X.scale(HV.z,HV.z);
- if(dk>.3){X.globalCompositeOperation='lighter';let sc=g.cw/50;H.deco.forEach(d=>{if(d.k!='laterne'&&d.k!='haus')return;let[x,y]=cellXY(g,d.c,d.r),yy=y-(d.k=='laterne'?44:20)*sc,R0=(d.k=='laterne'?60:44)*sc*(1+Math.sin(t*3+x)*.04),gl=X.createRadialGradient(x,yy,2,x,yy,R0);gl.addColorStop(0,'rgba(255,220,130,'+(.55*dk)+')');gl.addColorStop(1,'rgba(255,200,100,0)');X.fillStyle=gl;X.beginPath();X.arc(x,yy,R0,0,7);X.fill()});
+ if(dk>.3){X.globalCompositeOperation='lighter';let sc=g.cw/50;S.home.deco.forEach(d=>{if(d.k!='laterne'&&d.k!='haus')return;let[x,y]=cellXY(g,d.c,d.r),yy=y-(d.k=='laterne'?44:20)*sc,R0=(d.k=='laterne'?60:44)*sc*(1+Math.sin(t*3+x)*.04),gl=X.createRadialGradient(x,yy,2,x,yy,R0);gl.addColorStop(0,'rgba(255,220,130,'+(.55*dk)+')');gl.addColorStop(1,'rgba(255,200,100,0)');X.fillStyle=gl;X.beginPath();X.arc(x,yy,R0,0,7);X.fill()});
   FF.forEach((f,i)=>{let x=Math.sin(t*f.sp+f.ph)*g.rx*.8*f.u+Math.cos(t*.3+i)*20,y=g.ch*.1+Math.cos(t*f.sp*.8+f.ph*2)*g.ry*.7*f.v-20,al=(.5+Math.sin(t*4+f.ph)*.5)*dk,gl=X.createRadialGradient(x,y,0,x,y,9);gl.addColorStop(0,'rgba(230,255,140,'+al+')');gl.addColorStop(1,'rgba(200,255,100,0)');X.fillStyle=gl;X.beginPath();X.arc(x,y,9,0,7);X.fill()});X.globalCompositeOperation='source-over'}
  if(WC){let cx=WC.x,cy=WC.y-70/HV.z;X.globalAlpha=.95;puffs(X,cx,cy,22,'#fff','#c8d6f0');X.globalAlpha=1;for(let i=0;i<10;i++){let k=(t*2.2+i/10)%1,x=cx+(i/9-.5)*34+Math.sin(i*7)*3;X.strokeStyle='rgba(120,180,255,'+(1-k)*.9+')';X.lineWidth=2;X.beginPath();X.moveTo(x,cy+12+k*48);X.lineTo(x-1,cy+20+k*48);X.stroke()}
   if(WC.bed){let[bx,by]=cellXY(g,WC.bed.c,WC.bed.r);X.strokeStyle='rgba(120,180,255,.9)';X.lineWidth=3;X.beginPath();X.arc(bx,by-6,24,-Math.PI/2,-Math.PI/2+Math.PI*2*Math.min(1,WC.acc/.6));X.stroke()}}
@@ -1607,12 +1607,124 @@ let hb=$('hbot');hb.insertAdjacentHTML('beforeend','<button class="sec sm v2b" i
 $('v2w').onclick=()=>{setWM(!WM);if(WM)toast('🌧️ Zieh die Regenwolke über deine Beete – kurz halten zum Gießen')};$('v2wb').onclick=()=>{closeRad();wishSheet()};
 $('hc').addEventListener('pointerdown',()=>{if(RM)closeRad()});
 document.querySelector('#homeScr .back').addEventListener('click',()=>{closeRad();setWM(false)});
-const oUi=hUi;hUi=function(){oUi();wishGen();wishBadge();if(HED)return;let k=DK_=dayK(),wx=WX?(WX.k=='rain'?'🌧️ Regen gießt deine Beete':WX.k=='storm'?'⛈️ Gewitter gießt deine Beete':WX.k=='snow'?'❄️ Schnee gießt deine Beete':''):'';let pre=WM?'🌧️ Zieh die Wolke über ein Beet und halte kurz':k.sleep?'🌙 Nachtruhe – deine Tiere schlafen':'';let ready=H.deco.filter(d=>d.k=='feld'&&d.pl&&d.pl.g>=1).length;let el=$('hInfo');el.innerHTML=[pre,ready?'🧺 '+ready+' Beet'+(ready>1?'e':'')+' erntereif':'',wx,el.innerHTML].filter(Boolean).join(' · ')};
-const oOpen=openHome;openHome=function(){closeRad();setWM(false);bedsUpd();DK_=dayK();oOpen()};
+const oUi=hUi;hUi=function(){oUi();if(window.C9VIS)return;wishGen();wishBadge();if(HED)return;let k=DK_=dayK(),wx=WX?(WX.k=='rain'?'🌧️ Regen gießt deine Beete':WX.k=='storm'?'⛈️ Gewitter gießt deine Beete':WX.k=='snow'?'❄️ Schnee gießt deine Beete':''):'';let pre=WM?'🌧️ Zieh die Wolke über ein Beet und halte kurz':k.sleep?'🌙 Nachtruhe – deine Tiere schlafen':'';let ready=H.deco.filter(d=>d.k=='feld'&&d.pl&&d.pl.g>=1).length;let el=$('hInfo');el.innerHTML=[pre,ready?'🧺 '+ready+' Beet'+(ready>1?'e':'')+' erntereif':'',wx,el.innerHTML].filter(Boolean).join(' · ')};
+const oOpen=openHome;openHome=function(){closeRad();setWM(false);if(!window.C9VIS)bedsUpd();DK_=dayK();oOpen()};
 Object.assign(window.C9,{v20:{bedSheet,wishSheet,openRad,act,anCard,feedSheet,cook,dayK,setWM,doTrick,harvest,bedsUpd}});
 setInterval(()=>{if(HOMEON&&!HED){let el=$('hInfo');if(el&&!$('hSheet').classList.contains('hide'))return;hUi()}},30000);
 // shop: show garden category text
 const oRS=renderShop;renderShop=function(){oRS();if(SHT=='deco'){let c=$('shGrid').querySelector('[data-k=feld]');if(c){c.querySelector('div').innerHTML='Gartenbeet <small style="display:block;font-size:10px">🌱 zum Pflanzen</small>';$('shGrid').prepend(c)}}};
+})();
+
+</script>
+<script>
+// ===== v21: Minispiele, Besucher, Insel teilen =====
+(function(){
+const RH0=()=>window.C9VIS?C9VIS.RH:S.home;
+{let H=S.home;if(!H.iid)H.iid=Math.random().toString(36).slice(2,8)+Date.now().toString(36).slice(-4);H.res=Array.isArray(H.res)?H.res:[];H.mg=H.mg||{d:'',n:0};H.liked=H.liked||{};H.resGot=H.resGot||{};save()}
+const V=C9V20;
+// ---------- Minigames ----------
+const MG={fangen:{n:'Fangen',e:'🏃',d:'Tippe das Tier, bevor es weghüpft!'},fische:{n:'Fische springen lassen',e:'🐟',d:'Tippe die Fische, wenn sie aus dem See springen!'},sterne:{n:'Sternschnuppen fangen',e:'🌠',d:'Tippe die Sternschnuppen, bevor sie verglühen!'}};
+const MGMAX=6,DUR=25;
+function gameFor(a){let m=hZone(hGeo(),a).m;return m=='swim'||m=='slide'&&['🐧','🦭'].includes(a.e)?'fische':m=='perch'||m=='fly'||a.fl?'sterne':'fangen'}
+function play(a){let H=S.home,f=V.fr(a.e);if(H.mg.d!==today){H.mg={d:today,n:0}}if(f.play>=2)return toast(a.e+' ist vom Spielen müde 😴 – morgen wieder (2× pro Tag)');if(H.mg.n>=MGMAX)return toast('Heute genug gespielt 🎾 – morgen gibt es neue Runden ('+MGMAX+' pro Tag)');
+ let k=gameFor(a),G2=MG[k];hSheet(`<h3>${G2.e} ${G2.n}</h3><img src="${animalImg(a.e)}" style="width:72px"><p>${G2.d}</p><p><small>${DUR} Sekunden · Belohnung: ❤️ für ${a.e} + 🪙 · noch ${MGMAX-H.mg.n} Spiele heute</small></p><button id="v21go">▶ Los geht's!</button>`);$('v21go').onclick=()=>{$('hSheet').classList.add('hide');startMG(k,a)}}
+let M=null;
+function startMG(k,a){let H=S.home,f=V.fr(a.e);f.play++;H.mg.n++;save();
+ let el=$('v21mg'),cv=el.querySelector('canvas'),W=innerWidth,Hh=innerHeight,dpr=Math.min(2,devicePixelRatio||1);cv.width=W*dpr;cv.height=Hh*dpr;cv.style.width=W+'px';cv.style.height=Hh+'px';let x=cv.getContext('2d');x.setTransform(dpr,0,0,dpr,0,0);
+ el.classList.remove('hide');el.querySelector('.v21res').classList.add('hide');let img=new Image();img.src=animalImg(a.e);
+ M={k,a,e:a.e,x,W,H:Hh,t:0,sc:0,ob:[],fx:[],img,sp:0,last:performance.now(),run:true,cd:3};
+ HXs=HX;HX=null;requestAnimationFrame(mgLoop)}
+let HXs=null;
+function mgSpawn(){let m=M,W=m.W,Hh=m.H;if(m.k=='fangen'){if(!m.ob.length)m.ob.push({x:W/2,y:Hh/2,tx:W/2,ty:Hh/2,hop:0,nx:1})}
+ else if(m.k=='fische'){if(m.sp<=0){m.sp=0.45+Math.random()*.5-Math.min(.25,m.t*.01);let gold=Math.random()<.12,fx=40+Math.random()*(W-80);m.ob.push({x:fx,y:Hh*.72,vx:(Math.random()-.5)*120,vy:-(Hh*.55+Math.random()*Hh*.2),e:gold?'🐡':Math.random()<.25?m.e:['🐟','🐠'][Math.random()*2|0],gold,born:m.t});m.fx.push({x:fx,y:Hh*.72,l:.6,rip:1})}}
+ else{if(m.sp<=0){m.sp=0.5+Math.random()*.5-Math.min(.25,m.t*.01);let gold=Math.random()<.12,fromL=Math.random()<.5,sx=fromL?-20:W+20;m.ob.push({x:fromL?Math.random()*W*.5:W*.5+Math.random()*W*.5,y:-20,vx:(fromL?1:-1)*(120+Math.random()*120)*(Math.random()<.5?1:-.3)+0,vy:220+Math.random()*160,gold,tr:[]})}}}
+function mgLoop(n){let m=M;if(!m||!m.run)return;let dt=Math.min(.05,(n-m.last)/1000);m.last=n;let x=m.x,W=m.W,Hh=m.H;
+ if(m.cd>0){m.cd-=dt}else{m.t+=dt;if(m.k!='fangen')m.sp-=dt;}
+ // backgrounds
+ if(m.k=='sterne'){let g=x.createLinearGradient(0,0,0,Hh);g.addColorStop(0,'#1c1f55');g.addColorStop(1,'#5a4a9a');x.fillStyle=g;x.fillRect(0,0,W,Hh);for(let i=0;i<50;i++){x.fillStyle='rgba(255,255,255,'+(.3+.3*Math.sin(n/500+i))+')';x.fillRect((i*97)%W,(i*53)%(Hh*.8),1.5,1.5)}x.fillStyle='#fff';x.globalAlpha=.9;puffs(x,W/2,Hh*.9,60,'#fff','#d8d0ff');x.globalAlpha=1}
+ else if(m.k=='fische'){let g=x.createLinearGradient(0,0,0,Hh);g.addColorStop(0,'#ffd3ea');g.addColorStop(.62,'#cfe6ff');g.addColorStop(.63,'#6fc0f0');g.addColorStop(1,'#3a8ad0');x.fillStyle=g;x.fillRect(0,0,W,Hh);for(let i=0;i<6;i++){x.strokeStyle='rgba(255,255,255,.4)';x.lineWidth=2;x.beginPath();x.ellipse((i*W/5+n/40)%(W+80)-40,Hh*.7+i%3*30,30,5,0,0,7);x.stroke()}}
+ else{let g=x.createLinearGradient(0,0,0,Hh);g.addColorStop(0,'#ffd3ea');g.addColorStop(1,'#bdf0c0');x.fillStyle=g;x.fillRect(0,0,W,Hh);for(let i=0;i<14;i++){x.fillStyle='#8ad88a';x.beginPath();x.ellipse((i*73)%W,(i*131)%Hh,14,5,0,0,7);x.fill()}}
+ if(m.cd<=0&&m.t<DUR){mgSpawn();
+  if(m.k=='fangen'){let o=m.ob[0];o.nx-=dt;if(o.nx<=0){o.nx=Math.max(.45,1.1-m.t*.025);o.fx=o.x;o.fy=o.y;o.tx=50+Math.random()*(W-100);o.ty=150+Math.random()*(Hh-300);o.hop=1}if(o.hop>0){o.hop=Math.max(0,o.hop-dt*3.5);let k=1-o.hop;o.x=o.fx+(o.tx-o.fx)*k;o.y=o.fy+(o.ty-o.fy)*k-Math.sin(k*Math.PI)*50}}
+  else m.ob.forEach(o=>{o.x+=o.vx*dt;o.y+=o.vy*dt;if(m.k=='fische')o.vy+=Hh*.75*dt;if(o.tr){o.tr.push([o.x,o.y]);if(o.tr.length>14)o.tr.shift()}});
+  m.ob=m.ob.filter(o=>m.k=='fangen'||(m.k=='fische'?!(o.vy>0&&o.y>Hh*.74):o.y<Hh+30&&o.x>-40&&o.x<W+40))}
+ m.ob.forEach(o=>{if(m.k=='fangen'){x.fillStyle='rgba(80,60,140,.18)';x.beginPath();x.ellipse(o.x,o.y+38,26,8,0,0,7);x.fill();if(m.img.complete)x.drawImage(m.img,o.x-44,o.y-50,88,88)}
+  else if(m.k=='fische'){x.save();x.translate(o.x,o.y);x.rotate(Math.atan2(o.vy,Math.abs(o.vx)+60)*(o.vx<0?-1:1)*.6);x.font=(o.gold?44:38)+'px sans-serif';x.textAlign='center';x.textBaseline='middle';x.fillText(o.e,0,0);x.restore()}
+  else{o.tr.forEach(([a,b],i)=>{x.fillStyle=o.gold?'rgba(255,220,120,'+i/28+')':'rgba(220,230,255,'+i/28+')';x.beginPath();x.arc(a,b,1+i/3,0,7);x.fill()});x.font=(o.gold?38:32)+'px sans-serif';x.textAlign='center';x.textBaseline='middle';x.fillText(o.gold?'🌟':'⭐',o.x,o.y)}});
+ m.fx=m.fx.filter(f=>(f.l-=dt)>0);m.fx.forEach(f=>{if(f.rip){x.strokeStyle='rgba(255,255,255,'+f.l+')';x.lineWidth=2;x.beginPath();x.ellipse(f.x,f.y,40*(1-f.l)+8,8*(1-f.l)+2,0,0,7);x.stroke()}else if(f.s){f.y-=40*dt;x.globalAlpha=Math.min(1,f.l*2);x.font='800 22px Nunito,sans-serif';x.textAlign='center';x.lineWidth=4;x.strokeStyle='#fff';x.strokeText(f.s,f.x,f.y);x.fillStyle='#7a5fe0';x.fillText(f.s,f.x,f.y);x.globalAlpha=1}else{f.x+=f.vx*dt;f.y+=f.vy*dt;f.vy+=300*dt;x.fillStyle=f.c;x.globalAlpha=Math.min(1,f.l*2);x.beginPath();x.arc(f.x,f.y,4,0,7);x.fill();x.globalAlpha=1}});
+ // HUD
+ x.font='800 20px Nunito,sans-serif';x.textAlign='left';x.textBaseline='top';x.lineWidth=4;x.strokeStyle='rgba(255,255,255,.9)';let hud='⏱️ '+Math.max(0,Math.ceil(DUR-m.t))+'   ⭐ '+m.sc;x.strokeText(hud,16,52);x.fillStyle='#5a46c0';x.fillText(hud,16,52);
+ if(m.cd>0){x.font='900 72px Nunito,sans-serif';x.textAlign='center';x.textBaseline='middle';let s=Math.ceil(m.cd)+'';x.lineWidth=8;x.strokeText(s,W/2,Hh/2);x.fillText(s,W/2,Hh/2)}
+ if(m.t>=DUR){m.run=false;return mgEnd()}
+ requestAnimationFrame(mgLoop)}
+function mgTap(e){let m=M;if(!m||!m.run||m.cd>0)return;let b=e.target.getBoundingClientRect(),px=e.clientX-b.left,py=e.clientY-b.top,hit=null,hd=1e9;
+ m.ob.forEach(o=>{let d=Math.hypot(o.x-px,o.y-(m.k=='fangen'?6:0)-py);if(d<hd){hd=d;hit=o}});
+ let R0=m.k=='fangen'?52:44;if(!hit||hd>R0){return}
+ let pts=hit.gold?3:1;m.sc+=pts;for(let i=0;i<10;i++)m.fx.push({x:hit.x,y:hit.y,vx:(Math.random()-.5)*240,vy:-Math.random()*240,l:.6,c:`hsl(${Math.random()*360|0},90%,75%)`});m.fx.push({x:hit.x,y:hit.y-30,s:'+'+pts,l:.9});
+ SND.sfx(m.k=='sterne'?'star':m.k=='fische'?'splash':'tap');vib(10);
+ if(m.k=='fangen'){hit.nx=0;SND.animal(m.e)}else m.ob=m.ob.filter(o=>o!==hit)}
+function mgEnd(){let m=M,fp=Math.min(15,3+m.sc),coins=Math.min(60,m.sc*3);coinGain(coins);V.addFp(m.e,fp);V.wishEv('play');SND.sfx('celebrate');
+ let r=$('v21mg').querySelector('.v21res');r.innerHTML=`<h2>${m.sc>=15?'🏆 Super!':m.sc>=8?'🎉 Toll!':'😊 Schön gespielt!'}</h2><img src="${animalImg(m.e)}" style="width:80px"><p><b>⭐ ${m.sc} Punkte</b></p><p>+${coins} 🪙 · +${fp} Freundschaft für ${m.e}</p><button id="v21ok">Zurück zur Insel</button>`;r.classList.remove('hide');$('v21ok').onclick=mgClose}
+function mgClose(){if(M)M.run=false;M=null;$('v21mg').classList.add('hide');if(HXs){HX=HXs;HXs=null}hRes();hUi()}
+// ---------- Visitors & residents ----------
+const VIS={'🦚':{n:'Pfau',c:'eine 🌷 Blumenwiese und mindestens 3 Deko-Teile',ok:h=>h.hab.some(x=>x.on&&x.k=='wiese')&&h.deco.length>=3},
+ '🦢':{n:'Schwan',c:'einen 🌊 See auf Stufe 2',ok:h=>h.hab.some(x=>x.on&&x.k=='see'&&x.lv>=2)},
+ '🐼':{n:'Panda',c:'ein 🌲 Wäldchen und einen 🌸 Kirschbaum',ok:h=>h.hab.some(x=>x.on&&x.k=='wald')&&h.deco.some(d=>d.k=='baum')},
+ '🦌':{n:'Hirsch',c:'ein 🌲 Wäldchen und einen ⛲ Brunnen',ok:h=>h.hab.some(x=>x.on&&x.k=='wald')&&h.deco.some(d=>d.k=='brunnen')},
+ '🦥':{n:'Faultier',c:'eine 🪑 Bank und ein 🌲 Wäldchen',ok:h=>h.deco.some(d=>d.k=='bank')&&h.hab.some(x=>x.on&&x.k=='wald')},
+ '🐨':{n:'Koala',c:'mindestens 8 Deko-Teile auf der Insel',ok:h=>h.deco.length>=8},
+ '🦙':{n:'Lama',c:'ein 🏠 Häuschen und eine Insel ab Stufe 3',ok:h=>h.deco.some(d=>d.k=='haus')&&h.sec>=3},
+ '🦘':{n:'Känguru',c:'einen 🏜️ Wüstensand und 2 🌱 Gartenbeete',ok:h=>h.hab.some(x=>x.on&&x.k=='wueste')&&h.deco.filter(d=>d.k=='feld').length>=2}};
+window.C9V21={play,VIS,wishT:own=>[e=>({k:'play',n:1,t:e+' möchte mit dir spielen 🎾 (Spielen im Tier-Menü)',i:'🎾'})]};
+function visDaily(){let H=S.home;if(window.C9VIS)return;if(H.vd===today)return;H.vd=today;let sd=[...today+H.iid].reduce((a,c)=>a*31+c.charCodeAt(0)|0,5)>>>0,r=(sd%1000)/1000,cand=Object.keys(VIS).filter(e=>!H.res.includes(e));H.vis=cand.length&&r<.65?{e:cand[sd%cand.length],d:today}:null;save()}
+let VP={};
+function visList(){let H=S.home,l=(H.res||[]).filter(e=>VIS[e]).map(e=>({e,res:1}));if(!window.C9VIS&&H.vis&&H.vis.d===today&&!H.res.includes(H.vis.e))l.push({e:H.vis.e,vis:1});return l}
+function visPos(l){let need=l.filter(v=>!VP[v.e]);if(need.length){let sp=hSpots(l.length+4);need.forEach((v,i)=>{let p=sp.length?sp[(i*3+2+Object.keys(VP).length)%sp.length]:[0,0];VP[v.e]={x:p[0],y:p[1],ph:Math.random()*7,tx:p[0],ty:p[1],w:2}})}}
+const oStep2=hStep;hStep=function(list,g,dt){oStep2(list,g,dt);let l=visList();if(!l.length)return;visPos(l);let t=performance.now()/1000,sc=g.cw/50,dk=C9.v20.dayK();
+ l.forEach(v=>{let p=VP[v.e];p.w-=dt;if(p.w<=0){p.w=3+Math.random()*4;let ang=Math.random()*7;p.tx=Math.max(-g.rx*.7,Math.min(g.rx*.7,p.x+Math.cos(ang)*30));p.ty=Math.max(-g.ry*.5,Math.min(g.ry*.8,p.y+Math.sin(ang)*20));}let dx=p.tx-p.x,dy=p.ty-p.y,d=Math.hypot(dx,dy);if(d>1){p.x+=dx/d*Math.min(d,14*dt);p.y+=dy/d*Math.min(d,14*dt);p.dir=dx<0}
+  let x=p.x,y=p.y,bob=d>1?Math.abs(Math.sin(t*7+p.ph))*3:0;dE(x,y,11*sc,3.5*sc,'rgba(80,60,140,.18)');X.save();X.translate(x,y-bob);if(!p.dir)X.scale(-1,1);X.font=(30*sc|0)+'px sans-serif';X.textAlign='center';X.textBaseline='bottom';X.fillText(v.e,0,2);X.restore();v.sx=x;v.sy=y-14*sc;
+  if(dk.sleep){X.font='800 11px Nunito,sans-serif';X.fillStyle='#fff';X.fillText('Z',x+10*sc,y-34*sc)}
+  let bub=window.C9VIS?'':v.vis?'❓':(S.home.resGot[v.e]!==today?'🎁':'');if(bub){let by=y-44*sc+Math.sin(t*3+p.ph)*3;X.fillStyle=v.vis?'rgba(255,240,170,.95)':'rgba(255,255,255,.92)';X.beginPath();X.arc(x+10*sc,by,12,0,7);X.fill();X.font='13px sans-serif';X.textAlign='center';X.textBaseline='middle';X.fillText(bub,x+10*sc,by+1)}})};
+function visTapCheck(p){let l=visList(),best=null,bd=1e9,g=hGeo();l.forEach(v=>{if(v.sx==null)return;let d=Math.hypot(v.sx-p.x,v.sy-p.y);if(d<bd){bd=d;best=v}});return bd<g.cw*.6?best:null}
+function visSheet(v){let H=S.home,V0=VIS[v.e];if(v.res){if(H.resGot[v.e]!==today){H.resGot[v.e]=today;coinGain(15);SND.sfx('coin');toast(v.e+' '+V0.n+' schenkt dir 15 🪙 💜');save();hUi();return}SND.animal&&SND.animal('🐰');return toast(v.e+' '+V0.n+' wohnt gern bei dir 💜')}
+ let ok=V0.ok(H);hSheet(`<h3>${v.e} Besuch: ${V0.n}!</h3><p>Ein seltener Gast schaut sich deine Insel an. Er bleibt für immer, wenn deine Insel hat:</p><p><b>${ok?'✅':'❌'} ${V0.c}</b></p>${ok?'<button id="v21stay">💜 Bleib doch bei mir!</button>':'<p><small>Heute ist er noch da – baue schnell um, sonst zieht er morgen weiter. 🛍️</small></p>'}`);
+ let b=$('v21stay');if(b)b.onclick=()=>{H.res.push(v.e);H.vis=null;coinGain(50);save();SND.sfx('newanimal');burst2(VP[v.e].x,VP[v.e].y-20);$('hSheet').classList.add('hide');toast('🎉 '+v.e+' '+V0.n+' zieht auf deine Insel! +50 🪙',4000);hUi()}}
+const oTap2=hTap;hTap=function(p){if(window.C9VIS){let g=hGeo(),best=null,bd=1e9;HA.forEach(a=>{if(a.sx==null)return;let d=Math.hypot(a.sx-p.x,a.sy-p.y);if(d<bd){bd=d;best=a}});if(best&&bd<g.cw*.75){best.hop=1;SND.animal(best.e)}return}
+ let v=visTapCheck(p);if(v){$('v2rad')&&$('v2rad').classList.add('hide');return visSheet(v)}oTap2(p)};
+// ---------- Share & visit ----------
+const DK=Object.keys(DECO),HK=Object.keys(HABS);
+function encIsle(){let H=S.home;return b64e({v:1,i:H.iid,n:(S.me&&S.me.n)||'',a:(S.me&&S.me.a)|0,t:H.theme|0,s:H.sec,d:H.deco.filter(d=>DECO[d.k]).map(d=>[DK.indexOf(d.k),d.c,d.r]),h:H.hab.filter(h=>h.on).map(h=>[HK.indexOf(h.k),h.lv,h.c,h.r]),e:ownedAn().filter(e=>!H.hide[e]).slice(0,40),r:(H.res||[]).filter(e=>VIS[e])})}
+function decIsle(raw){let o=b64d(raw);if(!o||o.v!==1)throw 0;let sec=Math.max(1,Math.min(SECS.length,o.s|0)),[cols,rows]=SECS[sec-1],inG=(c,r)=>Number.isInteger(c)&&Number.isInteger(r)&&c>=0&&r>=0&&c<cols&&r<rows;
+ return{i:String(o.i||'').replace(/[^a-z0-9]/g,'').slice(0,16),n:String(o.n||'').slice(0,20),a:Math.max(0,Math.min(FA.length-1,o.a|0)),t:Math.max(0,Math.min(THEMES.length-1,o.t|0)),s:sec,
+  d:(o.d||[]).slice(0,120).filter(x=>Array.isArray(x)&&DK[x[0]]&&inG(x[1],x[2])).map(x=>({k:DK[x[0]],c:x[1],r:x[2]})),
+  h:(o.h||[]).slice(0,20).filter(x=>Array.isArray(x)&&HK[x[0]]&&inG(x[2],x[3])&&inG(x[2]+1,x[3]+1)).map(x=>({k:HK[x[0]],lv:Math.max(1,Math.min(3,x[1]|0)),c:x[2],r:x[3],on:true})),
+  e:(o.e||[]).filter(e=>GIFTS[e]).slice(0,40),r:(o.r||[]).filter(e=>VIS[e])}}
+function islandUrl(){return location.origin+location.pathname+'#isle='+encIsle()}
+async function likeCount(){try{let r=await sb('island_likes?select=liker_id&island_id=eq.'+S.home.iid+'&limit=1000');return(r||[]).length}catch(e){return null}}
+async function shareSheet(){let url=islandUrl(),H=S.home;hSheet(`<h3>📤 Insel teilen</h3><p>Schick deinen Freunden einen Link – sie können deine Insel anschauen und dir ein ❤️ dalassen.</p><input id="v21url" readonly value="${url}" style="width:100%;font-size:11px;padding:6px;border-radius:8px;border:1px solid #ddd;box-sizing:border-box"><div class="hsrow" style="margin-top:6px"><a class="btn" id="v21wa" href="https://wa.me/?text=${encodeURIComponent('Schau dir meine Cloud9-Insel an 🏝️ '+url)}" target="_blank" rel="noopener"><button class="sm">💬 WhatsApp</button></a><button class="sec sm" id="v21cp">📋 Link kopieren</button>${navigator.share?'<button class="sec sm" id="v21sh">📤 Teilen</button>':''}</div><p id="v21likes">❤️ Herzen werden geladen …</p><p><small>Bewohner-Gäste: ${(H.res||[]).map(e=>e+' '+VIS[e].n).join(', ')||'noch keine – seltene Besucher kommen ab und zu vorbei ❓'}</small></p>`);
+ $('v21cp').onclick=async()=>{try{await navigator.clipboard.writeText(url);toast('Link kopiert 📋')}catch(e){let i=$('v21url');i.select();toast('Link markiert – jetzt kopieren')}};let sh=$('v21sh');if(sh)sh.onclick=()=>navigator.share({title:'Meine Cloud9-Insel',text:'Schau dir meine Cloud9-Insel an 🏝️',url}).catch(()=>{});
+ let n=await likeCount(),el=$('v21likes');if(el)el.textContent=n==null?'❤️ Herzen: offline – später nochmal schauen':'❤️ '+n+' Herz'+(n==1?'':'en')+' von Besuchern';if(n!=null){H.likesSeen=n;save()}}
+async function checkLikes(){if(window.C9VIS)return;let n=await likeCount();if(n!=null&&n>(S.home.likesSeen||0)){let d=n-(S.home.likesSeen||0);S.home.likesSeen=n;save();toast('💌 '+d+' neue'+(d>1?'':'s')+' ❤️ von Besuchern deiner Insel!',4000)}}
+function enterVisit(o){if(window.C9VIS)exitVisit(true);let RH=S.home,RA=S.alb;if(o.i&&o.i===RH.iid){toast('Das ist deine eigene Insel 🏝️');return openHome()}
+ let got={};o.e.forEach(e=>got[e]=1);let VH={coins:0,deco:o.d,inv:{},sec:o.s,theme:o.t,themes:[o.t],gd:today,got,items:{},earned:0,hab:o.h,hide:{},m18:1,fr:{},food:{},seeds:{},wish:{d:'',l:[]},v20:1,res:o.r,mg:{d:'',n:0},liked:{},resGot:{},iid:o.i,vd:today};let VA={};o.e.forEach(e=>VA[e]=1);
+ Object.defineProperty(S,'toJSON',{value:()=>Object.assign({},S,{home:RH,alb:RA}),configurable:true,writable:true});S.home=VH;S.alb=VA;window.C9VIS={o,RH,RA};VP={};HED=false;
+ $('homeScr').classList.add('visiting');let nm=o.n&&!badName(o.n)?o.n:'einem Freund';$('v21vb').innerHTML=`<span>${FA[o.a]||'🐰'} Insel von <b>${nm.replace(/[<>&"]/g,'')}</b></span><button class="sm" id="v21heart">${RH.liked[o.i]?'💜 Herz dagelassen':'❤️ Herz dalassen'}</button>`;$('v21heart').onclick=leaveHeart;openHome();setTimeout(()=>toast('👀 Du besuchst eine Insel – nur anschauen. Tippe auf die Tiere!',3500),300)}
+async function leaveHeart(){let v=window.C9VIS;if(!v)return;let RH=v.RH,id=v.o.i;if(RH.liked[id]){toast('Du hast hier schon ein ❤️ dagelassen');return}RH.liked[id]=today;save();$('v21heart').textContent='💜 Herz dagelassen';burst2(0,-20);for(let i=0;i<8;i++)HFT.push({x:(Math.random()-.5)*120,y:-40-i*10,s:'❤️',l:1+i*.1});SND.sfx('star');vib(20);
+ if(/^[a-z0-9]{6,16}$/.test(id)&&id!==RH.iid){try{await sb('island_likes',{island_id:id,liker_id:RH.iid});toast('❤️ Herz verschickt! Dein Freund sieht es auf seiner Insel')}catch(e){toast(e.status==409?'❤️ Herz war schon da':'❤️ Herz gespeichert (offline – nur auf deinem Handy)')}}else toast('❤️ Herz gespeichert')}
+function exitVisit(silent){let v=window.C9VIS;if(!v)return;S.home=v.RH;S.alb=v.RA;delete S.toJSON;window.C9VIS=null;VP={};$('homeScr').classList.remove('visiting');save();if(!silent)show('menu')}
+function routeIsle(){let m=location.hash.match(/^#isle=([\w-]+)/);if(!m)return;history.replaceState(null,'',location.pathname+location.search);let o;try{o=decIsle(m[1])}catch(e){return toast('Dieser Insel-Link ist kaputt 🙈')}setTimeout(()=>enterVisit(o),300)}
+// ---------- UI ----------
+const css=document.createElement('style');css.textContent=`#v21mg{position:fixed;inset:0;z-index:20;touch-action:none}#v21mg.hide{display:none}#v21mg canvas{display:block}#v21mg .v21x{position:absolute;top:10px;right:10px;margin:0}.v21res{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);background:#fff;border-radius:22px;padding:16px 22px;text-align:center;box-shadow:0 8px 30px rgba(90,70,170,.35);min-width:240px}.v21res.hide{display:none}.v21res h2{margin:4px 0}#v21vb{display:none}#homeScr.visiting #v21vb{display:flex;align-items:center;justify-content:space-between;gap:6px;padding:4px 10px;background:rgba(255,255,255,.9);border-radius:14px;margin:2px 8px;font-size:13px}#v21vb button{margin:0}#homeScr .hbar button{white-space:nowrap}@media(max-width:400px){#homeScr .hbar .sm{padding:6px 8px;font-size:13px}#homeScr .hbar span{display:flex;gap:3px}}#homeScr.visiting #hbot,#homeScr.visiting #hInv,#homeScr.visiting #hEdit,#homeScr.visiting #hShop,#homeScr.visiting #v21share,#homeScr.visiting #hCoins{display:none!important}`;document.head.appendChild(css);
+document.body.insertAdjacentHTML('beforeend','<div id="v21mg" class="hide"><canvas></canvas><button class="sec sm v21x">✕</button><div class="v21res hide"></div></div>');
+$('v21mg').querySelector('canvas').addEventListener('pointerdown',mgTap);$('v21mg').querySelector('.v21x').onclick=()=>{if(M&&M.run){M.run=false;mgEnd()}else mgClose()};
+$('hShop').insertAdjacentHTML('beforebegin','<button class="sec sm" id="v21share" title="Insel teilen">📤</button>');$('v21share').onclick=shareSheet;
+$('hInfo').insertAdjacentHTML('beforebegin','<div id="v21vb"></div>');
+document.querySelector('#homeScr .back').addEventListener('click',()=>{if(window.C9VIS)exitVisit(true)},true);
+const oUi2=hUi;hUi=function(){if(window.C9VIS){$('hInfo').innerHTML='👀 Nur anschauen · tippe Tiere an · ❤️ oben dalassen';return}oUi2();visDaily();let H=S.home;if(!HED&&H.vis&&H.vis.d===today&&!H.res.includes(H.vis.e)){let el=$('hInfo');el.innerHTML='❓ '+H.vis.e+' '+VIS[H.vis.e].n+' ist zu Besuch – tipp ihn an! · '+el.innerHTML}};
+const oOpen2=openHome;openHome=function(){if(!window.C9VIS){visDaily();setTimeout(checkLikes,1500)}oOpen2()};
+const oShow=show;show=function(id){if(window.C9VIS&&id!=='homeScr')exitVisit(true);return oShow(id)};
+addEventListener('hashchange',routeIsle);routeIsle();
+Object.assign(window.C9,{v21:{play,startMG,mgClose,encIsle,decIsle,enterVisit,exitVisit,shareSheet,visSheet,visList,islandUrl,leaveHeart,M:()=>M}});
 })();
 
 </script></body></html>
