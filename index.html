@@ -1,3 +1,4 @@
+<!-- cloud9 v24 -->
 <!DOCTYPE html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><title>Cloud9</title><link rel="icon" href="data:,"><link rel="preconnect" href="https://fonts.gstatic.com"><link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet"><meta name="theme-color" content="#ffd6ec">
 <style>:root{--ink:#4b3f7a;--acc:#8d7bf0;--acc2:#ff8fc8;--glass:rgba(255,255,255,.55);--gb:rgba(255,255,255,.7);--f:'Nunito','Baloo 2',ui-rounded,'SF Pro Rounded','Segoe UI',system-ui,sans-serif}
 html,body{margin:0;height:100%;overflow:hidden;background:#cfe6ff;font-family:var(--f);touch-action:none;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent}
@@ -1626,14 +1627,15 @@ const V=C9V20;
 const MG={fangen:{n:'Fangen',e:'🏃',d:'Tippe das Tier, bevor es weghüpft!'},fische:{n:'Fische springen lassen',e:'🐟',d:'Tippe die Fische, wenn sie aus dem See springen!'},sterne:{n:'Sternschnuppen fangen',e:'🌠',d:'Tippe die Sternschnuppen, bevor sie verglühen!'}};
 const MGMAX=6,DUR=25;
 function gameFor(a){let m=hZone(hGeo(),a).m;return m=='swim'||m=='slide'&&['🐧','🦭'].includes(a.e)?'fische':m=='perch'||m=='fly'||a.fl?'sterne':'fangen'}
-function play(a){let H=S.home,f=V.fr(a.e);if(H.mg.d!==today){H.mg={d:today,n:0}}if(f.play>=2)return toast(a.e+' ist vom Spielen müde 😴 – morgen wieder (2× pro Tag)');if(H.mg.n>=MGMAX)return toast('Heute genug gespielt 🎾 – morgen gibt es neue Runden ('+MGMAX+' pro Tag)');
+function play(a){let H=S.home,f=V.fr(a.e);if(H.mg.d!==today){H.mg={d:today,n:0}}if(M){mgClose()}if(f.play>=2)return hSheet(`<h3>😴 ${a.e} ist müde</h3><p>Jedes Tier spielt 2× pro Tag. Probier ein anderes Tier – oder morgen wieder!</p><p><small>noch ${Math.max(0,MGMAX-H.mg.n)} Spiele heute</small></p><button onclick="$('hSheet').classList.add('hide')">OK</button>`);if(H.mg.n>=MGMAX)return hSheet(`<h3>🎾 Heute genug gespielt</h3><p>Du hast heute schon ${MGMAX} Minispiele gespielt. Morgen gibt es neue Runden!</p><button onclick="$('hSheet').classList.add('hide')">OK</button>`);
  let k=gameFor(a),G2=MG[k];hSheet(`<h3>${G2.e} ${G2.n}</h3><img src="${animalImg(a.e)}" style="width:72px"><p>${G2.d}</p><p><small>${DUR} Sekunden · Belohnung: ❤️ für ${a.e} + 🪙 · noch ${MGMAX-H.mg.n} Spiele heute</small></p><button id="v21go">▶ Los geht's!</button>`);$('v21go').onclick=()=>{$('hSheet').classList.add('hide');startMG(k,a)}}
 let M=null;
+const AHI={};function animalImgHi(e,k){let id=e+k;if(AHI[id])return AHI[id];let c=document.createElement('canvas');c.width=c.height=48*k;let o=X;X=c.getContext('2d');X.scale(k,k);drawAnimal(e,24,40,1.25,0,0,false);X=o;return AHI[id]=c}
 function startMG(k,a){let H=S.home,f=V.fr(a.e);f.play++;H.mg.n++;save();
- let el=$('v21mg'),cv=el.querySelector('canvas'),W=innerWidth,Hh=innerHeight,dpr=Math.min(2,devicePixelRatio||1);cv.width=W*dpr;cv.height=Hh*dpr;cv.style.width=W+'px';cv.style.height=Hh+'px';let x=cv.getContext('2d');x.setTransform(dpr,0,0,dpr,0,0);
- el.classList.remove('hide');el.querySelector('.v21res').classList.add('hide');let img=new Image();img.src=animalImg(a.e);
+ let el=$('v21mg'),cv=el.querySelector('canvas'),W=innerWidth,Hh=innerHeight,dpr=Math.min(3,devicePixelRatio||1);cv.width=Math.round(W*dpr);cv.height=Math.round(Hh*dpr);cv.style.width=W+'px';cv.style.height=Hh+'px';let x=cv.getContext('2d');x.setTransform(dpr,0,0,dpr,0,0);
+ el.classList.remove('hide');el.querySelector('.v21res').classList.add('hide');let img=animalImgHi(a.e,Math.ceil(88/48*dpr));
  M={k,a,e:a.e,x,W,H:Hh,t:0,sc:0,ob:[],fx:[],img,sp:0,last:performance.now(),run:true,cd:3};
- HXs=HX;HX=null;requestAnimationFrame(mgLoop)}
+ if(HX)HXs=HX;HX=null;requestAnimationFrame(mgLoop)}
 let HXs=null;
 function mgSpawn(){let m=M,W=m.W,Hh=m.H;if(m.k=='fangen'){if(!m.ob.length)m.ob.push({x:W/2,y:Hh/2,tx:W/2,ty:Hh/2,hop:0,nx:1})}
  else if(m.k=='fische'){if(m.sp<=0){m.sp=0.45+Math.random()*.5-Math.min(.25,m.t*.01);let gold=Math.random()<.12,fx=40+Math.random()*(W-80);m.ob.push({x:fx,y:Hh*.72,vx:(Math.random()-.5)*120,vy:-(Hh*.55+Math.random()*Hh*.2),e:gold?'🐡':Math.random()<.25?m.e:['🐟','🐠'][Math.random()*2|0],gold,born:m.t});m.fx.push({x:fx,y:Hh*.72,l:.6,rip:1})}}
@@ -1648,7 +1650,7 @@ function mgLoop(n){let m=M;if(!m||!m.run)return;let dt=Math.min(.05,(n-m.last)/1
   if(m.k=='fangen'){let o=m.ob[0];o.nx-=dt;if(o.nx<=0){o.nx=Math.max(.45,1.1-m.t*.025);o.fx=o.x;o.fy=o.y;o.tx=50+Math.random()*(W-100);o.ty=150+Math.random()*(Hh-300);o.hop=1}if(o.hop>0){o.hop=Math.max(0,o.hop-dt*3.5);let k=1-o.hop;o.x=o.fx+(o.tx-o.fx)*k;o.y=o.fy+(o.ty-o.fy)*k-Math.sin(k*Math.PI)*50}}
   else m.ob.forEach(o=>{o.x+=o.vx*dt;o.y+=o.vy*dt;if(m.k=='fische')o.vy+=Hh*.75*dt;if(o.tr){o.tr.push([o.x,o.y]);if(o.tr.length>14)o.tr.shift()}});
   m.ob=m.ob.filter(o=>m.k=='fangen'||(m.k=='fische'?!(o.vy>0&&o.y>Hh*.74):o.y<Hh+30&&o.x>-40&&o.x<W+40))}
- m.ob.forEach(o=>{if(m.k=='fangen'){x.fillStyle='rgba(80,60,140,.18)';x.beginPath();x.ellipse(o.x,o.y+38,26,8,0,0,7);x.fill();if(m.img.complete)x.drawImage(m.img,o.x-44,o.y-50,88,88)}
+ m.ob.forEach(o=>{if(m.k=='fangen'){x.fillStyle='rgba(80,60,140,.18)';x.beginPath();x.ellipse(o.x,o.y+38,26,8,0,0,7);x.fill();if(m.img){x.imageSmoothingQuality='high';x.drawImage(m.img,o.x-44,o.y-50,88,88)}}
   else if(m.k=='fische'){x.save();x.translate(o.x,o.y);x.rotate(Math.atan2(o.vy,Math.abs(o.vx)+60)*(o.vx<0?-1:1)*.6);x.font=(o.gold?44:38)+'px sans-serif';x.textAlign='center';x.textBaseline='middle';x.fillText(o.e,0,0);x.restore()}
   else{o.tr.forEach(([a,b],i)=>{x.fillStyle=o.gold?'rgba(255,220,120,'+i/28+')':'rgba(220,230,255,'+i/28+')';x.beginPath();x.arc(a,b,1+i/3,0,7);x.fill()});x.font=(o.gold?38:32)+'px sans-serif';x.textAlign='center';x.textBaseline='middle';x.fillText(o.gold?'🌟':'⭐',o.x,o.y)}});
  m.fx=m.fx.filter(f=>(f.l-=dt)>0);m.fx.forEach(f=>{if(f.rip){x.strokeStyle='rgba(255,255,255,'+f.l+')';x.lineWidth=2;x.beginPath();x.ellipse(f.x,f.y,40*(1-f.l)+8,8*(1-f.l)+2,0,0,7);x.stroke()}else if(f.s){f.y-=40*dt;x.globalAlpha=Math.min(1,f.l*2);x.font='800 22px Nunito,sans-serif';x.textAlign='center';x.lineWidth=4;x.strokeStyle='#fff';x.strokeText(f.s,f.x,f.y);x.fillStyle='#7a5fe0';x.fillText(f.s,f.x,f.y);x.globalAlpha=1}else{f.x+=f.vx*dt;f.y+=f.vy*dt;f.vy+=300*dt;x.fillStyle=f.c;x.globalAlpha=Math.min(1,f.l*2);x.beginPath();x.arc(f.x,f.y,4,0,7);x.fill();x.globalAlpha=1}});
@@ -1739,8 +1741,8 @@ const css=document.createElement('style');css.textContent=`
 .v22bar{height:9px;border-radius:5px;background:rgba(0,0,0,.08);overflow:hidden;margin:4px 0 2px}.v22bar i{display:block;height:100%;background:linear-gradient(90deg,#8ad06a,#5fb86a);border-radius:5px}
 .v22empty{padding:14px 6px;font-size:13px;opacity:.75}
 #v22co{position:fixed;inset:0;z-index:120}#v22co .hole{position:fixed;border-radius:16px;box-shadow:0 0 0 9999px rgba(40,25,90,.62);transition:all .35s;pointer-events:none;border:3px solid #ffe36a}
-#v22co .tip{position:fixed;left:12px;right:12px;background:#fff;border-radius:18px;padding:12px 14px;font-size:14px;font-weight:700;line-height:1.4;box-shadow:0 8px 24px rgba(0,0,0,.25);text-align:left;color:#3a2f5a}
-#v22co .tip .ar{position:absolute;font-size:28px;left:50%;margin-left:-14px;animation:v22b .8s infinite alternate}@keyframes v22b{to{transform:translateY(6px)}}
+#v22co .tip{position:fixed;left:12px;right:12px;box-sizing:border-box;background:#fff;border-radius:18px;padding:12px 14px;font-size:14px;font-weight:700;line-height:1.4;box-shadow:0 8px 24px rgba(0,0,0,.25);text-align:left;color:#3a2f5a}
+#v22co .tip .tx{max-height:calc(100vh - 120px);overflow:auto}#v22co .tip .ar{position:absolute;font-size:28px;left:50%;margin-left:-14px;animation:v22b .8s infinite alternate}@keyframes v22b{to{transform:translateY(6px)}}
 #v22co .tip .nv{display:flex;justify-content:space-between;align-items:center;margin-top:8px}#v22co .tip .nv button{margin:0;padding:8px 16px}#v22co .tip .nv small{opacity:.6}
 .v22q{position:absolute;right:12px;top:14px;width:36px;height:36px;border-radius:50%;padding:0;margin:0;font-size:18px}
 .v22eff{display:block;font-size:9px;font-weight:600;opacity:.8;line-height:1.2;margin-top:2px}.v22rec{position:absolute;top:2px;left:2px;background:#ffd84a;color:#5a3a00;font-size:8.5px;border-radius:7px;padding:1px 4px}
@@ -1807,11 +1809,13 @@ window.C9.v22={heft,todo,nearAnimal,get LP(){return LP}};
 
 // ---------- 4) Tutorials (Coach marks) ----------
 function coach(steps,key,done){let i=0,o=document.createElement('div');o.id='v22co';o.innerHTML='<div class="hole"></div><div class="tip"><div class="tx"></div><div class="nv"><small></small><button class="sm"></button></div><span class="ar"></span></div>';document.body.appendChild(o);
- const go=()=>{let st=steps[i],el=typeof st.el=='string'?document.querySelector(st.el):st.el;if(el&&el.scrollIntoView)el.scrollIntoView({block:'center'});setTimeout(()=>{let r=el?el.getBoundingClientRect():{left:innerWidth/2,top:innerHeight/2,width:0,height:0},hole=o.querySelector('.hole'),tip=o.querySelector('.tip'),ar=o.querySelector('.ar');
-  hole.style.left=(r.left-6)+'px';hole.style.top=(r.top-6)+'px';hole.style.width=(r.width+12)+'px';hole.style.height=(Math.min(r.height,innerHeight*.45)+12)+'px';
+ const go=()=>{let st=steps[i],el=typeof st.el=='string'?document.querySelector(st.el):st.el;if(el&&el.scrollIntoView)el.scrollIntoView({block:el.getBoundingClientRect().height>innerHeight*.5?'start':'center'});setTimeout(()=>{let r=el?el.getBoundingClientRect():{left:innerWidth/2,top:innerHeight/2,width:0,height:0},hole=o.querySelector('.hole'),tip=o.querySelector('.tip'),ar=o.querySelector('.ar');
+  hole.style.left=(r.left-6)+'px';hole.style.top=(r.top-6)+'px';hole.style.width=(r.width+12)+'px';
   o.querySelector('.tx').innerHTML=st.t;o.querySelector('small').textContent=(i+1)+' / '+steps.length;o.querySelector('button').textContent=i<steps.length-1?'Weiter ▶':'Los geht\'s! ✨';
-  let below=r.top+Math.min(r.height,innerHeight*.45)+16<innerHeight*.62;tip.style.top=below?(r.top+Math.min(r.height,innerHeight*.45)+30)+'px':'';tip.style.bottom=below?'':(innerHeight-r.top+30)+'px';
-  ar.textContent=below?'⬆️':'⬇️';ar.style.top=below?'-34px':'';ar.style.bottom=below?'':'-34px';ar.style.left=Math.max(30,Math.min(innerWidth-54,r.left+r.width/2-12))+'px'},120)};
+  let vt=Math.max(r.top,8),vb=Math.min(r.top+r.height,innerHeight-8);if(vb<vt+20)vb=vt+20;tip.style.bottom='';tip.style.top='0px';let th=tip.offsetHeight,M8=12,ty,arr;
+  if(vb+30+th+M8<=innerHeight){ty=vb+30;arr='up'}else if(vt-30-th-M8>=0){ty=vt-30-th;arr='down'}else{ty=Math.max(M8,innerHeight-th-M8);arr='';vb=Math.min(vb,ty-34);if(vb<vt+30){vt=Math.max(8,ty-34-Math.min(r.height,120));vb=ty-34}}
+  hole.style.top=(vt-6)+'px';hole.style.height=Math.max(20,vb-vt+12)+'px';tip.style.top=Math.max(M8,ty)+'px';
+  ar.style.display=arr?'':'none';ar.textContent=arr=='up'?'⬆️':'⬇️';ar.style.top=arr=='up'?'-34px':'';ar.style.bottom=arr=='down'?'-34px':'';ar.style.left=Math.max(30,Math.min(innerWidth-54,r.left+r.width/2-12))+'px'},120)};
  o.querySelector('button').onclick=()=>{SND.sfx('tap');i++;if(i>=steps.length){o.remove();S.v22[key]=1;save();done&&done()}else go()};go()}
 const CF_STEPS=()=>[
  {el:'#craftScr h2',t:'⚗️ <b>Kombinieren</b> macht aus doppelten Wolken eine neue, <b>seltenere</b> Wolke. Seltene Wolken sind stärker – z. B. doppelte Punkte oder mehr Tiere.'},
@@ -2022,12 +2026,13 @@ function enSetup(){let c=EN.cfg;BI=c.b;B=BIOMES[BI];G.b=BI;G.goals=c.g;G.t=c.t+(
 function enRound(){G.done=true;ptr=null;['hud','goal'].forEach(i=>$(i).classList.add('hide'));let win=goalsMet(),bonus=win?Math.max(0,Math.ceil(G.t))*3:0;EN.total+=G.score+bonus;
  if(win){SND.sfx('celebrate');vib([30,40,30]);enPanel(`<h2>🧭 Runde ${EN.r} geschafft!</h2><p>+${G.score+bonus} Punkte${bonus?' (inkl. '+bonus+' Zeitbonus)':''}<br><b>Gesamt: ${EN.total}</b></p><p><small>Nächste Runde: schwerer, weniger Zeit ⏱️</small></p><button class="big" data-a="next">Weiter ▶ Runde ${EN.r+1}</button><button class="sec" data-a="stop">Reise beenden & Punkte sichern</button>`)}
  else enEnd()}
-function enEnd(){let best=S.v23.enBest||0,nb=EN.total>best;S.v23.enBest=Math.max(best,EN.total);S.v23.enR=Math.max(S.v23.enR||0,EN.r-(G&&goalsMet()?0:1));let xp=Math.round(EN.total*.6);S.xp+=xp;let co=Math.max(1,Math.round(xp/10));coinGain(co);save();
+function enEnd(){if(EN.saved)return;EN.saved=1;let best=S.v23.enBest||0,nb=EN.total>best;S.v23.enBest=Math.max(best,EN.total);S.v23.enR=Math.max(S.v23.enR||0,EN.r-(G&&goalsMet()?0:1));let xp=Math.round(EN.total*.6);S.xp+=xp;let co=Math.max(1,Math.round(xp/10));coinGain(co);save();
  if(!S.lb.off&&EN.total>0){lbQueue({mode:'endless',score:Math.min(50000,EN.total)});lbQueue({mode:'total',score:Math.min(100000,S.xp|0)})}SND.sfx(nb?'levelup':'lose');
  enPanel(`<h2>🧭 Reise vorbei</h2><p>Du hast <b>${EN.r-(goalsMet()?0:1)}</b> Runde${EN.r-(goalsMet()?0:1)==1?'':'n'} geschafft</p><p style="font-size:26px;font-weight:900;margin:6px">${EN.total} ✨</p><p>${nb&&EN.total?'🎉 Neuer Bestwert!':'Bestwert: '+S.v23.enBest}<br>+${xp} XP · +${co} 🪙</p><button class="big" data-a="again">🔁 Neue Reise</button><button class="sec" data-a="lb">🏆 Bestenliste</button><button class="sec" data-a="menu">Menü</button>`)}
 function enPanel(h){let o=$('v23en');if(!o){o=document.createElement('div');o.id='v23en';document.body.appendChild(o)}o.innerHTML='<div class="panel">'+h+'</div>';o.style.display='flex';
  o.querySelectorAll('[data-a]').forEach(b=>b.onclick=()=>{let a=b.dataset.a;o.style.display='none';if(a=='next')enNext();else if(a=='stop')enEnd();else if(a=='again')startEndless();else if(a=='lb'){LB.t='endless';show('lbScr');renderLb()}else show('menu')})}
-$('quit').addEventListener('click',()=>{if(G&&G.mode=='endless'){let o=$('v23en');if(o)o.style.display='none';show('menu')}});
+function enQuit(){let o=$('v23en');if(o)o.style.display='none';if(G){G.done=true}ptr=null;PEND=null;let tot=EN.total+(G&&G.score>0&&!EN.saved?G.score:0);let xp=0;if(tot>0&&!EN.saved){EN.saved=1;S.v23.enBest=Math.max(S.v23.enBest||0,tot);xp=Math.round(tot*.6);S.xp+=xp;coinGain(Math.max(1,Math.round(xp/10)));save();if(!S.lb.off){lbQueue({mode:'endless',score:Math.min(50000,tot)});lbQueue({mode:'total',score:Math.min(100000,S.xp|0)})}setTimeout(()=>toast('🧭 Reise beendet · '+tot+' ✨ gesichert (+'+xp+' XP)'),100)}EN={r:0,total:0,lb:-1,saved:1};show('menu')}
+$('quit').addEventListener('click',()=>{if(G&&G.mode=='endless')enQuit()});
 // menu button + leaderboard tab
 $('bDaily').insertAdjacentHTML('afterend','<button class="big" id="bEnd" style="background:linear-gradient(135deg,#6a5ad8,#c86ad8)">🧭 Himmelsreise <small style="font-size:12px;opacity:.9" id="enBest"></small></button>');
 $('bEnd').onclick=()=>{startEndless();window.tut('reise','🧭 Himmelsreise: Runde für Runde neue Inseln. Jede Runde wird schwerer – wie weit kommst du?')};
