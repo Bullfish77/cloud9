@@ -1,4 +1,4 @@
-<!-- cloud9 v35.1 -->
+<!-- cloud9 v35.2 -->
 <!DOCTYPE html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><title>Cloud9</title><link rel="icon" href="data:,"><link rel="preconnect" href="https://fonts.gstatic.com"><link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet"><meta name="theme-color" content="#ffd6ec">
 <style>:root{--ink:#4b3f7a;--acc:#8d7bf0;--acc2:#ff8fc8;--glass:rgba(255,255,255,.55);--gb:rgba(255,255,255,.7);--f:'Nunito','Baloo 2',ui-rounded,'SF Pro Rounded','Segoe UI',system-ui,sans-serif}
 html,body{margin:0;height:100%;overflow:hidden;background:#cfe6ff;font-family:var(--f);touch-action:none;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent}
@@ -2951,7 +2951,7 @@ A2['🐲']=(t,r,ph)=>{let c='#8ad0a8',f=Math.sin(t*9)*.5;SH(r*.8);X.translate(0,
  if((t%3)<.5){X.globalCompositeOperation='lighter';X.drawImage(glowSprite('#ffb04a'),-r*1.3,-r*.8,r*.6,r*.6);X.globalCompositeOperation='source-over'}};
 Object.keys(A2).forEach(e=>{if(ANIMALS.some(a=>a[0]==e))AN[e]=A2[e]});
 // ---------- Start, Intro-Karten, Boss ----------
-const oStart3=start;start=function(mode,li){oStart3(mode,li);try{mInit()}catch(e){console.error(e)}let ch=chOf(BI);if(!ch||!G)return;
+const oStart3=start;start=function(mode,li){oStart3(mode,li);try{mInit()}catch(e){console.error(e)}try{if(window.C9NB&&C9NB(BI))moonA=1;else if(moonA>.5&&!(window.C9NB&&C9NB(BI)))moonA=0}catch(e){}let ch=chOf(BI);if(!ch||!G)return;
  if(mode=='level'){let L=LEVELS[li];if(isBoss(li))setTimeout(()=>{if(G&&!G.done&&G.li===li)toast('👑 Boss-Level: '+ch.n+'! Alles geben ✨',2600)},300);
   setTimeout(()=>{if(G&&!G.done)tut('m_'+ch.m,ch.tut)},2400)}};
 const css3=document.createElement('style');css3.textContent=`#v35tabs{display:flex;gap:6px;overflow-x:auto;width:100%;max-width:440px;padding:4px 2px 8px;margin:0 0 4px;scrollbar-width:none;-webkit-overflow-scrolling:touch;position:sticky;top:0;z-index:5}
@@ -3048,10 +3048,11 @@ C9X.CIN=CIN;C9X.homeFix=homeFix;
 const ISZ=g=>({x:0,y:g.ch*.15,rx:g.rx*.82,ry:g.ry*.74,m:'free'});
 const oZ=hZone;hZone=function(g,a){if(a.z<0||a.out)return ISZ(g);return oZ(g,a)};
 const absP=(Z,a)=>[Z.x+a.u*Z.rx,Z.y+a.v*Z.ry];
+function farPt(g,Z,hz){let best=null,bd=-1;for(let k=0;k<6;k++){let p=freePt(g,Z);if(!p)continue;let x=Z.x+p[0]*Z.rx,y=Z.y+p[1]*Z.ry,d=Math.hypot((x-hz.x)/hz.rx,(y-hz.y)/hz.ry);if(d>bd&&d<5){bd=d;best=p}}return best}
 function freePt(g,Z){for(let k=0;k<16;k++){let ang=R()*7,rr=Math.sqrt(R())*.88,u=Math.cos(ang)*rr,v=Math.sin(ang)*rr;if(!hBlocked(g,Z.x+u*Z.rx,Z.y+v*Z.ry))return[u,v]}return null}
 const oHS=hStep;hStep=function(list,g,dt){list.forEach(a=>{if(!(a.z>=0))return;let h=S.home.hab[a.z];if(!h||!h.on){a.out=0;return}let sw=HABS[h.k]&&HABS[h.k].m=='swim';
- if(!a.out){if(!sw&&!a.mv&&R()<dt*.06){let [x,y]=absP(oZ(g,a),a),Z=ISZ(g);a.out=1;a.ot=7+R()*9;a.u=(x-Z.x)/Z.rx;a.v=(y-Z.y)/Z.ry;let p=freePt(g,Z);if(p){a.tu=p[0];a.tv=p[1]}a.w=a.ot}}
- else if(a.out==1){a.ot-=dt;a.w=Math.max(a.w,1);if(!a.mv&&a.ot>0&&R()<dt*.4){let p=freePt(g,ISZ(g));if(p){a.tu=p[0];a.tv=p[1]}}
+ if(!a.out){if(!sw&&!a.mv&&R()<dt*.06){let [x,y]=absP(oZ(g,a),a),Z=ISZ(g);a.out=1;a.ot=9+R()*9;a.u=(x-Z.x)/Z.rx;a.v=(y-Z.y)/Z.ry;let p=farPt(g,Z,oZ(g,a));if(p){a.tu=p[0];a.tv=p[1]}a.w=a.ot}}
+ else if(a.out==1){a.ot-=dt;a.w=Math.max(a.w,1);if(!a.mv&&a.ot>0&&R()<dt*.6){let p=farPt(g,ISZ(g),oZ(g,a));if(p){a.tu=p[0];a.tv=p[1]}}
   if(a.ot<=0){let Z=ISZ(g),hz=oZ(g,a);a.out=2;a.tu=(hz.x-Z.x)/Z.rx;a.tv=(hz.y-Z.y)/Z.ry;a.w=9}}
  else if(a.out==2){a.w=Math.max(a.w,1);let Z=ISZ(g),hz=oZ(g,a),[x,y]=absP(Z,a);if(Math.hypot(x-hz.x,(y-hz.y)*1.4)<hz.rx*.8||!a.mv&&Math.hypot(a.tu-a.u,a.tv-a.v)<.03){a.out=0;a.u=(x-hz.x)/hz.rx;a.v=(y-hz.y)/hz.ry;let q=Math.hypot(a.u,a.v);if(q>.9){a.u*=.9/q;a.v*=.9/q}hPick(a,hz,g);a.w=1+R()*2}}});
  let r=oHS(list,g,dt);list.forEach(a=>{if(a._pk){a._pk=0;a.w=.8+R()*2.4}});return r};
@@ -3119,12 +3120,13 @@ const oSP=sndPanel;sndPanel=function(){oSP();if(!OK)return;load();let el=$('v35v
   el.onchange=()=>{S.v35.voice=el.value;save();sayN('Hallo! So klinge ich. Sammle fünf Blumen!')};$('v35vt').onclick=()=>sayN('Hallo! So klinge ich. Dein Ziel: null von fünf Blumen.')}
  let cur=pick();el.innerHTML=VS.length?VS.map(v=>`<option value="${v.voiceURI.replace(/"/g,'&quot;')}"${cur&&cur.voiceURI==v.voiceURI?' selected':''}>${v.name.replace(/</g,'')} (${v.lang})${score(v)>=40?' ⭐':''}</option>`).join(''):'<option>Standard (keine deutsche Stimme gefunden)</option>'};}
 // ---------- Event-Banner: gleiche Breite wie Menü-Buttons ----------
-{const st=document.createElement('style');st.textContent=`#v32ev{box-sizing:border-box;width:var(--v35bw,min(340px,86vw));max-width:calc(100vw - 24px);margin:6px auto;padding:8px 12px;overflow:hidden;text-align:center;line-height:1.3}
+{const st=document.createElement('style');st.textContent=`#menu>*{flex-shrink:0}#menu button.big{box-sizing:border-box;width:min(320px,86vw);max-width:calc(100vw - 28px);white-space:normal}#menu button.big small,#bEnd #enBest{font-size:12px;white-space:nowrap}
+#v32ev{box-sizing:border-box;width:min(320px,86vw)!important;max-width:calc(100vw - 28px);height:auto!important;min-height:0;flex:0 0 auto;margin:6px auto;padding:8px 12px;overflow:visible;text-align:center;line-height:1.3}
 #v32ev .evT{font-size:13px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #v32ev .evL{font-size:12px;font-weight:700;margin-top:3px;display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:4px 6px}
 #v32ev .evC{background:rgba(255,255,255,.25);border-radius:10px;padding:1px 7px;font-size:11px;white-space:nowrap}
 #v32ev .v22bar{box-sizing:border-box;width:100%;margin:6px 0 2px}#v32ev>div:last-child:not(.v22bar):not(.evL){font-size:12px}`;document.head.appendChild(st);
-const fit=()=>{let el=$('v32ev'),b=document.querySelector('#menu button.big');if(el&&b&&b.offsetWidth)el.style.setProperty('--v35bw',b.offsetWidth+'px')};
+const fit=()=>{};
 const oM=menu;menu=function(){let r=oM.apply(this,arguments);try{fit();requestAnimationFrame(fit)}catch(e){}return r};addEventListener('resize',()=>{try{fit()}catch(e){}})}
 {const oSP=sndPanel;sndPanel=function(){oSP();let E=C9X.errs();if(!E.length||$('v35err'))return;$('sOk').insertAdjacentHTML('beforebegin','<button class="sec" id="v35err" style="width:100%;margin:4px 0;font-size:12px">🐞 Fehlerbericht ('+E.length+')</button>');
  $('v35err').onclick=()=>{let t=C9X.errs().map(e=>new Date(e.t).toLocaleString('de-DE')+' ×'+e.n+' '+e.v+'\n'+e.m).join('\n\n');try{navigator.clipboard.writeText(t);toast('📋 Fehlerbericht kopiert – schick ihn uns gern!')}catch(e){}alert(t.slice(0,1500))}}}
