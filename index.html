@@ -1,4 +1,4 @@
-<!-- cloud9 v31 -->
+<!-- cloud9 v32 -->
 <!DOCTYPE html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><title>Cloud9</title><link rel="icon" href="data:,"><link rel="preconnect" href="https://fonts.gstatic.com"><link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet"><meta name="theme-color" content="#ffd6ec">
 <style>:root{--ink:#4b3f7a;--acc:#8d7bf0;--acc2:#ff8fc8;--glass:rgba(255,255,255,.55);--gb:rgba(255,255,255,.7);--f:'Nunito','Baloo 2',ui-rounded,'SF Pro Rounded','Segoe UI',system-ui,sans-serif}
 html,body{margin:0;height:100%;overflow:hidden;background:#cfe6ff;font-family:var(--f);touch-action:none;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent}
@@ -134,7 +134,7 @@ button.sm{padding:8px 12px;font-size:14px;margin:2px}.hbar b{font-size:16px;back
 .cpc{display:flex;align-items:center;background:var(--glass);border:1px solid var(--gb);border-radius:20px;padding:2px 8px 2px 2px;font-size:14px}.cpc img{width:40px;height:40px}
 .lbr span.n small.ttl{display:block;font-size:11px;opacity:.7;font-weight:700}
 #c{touch-action:none}#hint{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);max-width:88%;box-sizing:border-box;background:rgba(255,255,255,.96);color:#5a4a9a;border:3px solid #c9b8ff;border-radius:18px;padding:8px 14px;font-size:14px;font-weight:800;text-align:center;pointer-events:none;opacity:0;transition:opacity .35s;z-index:9;box-shadow:0 6px 18px rgba(90,70,170,.25)}#hint.on{opacity:1}
-</style></head><body>
+</style><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#b8a8ff"><link rel="apple-touch-icon" href="apple-touch-icon.png"><link rel="icon" href="icon-192.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"></head><body>
 <canvas id="c"></canvas>
 <div id="hud" class="hide"><button id="quit">✕</button><span class="pill" id="time">60s</span><span class="pill" id="score">0 ✨</span><span class="pill" id="energy">⚡0</span><span class="pill" id="wxh" style="display:none;font-size:12px"></span><div id="ldBar"></div></div>
 <div id="goal" class="hide"></div><div id="toast"></div><div id="hint"></div>
@@ -2362,5 +2362,117 @@ new MutationObserver(ms=>{if(!ms.some(m=>m.target!==hand&&!(m.target.id||'').sta
  if(!tip.querySelector('#v31buddy')){tip.insertAdjacentHTML('afterbegin',`<img id="v31buddy" src="${animalImg('🐰')}">`+(canSpeak?'<button class="sec v31spk">🔊</button>':''));let sp=tip.querySelector('.v31spk');if(sp)sp.onclick=e=>{e.stopPropagation();say(tip.querySelector('.tx').innerText)}}
  setTimeout(()=>{let r=hole.getBoundingClientRect();if(r.width<4){hand.style.display='none';return}hand.className='';hand.style.left=(r.left+r.width/2)+'px';hand.style.top=Math.min(r.bottom-30,r.top+Math.min(r.height,160)/2)+'px';hand.style.display='block';hand.style.zIndex=125},420)}).observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['style']});
 C9.preStart=preStart;C9.finish=finish;window.C9.v31={say,goalSpeech,picGoals,askKid,canWith,potHint,handDrag};
+})();
+</script><script>
+// ===== v32: PWA, Tagesbelohnung, Events (Halloween/Advent), Tiere wachsen + Eier, Fotomodus, Spielstand-Code =====
+(function(){
+S.v32=S.v32||{};const V=S.v32;
+const qd=(location.search.match(/[?&]date=(\d{4}-\d\d-\d\d)/)||[])[1];const TODAY=qd||today;const DT=new Date(TODAY+'T12:00:00');const MON=DT.getMonth()+1,DAY=DT.getDate();
+const css=document.createElement('style');css.textContent=`
+.v32ov{position:fixed;inset:0;z-index:135;background:rgba(40,30,90,.55);display:flex;align-items:center;justify-content:center}.v32ov .panel{background:#fff;border-radius:24px;padding:16px;max-width:350px;width:90%;text-align:center;max-height:88vh;overflow:auto;box-sizing:border-box}
+.v32cal{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin:10px 0}.v32cal div{border-radius:12px;background:#f1ecff;padding:6px 0;font-size:11px;font-weight:800;color:#6a55d8;position:relative}.v32cal div b{display:block;font-size:20px}
+.v32cal .done{background:#d9f5d0;color:#3a8a3a}.v32cal .done::after{content:'✓';position:absolute;top:-4px;right:-2px;background:#5fb86a;color:#fff;border-radius:50%;width:16px;height:16px;font-size:11px;line-height:16px}
+.v32cal .now{background:linear-gradient(135deg,#ffe28a,#ffc4dd);animation:v32p 1s infinite alternate}@keyframes v32p{to{transform:scale(1.08)}}
+.v32adv{display:grid;grid-template-columns:repeat(6,1fr);gap:5px;margin:8px 0}.v32adv div{aspect-ratio:1;border-radius:10px;background:linear-gradient(135deg,#d84a5a,#a8304a);color:#fff;font-weight:900;display:flex;align-items:center;justify-content:center;font-size:15px;border:2px dashed rgba(255,255,255,.5)}
+.v32adv .open{background:#fff4d8;color:#a8304a;border-style:solid;font-size:18px}.v32adv .now{box-shadow:0 0 0 3px #ffd84a;animation:v32p 1s infinite alternate}.v32adv .lock{opacity:.5}
+#v32ev{width:min(360px,94vw);margin:6px auto;border-radius:16px;padding:8px 10px;font-size:13px;font-weight:800;color:#fff;background:linear-gradient(135deg,#5a3a9a,#ff8a3a);box-shadow:0 4px 12px rgba(90,40,120,.3);cursor:pointer}#v32ev .v22bar{background:rgba(255,255,255,.3)}#v32ev .v22bar i{background:linear-gradient(90deg,#ffd84a,#ff8a3a)}
+body.v32photo #homeScr .hbar,body.v32photo #hInfo,body.v32photo #homeScr .hbot,body.v32photo #hInv,body.v32photo #v21vb,body.v32photo #toast,body.v32photo .hinv{visibility:hidden!important}
+#v32pf{position:fixed;inset:0;z-index:60;pointer-events:none;box-shadow:inset 0 0 0 14px #fff,inset 0 0 0 16px rgba(141,123,240,.5)}#v32pbar{position:fixed;left:0;right:0;bottom:18px;z-index:61;display:flex;gap:8px;justify-content:center}
+#v32code{width:100%;height:84px;font-size:10px;border-radius:10px;border:1px solid #ddd;padding:6px;box-sizing:border-box;word-break:break-all}
+`;document.head.appendChild(css);
+const ov=(h,id)=>{let o=document.createElement('div');o.className='v32ov';o.id=id||'';o.innerHTML='<div class="panel">'+h+'</div>';o.onclick=e=>{if(e.target===o)o.remove()};document.body.appendChild(o);return o};
+const randCloud=maxT=>{let c=TYPES.map((t,i)=>[t,i]).filter(([t])=>t[3]<=maxT&&t[3]<4);let p=c[Math.floor(R()*c.length)];return p?p[1]:0};
+// ---------- PWA ----------
+if('serviceWorker' in navigator&&location.protocol!=='file:'&&!/[?&]nosw/.test(location.search)){addEventListener('load',()=>navigator.serviceWorker.register('sw.js').then(r=>{r.update&&r.update()}).catch(()=>{}))}
+let BIP=null;addEventListener('beforeinstallprompt',e=>{e.preventDefault();BIP=e;let b=$('v32inst');if(b)b.style.display=''});
+// ---------- Tagesbelohnung ----------
+const DR=[['🪙',25],['🪙',40],['☁️',1],['🪙',60],['☁️',2],['🪙',90],['🎁',150]];
+function drState(){V.dr=V.dr||{last:'',n:0};let y=new Date(DT.getTime()-864e5).toISOString().slice(0,10);let n=V.dr.last===TODAY?V.dr.n:V.dr.last===y?V.dr.n:0;return{claimed:V.dr.last===TODAY,n}}
+function drShow(force){let st=drState();if(st.claimed&&!force)return;let idx=st.claimed?(st.n-1)%7:st.n%7;
+ let cells=DR.map((r,i)=>`<div class="${i<idx||(st.claimed&&i==idx)?'done':i==idx&&!st.claimed?'now':''}"><b>${r[0]}</b>${r[0]=='🪙'?r[1]:r[0]=='☁️'?r[1]+'×':'Super'}<br>Tag ${i+1}</div>`).join('');
+ let o=ov(`<h2 style="margin:2px 0">🗓️ Tagesbelohnung</h2><p style="margin:4px 0;font-size:13px">${st.claimed?'Heute schon abgeholt – komm morgen wieder!':'Komm jeden Tag – die Geschenke werden größer!'} <b>🔥 ${st.claimed?st.n:st.n} Tage in Folge</b></p><div class="v32cal">${cells}</div>${st.claimed?'<button class="sec" data-x>Schließen</button>':'<button class="big" id="v32claim">🎁 Abholen!</button>'}`,'v32dr');
+ let x=o.querySelector('[data-x]');if(x)x.onclick=()=>o.remove();let c=$('v32claim');if(c)c.onclick=()=>{let r=DR[idx],msg;if(r[0]=='🪙'){coinGain(r[1]);msg='+'+r[1]+' 🪙'}else if(r[0]=='☁️'){let got=[];for(let i=0;i<r[1];i++){let t=randCloud(2);S.col[t]=(S.col[t]||0)+1;got.push(TYPES[t][1])}msg=got.join(' ')+' Wolke'+(r[1]>1?'n':'')}else{coinGain(r[1]);let t=randCloud(3);S.col[t]=(S.col[t]||0)+1;msg='+'+r[1]+' 🪙 + '+TYPES[t][1]+' '+TYPES[t][0]}
+  V.dr={last:TODAY,n:st.n+1};save();SND.sfx('celebrate');vib([20,30,20]);o.remove();toast('🎁 Tag '+(idx+1)+': '+msg,3000);if(window.C9.v31&&S.kid)C9.v31.say('Super! Dein Geschenk für heute.');menuEv()}}
+// ---------- Events ----------
+const HALLO=MON==10,ADV=MON==12&&DAY<=24;
+V.ev=V.ev||{};const EVK=HALLO?'hw'+DT.getFullYear():ADV?'adv'+DT.getFullYear():'';const EGOAL=25;
+if(HALLO){V.ev[EVK]=V.ev[EVK]||{n:0,done:0}}
+DECO.kuerbis=['Kürbislaterne',9999];
+DD.kuerbis=function(t){shadow(16);let gl=.5+.3*Math.sin(t*4);let g=X.createRadialGradient(0,-12,2,0,-12,24);g.addColorStop(0,'rgba(255,200,80,'+gl*.5+')');g.addColorStop(1,'rgba(255,200,80,0)');X.fillStyle=g;X.fillRect(-26,-38,52,52);pumpkin(X,0,-11,15,t,1)};
+function pumpkin(x,cx,cy,r,t,face){x.save();x.translate(cx,cy);x.fillStyle='#5a8a3a';x.beginPath();x.moveTo(-2,-r*.85);x.quadraticCurveTo(0,-r*1.35,4,-r*1.25);x.lineTo(3,-r*.8);x.fill();
+ [[-r*.5,.62],[r*.5,.62],[0,.7]].forEach(([dx,w],i)=>{let g=x.createRadialGradient(dx-r*.2,-r*.3,1,dx,0,r);g.addColorStop(0,'#ffc070');g.addColorStop(1,'#f07a1a');x.fillStyle=g;x.beginPath();x.ellipse(dx,0,r*w,r*.85,0,0,7);x.fill();x.strokeStyle='rgba(150,60,10,.45)';x.lineWidth=1.5;x.stroke()});
+ if(face){let gl=.75+.25*Math.sin((t||0)*6);x.fillStyle='rgba(255,'+(200+40*gl|0)+',80,1)';x.beginPath();x.moveTo(-r*.45,-r*.2);x.lineTo(-r*.2,-r*.45);x.lineTo(-r*.1,-r*.15);x.fill();x.beginPath();x.moveTo(r*.45,-r*.2);x.lineTo(r*.2,-r*.45);x.lineTo(r*.1,-r*.15);x.fill();
+  x.beginPath();x.moveTo(-r*.5,r*.15);x.quadraticCurveTo(0,r*.7,r*.5,r*.15);x.lineTo(r*.25,r*.25);x.lineTo(r*.12,r*.1);x.lineTo(0,r*.3);x.lineTo(-r*.12,r*.1);x.lineTo(-r*.25,r*.25);x.closePath();x.fill()}x.restore()}
+function bat(x,cx,cy,s,t){let f=Math.sin(t*14)*.6;x.save();x.translate(cx,cy);x.scale(s,s);x.fillStyle='#3a2a5a';x.beginPath();x.moveTo(0,0);x.quadraticCurveTo(-8,-10-f*8,-18,-4-f*10);x.quadraticCurveTo(-14,0,-15,4);x.quadraticCurveTo(-10,1,-7,5);x.quadraticCurveTo(-4,2,0,4);x.quadraticCurveTo(4,2,7,5);x.quadraticCurveTo(10,1,15,4);x.quadraticCurveTo(14,0,18,-4-f*10);x.quadraticCurveTo(8,-10-f*8,0,0);x.fill();
+ x.beginPath();x.ellipse(0,1,4,5,0,0,7);x.fill();x.beginPath();x.moveTo(-3,-3);x.lineTo(-2,-7);x.lineTo(0,-3);x.lineTo(2,-7);x.lineTo(3,-3);x.fill();x.fillStyle='#ffd84a';x.fillRect(-2.2,-1.5,1.4,1.4);x.fillRect(.8,-1.5,1.4,1.4);x.restore()}
+function pcloud(x,cx,cy,r,t){x.save();x.globalAlpha=.95;puffs(x,cx,cy+r*.35,r*.75,'#ffe2c8','#e8b090');x.restore();pumpkin(x,cx,cy-r*.1,r*.6,t,1)}
+// in-level overlay: dusk tint, bats, tappable Kürbiswolken
+let PK=[],BATS=[],pkT=4;
+for(let i=0;i<5;i++)BATS.push({x:Math.random(),y:.08+Math.random()*.3,v:.03+Math.random()*.04,ph:i*2,s:.7+Math.random()*.5});
+function hwDraw(n,dt){let t=n/1000;X.save();X.setTransform(D,0,0,D,0,0);let g=X.createLinearGradient(0,0,0,H*.45);g.addColorStop(0,'rgba(80,40,140,.28)');g.addColorStop(1,'rgba(255,140,60,0)');X.fillStyle=g;X.fillRect(0,0,W,H*.45);
+ BATS.forEach(b=>{b.x=(b.x+b.v*dt)%1.1;bat(X,b.x*W*1.1-W*.05,b.y*H+Math.sin(t*2+b.ph)*12,b.s,t+b.ph)});
+ pkT-=dt;if(pkT<=0&&PK.length<2){pkT=5+Math.random()*5;PK.push({x:W*(.15+Math.random()*.7),y:H*(.15+Math.random()*.25),l:7,ph:Math.random()*7})}
+ PK=PK.filter(p=>(p.l-=dt)>0);PK.forEach(p=>{X.globalAlpha=Math.min(1,p.l);pcloud(X,p.x+Math.sin(t+p.ph)*10,p.y+Math.sin(t*1.7+p.ph)*5,26,t);X.globalAlpha=1});X.restore()}
+const oLoop=loop;loop=function(n){oLoop(n);if(HALLO&&!HOMEON&&G&&!G.done&&!$('hud').classList.contains('hide')){try{hwDraw(n,1/60)}catch(e){}}};
+addEventListener('pointerdown',e=>{if(!HALLO||HOMEON||!G||G.done||!PK.length||e.target!==C)return;let r=C.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top,p=PK.find(p=>Math.hypot(p.x-x,p.y-y)<38);if(!p)return;e.stopImmediatePropagation();e.preventDefault();PK=PK.filter(q=>q!==p);
+ let E=V.ev[EVK];E.n++;G.score+=15;save();SND.sfx('star');vib(15);toast('🎃 Kürbiswolke! '+Math.min(E.n,EGOAL)+'/'+EGOAL+(E.n==EGOAL?' – Event geschafft! 🎉':''));if(E.n>=EGOAL&&!E.done){E.done=1;S.home.inv.kuerbis=(S.home.inv.kuerbis||0)+1;coinGain(200);save();setTimeout(()=>toast('🎃 Belohnung: Kürbislaterne für deine Insel + 200 🪙!',4000),1500)}},true);
+// shop: event deco is not for sale
+const oShop=renderShop;renderShop=function(){oShop();document.querySelectorAll('#shGrid [data-k="kuerbis"]').forEach(c=>c.remove())};
+// Advent calendar
+function advShow(){V.adv=V.adv||{};let y=DT.getFullYear(),k='a'+y,op=V.adv[k]||(V.adv[k]=[]);let h='';for(let d=1;d<=24;d++){let o=op.includes(d),now=d==DAY&&!o,lk=d>DAY;h+=`<div data-d="${d}" class="${o?'open':''} ${now?'now':''} ${lk?'lock':''}">${o?['🪙','☁️','🎁','⭐'][d%4]:d}</div>`}
+ let o=ov(`<h2 style="margin:2px 0">🎄 Adventskalender</h2><p style="font-size:13px;margin:4px">Jeden Tag ein Türchen bis Weihnachten!</p><div class="v32adv">${h}</div><button class="sec" data-x>Schließen</button>`);o.querySelector('[data-x]').onclick=()=>o.remove();
+ o.querySelectorAll('.v32adv div').forEach(c=>c.onclick=()=>{let d=+c.dataset.d;if(op.includes(d))return;if(d>DAY)return toast('🔒 Noch nicht – Türchen '+d+' öffnet am '+d+'. Dezember');op.push(d);let msg;if(d==24){coinGain(300);msg='+300 🪙 Frohe Weihnachten! 🎄'}else if(d%4==1){let t=randCloud(2);S.col[t]=(S.col[t]||0)+1;msg=TYPES[t][1]+' '+TYPES[t][0]}else{let c2=20+d*3;coinGain(c2);msg='+'+c2+' 🪙'}save();SND.sfx('celebrate');o.remove();toast('🎁 Türchen '+d+': '+msg,3000);advShow()})}
+// menu banner
+function menuEv(){let m=$('menu');let el=$('v32ev');if(!el){el=document.createElement('div');el.id='v32ev';let anchor=$('bHome');anchor.parentNode.insertBefore(el,anchor)}
+ let st=drState(),dr=st.claimed?'':'<div style="margin-top:4px">🎁 Tagesbelohnung wartet!</div>';
+ if(HALLO){let E=V.ev[EVK];el.innerHTML=`🎃 Halloween-Event · bis 31.10.<div style="font-weight:700;font-size:12px">Tippe Kürbiswolken im Level an: ${Math.min(E.n,EGOAL)}/${EGOAL}${E.done?' ✅ Kürbislaterne erhalten':' → Kürbislaterne für die Insel'}</div><div class="v22bar"><i style="width:${Math.min(100,E.n/EGOAL*100)}%"></i></div>${dr}`;el.onclick=()=>st.claimed?drShow(true):drShow()}
+ else if(ADV){el.style.background='linear-gradient(135deg,#2a8a5a,#d84a5a)';el.innerHTML=`🎄 Adventskalender – Türchen ${DAY} wartet!${dr}`;el.onclick=advShow}
+ else{el.style.background='linear-gradient(135deg,#8d7bf0,#ff8ac0)';el.innerHTML='🗓️ Tagesbelohnung · 🔥 '+st.n+' Tage'+(st.claimed?' ✅':' – jetzt abholen!');el.onclick=()=>drShow(true)}}
+const oMenu=menu;menu=function(){oMenu();try{menuEv()}catch(e){console.warn(e)}};
+setTimeout(()=>{try{menuEv()}catch(e){}if(/[?&]noask/.test(location.search)||location.hash.startsWith('#'))return;if(!$('v31kid'))drShow();else{let w=setInterval(()=>{if(!$('v31kid')){clearInterval(w);drShow()}},800)}},1300);
+// ---------- Tiere wachsen + seltene Eier ----------
+const ADULT=3;const oDA=hDrawAnimal;
+function isBaby(e){return !window.C9VIS&&(C9V20.hearts(e)||0)<ADULT&&!(V.grown||{})[e]}
+hDrawAnimal=function(a,x,y,s,n,t,Z,hy,sp){if(isBaby(a.e)){s*=.72;y+=0}return oDA(a,x,y,s,n,t,Z,hy,sp)};
+setInterval(()=>{if(window.C9VIS)return;V.grown=V.grown||{};let ch=false;HA.forEach(a=>{if(!V.grown[a.e]&&(C9V20.hearts(a.e)||0)>=ADULT){V.grown[a.e]=1;ch=true;if(HOMEON){toast('🎉 '+a.e+' '+(ANIMALS.find(x=>x[0]==a.e)||[,''])[1]+' ist jetzt erwachsen!',3500);SND.sfx('levelup');a.hop=1;for(let i=0;i<10;i++)HFT.push({x:a.sx+(R()-.5)*40,y:a.sy-30-i*6,s:'✨',l:1.2+i*.08})}}});if(ch)save()},1500);
+// eggs
+function eggDaily(){if(window.C9VIS)return;if(V.eggD===TODAY)return;V.eggD=TODAY;if(!V.egg&&(R()<.18||/[?&]egg/.test(location.search))){let g=hGeo();V.egg={c:Math.floor(R()*g.cols),r:Math.floor(R()*g.rows),d:TODAY,t:0}}save()}
+const EGG_SPR={};function eggSpr(){let q=Math.min(3,devicePixelRatio||1)*2,k=q;if(EGG_SPR[k])return EGG_SPR[k];let c=document.createElement('canvas');c.width=c.height=40*q;let x=c.getContext('2d');x.scale(q,q);x.translate(20,30);
+ let g=x.createRadialGradient(-4,-12,2,0,-8,20);g.addColorStop(0,'#fff');g.addColorStop(.5,'#fff1c8');g.addColorStop(1,'#f0c878');x.fillStyle=g;x.beginPath();x.moveTo(0,-24);x.bezierCurveTo(13,-24,15,2,0,2);x.bezierCurveTo(-15,2,-13,-24,0,-24);x.fill();x.strokeStyle='rgba(150,100,40,.5)';x.lineWidth=1.5;x.stroke();
+ [['#ff8ac0',-5,-14],['#7ad0ff',5,-8],['#8ae08a',-3,-4],['#b88aff',6,-17]].forEach(([c2,a,b])=>{x.fillStyle=c2;x.beginPath();x.arc(a,b,2.6,0,7);x.fill()});x.fillStyle='rgba(255,255,255,.8)';x.beginPath();x.ellipse(-5,-17,2.5,4,-.4,0,7);x.fill();return EGG_SPR[k]=c}
+const oStep=hStep;hStep=function(list,g,dt){oStep(list,g,dt);if(list!==HA||!V.egg||window.C9VIS)return;let[x,y]=cellXY(g,Math.min(V.egg.c,g.cols-1),Math.min(V.egg.r,g.rows-1)),t=performance.now()/1000,w=V.egg.h?Math.sin(t*30)*.3*(V.egg.h):Math.sin(t*2)*.08;V.egg.sx=x;V.egg.sy=y;
+ X.save();X.translate(x,y);let gl=X.createRadialGradient(0,-12,2,0,-12,28);gl.addColorStop(0,'rgba(255,240,150,.55)');gl.addColorStop(1,'rgba(255,240,150,0)');X.fillStyle=gl;X.fillRect(-30,-40,60,60);X.rotate(w);X.drawImage(eggSpr(),-20,-30,40,40);X.restore()};
+const oTap=hTap;hTap=function(p){let E=V.egg;if(E&&!window.C9VIS&&E.sx!=null&&Math.hypot(p.x-E.sx,p.y-(E.sy-12))<26){if(E.h)return;E.h=1;SND.sfx('card');vib(20);setTimeout(()=>{E.h=2},500);setTimeout(hatch,1300);return}return oTap(p)};
+function hatch(){let E=V.egg;if(!E)return;let notOwn=ANIMALS.filter(a=>!S.alb[a[0]]),pick=(notOwn.length?notOwn:ANIMALS)[Math.floor(R()*(notOwn.length||ANIMALS.length))],e=pick[0],neu=!S.alb[e];S.alb[e]=1;S.home.got[e]=S.home.got[e]||0;V.egg=null;if(!neu)coinGain(80);save();
+ for(let i=0;i<16;i++)HFT.push({x:E.sx+(R()-.5)*30,y:E.sy-14,vx:(R()-.5)*160,vy:-60-R()*120,l:.8,dot:`hsl(${R()*360|0},90%,75%)`});SND.sfx('levelup');
+ let o=ov(`<h2 style="margin:2px 0">🥚 Ein Ei ist geschlüpft!</h2><img src="${animalImg(e)}" style="width:110px;animation:v31pop .6s"><p><b>${e} ${pick[1]}</b>${neu?' ist neu auf deiner Insel! 🎉':' – schon da, dafür +80 🪙'}</p><p style="font-size:12px;opacity:.8">Als Baby ist es noch klein – kümmere dich darum, dann wächst es (${ADULT} ❤️).</p><button class="big" data-x>Hallo ${e}!</button>`);o.querySelector('[data-x]').onclick=()=>{o.remove();try{openHome()}catch(e2){}}}
+const oOpen=openHome;openHome=function(){let r=oOpen.apply(this,arguments);eggDaily();if(V.egg&&!window.C9VIS)setTimeout(()=>toast('🥚 Auf deiner Insel liegt ein geheimnisvolles Ei – tipp es an!',3500),900);return r};
+// animal card: baby label
+// ---------- Fotomodus ----------
+$('hShop').insertAdjacentHTML('beforebegin','<button class="sec sm" id="v32cam" title="Fotomodus">📸</button>');
+$('v32cam').onclick=()=>{if(document.body.classList.contains('v32photo'))return;document.body.classList.add('v32photo');let f=document.createElement('div');f.id='v32pf';document.body.appendChild(f);
+ let b=document.createElement('div');b.id='v32pbar';b.innerHTML='<button class="big" id="v32snap">📸 Foto speichern</button><button class="sec" id="v32px">✕</button>';document.body.appendChild(b);
+ $('v32px').onclick=photoEnd;$('v32snap').onclick=snap};
+function photoEnd(){document.body.classList.remove('v32photo');['v32pf','v32pbar'].forEach(i=>{let e=$(i);if(e)e.remove()})}
+function snap(){let src=HC,w=src.width,h=src.height,pad=Math.round(w*.05),cap=Math.round(w*.12),c=document.createElement('canvas');c.width=w+pad*2;c.height=h+pad*2+cap;let x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,c.width,c.height);x.drawImage(src,pad,pad);x.strokeStyle='rgba(141,123,240,.35)';x.lineWidth=Math.max(2,w*.004);x.strokeRect(pad,pad,w,h);
+ x.fillStyle='#6a55d8';x.font=`900 ${Math.round(cap*.36)}px Nunito,sans-serif`;x.textAlign='center';x.textBaseline='middle';x.fillText('🏝️ Meine Cloud9-Insel',c.width/2,h+pad+cap*.45);x.font=`700 ${Math.round(cap*.2)}px Nunito,sans-serif`;x.fillStyle='#a090d8';x.fillText(new Date().toLocaleDateString('de-AT')+' · bullfish77.github.io/cloud9',c.width/2,h+pad+cap*.8);
+ SND.sfx('star');let fl=document.createElement('div');fl.style.cssText='position:fixed;inset:0;background:#fff;z-index:70;opacity:.9;transition:opacity .5s';document.body.appendChild(fl);setTimeout(()=>{fl.style.opacity=0;setTimeout(()=>fl.remove(),500)},60);
+ c.toBlob(async bl=>{window.__v32last=bl;let file=null;try{file=new File([bl],'cloud9-insel.png',{type:'image/png'})}catch(e){}
+  if(file&&navigator.canShare&&navigator.canShare({files:[file]})){try{await navigator.share({files:[file],title:'Meine Cloud9-Insel'});return}catch(e){if(e&&e.name==='AbortError')return}}
+  let a=document.createElement('a');a.href=URL.createObjectURL(bl);a.download='cloud9-insel.png';document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},2000);toast('📸 Foto gespeichert!')},'image/png')}
+// ---------- Spielstand-Code ----------
+function fnv(s){let h=0x811c9dc5;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)>>>0}return h.toString(36)}
+function b64u(s){return btoa(unescape(encodeURIComponent(s))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'')}
+function ub64(s){s=s.replace(/-/g,'+').replace(/_/g,'/');while(s.length%4)s+='=';return decodeURIComponent(escape(atob(s)))}
+function exportCode(){save();let j=localStorage.c9v2||JSON.stringify(S);let p=b64u(j);return 'C9S1.'+p+'.'+fnv(j)}
+function importCode(code){code=(code||'').trim().replace(/\s+/g,'');let m=code.match(/^C9S1\.([A-Za-z0-9_-]+)\.([a-z0-9]+)$/);if(!m)throw new Error('format');let j=ub64(m[1]);if(fnv(j)!==m[2])throw new Error('checksum');let o=JSON.parse(j);if(!o||typeof o!='object'||!o.col||!o.home)throw new Error('content');return j}
+function codeSheet(){let code=exportCode();let o=ov(`<h3 style="margin:2px 0">💾 Spielstand-Code</h3><p style="font-size:12px;margin:4px 0">Kopiere den Code und füge ihn auf dem anderen Handy hier ein. Alles bleibt auf deinem Gerät – kein Konto nötig.</p><textarea id="v32code" readonly>${code}</textarea><button class="sec" id="v32cp">📋 Code kopieren</button><hr style="border:0;border-top:1px solid #eee;margin:10px 0"><b style="font-size:13px">Spielstand laden</b><textarea id="v32in" placeholder="Code hier einfügen…" style="width:100%;height:60px;font-size:11px;border-radius:10px;border:1px solid #ddd;padding:6px;box-sizing:border-box"></textarea><button class="big" id="v32ld">📥 Laden</button><small style="display:block;opacity:.7">Achtung: Laden ersetzt den Spielstand auf diesem Gerät.</small><button class="sec" data-x>Schließen</button>`,'v32cs');
+ o.querySelector('[data-x]').onclick=()=>o.remove();$('v32cp').onclick=async()=>{try{await navigator.clipboard.writeText(code);toast('📋 Code kopiert')}catch(e){let t=$('v32code');t.select();document.execCommand&&document.execCommand('copy');toast('Code markiert – jetzt kopieren')}};
+ $('v32ld').onclick=()=>{let j;try{j=importCode($('v32in').value)}catch(e){return toast(e.message=='checksum'?'❌ Code unvollständig oder verändert (Prüfsumme falsch)':'❌ Das ist kein gültiger Cloud9-Code')}if(!confirm('Spielstand wirklich ersetzen?'))return;localStorage.c9v2_backup=localStorage.c9v2||'';localStorage.c9v2=j;try{let o2=JSON.parse(j);Object.keys(S).forEach(k=>delete S[k]);Object.assign(S,o2)}catch(e){}toast('✅ Spielstand geladen – starte neu…');setTimeout(()=>location.reload(),700)}}
+
+const oSnd=sndPanel;sndPanel=function(){oSnd();if(!$('v32cb')){$('sOk').insertAdjacentHTML('beforebegin','<button class="sec" id="v32cb" style="width:100%;margin:4px 0">💾 Spielstand-Code (anderes Gerät)</button><button class="sec" id="v32drb" style="width:100%;margin:4px 0">🗓️ Tagesbelohnung</button><button class="sec" id="v32inst" style="width:100%;margin:4px 0;'+(BIP?'':'display:none')+'">📲 Zum Startbildschirm hinzufügen</button>');
+ $('v32cb').onclick=()=>{$('sndP').style.display='none';codeSheet()};$('v32drb').onclick=()=>{$('sndP').style.display='none';drShow(true)};$('v32inst').onclick=async()=>{if(!BIP)return;BIP.prompt();try{await BIP.userChoice}catch(e){}BIP=null;$('v32inst').style.display='none'}}};
+window.C9.v32={drShow,drState,advShow,exportCode,importCode,codeSheet,hatch,eggDaily,snap,photoEnd,PK:()=>PK,addPK:(x,y)=>PK.push({x,y,l:9,ph:0}),HALLO,ADV,fnv};
+C9.preStart=preStart;
 })();
 </script></body></html>
