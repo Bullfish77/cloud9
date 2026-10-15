@@ -1373,7 +1373,7 @@ S.home.hab.forEach(h=>{if(!h.on||(HDR&&HDR.d===h))return;let q=habGeo(g,h);HDB[h
 if(HED){for(let r=0;r<g.rows;r++)for(let c=0;c<g.cols;c++){let[x,y]=cellXY(g,c,r);X.fillStyle=cellFree(c,r)?'rgba(255,255,255,.35)':'rgba(141,123,240,.18)';X.beginPath();X.ellipse(x,y,g.cw*.42,g.ch*.38,0,0,7);X.fill()}
 if(HDR){if(HDR.hab){let[c,r]=hHabCell(g,HDR),ok=habFits(g,c,r,HDR.d);if(c>=0&&r>=0&&c<g.cols-1&&r<g.rows-1){let q=habGeo(g,{c,r});X.strokeStyle=ok?'#8d7bf0':'#ff7a9a';X.lineWidth=3;X.setLineDash([6,5]);X.beginPath();X.ellipse(q.x,q.y,q.rx,q.ry,0,0,7);X.stroke();X.setLineDash([])}}
 else{let cell=hCell(g,{x:HDR.x,y:HDR.y+g.cw*.3});if(cell){let[x,y]=cellXY(g,cell[0],cell[1]);X.strokeStyle='#8d7bf0';X.lineWidth=3;X.beginPath();X.ellipse(x,y,g.cw*.44,g.ch*.4,0,0,7);X.stroke()}}}}
-S.home.deco.forEach(d=>{if(HDR&&HDR.d===d)return;let[x,y]=cellXY(g,d.c,d.r);items.push({y,f:()=>{X.save();X.translate(x,y);X.scale(sc,sc);DD[d.k](t);X.restore()}})});
+S.home.deco.forEach(d=>{if(HDR&&HDR.d===d)return;let[x,y]=cellXY(g,d.c,d.r);items.push({y,f:()=>{X.save();X.translate(x,y);X.scale(sc,sc);DD[d.k](t,d);X.restore()}})});
 hStep(HA,g,dt);
 HA.forEach(a=>{let Z=hZone(g,a),x=Z.x+a.u*Z.rx,y=Z.y+a.v*Z.ry,s=sc*(Z.m=='free'?.95:a.e=='🐋'?.62:.78),spd=a.spd||0,m=Z.m,ty;
  if(m=='swim'||m=='burrow'&&a.bt>0)ty=0;else if(m=='perch')ty=a.fl||a.e=='🦄'?(a.mv?24:7)+Math.sin(t*2.6+a.ph)*(a.mv?5:1.5):0;else if(a.fl)ty=(m=='fly'?16:26)+Math.sin(t*2.6+a.ph)*5;else if(m=='slide')ty=0;else ty=Math.abs(Math.sin(t*9+a.ph))*4*Math.min(1,spd/12);
@@ -1451,4 +1451,168 @@ menu13();
 
 (()=>{const W=$('wxSheet');$('wxBtn').onclick=()=>{W.classList.remove('hide');wxRender()};$('wxClose').onclick=()=>W.classList.add('hide');W.addEventListener('click',e=>{if(e.target===W)W.classList.add('hide')});
 const H=$('helpBox');$('bHelp').onclick=()=>{let o=H.style.display=='none';H.style.display=o?'':'none';H.open=o;if(o)H.scrollIntoView({behavior:'smooth',block:'nearest'})};})();
+</script>
+<script>
+// ===== v20: Freundschaft, Garten, Tag/Nacht, Tierwünsche =====
+(function(){
+const H=S.home;
+H.fr=H.fr&&typeof H.fr=='object'?H.fr:{};
+H.food=H.food&&typeof H.food=='object'?H.food:{};
+if(!H.v20){H.v20=1;H.inv.feld=(H.inv.feld||0)+1;H.items['🌷']=(H.items['🌷']||0);H.seeds={blume:3,moehre:2}}
+H.seeds=H.seeds||{};
+if(!H.wish||typeof H.wish!='object')H.wish={d:'',l:[]};
+save();
+DECO.feld=['Gartenbeet',60];
+const SEEDS={
+ blume:{n:'Blumen',e:'🌷',p:6,m:15,y:{'🌸':2},c:6},
+ moehre:{n:'Möhren',e:'🥕',p:8,m:30,y:{'🥕':2},c:8},
+ beere:{n:'Beeren',e:'🫐',p:10,m:45,y:{'🫐':3},c:10},
+ kristall:{n:'Mondkristalle',e:'🌙',p:25,m:180,y:{'💎':1},c:35,night:1}};
+const FOODS={
+ salat:{n:'Möhrensalat',e:'🥗',r:{'🥕':2}},
+ nektar:{n:'Blütennektar',e:'🧃',r:{'🌸':2}},
+ beeren:{n:'Beerenmix',e:'🍓',r:{'🫐':2}},
+ nuss:{n:'Nussriegel',e:'🥜',r:{'🌰':1,'🫐':1}},
+ suppe:{n:'Muschelsuppe',e:'🍲',r:{'🐚':1,'🫐':1}},
+ kaktus:{n:'Kaktussaft',e:'🍹',r:{'🌵':1,'🫐':1}},
+ eis:{n:'Eisbecher',e:'🍧',r:{'❄️':1,'🫐':1}},
+ stern:{n:'Sternbonbon',e:'🍬',r:{'💎':1,'🌸':1}}};
+const FAV={'🐰':'salat','🦔':'nuss','🐿️':'nuss','🦋':'nektar','🐝':'nektar','🦜':'nektar','🦩':'nektar','🦎':'kaktus','🐪':'kaktus','🦂':'kaktus','🦭':'suppe','🐧':'suppe','🐢':'suppe','🦦':'suppe','🐻‍❄️':'eis','🦅':'beeren','🦉':'beeren','🐒':'beeren','🦊':'beeren','🦄':'stern','🐉':'stern','🦇':'stern','🪼':'stern','🐋':'stern'};
+const TRICK={'🐰':['salto','Salto'],'🐧':['rutsch','Bauchrutscher'],'🦭':['rutsch','Bauchrutscher'],'🐻‍❄️':['rutsch','Bauchrutscher'],'🐋':['salto','Riesensprung'],'🦦':['salto','Rückwärtssalto'],'🪼':['dreh','Pirouette'],'🐢':['dreh','Panzerdreher'],'🦊':['dreh','Schwanzjagd'],'🐒':['salto','Flickflack'],'🐉':['salto','Looping'],'🦄':['salto','Regenbogensprung'],'🦅':['salto','Looping'],'🦜':['dreh','Pirouette'],'🦉':['dreh','Kopfdreher']};
+const trickOf=e=>TRICK[e]||['hops','Freudensprung'];
+const CAP={pet:3,feed:2,play:2};
+function fr(e){let f=H.fr[e];if(!f)f=H.fr[e]={p:0};if(f.d!==today){f.d=today;f.pet=0;f.feed=0;f.play=0}return f}
+const hearts=e=>Math.floor((H.fr[e]?H.fr[e].p:0)/10);
+function addFp(e,n){let f=fr(e),h0=hearts(e);f.p=Math.min(100,f.p+n);let h1=hearts(e);save();if(h1>h0){let msg=e+' '+anName(e)+' – Freundschaft '+h1+' ❤️';if(h0<3&&h1>=3)msg+=' · neuer Trick: '+trickOf(e)[1]+'!';else if(h0<6&&h1>=6)msg+=' · neuer Trick: Tanz!';else if(h1==10)msg+=' · beste Freunde 👑';setTimeout(()=>toast(msg,3500),400);SND.sfx('levelup')}}
+window.C9V20={SEEDS,FOODS,FAV,fr,hearts,addFp};
+// ---- better gifts with friendship ----
+const oGift=hGift;hGift=function(a){let r=oGift(a),hh=hearts(a.e);if(hh>0){let extra=Math.round(r[1]*.06*hh);coinGain(extra);r[1]+=extra;if(hh>=5){let k=GIFTS[a.e][0];H.items[k]=(H.items[k]||0)+1}if(hh>=10){H.items['⭐']=(H.items['⭐']||0)+1}r[2]=r[2]||hh>0}wishEv('gift');return r};
+// ---- time of day ----
+function dayK(){let d=new Date(),h=d.getHours()+d.getMinutes()/60;if(window.C9V20.hour!=null)h=window.C9V20.hour;let dk=h>=21.5||h<5?1:h>=19?(h-19)/2.5:h<7?(7-h)/2:0,dusk=h>=17&&h<21.5?Math.sin((h-17)/4.5*Math.PI):h>=5&&h<8?Math.sin((h-5)/3*Math.PI)*.6:0;return{h,dk:Math.max(0,Math.min(1,dk)),dusk,sleep:h>=21.5||h<6.5}}
+const wet=()=>WX&&['rain','storm','snow'].includes(WX.k);
+// ---- garden beds ----
+function bedUpd(d,now){let p=d.pl;if(!p)return;let el=Math.max(0,now-p.t);if(!el)return;if(wet())p.w=Math.max(p.w||0,now+18e5);let wp=Math.max(0,Math.min(el,(p.w||0)-p.t)),S0=SEEDS[p.s],mult=(wet()?1.5:1)*(S0.night&&dayK().dk>.5?2:1);p.g=Math.min(1,(p.g||0)+(wp+(el-wp)*.15)*mult/(S0.m*6e4));p.t=now}
+function bedsUpd(){let now=Date.now();H.deco.forEach(d=>{if(d.k=='feld')bedUpd(d,now)})}
+const oDD=DD.beet;
+DD.feld=function(t,d){shadow(22);let p=d&&d.pl,wt=p&&(p.w||0)>Date.now();dP(-22,-12,44,16,6,'#a97c55');dP(-20,-11,40,12,5,wt?'#6e4a30':'#8c6142');X.strokeStyle=wt?'#5a3a22':'#7a5236';X.lineWidth=1.4;for(let i=-1;i<=1;i++){X.beginPath();X.moveTo(-17,-5+i*3.5);X.lineTo(17,-5+i*3.5);X.stroke()}
+ if(wt){for(let i=0;i<3;i++)dE(-10+i*10,-3,2,1,'rgba(160,210,255,.8)')}
+ if(!p){X.font='11px sans-serif';X.textAlign='center';X.textBaseline='middle';X.globalAlpha=.6;X.fillText('🌱',0,-6);X.globalAlpha=1;return}
+ let S0=SEEDS[p.s],g=p.g||0,n=3;for(let i=0;i<n;i++){let x=-12+i*12,sz=4+g*12,sw=Math.sin(t*2+i)*1.2;X.strokeStyle='#5fb86a';X.lineWidth=1.6;X.beginPath();X.moveTo(x,-6);X.lineTo(x+sw,-6-sz);X.stroke();if(g<.35){dE(x+sw-2,-6-sz,3,1.6,'#7cd08a');dE(x+sw+2,-6-sz,3,1.6,'#7cd08a')}else{X.font=(6+g*10|0)+'px sans-serif';X.textAlign='center';X.textBaseline='middle';X.fillText(S0.e,x+sw,-8-sz)}}
+ if(g>=1){let k=(t*1.5)%1;X.fillStyle='rgba(255,240,150,'+(1-k)+')';X.beginPath();X.arc(0,-30-k*10,2.5,0,7);X.fill();X.font='800 9px Nunito,sans-serif';X.fillStyle='#fff';X.strokeStyle='#5fb86a';X.lineWidth=3;X.textAlign='center';X.strokeText('Ernten!',0,-34);X.fillText('Ernten!',0,-34)}
+ else{dP(-14,4,28,4,2,'rgba(255,255,255,.7)');dP(-14,4,28*g,4,2,'#8ad06a')}};
+function bedSheet(d){bedsUpd();let p=d.pl;if(p&&p.g>=1)return harvest(d);
+ if(!p){hSheet('<h3>🌱 Gartenbeet</h3><p>Was möchtest du pflanzen? Danach mit der 🌧️ Regenwolke gießen.</p><div class="v2grid">'+Object.entries(SEEDS).map(([k,s])=>{let have=H.seeds[k]||0;return`<button class="v2c ${!have&&H.coins<s.p?'poor':''}" data-s="${k}"><b>${s.e}</b>${s.n}<small>${s.m<60?s.m+' Min':s.m/60+' Std'} · ${have?'🌰 '+have+' Samen':'🪙 '+s.p}${s.night?' · 🌙 nachts ×2':''}</small></button>`}).join('')+'</div>');
+  $('hSheet').querySelectorAll('[data-s]').forEach(b=>b.onclick=()=>{let k=b.dataset.s,s=SEEDS[k];if(H.seeds[k]>0)H.seeds[k]--;else if(!pay(s.p))return;d.pl={s:k,g:0,t:Date.now(),w:wet()?Date.now()+18e5:0};save();SND.sfx('place');$('hSheet').classList.add('hide');toast(s.e+' gepflanzt! Gieße das Beet mit der 🌧️ Regenwolke unten');pulseWater()});return}
+ let s=SEEDS[p.s],wt=(p.w||0)>Date.now(),rem=(1-p.g)*s.m/(wet()?1.5:1);
+ hSheet(`<h3>${s.e} ${s.n}</h3><div class="v2bar"><i style="width:${p.g*100|0}%"></i></div><p>${Math.round(p.g*100)}% gewachsen · ${wt?'💧 gegossen – wächst':'🏜️ trocken – wächst kaum'}</p><p><small>${wt?'noch ca. '+fmtMin(rem):'Gießen: Tippe unten auf 🌧️ und zieh die Wolke übers Beet'}${wet()?' · 🌧️ Echtes Regenwetter gießt mit!':''}</small></p><button class="sec sm" id="v2dig">🪓 Ausgraben</button>`);
+ $('v2dig').onclick=()=>{d.pl=null;save();$('hSheet').classList.add('hide');toast('Beet ist wieder frei')}}
+const fmtMin=m=>m<1?'1 Min':m<60?Math.ceil(m)+' Min':(m/60).toFixed(1).replace('.',',')+' Std';
+function harvest(d){let s=SEEDS[d.pl.s],txt=[];Object.entries(s.y).forEach(([k,n])=>{H.items[k]=(H.items[k]||0)+n;txt.push(k+'×'+n)});if(R()<.5)H.seeds[d.pl.s]=(H.seeds[d.pl.s]||0)+1;coinGain(s.c);let[x,y]=cellXY(hGeo(),d.c,d.r);HFT.push({x,y:y-40,s:txt.join(' ')+' +'+s.c+' 🪙',l:1.6});burst2(x,y-20);SND.sfx('bloom');vib(20);wishEv('harv',d.pl.s,1);d.pl=null;save();hUi()}
+// ---- watering cloud ----
+let WM=false,WC=null;
+function pulseWater(){let b=$('v2w');if(b){b.classList.remove('pulse');void b.offsetWidth;b.classList.add('pulse')}}
+function setWM(on){WM=on;WC=null;let b=$('v2w');if(b)b.classList.toggle('on',on);hUi()}
+function cvPt(e){let b=HC.getBoundingClientRect();return{x:e.clientX-b.left,y:e.clientY-b.top}}
+function w2s(x,y){return[hOX()+x*HV.z,hOY()+(y+Math.sin(performance.now()/1000*1.1)*3)*HV.z]}
+function s2w(p){return{x:(p.x-hOX())/HV.z,y:(p.y-hOY())/HV.z}}
+// ---- radial menu ----
+let RM=null;
+function closeRad(){let r=$('v2rad');if(r)r.classList.add('hide');RM=null}
+function openRad(a){let g=hGeo(),[sx,sy]=w2s(a.sx,a.sy),b=HC.getBoundingClientRect();sx+=b.left;sy+=b.top;let r=$('v2rad'),f=fr(a.e),hh=hearts(a.e),tk=trickOf(a.e);RM=a;
+ let items=[['pet','✋','Streicheln',f.pet>=CAP.pet],['feed','🍽️','Füttern',f.feed>=CAP.feed],['play','🎾','Spielen',false],['trick',hh>=3?'✨':'🔒',hh>=3?tk[1]:'ab 3 ❤️',hh<3],['card','ℹ️','Karte',false]];
+ let R0=62,cx=Math.max(R0+30,Math.min(innerWidth-R0-30,sx)),cy=Math.max(R0+40,Math.min(innerHeight-R0-50,sy));
+ r.innerHTML=`<div class="v2rc" style="left:${cx}px;top:${cy}px"><span class="v2rh">${'❤️'.repeat(Math.min(hh,10))||'🤍'}</span>`+items.map((it,i)=>{let an=-Math.PI/2+(i-(items.length-1)/2)*0.78*(items.length>4?1:1.1),x=Math.cos(an)*R0,y=Math.sin(an)*R0+ (an>0?0:0);return`<button data-a="${it[0]}" class="${it[3]?'dim':''}" style="transform:translate(${x-24}px,${y-24}px)"><b>${it[1]}</b><small>${it[2]}</small></button>`}).join('')+'</div>';
+ r.classList.remove('hide');r.querySelectorAll('button').forEach(bt=>bt.onclick=ev=>{ev.stopPropagation();let k=bt.dataset.a,e=a.e;closeRad();act(k,a)})}
+function act(k,a){let e=a.e,f=fr(e);
+ if(k=='pet'){if(f.pet>=CAP.pet){toast(e+' wurde heute schon genug gestreichelt 💜 – morgen wieder');return}f.pet++;a.hop=1;for(let i=0;i<5;i++)HFT.push({x:a.sx+(R()-.5)*30,y:a.sy-20-i*8,s:'💗',l:1+i*.12});SND.animal(e);vib(12);addFp(e,3);wishEv('pet',e);toast(e+' '+anName(e)+' schnurrt vor Freude 💗 ('+f.pet+'/'+CAP.pet+' heute)')}
+ else if(k=='feed')feedSheet(a);
+ else if(k=='play'){if(window.C9V21&&C9V21.play)C9V21.play(a);else toast('🎾 Minispiele kommen gleich im nächsten Update!')}
+ else if(k=='trick'){if(hearts(e)<3)return toast('Tricks gibt es ab 3 ❤️ Freundschaft');doTrick(a,hearts(e)>=6&&R()<.4?'tanz':trickOf(e)[0])}
+ else if(k=='card')anCard(e)}
+function doTrick(a,tk){a.tk=tk;a.tk0=performance.now();SND.animal(a.e);if(tk=='salto'||tk=='hops')SND.sfx('whoosh');if(Z_m(a)=='swim')SND.sfx('splash');setTimeout(()=>{HFT.push({x:a.sx,y:a.sy-40,s:'👏 '+(tk=='tanz'?'Tanz!':trickOf(a.e)[1]+'!'),l:1.3})},700)}
+const Z_m=a=>hZone(hGeo(),a).m;
+function cook(k){let F=FOODS[k];if(!Object.entries(F.r).every(([i,n])=>(H.items[i]||0)>=n))return false;Object.entries(F.r).forEach(([i,n])=>H.items[i]-=n);H.food[k]=(H.food[k]||0)+1;save();SND.sfx('craft');wishEv('cook',k);return true}
+function feedSheet(a){let e=a.e,f=fr(e),fav=FAV[e]||'beeren';
+ let row=([k,F])=>{let n=H.food[k]||0,can=Object.entries(F.r).every(([i,m])=>(H.items[i]||0)>=m);return`<div class="v2fr ${k==fav?'fav':''}"><b>${F.e}</b><span>${F.n}${k==fav?' <em>❤ Lieblingsessen</em>':''}<small>${Object.entries(F.r).map(([i,m])=>i+' '+(H.items[i]||0)+'/'+m).join(' · ')} · hast ${n}</small></span><button class="sec sm" data-c="${k}" ${can?'':'disabled'}>🍳 Kochen</button><button class="sm" data-f="${k}" ${n&&f.feed<CAP.feed?'':'disabled'}>Füttern</button></div>`};
+ hSheet(`<h3>🍽️ ${e} ${anName(e)} füttern</h3><p><small>${f.feed}/${CAP.feed} Mahlzeiten heute · Lieblingsessen gibt doppelt ❤️ · Zutaten aus Geschenken & Garten</small></p><div class="anl">`+Object.entries(FOODS).sort((x,y)=>(y[0]==fav)-(x[0]==fav)).map(row).join('')+'</div>');
+ let sh=$('hSheet');sh.querySelectorAll('[data-c]').forEach(b=>b.onclick=()=>{if(cook(b.dataset.c)){toast(FOODS[b.dataset.c].e+' '+FOODS[b.dataset.c].n+' gekocht!');feedSheet(a)}});
+ sh.querySelectorAll('[data-f]').forEach(b=>b.onclick=()=>{let k=b.dataset.f;if(!(H.food[k]>0)||f.feed>=CAP.feed)return;H.food[k]--;f.feed++;let fv=k==fav;addFp(e,fv?20:10);a.hop=1;HFT.push({x:a.sx,y:a.sy-40,s:'😋 '+FOODS[k].e+(fv?' ❤️❤️':' ❤️'),l:1.5});SND.sfx('gift');SND.animal(e);wishEv('feed',e);sh.classList.add('hide');toast(e+' '+anName(e)+(fv?' liebt '+FOODS[k].n+'! +2 ❤️':' mag '+FOODS[k].n+' +1 ❤️'))})}
+function anCard(e){let f=fr(e),hh=hearts(e),fav=FOODS[FAV[e]||'beeren'],tk=trickOf(e),gf=GIFTS[e];
+ hSheet(`<div class="v2card"><img src="${animalImg(e)}"><h3>${anName(e)}</h3><div class="v2hearts">${[...Array(10)].map((_,i)=>i<hh?'❤️':'🤍').join('')}</div><div class="v2bar"><i style="width:${(f.p%10)*10}%"></i></div><small>${hh<10?'noch '+(10-f.p%10)+' Punkte bis zum nächsten Herz':'Beste Freunde 👑'}</small>
+ <p>🍽️ Lieblingsessen: <b>${fav.e} ${fav.n}</b></p><p>🎁 Geschenk: ${gf[0]} ${gf[1]} · +${Math.round(hh*6)}% Taler${hh>=5?' · +1 Extra-'+gf[0]:''}${hh>=10?' · +⭐':''}</p>
+ <p>✨ Tricks: ${hh>=3?'✅':'🔒 3❤️'} ${tk[1]} · ${hh>=6?'✅':'🔒 6❤️'} Tanz · ${hh>=10?'✅':'🔒 10❤️'} Krone</p><p><small>Heute: ✋ ${f.pet}/${CAP.pet} · 🍽️ ${f.feed}/${CAP.feed} · 🎾 ${f.play}/${CAP.play}</small></p></div>`)}
+// ---- wishes ----
+function wishGen(){let own=ownedAn().filter(e=>!H.hide[e]);if(H.wish.d===today&&H.wish.l.length)return;if(!own.length){H.wish={d:'',l:[]};return}
+ let sd=[...today].reduce((a,c)=>a*31+c.charCodeAt(0)|0,11),rnd=()=>{sd=(sd*1103515245+12345)&0x7fffffff;return sd/0x7fffffff},pick=a=>a[Math.floor(rnd()*a.length)];
+ let T=[e=>{let s=pick(['blume','moehre','beere']);return{k:'harv',key:s,n:2,t:e+' möchte, dass du '+2+'× '+SEEDS[s].e+' '+SEEDS[s].n+' erntest',i:SEEDS[s].e}},
+ e=>({k:'feed',key:e,n:1,t:e+' hat Hunger – füttere '+anName(e),i:'🍽️'}),
+ e=>({k:'pet',n:3,t:e+' wünscht sich: Streichle 3 Tiere',i:'✋'}),
+ e=>({k:'gift',n:Math.min(4,own.length),t:e+' sagt: Sammle '+Math.min(4,own.length)+' Geschenke',i:'🎁'}),
+ e=>({k:'water',n:2,t:e+' möchte 2 Beete gegossen sehen',i:'💧'}),
+ e=>{let f=FAV[e]||'beeren';return{k:'cook',key:f,n:1,t:e+' träumt von '+FOODS[f].e+' '+FOODS[f].n+' – koche es',i:FOODS[f].e}}];
+ if(window.C9V21&&C9V21.wishT)T.push(...C9V21.wishT(own));
+ let l=[],used=new Set(),es=own.slice();for(let i=0;i<3&&es.length;i++){let e=es.splice(Math.floor(rnd()*es.length),1)[0],ti;do{ti=Math.floor(rnd()*T.length)}while(used.has(ti)&&used.size<T.length);used.add(ti);let w=T[ti](e);w.e=e;w.p=0;w.r=25+Math.floor(rnd()*4)*10;l.push(w)}
+ H.wish={d:today,l};save()}
+function wishEv(k,key,n){if(H.wish.d!==today)return;let ch=0;H.wish.l.forEach(w=>{if(w.k==k&&(w.key==null||w.key==key||k=='pet'||k=='gift'||k=='water')&&w.p<w.n){w.p=Math.min(w.n,w.p+(n||1));ch=1;if(w.p>=w.n){setTimeout(()=>toast('📜 Wunsch erfüllt: '+w.t+' – hol dir die Belohnung!',3500),900);SND.sfx('star')}}});if(ch){save();wishBadge()}}
+window.C9V20.wishEv=wishEv;
+function wishBadge(){let b=$('v2wb');if(!b)return;let n=H.wish.l.filter(w=>w.p>=w.n&&!w.c).length;b.querySelector('i').textContent=n||'';b.querySelector('i').style.display=n?'':'none'}
+function wishSheet(){wishGen();let l=H.wish.l;hSheet('<h3>📜 Tierwünsche <small>heute</small></h3>'+(l.length?'<div class="anl">'+l.map((w,i)=>`<div class="v2fr ${w.c?'done':''}"><b>${w.e}</b><span>${w.t}<div class="v2bar"><i style="width:${w.p/w.n*100}%"></i></div><small>${w.p}/${w.n} · Belohnung 🪙 ${w.r} + ❤️ für ${w.e}</small></span>${w.c?'✅':`<button class="sm" data-w="${i}" ${w.p>=w.n?'':'disabled'}>Abholen</button>`}</div>`).join('')+'</div><small>Jeden Tag gibt es 3 neue Wünsche 💭</small>':'<p>Noch keine Tiere auf der Insel – spiel ein Level, dann haben sie Wünsche 💭</p>'));
+ $('hSheet').querySelectorAll('[data-w]').forEach(b=>b.onclick=()=>{let w=l[+b.dataset.w];if(w.c||w.p<w.n)return;w.c=1;coinGain(w.r);addFp(w.e,10);SND.sfx('claim');vib(25);toast('🎉 '+w.e+' ist glücklich! +'+w.r+' 🪙 +1 ❤️');save();wishBadge();hUi();wishSheet()})}
+window.C9V20.wishSheet=wishSheet;
+// ---- hTap override ----
+const oTap=hTap;hTap=function(p){closeRad();if(WM)return;let g=hGeo(),best=null,bd=1e9;HA.forEach(a=>{if(a.sx==null)return;let Z=hZone(g,a),dd=Math.hypot(a.sx-p.x,a.sy-p.y);if(Z.m=='swim')dd=Math.min(dd,Math.hypot(a.sx-p.x,a.sy+12-p.y));if(dd<bd){bd=dd;best=a}});
+ let bed=null,bb=1e9;H.deco.forEach(d=>{if(d.k!='feld')return;let[x,y]=cellXY(g,d.c,d.r),dd=Math.hypot(x-p.x,y-8-p.y);if(dd<g.cw*.55&&dd<bb){bb=dd;bed=d}});if(bed&&(!best||bb<bd*.9))return bedSheet(bed);
+ if(best&&bd<g.cw*.75){if(!S.home.got[best.e])return oTap(p);best.hop=.6;SND.animal(best.e);openRad(best);return}
+ oTap(p)};
+// ---- draw wrapper per animal: tricks, sleep, wish bubble ----
+const oDA=hDrawAnimal;hDrawAnimal=function(a,x,y,s,n,t,Z,hy,speed){let sl=DK_.sleep&&!a.tk&&Z.m!='swim'&&!a.fl;
+ if(a.tk){let k=(n-a.tk0)/1100;if(k>=1){a.tk=null}else{let cy=y-hy-6*s-14*s,tk=a.tk;X.save();
+  if(tk=='salto'){let up=Math.sin(k*Math.PI)*46*s;X.translate(x,cy-up);X.rotate((a.dir?-1:1)*k*Math.PI*2);X.translate(-x,-cy);oDA(a,x,y,s,n,t,Z,hy,speed)}
+  else if(tk=='rutsch'){let sx=Math.sin(k*Math.PI)*40*s*(a.dir?-1:1);X.translate(x+sx,y-4*s);X.rotate((a.dir?1:-1)*Math.min(1,k*4,(1-k)*4)*1.35);X.translate(-x,-(y-4*s));oDA(a,x,y,s,n,t,Z,0,speed);for(let i=0;i<4;i++)dE(x-sx*.3*i/4,y+2,3*s,1.2*s,'rgba(255,255,255,.7)')}
+  else if(tk=='dreh'){X.translate(x,cy);X.scale(Math.cos(k*Math.PI*4),1);X.translate(-x,-cy);oDA(a,x,y,s,n,t,Z,hy+Math.sin(k*Math.PI)*8,speed)}
+  else if(tk=='tanz'){X.translate(x,y);X.rotate(Math.sin(k*Math.PI*6)*.35);X.translate(-x,-y);oDA(a,x,y,s,n,t,Z,hy+Math.abs(Math.sin(k*Math.PI*6))*8,speed);X.font='14px sans-serif';X.textAlign='center';X.fillText('🎵',x+18*s,y-40*s-k*14)}
+  else{oDA(a,x,y,s,n,t,Z,hy+Math.sin(k*Math.PI)*36*s,speed)}
+  X.restore();return}}
+ oDA(a,x,y,s,n,t,Z,hy,speed);
+ if(hearts(a.e)>=10){X.font='12px sans-serif';X.textAlign='center';X.fillText('👑',x,y-hy-46*s)}
+ if(sl){X.font='800 '+(10+Math.sin(t*2+a.ph)*2|0)+'px Nunito,sans-serif';X.fillStyle='#fff';X.strokeStyle='#5a5aa0';X.lineWidth=3;X.textAlign='center';let k=(t*.5+a.ph)%1;X.globalAlpha=1-k;X.strokeText('z',x+12*s+k*8,y-hy-36*s-k*16);X.fillText('z',x+12*s+k*8,y-hy-36*s-k*16);X.globalAlpha=1;X.strokeText('Z',x+8*s,y-hy-30*s);X.fillText('Z',x+8*s,y-hy-30*s)}
+ let w=H.wish.d===today&&H.wish.l.find(w=>w.e==a.e&&!w.c);if(w&&S.home.got[a.e]){let by=(Z.m=='swim'?y-2*s:y-hy)-44*s+Math.sin(t*3+a.ph+1)*3,bx=x-10*s;X.fillStyle=w.p>=w.n?'rgba(255,240,170,.95)':'rgba(255,255,255,.92)';X.beginPath();X.arc(bx,by,12,0,7);X.fill();dE(bx+5,by+12,3,3,X.fillStyle);dE(bx+8,by+17,1.8,1.8,X.fillStyle);X.font='13px sans-serif';X.textAlign='center';X.textBaseline='middle';X.fillText(w.p>=w.n?'✅':w.i,bx,by+1)}};
+let DK_=dayK();
+const oStep=hStep;hStep=function(list,g,dt){if(DK_.sleep)list.forEach(a=>{if(!a.fl&&!a.tk&&hZone(g,a).m!='swim')a.w=Math.max(a.w,1)});oStep(list,g,dt)};
+// ---- world overlay: day/night, weather, fireflies, lantern glow, watering cloud ----
+const FF=[...Array(14)].map(()=>({u:R()*2-1,v:R()*2-1,ph:R()*7,sp:.3+R()*.4}));const ST=[...Array(60)].map(()=>[R(),R(),R()*1.3+.3,R()*7]);
+let RD=[...Array(70)].map(()=>({x:R(),y:R(),v:.7+R()*.5}));let lastU=0;
+const oHD=homeDraw;homeDraw=function(n,dt){if(n-lastU>1000){lastU=n;DK_=dayK();bedsUpd()}
+ oHD(n,dt);if(!HX)return;let t=n/1000,g=hGeo();withCtx(HX,()=>{let dk=DK_.dk,du=DK_.dusk;
+ if(du>.02){X.globalCompositeOperation='soft-light';X.fillStyle='rgba(255,140,90,'+(du*.55)+')';X.fillRect(0,0,HW,HH);X.globalCompositeOperation='source-over'}
+ if(dk>.02){X.globalCompositeOperation='multiply';let c=a=>Math.round(255-(255-a)*dk*.85);X.fillStyle=`rgb(${c(105)},${c(115)},${c(190)})`;X.fillRect(0,0,HW,HH);X.globalCompositeOperation='source-over';
+  let top=hOY()-g.ry*1.05*HV.z;ST.forEach(([sx,sy,r,ph])=>{let y=sy*HH*.45;if(y>top-6)return;X.globalAlpha=dk*(.5+Math.sin(t*2+ph)*.4);dE(sx*HW,y,r,r,'#fff')});X.globalAlpha=dk;X.font='26px sans-serif';X.textAlign='center';X.textBaseline='middle';X.fillText('🌙',HW-34,Math.min(36,top-10)>14?36:36);X.globalAlpha=1}
+ let bob=Math.sin(t*1.1)*3;X.save();X.translate(hOX(),hOY()+bob*HV.z);X.scale(HV.z,HV.z);
+ if(dk>.3){X.globalCompositeOperation='lighter';let sc=g.cw/50;H.deco.forEach(d=>{if(d.k!='laterne'&&d.k!='haus')return;let[x,y]=cellXY(g,d.c,d.r),yy=y-(d.k=='laterne'?44:20)*sc,R0=(d.k=='laterne'?60:44)*sc*(1+Math.sin(t*3+x)*.04),gl=X.createRadialGradient(x,yy,2,x,yy,R0);gl.addColorStop(0,'rgba(255,220,130,'+(.55*dk)+')');gl.addColorStop(1,'rgba(255,200,100,0)');X.fillStyle=gl;X.beginPath();X.arc(x,yy,R0,0,7);X.fill()});
+  FF.forEach((f,i)=>{let x=Math.sin(t*f.sp+f.ph)*g.rx*.8*f.u+Math.cos(t*.3+i)*20,y=g.ch*.1+Math.cos(t*f.sp*.8+f.ph*2)*g.ry*.7*f.v-20,al=(.5+Math.sin(t*4+f.ph)*.5)*dk,gl=X.createRadialGradient(x,y,0,x,y,9);gl.addColorStop(0,'rgba(230,255,140,'+al+')');gl.addColorStop(1,'rgba(200,255,100,0)');X.fillStyle=gl;X.beginPath();X.arc(x,y,9,0,7);X.fill()});X.globalCompositeOperation='source-over'}
+ if(WC){let cx=WC.x,cy=WC.y-70/HV.z;X.globalAlpha=.95;puffs(X,cx,cy,22,'#fff','#c8d6f0');X.globalAlpha=1;for(let i=0;i<10;i++){let k=(t*2.2+i/10)%1,x=cx+(i/9-.5)*34+Math.sin(i*7)*3;X.strokeStyle='rgba(120,180,255,'+(1-k)*.9+')';X.lineWidth=2;X.beginPath();X.moveTo(x,cy+12+k*48);X.lineTo(x-1,cy+20+k*48);X.stroke()}
+  if(WC.bed){let[bx,by]=cellXY(g,WC.bed.c,WC.bed.r);X.strokeStyle='rgba(120,180,255,.9)';X.lineWidth=3;X.beginPath();X.arc(bx,by-6,24,-Math.PI/2,-Math.PI/2+Math.PI*2*Math.min(1,WC.acc/.6));X.stroke()}}
+ X.restore();
+ if(wet()){let sn=WX.k=='snow';X.strokeStyle='rgba(170,200,255,.55)';X.lineWidth=1.2;RD.forEach(d=>{d.y+=dt*(sn?.08:.9)*d.v;d.x+=sn?Math.sin(t+d.v*9)*dt*.02:dt*.05;if(d.y>1){d.y=0;d.x=R()}if(d.x>1)d.x-=1;let x=d.x*HW,y=d.y*HH;if(sn)dE(x,y,2*d.v,2*d.v,'rgba(255,255,255,.85)');else{X.beginPath();X.moveTo(x,y);X.lineTo(x-2,y+11);X.stroke()}})}
+ })};
+// ---- watering pointer (capture, before island handlers) ----
+(()=>{let c=$('hc');c.addEventListener('pointerdown',e=>{if(!WM)return;e.stopImmediatePropagation();try{c.setPointerCapture(e.pointerId)}catch(_){}WC=Object.assign(s2w(cvPt(e)),{acc:0,id:e.pointerId,bed:null,lt:performance.now()})},true);
+ c.addEventListener('pointermove',e=>{if(!WM||!WC)return;e.stopImmediatePropagation();Object.assign(WC,s2w(cvPt(e)))},true);
+ ['pointerup','pointercancel'].forEach(k=>c.addEventListener(k,e=>{if(!WM)return;e.stopImmediatePropagation();WC=null},true));
+ setInterval(()=>{if(!WC||!HOMEON)return;let now=performance.now(),dt=(now-WC.lt)/1000;WC.lt=now;let g=hGeo(),bed=null;H.deco.forEach(d=>{if(d.k!='feld')return;let[x,y]=cellXY(g,d.c,d.r);if(Math.hypot(x-WC.x,y-8-WC.y)<g.cw*.6)bed=d});if(bed!==WC.bed){WC.bed=bed;WC.acc=0}if(!bed)return;WC.acc+=dt;if(WC.acc>=.6&&!WC.done2){let p=bed.pl,nw=Date.now();if(p){bedUpd(bed,nw);let was=(p.w||0)>nw+36e5*1.5;p.w=nw+2*36e5;save();if(!was){wishEv('water');let[x,y]=cellXY(g,bed.c,bed.r);HFT.push({x,y:y-40,s:'💧 gegossen!',l:1.2});SND.sfx('splash');vib(10)}}else{toast('Erst etwas pflanzen – tippe aufs Beet 🌱')}WC.acc=-99}},100)})();
+// ---- UI ----
+const css=document.createElement('style');css.textContent=`#v2rad{position:fixed;inset:0;z-index:6;pointer-events:none}#v2rad.hide{display:none}.v2rc{position:fixed;width:0;height:0;pointer-events:none}.v2rc button{position:absolute;left:0;top:0;width:48px;height:48px;border-radius:50%;padding:0;margin:0;pointer-events:auto;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#fff;color:#5a46c0;box-shadow:0 3px 10px rgba(90,70,170,.35);animation:v2pop .18s ease-out}.v2rc button b{font-size:20px;line-height:1}.v2rc button small{font-size:8.5px;font-weight:800;line-height:1;margin-top:1px;white-space:nowrap;max-width:60px;overflow:hidden}.v2rc button.dim{opacity:.55}.v2rh{position:absolute;transform:translate(-50%,14px);white-space:nowrap;font-size:10px;background:rgba(255,255,255,.9);border-radius:10px;padding:1px 6px;pointer-events:none}@keyframes v2pop{from{opacity:0;scale:.4}}.v2grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:8px 0}.v2c{display:flex;flex-direction:column;align-items:center;padding:8px 4px;margin:0;font-size:13px}.v2c b{font-size:26px}.v2c small{font-size:10.5px;opacity:.85}.v2c.poor{opacity:.55}.v2bar{height:8px;border-radius:5px;background:#eee;overflow:hidden;margin:4px 0}.v2bar i{display:block;height:100%;background:linear-gradient(90deg,#9ee08a,#5fc070);border-radius:5px}.v2fr{display:flex;align-items:center;gap:6px;padding:5px 0;border-bottom:1px solid #eee}.v2fr>b{font-size:24px;width:32px;text-align:center}.v2fr>span{flex:1;font-weight:800;font-size:13px;min-width:0}.v2fr small{display:block;font-weight:600;opacity:.7;font-size:11px}.v2fr em{color:#e0508a;font-style:normal;font-size:11px}.v2fr.fav{background:#fff4fa;border-radius:10px}.v2fr.done{opacity:.6}.v2fr button{margin:0;padding:6px 8px;font-size:12px}.v2fr button:disabled{opacity:.4}.v2card img{width:84px;height:84px}.v2card h3{margin:0}.v2hearts{font-size:15px;letter-spacing:-1px}#hbot .v2b{position:relative;min-width:40px;padding-left:8px;padding-right:8px}#hbot .v2b i{position:absolute;top:-5px;right:-5px;background:#ff5a8a;color:#fff;border-radius:9px;font-size:11px;font-style:normal;padding:0 5px;line-height:17px}#v2w.on{background:#5fa8f0;color:#fff}#v2w.pulse{animation:v2pl .5s 3}@keyframes v2pl{50%{transform:scale(1.18)}}`;document.head.appendChild(css);
+let rad=document.createElement('div');rad.id='v2rad';rad.className='hide';document.body.appendChild(rad);
+let hb=$('hbot');hb.insertAdjacentHTML('beforeend','<button class="sec sm v2b" id="v2w" title="Gießen">🌧️</button><button class="sec sm v2b" id="v2wb" title="Tierwünsche">📜<i></i></button>');
+$('v2w').onclick=()=>{setWM(!WM);if(WM)toast('🌧️ Zieh die Regenwolke über deine Beete – kurz halten zum Gießen')};$('v2wb').onclick=()=>{closeRad();wishSheet()};
+$('hc').addEventListener('pointerdown',()=>{if(RM)closeRad()});
+document.querySelector('#homeScr .back').addEventListener('click',()=>{closeRad();setWM(false)});
+const oUi=hUi;hUi=function(){oUi();wishGen();wishBadge();if(HED)return;let k=DK_=dayK(),wx=WX?(WX.k=='rain'?'🌧️ Regen gießt deine Beete':WX.k=='storm'?'⛈️ Gewitter gießt deine Beete':WX.k=='snow'?'❄️ Schnee gießt deine Beete':''):'';let pre=WM?'🌧️ Zieh die Wolke über ein Beet und halte kurz':k.sleep?'🌙 Nachtruhe – deine Tiere schlafen':'';let ready=H.deco.filter(d=>d.k=='feld'&&d.pl&&d.pl.g>=1).length;let el=$('hInfo');el.innerHTML=[pre,ready?'🧺 '+ready+' Beet'+(ready>1?'e':'')+' erntereif':'',wx,el.innerHTML].filter(Boolean).join(' · ')};
+const oOpen=openHome;openHome=function(){closeRad();setWM(false);bedsUpd();DK_=dayK();oOpen()};
+Object.assign(window.C9,{v20:{bedSheet,wishSheet,openRad,act,anCard,feedSheet,cook,dayK,setWM,doTrick,harvest,bedsUpd}});
+setInterval(()=>{if(HOMEON&&!HED){let el=$('hInfo');if(el&&!$('hSheet').classList.contains('hide'))return;hUi()}},30000);
+// shop: show garden category text
+const oRS=renderShop;renderShop=function(){oRS();if(SHT=='deco'){let c=$('shGrid').querySelector('[data-k=feld]');if(c){c.querySelector('div').innerHTML='Gartenbeet <small style="display:block;font-size:10px">🌱 zum Pflanzen</small>';$('shGrid').prepend(c)}}};
+})();
+
 </script></body></html>
