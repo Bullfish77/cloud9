@@ -1,4 +1,4 @@
-<!-- cloud9 v37.1 -->
+<!-- cloud9 v38 -->
 <!DOCTYPE html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><title>Cloud9</title><link rel="icon" href="data:,"><link rel="preconnect" href="https://fonts.gstatic.com"><link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet"><meta name="theme-color" content="#ffd6ec">
 <style>:root{--ink:#4b3f7a;--acc:#8d7bf0;--acc2:#ff8fc8;--glass:rgba(255,255,255,.55);--gb:rgba(255,255,255,.7);--f:'Nunito','Baloo 2',ui-rounded,'SF Pro Rounded','Segoe UI',system-ui,sans-serif}
 html,body{margin:0;height:100%;overflow:hidden;background:#cfe6ff;font-family:var(--f);touch-action:none;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent}
@@ -1374,13 +1374,13 @@ let tg=X.createRadialGradient(cx-rx*.3,cy-ry*.5,10,cx,cy,rx*1.1);tg.addColorStop
 X.strokeStyle='rgba(255,255,255,.6)';X.lineWidth=3;X.beginPath();X.ellipse(cx,cy,rx-4,ry-4,0,Math.PI*1.05,Math.PI*1.6);X.stroke();
 for(let i=0;i<14;i++){let a=i*2.4,r=.55+((i*37)%40)/100,x=cx+Math.cos(a)*rx*r*.9,y=cy+Math.sin(a)*ry*r*.85;X.strokeStyle=drk2(th.top,.18);X.lineWidth=1.5;X.beginPath();X.moveTo(x-3,y);X.lineTo(x-1,y-5);X.moveTo(x+2,y);X.lineTo(x+3,y-4);X.stroke()}
 
-let sc=g.cw/50,items=[];
-S.home.hab.forEach(h=>{if(!h.on||(HDR&&HDR.d===h))return;let q=habGeo(g,h);HDB[h.k](q,t,h.lv);HDP[h.k](q,t,h.lv).forEach(([y,f])=>items.push({y,f}));
+let sc=g.cw/50,items=[];if(window.C9SLOTS)try{C9SLOTS(g,t)}catch(e){}
+S.home.hab.forEach(h=>{if(!h.on||(HDR&&HDR.d===h))return;if(window.C9HIN&&!C9HIN(g,h))return;let q=habGeo(g,h);HDB[h.k](q,t,h.lv);HDP[h.k](q,t,h.lv).forEach(([y,f])=>items.push({y,f}));
  items.push({y:q.y+q.ry+1,f:()=>{X.textAlign='center';X.textBaseline='middle';let w=34+h.lv*9,yy=q.y+q.ry-2;dP(q.x-w/2,yy-8,w,16,8,'rgba(255,255,255,.9)');X.font='12px sans-serif';X.fillText(HABS[h.k].e,q.x-w/2+10,yy+.5);X.font='800 10px Nunito,sans-serif';X.fillStyle='#e0a020';X.fillText('★'.repeat(h.lv),q.x+7,yy+.5)}})});
 if(HED){for(let r=0;r<g.rows;r++)for(let c=0;c<g.cols;c++){if(window.C9CIN&&!C9CIN(c,r,g))continue;let[x,y]=cellXY(g,c,r);X.fillStyle=cellFree(c,r)?'rgba(255,255,255,.35)':'rgba(141,123,240,.18)';X.beginPath();X.ellipse(x,y,g.cw*.42,g.ch*.38,0,0,7);X.fill()}
 if(HDR){if(HDR.hab){let[c,r]=hHabCell(g,HDR),ok=habFits(g,c,r,HDR.d);if(c>=0&&r>=0&&c<g.cols-1&&r<g.rows-1){let q=habGeo(g,{c,r});X.strokeStyle=ok?'#8d7bf0':'#ff7a9a';X.lineWidth=3;X.setLineDash([6,5]);X.beginPath();X.ellipse(q.x,q.y,q.rx,q.ry,0,0,7);X.stroke();X.setLineDash([])}}
 else{let cell=hCell(g,{x:HDR.x,y:HDR.y+g.cw*.3});if(cell){let[x,y]=cellXY(g,cell[0],cell[1]);X.strokeStyle='#8d7bf0';X.lineWidth=3;X.beginPath();X.ellipse(x,y,g.cw*.44,g.ch*.4,0,0,7);X.stroke()}}}}
-S.home.deco.forEach(d=>{if(HDR&&HDR.d===d)return;let[x,y]=cellXY(g,d.c,d.r);items.push({y,f:()=>{X.save();X.translate(x,y);X.scale(sc,sc);DD[d.k](t,d);X.restore()}})});
+S.home.deco.forEach(d=>{if(HDR&&HDR.d===d)return;if(window.C9CIN&&!C9CIN(d.c,d.r,g))return;let[x,y]=cellXY(g,d.c,d.r);items.push({y,f:()=>{X.save();X.translate(x,y);X.scale(sc,sc);DD[d.k](t,d);X.restore()}})});
 hStep(HA,g,dt);
 HA.forEach(a=>{let Z=hZone(g,a),x=Z.x+a.u*Z.rx,y=Z.y+a.v*Z.ry,s=sc*(Z.m=='free'?.95:a.e=='🐋'?.62:.78),spd=a.spd||0,m=Z.m,ty;
  if(m=='swim'||m=='burrow'&&a.bt>0)ty=0;else if(m=='perch')ty=a.fl||a.e=='🦄'?(a.mv?24:7)+Math.sin(t*2.6+a.ph)*(a.mv?5:1.5):0;else if(a.fl)ty=(m=='fly'?16:26)+Math.sin(t*2.6+a.ph)*5;else if(m=='slide')ty=0;else ty=Math.abs(Math.sin(t*9+a.ph))*4*Math.min(1,spd/12);
@@ -2988,7 +2988,7 @@ if(window.C9REC){const oR=C9REC;window.C9REC=function(goals,b){let r=oR(goals,b)
 C9.preStart=preStart;window.C9.v35={get M(){return M},hint,CHAP,ACT,CHL,CHS,LV0,chIntro,mTap,SCF,KB,get B0(){return B0}};
 
 // ---------- Heimatinsel: Felder im Inselrand, Lebensräume für alle ----------
-const CIN=(c,r,g)=>{g=g||hGeo();let[x,y]=cellXY(g,c,r),k=(px,py)=>(px/g.rx)**2+(py/g.ry)**2<=.96;return k(x-g.cw*.47,y)&&k(x+g.cw*.47,y)&&k(x-g.cw*.4,y+g.cw*.3)&&k(x+g.cw*.4,y+g.cw*.3)&&k(x,y+g.ch*.4)&&k(x,y-g.ch*.42)};
+const CIN=(c,r,g)=>{g=g||hGeo();if(c<0||r<0||c>=g.cols||r>=g.rows)return false;let[x,y]=cellXY(g,c,r),k=(px,py)=>(px/g.rx)**2+(py/g.ry)**2<=.93;return k(x-g.cw*.55,y)&&k(x+g.cw*.55,y)&&k(x-g.cw*.45,y+g.cw*.3)&&k(x+g.cw*.45,y+g.cw*.3)&&k(x,y+g.ch*.42)&&k(x,y-g.ch*.45)};
 window.C9CIN=CIN;
 const oCF=cellFree;cellFree=function(c,r,skip){return CIN(c,r)&&oCF(c,r,skip)};
 const oHF=habFits;habFits=function(g,c,r,skip){return oHF(g,c,r,skip)&&habCells(c,r).every(([a,b])=>CIN(a,b,g))};
@@ -3133,6 +3133,43 @@ const oM=menu;menu=function(){let r=oM.apply(this,arguments);try{fit();requestAn
 {const st=document.createElement('style');st.textContent=`#mapScr>*{flex-shrink:0}#v35tabs{flex:0 0 auto!important;height:auto!important;min-height:64px;box-sizing:border-box;flex-wrap:nowrap;align-items:stretch;overflow-y:visible;scroll-snap-type:x proximity;padding:6px 8px 10px;background:linear-gradient(180deg,rgba(255,236,248,.95),rgba(255,236,248,0))}
 #v35tabs button{flex:0 0 auto!important;min-width:58px;height:auto;white-space:nowrap;scroll-snap-align:center;overflow:visible}#v35tabs button small{display:block;font-size:10px;font-weight:700;opacity:.85}`;document.head.appendChild(st);
 const oRM=renderMap;renderMap=function(){let r=oRM.apply(this,arguments);try{let tb=$('v35tabs'),on=tb&&tb.querySelector('button.on');if(on)requestAnimationFrame(()=>{tb.scrollLeft=Math.max(0,on.offsetLeft-(tb.clientWidth-on.offsetWidth)/2)})}catch(e){}return r}}
+// ---------- v38: runde Insel mit festen Lebensraum-Plätzen ----------
+{const NB=10;
+SECS.forEach((s,i)=>{s[0]=s[1]=NB+i});
+hGeo=function(){let N=NB+Math.max(0,Math.min(SECS.length,S.home.sec|0||1)-1),cw=56,ch=56,rx=cw*(N+.6)/2*1.1;return{cols:N,rows:N,cw,ch,cx:0,cy:0,rx,ry:rx*.9}};
+const HK2=()=>Object.keys(HABS);let SC={};
+function habIn(g,c,r){let q=habGeo(g,{c,r});for(let i=0;i<16;i++){let a=i*Math.PI/8;if(((q.x+Math.cos(a)*q.rx)/g.rx)**2+((q.y+Math.sin(a)*q.ry)/g.ry)**2>.95)return false}return true}
+function slots(g){g=g||hGeo();let key=g.cols;if(SC[key])return SC[key];let K=HK2().length,best=null;
+ for(const off of [0,1]){let bl=[];for(let r=off;r<g.rows-1;r+=2)for(let c=off;c<g.cols-1;c+=2)if(habIn(g,c,r))bl.push([c,r]);
+  let d=b=>{let q=habGeo(g,{c:b[0],r:b[1]});return Math.hypot(q.x,(q.y-g.ch*.2)*1.1)};bl.sort((a,b)=>d(a)-d(b));if(bl.length>=K&&(!best||d(bl[K-1])<d(best[K-1])))best=bl}
+ best=(best||[]).slice(0,K);
+ // stabile Reihenfolge: Ring nach Winkel, damit Nachbarn sinnvoll liegen
+ let ctr=best.map(b=>{let q=habGeo(g,{c:b[0],r:b[1]});return[b,Math.atan2(q.y-g.ch*.2,q.x),Math.hypot(q.x,q.y-g.ch*.2)]});ctr.sort((a,b)=>Math.round(a[2]/40)-Math.round(b[2]/40)||a[1]-b[1]);
+ let m={},cells={};HK2().forEach((k,i)=>{let b=ctr[i]&&ctr[i][0];if(b){m[k]=b;habCells(b[0],b[1]).forEach(([a,bb])=>cells[a+','+bb]=k)}});return SC[key]={m,cells}}
+const slotOf=k=>slots().m[k];
+const oCF3=cellFree;cellFree=function(c,r,skip){if(slots().cells[c+','+r])return false;return oCF3(c,r,skip)};
+habFits=function(g,c,r,skip){let k=skip&&skip.k;if(!k)return false;let s=slots(g).m[k];return !!s&&s[0]==c&&s[1]==r};
+function freeCellNear(c0,r0,skip){let g=hGeo(),best=null,bd=1e9;for(let r=0;r<g.rows;r++)for(let c=0;c<g.cols;c++){if(!cellFree(c,r,skip))continue;let d=Math.hypot(c-c0,r-r0);if(d<bd){bd=d;best=[c,r]}}return best}
+let LG=0;
+function evictDeco(cells){S.home.deco.slice().forEach(d=>{if(!cells.some(([a,b])=>a==d.c&&b==d.r))return;let f=freeCellNear(d.c,d.r,d);if(f){d.c=f[0];d.r=f[1]}else{S.home.deco.splice(S.home.deco.indexOf(d),1);S.home.inv[d.k]=(S.home.inv[d.k]||0)+1;LG++}})}
+hPlaceHab=function(h,re){let s=slotOf(h.k);if(!s)return false;if(S.home.hab.some(x=>x!==h&&x.on&&x.k==h.k))return false;h.c=s[0];h.r=s[1];h.on=true;evictDeco(habCells(s[0],s[1]));return true};
+function migrate(){let g=hGeo();LG=0;let seen={};
+ S.home.hab.forEach(h=>{if(seen[h.k]){h.on=false;return}let s=slotOf(h.k);if(!s){h.on=false;return}seen[h.k]=1;h.c=s[0];h.r=s[1];h.on=true});
+ S.home.hab.forEach(h=>{if(h.on)evictDeco(habCells(h.c,h.r))});
+ let m={};S.home.deco.slice().forEach(d=>{let k=d.c+','+d.r;if(CIN(d.c,d.r,g)&&!slots(g).cells[k]&&!m[k]){m[k]=1;return}
+  let f=null,bd=1e9;for(let r=0;r<g.rows;r++)for(let c=0;c<g.cols;c++){let kk=c+','+r;if(m[kk]||!CIN(c,r,g)||slots(g).cells[kk]||S.home.deco.some(x=>x!==d&&x.c==c&&x.r==r&&m[kk]))continue;let dd=Math.hypot(c-d.c,r-d.r);if(dd<bd){bd=dd;f=[c,r]}}
+  if(f){d.c=f[0];d.r=f[1];m[f[0]+','+f[1]]=1}else{S.home.deco.splice(S.home.deco.indexOf(d),1);S.home.inv[d.k]=(S.home.inv[d.k]||0)+1;LG++}});
+ if(LG)setTimeout(()=>toast('📦 '+LG+' Deko-Teil'+(LG>1?'e':'')+' passten nicht mehr auf die Insel und liegen im Lager',3500),800);save();return LG}
+// alte Speicherstände: einmalig auf das neue Raster umrechnen (zentriert)
+S.v35=S.v35||{};if(!S.v35.v38){let os=S.home.sec|0||1,old=[[5,3],[6,4],[7,5],[8,6],[9,7],[10,8]][os-1]||[5,3],g=hGeo(),dx=Math.round((g.cols-old[0])/2),dy=Math.round((g.rows-old[1])/2);S.home.deco.forEach(d=>{d.c+=dx;d.r+=dy});S.v35.v38=1;SC={};try{migrate()}catch(e){console.error(e)}}
+window.C9GROW=os=>{let a=NB+os-1,b=hGeo().cols,sh=Math.round((b-a)/2);S.home.deco.forEach(d=>{d.c+=sh;d.r+=sh});SC={};migrate()};
+const oOH2=openHome;openHome=function(){try{migrate()}catch(e){console.error(e)}return oOH2()};
+// leere Plätze: dezente gepunktete Markierung
+window.C9SLOTS=function(g,t){let sl=slots(g),own={};S.home.hab.forEach(h=>{if(h.on)own[h.k]=1});X.save();
+ Object.entries(sl.m).forEach(([k,b])=>{if(own[k])return;let q=habGeo(g,{c:b[0],r:b[1]});X.globalAlpha=.55;X.fillStyle='rgba(255,255,255,.22)';X.beginPath();X.ellipse(q.x,q.y,q.rx*.9,q.ry*.82,0,0,7);X.fill();X.setLineDash([5,6]);X.lineWidth=2;X.strokeStyle='rgba(141,123,240,.55)';X.stroke();X.setLineDash([]);
+  X.globalAlpha=.5;X.font='22px sans-serif';X.textAlign='center';X.textBaseline='middle';X.fillText(HABS[k].e,q.x,q.y-8);X.globalAlpha=.7;X.font='800 9px Nunito,sans-serif';X.fillStyle='#6a55c8';X.fillText('Platz für',q.x,q.y+12);X.fillText('Lebensraum',q.x,q.y+22)});X.restore()};
+window.C9HIN=(g,h)=>{let s=slots(g).m[h.k];return !!s&&s[0]==h.c&&s[1]==h.r};
+C9X.slots=slots;C9X.migrate=migrate;}
 })();
 
 </script></body></html>
