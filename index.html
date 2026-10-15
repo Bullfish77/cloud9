@@ -1,4 +1,4 @@
-<!-- cloud9 v38 -->
+<!-- cloud9 v38.1 -->
 <!DOCTYPE html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><title>Cloud9</title><link rel="icon" href="data:,"><link rel="preconnect" href="https://fonts.gstatic.com"><link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet"><meta name="theme-color" content="#ffd6ec">
 <style>:root{--ink:#4b3f7a;--acc:#8d7bf0;--acc2:#ff8fc8;--glass:rgba(255,255,255,.55);--gb:rgba(255,255,255,.7);--f:'Nunito','Baloo 2',ui-rounded,'SF Pro Rounded','Segoe UI',system-ui,sans-serif}
 html,body{margin:0;height:100%;overflow:hidden;background:#cfe6ff;font-family:var(--f);touch-action:none;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent}
@@ -272,14 +272,14 @@ function show(id){SCR.forEach(i=>$(i).classList.toggle('hide',i!==id));['hud','g
 // audio
 // ===== Cloud9 Sound-Engine v15 (sauber/warm) (prozedural, WebAudio) =====
 const SND=(()=>{
-const ST=(()=>{try{return Object.assign({m:.7,e:.8,mute:false},JSON.parse(localStorage.c9snd||'{}'))}catch(e){return{m:.7,e:.8,mute:false}}})();
+const ST=(()=>{try{return Object.assign({m:.55,e:.7,a:.5,style:'lofi',mute:false},JSON.parse(localStorage.c9snd||'{}'))}catch(e){return{m:.55,e:.7,a:.5,style:'lofi',mute:false}}})();if(ST.a==null)ST.a=.5;if(!ST.style)ST.style='lofi';
 function saveSt(){try{localStorage.c9snd=JSON.stringify(ST)}catch(e){}}
 const mtof=m=>440*Math.pow(2,(m-69)/12);
 // Akkorde als Halbtöne über Grundton
 const M7=[0,4,7,11],m7=[0,3,7,10],D7=[0,4,7,10],M9=[0,4,7,11,14],m9=[0,3,7,10,14],S4=[0,5,7,10],M6=[0,4,7,9];
 const T={
- menu:  {bpm:72,root:60,prog:[[0,M9],[9,m7],[5,M7],[7,S4]],lead:'ep',  scale:[0,2,4,7,9],lp:2400,dens:.45,sw:.18},
- home:  {bpm:78,root:62,prog:[[0,M7],[4,m7],[5,M9],[7,D7]],lead:'kal', scale:[0,2,4,7,9],lp:2800,dens:.5,sw:.15},
+ menu:  {bpm:84,root:60,prog:[[0,M9],[9,m7],[5,M7],[7,S4]],lead:'ep',  scale:[0,2,4,7,9],lp:1800,dens:.38,sw:.22,dr:.55,arp:4,ai:'ep'},
+ home:  {bpm:82,root:62,prog:[[0,M9],[4,m7],[5,M9],[7,D7]],lead:'ep', scale:[0,2,4,7,9],lp:1900,dens:.4,sw:.2,dr:.5,arp:4,ai:'ep'},
  b0:    {bpm:82,root:65,prog:[[0,M9],[7,M7],[9,m7],[5,M9]],lead:'kal', scale:[0,2,4,7,9],lp:3200,dens:.55,sw:.14}, // Wiese F
  b1:    {bpm:76,root:62,prog:[[0,m9],[3,M7],[10,D7],[0,m7]],lead:'mar', scale:[0,1,4,5,7,8,10],lp:2600,dens:.5,sw:.2}, // Wüste D phryg.-dom.
  b2:    {bpm:68,root:67,prog:[[0,M9],[5,M7],[2,m9],[7,S4]],lead:'bell',scale:[0,2,4,7,11],lp:3600,dens:.35,sw:.08}, // Polar G
@@ -288,34 +288,36 @@ const T={
  b5:    {bpm:74,root:63,prog:[[9,m7],[2,D7],[7,M7],[0,M9]],lead:'ep', scale:[0,2,4,7,9],lp:2300,dens:.45,sw:.2},  // Herbst Eb ii-V
  b6:    {bpm:66,root:61,prog:[[0,M9],[5,m9],[10,M7],[3,M9]],lead:'kal',scale:[0,2,4,7,9,11],lp:2600,dens:.4,sw:.12} // Lagune Db
 };
-let ctx=null,out,mus,musLP,sfx,rev,dly,crk,rain,rainG,patG,stormG,players=[],timer=null,cur='',night=false,inten=0,rainLv=0,patLv=0,voices=0,offline=false;
+let ctx=null,out,mus,musLP,sfx,amb,rev,dly,crk,rain,rainG,patG,stormG,players=[],timer=null,cur='',night=false,inten=0,rainLv=0,patLv=0,voices=0,offline=false;
 function R(){return Math.random()}
 function mkRng(s){return()=>{s=(s*1664525+1013904223)>>>0;return s/4294967296}}
 function noiseBuf(c,sec,f){let b=c.createBuffer(1,c.sampleRate*sec,c.sampleRate),d=b.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=f?f(i,d):R()*2-1;return b}
 function impulse(c,sec,dec){let n=Math.floor(c.sampleRate*sec),b=c.createBuffer(2,n,c.sampleRate),k=Math.exp(-2*Math.PI*3500/c.sampleRate);for(let ch=0;ch<2;ch++){let d=b.getChannelData(ch),y=0,y2=0;for(let i=0;i<n;i++){y=y*k+(R()*2-1)*(1-k);y2=y2*k+y*(1-k);let fi=Math.min(1,i/(c.sampleRate*.01));d[i]=y2*3*fi*Math.pow(1-i/n,dec)}}return b}
 function build(c){ctx=c;offline=(typeof OfflineAudioContext!='undefined'&&c instanceof OfflineAudioContext);
- let lim=c.createDynamicsCompressor();lim.threshold.value=-18;lim.knee.value=12;lim.ratio.value=3;lim.attack.value=.02;lim.release.value=.3;
- let lim2=c.createDynamicsCompressor();lim2.threshold.value=-8;lim2.knee.value=2;lim2.ratio.value=20;lim2.attack.value=.003;lim2.release.value=.15;let mg=c.createGain();mg.gain.value=.6;
- let warm=c.createBiquadFilter();warm.type='lowpass';warm.frequency.value=7000;warm.Q.value=.5;let dc=c.createBiquadFilter();dc.type='highpass';dc.frequency.value=30;
+ let lim=c.createDynamicsCompressor();lim.threshold.value=-22;lim.knee.value=16;lim.ratio.value=2.5;lim.attack.value=.03;lim.release.value=.4;
+ let lim2=c.createDynamicsCompressor();lim2.threshold.value=-10;lim2.knee.value=6;lim2.ratio.value=8;lim2.attack.value=.008;lim2.release.value=.25;let mg=c.createGain();mg.gain.value=.42;
+ let warm=c.createBiquadFilter();warm.type='lowpass';warm.frequency.value=5200;warm.Q.value=.45;let dc=c.createBiquadFilter();dc.type='highpass';dc.frequency.value=30;
  out=c.createGain();out.connect(dc).connect(warm).connect(lim).connect(lim2).connect(mg).connect(c.destination);
  rev=c.createConvolver();rev.buffer=impulse(c,1.8,3.5);let rg=c.createGain();rg.gain.value=.5;rev.connect(rg).connect(out);let hp=c.createBiquadFilter();hp.type='highpass';hp.frequency.value=280;hp.connect(rev);
  dly=c.createDelay(1);let fb=c.createGain(),dl=c.createBiquadFilter();dl.type='lowpass';dl.frequency.value=1800;fb.gain.value=.32;dly.connect(dl).connect(fb).connect(dly);let dg=c.createGain();dg.gain.value=.35;dl.connect(dg).connect(out);
- mus=c.createGain();musLP=c.createBiquadFilter();musLP.type='lowpass';musLP.frequency.value=2600;musLP.Q.value=.5;mus.connect(musLP).connect(out);let ms=c.createGain();ms.gain.value=.45;musLP.connect(ms).connect(hp);let md=c.createGain();md.gain.value=.18;let mh=c.createBiquadFilter();mh.type='highpass';mh.frequency.value=500;musLP.connect(mh).connect(md).connect(dly);
- sfx=c.createGain();sfx.connect(out);let sr=c.createGain();sr.gain.value=.3;sfx.connect(sr).connect(hp);
+ mus=c.createGain();musLP=c.createBiquadFilter();musLP.type='lowpass';musLP.frequency.value=2000;musLP.Q.value=.55;mus.connect(musLP).connect(out);let ms=c.createGain();ms.gain.value=.45;musLP.connect(ms).connect(hp);let md=c.createGain();md.gain.value=.18;let mh=c.createBiquadFilter();mh.type='highpass';mh.frequency.value=500;musLP.connect(mh).connect(md).connect(dly);
+ sfx=c.createGain();sfx.connect(out);let sr=c.createGain();sr.gain.value=.25;sfx.connect(sr).connect(hp);
+ amb=c.createGain();amb.gain.value=0;let ambLP=c.createBiquadFilter();ambLP.type='lowpass';ambLP.frequency.value=3200;ambLP.Q.value=.5;amb.connect(ambLP).connect(out);
+ try{let wow=c.createOscillator(),wg=c.createGain();wow.type='sine';wow.frequency.value=.28;wg.gain.value=12;wow.connect(wg);wg.connect(musLP.detune);wow.start()}catch(e){}
  // (v15: Vinyl-Knistern entfernt – war die Hauptursache fürs Kratzen)
  // Regen-Ambience (Wetter, Musikbus) + Prasseln (Effektbus)
  let rb=noiseBuf(c,3,(i,d)=>{let w=R()*2-1;return i?d[i-1]*.6+w*.4:w});
  rain=c.createBufferSource();rain.buffer=rb;rain.loop=true;let rf=c.createBiquadFilter();rf.type='lowpass';rf.frequency.value=1400;rainG=c.createGain();rainG.gain.value=0;rain.connect(rf).connect(rainG).connect(out);rain.start();
  let pat=c.createBufferSource();pat.buffer=noiseBuf(c,2,(i,d)=>{let w=(R()<.01?(R()*2-1)*.35:(R()*2-1)*.04);return i?d[i-1]*.5+w*.5:w});pat.loop=true;let pf=c.createBiquadFilter();pf.type='lowpass';pf.frequency.value=2200;pf.Q.value=.5;patG=c.createGain();patG.gain.value=0;pat.connect(pf).connect(patG).connect(sfx);pat.start();
- vol();}
-function vol(){if(!ctx)return;let t=ctx.currentTime;mus.gain.setTargetAtTime(ST.mute?0:ST.m*1.3,t,.1);sfx.gain.setTargetAtTime(ST.mute?0:ST.e,t,.05);out.gain.setTargetAtTime(.8,t,.05)}
+ vol();try{if(window.C9SEE&&C9SEE.init)C9SEE.init(c,amb)}catch(e){}}
+function vol(){if(!ctx)return;let t=ctx.currentTime;mus.gain.setTargetAtTime(ST.mute?0:ST.m*1.05,t,.1);sfx.gain.setTargetAtTime(ST.mute?0:ST.e*.9,t,.05);if(amb)amb.gain.setTargetAtTime(ST.mute?0:(ST.a==null?.5:ST.a)*.65,t,.15);out.gain.setTargetAtTime(.55,t,.05)}
 // ---- Stimmen ----
 function env(g,t,a,peak,d){a=Math.max(a,.006);g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(peak,t+a);g.gain.setTargetAtTime(0,t+a,Math.max(.01,d/5));g.gain.setValueAtTime(0,t+a+d*1.4+.02)}
 function osc(type,f,t,stop,dest){let o=ctx.createOscillator();o.type=type;o.frequency.setValueAtTime(f,t);o.connect(dest);o.start(t);o.stop(Math.max(stop,t+.05)+.6);return o}
 function voice(t,dur,dest){if(!offline&&voices>16)return null;voices++;let g=ctx.createGain();g.connect(dest);
  if(!offline)setTimeout(()=>voices--,(t-ctx.currentTime+dur+.1)*1000);return g}
 function inst(kind,m,t,vel,dest){dest=dest||mus;let f=mtof(m);
- if(kind=='ep'){let g=voice(t,2.2,dest,.35,.25);if(!g)return;env(g,t,.008,.16*vel,2);osc('sine',f,t,t+2.3,g);let g2=ctx.createGain();g2.connect(g);env(g2,t,.002,.5,.25);osc('sine',f*2.003,t,t+.4,g2)}
+ if(kind=='ep'){let g=voice(t,2.6,dest,.35,.25);if(!g)return;env(g,t,.02,.13*vel,2.2);osc('sine',f,t,t+2.6,g);let g2=ctx.createGain();g2.connect(g);env(g2,t,.015,.35,.35);osc('sine',f*2.002,t,t+.6,g2);let g3=ctx.createGain();g3.connect(g);env(g3,t,.03,.08,.8);osc('triangle',f*.5,t,t+1.2,g3)}
  else if(kind=='kal'){let g=voice(t,1.4,dest,.4,.3);if(!g)return;env(g,t,.003,.18*vel,1.2);osc('sine',f,t,t+1.4,g);let g2=ctx.createGain();g2.connect(g);env(g2,t,.004,.15,.12);osc('sine',f*3,t,t+.2,g2)}
  else if(kind=='mar'){let g=voice(t,.8,dest,.3,.2);if(!g)return;env(g,t,.002,.2*vel,.6);osc('sine',f,t,t+.8,g);let g2=ctx.createGain();g2.connect(g);env(g2,t,.004,.2,.06);osc('sine',f*2,t,t+.1,g2)}
  else if(kind=='bell'){let g=voice(t,2.5,dest,.5,.3);if(!g)return;env(g,t,.002,.12*vel,2.4);osc('sine',f,t,t+2.6,g);let g2=ctx.createGain();g2.connect(g);env(g2,t,.006,.3,.6);osc('sine',f*2.76,t,t+1,g2);}
@@ -324,13 +326,14 @@ function inst(kind,m,t,vel,dest){dest=dest||mus;let f=mtof(m);
  else if(kind=='cel'){let g=voice(t,1.8,dest,.5,.3);if(!g)return;env(g,t,.002,.13*vel,1.6);osc('sine',f,t,t+1.8,g);let g2=ctx.createGain();g2.connect(g);env(g2,t,.002,.35,.18);osc('sine',f*4,t,t+.3,g2);let g3=ctx.createGain();g3.connect(g);env(g3,t,.003,.15,.5);osc('sine',f*2,t,t+.7,g3)}
  else if(kind=='pluck'){let g=voice(t,.5,dest,.3,.2);if(!g)return;env(g,t,.002,.19*vel,.28);osc('sine',f,t,t+.5,g);let g2=ctx.createGain();g2.connect(g);env(g2,t,.002,.3,.04);osc('sine',f*4,t,t+.08,g2)}
 }
-function pad(ch,t,len,vel,lp){let g=voice(t,len+1,mus,.6);if(!g)return;let f=ctx.createBiquadFilter();f.type='lowpass';f.frequency.value=lp*.45;f.connect(g);g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.035*vel,t+len*.35);g.gain.linearRampToValueAtTime(0,t+len+.8);ch.slice(0,4).forEach((m,i)=>{osc(i%2?'sine':'triangle',mtof(m),t,t+len+.9,f).detune.value=i%2?5:-5})}
-function bass(m,t,len,vel){let g=voice(t,len,mus,0);if(!g)return;let f=ctx.createBiquadFilter();f.type='lowpass';f.frequency.value=420;f.connect(g);env(g,t,.01,.22*vel,len);osc('sine',mtof(m),t,t+len+.05,f)}
-function kick(t,v){let g=voice(t,.4,mus,0);if(!g)return;env(g,t,.006,.4*v,.32);let o=osc('sine',110,t,t+.4,g);o.frequency.exponentialRampToValueAtTime(42,t+.12)}
+function pad(ch,t,len,vel,lp){let g=voice(t,len+1,mus,.6);if(!g)return;let f=ctx.createBiquadFilter();f.type='lowpass';f.frequency.value=lp*.38;f.connect(g);g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.028*vel,t+len*.4);g.gain.linearRampToValueAtTime(0,t+len+.9);ch.slice(0,4).forEach((m,i)=>{osc(i%2?'sine':'triangle',mtof(m),t,t+len+.9,f).detune.value=i%2?6:-6})}
+function bass(m,t,len,vel){let g=voice(t,len,mus,0);if(!g)return;let f=ctx.createBiquadFilter();f.type='lowpass';f.frequency.value=380;f.connect(g);env(g,t,.02,.16*vel,len*.95);osc('sine',mtof(m),t,t+len+.05,f);let g2=ctx.createGain();g2.connect(f);env(g2,t,.03,.08*vel,len*.7);osc('triangle',mtof(m)*.5,t,t+len,g2)}
+function kick(t,v){let g=voice(t,.55,mus,0);if(!g)return;env(g,t,.014,.26*v,.42);let o=osc('sine',88,t,t+.55,g);o.frequency.exponentialRampToValueAtTime(36,t+.2);let g2=ctx.createGain();g2.connect(g);env(g2,t,.02,.08*v,.25);osc('sine',55,t,t+.4,g2)}
 let NB=null;function nb(){if(!NB||NB.sr!==ctx.sampleRate||NB.c!==ctx){NB=noiseBuf(ctx,1);NB.c=ctx;NB.sr=ctx.sampleRate}return NB}
 function noise(t,len,type,fq,q,peak,dest,a=.001,sendR=0){let g=voice(t,len,dest,sendR);if(!g)return null;let s=ctx.createBufferSource();s.buffer=nb();let f=ctx.createBiquadFilter();f.type=type;f.frequency.setValueAtTime(fq,t);f.Q.value=q;s.connect(f).connect(g);env(g,t,a,peak,len);s.start(t,R()*.5);s.stop(t+len*1.4+a+.1);return{g,f}}
-function snare(t,v){noise(t,.16,'lowpass',2200,.5,.07*v,mus,.006)}
-function hat(t,v){noise(t,.05,'bandpass',5500,.8,.018*v,mus,.004)}
+function snare(t,v){noise(t,.14,'bandpass',1650,.55,.035*v,mus,.01);let g=voice(t,.18,mus,0);if(g){env(g,t,.006,.045*v,.12);osc('triangle',185,t,t+.18,g)}}
+function hat(t,v){noise(t,.045,'bandpass',4200,.55,.009*v,mus,.006)}
+function shaker(t,v){noise(t,.07,'bandpass',3200,.4,.006*v,mus,.012)}
 // ---- Sequencer ----
 function newPlayer(key,n){let th=T[key]||T.menu,g=ctx.createGain();g.gain.value=0;g.connect(mus);let t0=ctx.currentTime+.08;return{key,th,night:n,g,step:0,t0,next:t0,rng:mkRng(key.length*977+key.charCodeAt(key.length-1)*31),motif:null,bar:0}}
 function chordAt(p){let c=p.th.prog[p.bar%p.th.prog.length];return[p.th.root+c[0],c[1]]}
@@ -340,10 +343,10 @@ function schedStep(p,t){let th=p.th,n=p.night,s=p.step%16,bar=Math.floor(p.step/
  if(s==10&&!n)bass(r-24+(ch[2]||7),t,sp*4,.8);
  if(s==8&&th.lead!='ep'&&th.lead!='bell')ch.slice(1,4).forEach((x,i)=>inst('ep',r+x,t+i*.015,.35));
  // Drums
- let dv=(n?.45:.8+I*.25)*(th.dr==null?1:th.dr);
- if(dv>.02&&(s==0||(s==10&&!n)||(s==7&&I>.6)))kick(t,dv);
- if(dv>.02&&!n&&(s==4||s==12))snare(t,dv);
- if(dv>.02&&s%2==0&&!(n&&s%4))hat(t,dv*(s%4?.7:1));
+ let dv=(n?.45:.55+I*.2)*(th.dr==null?1:th.dr)*(ST.style=='lofi'?.85:1);
+ let lofi=ST.style=='lofi'&&(p.key=='menu'||p.key=='home'||p.key[0]=='h');
+ if(lofi){if(dv>.02&&(s==0||(s==8&&!n&&p.rng()<.35)))kick(t,dv*(s==8?.55:1));if(dv>.02&&!n&&(s==4||s==12))snare(t,dv*.9);if(dv>.02&&(s==2||s==6||s==10||s==14))shaker(t,dv*(s%4==2?.8:1));if(dv>.02&&s%4==0&&!(n&&s))hat(t,dv*.55)}
+ else{if(dv>.02&&(s==0||(s==10&&!n)||(s==7&&I>.6)))kick(t,dv);if(dv>.02&&!n&&(s==4||s==12))snare(t,dv);if(dv>.02&&s%2==0&&!(n&&s%4))hat(t,dv*(s%4?.7:1))}
  
  // Melodie: Motiv pro 2 Takte, wiederholt mit Variation
  if(!p.motif||bar%4==0&&s==0){let rg=mkRng(bar*131+th.root*7+(p.key.length));p.motif=[];for(let i=0;i<32;i++)p.motif.push(rg()<th.dens*(i%2?0.45:1)?Math.floor(rg()*th.scale.length*1.6):-1)}
@@ -353,9 +356,9 @@ function schedStep(p,t){let th=p.th,n=p.night,s=p.step%16,bar=Math.floor(p.step/
   inst(n&&!['bell','koto','cel','flute'].includes(th.lead)?'kal':th.lead,m,t,(n?.5:.7)*(s%4?0.8:1))}
  if(th.arp&&s%th.arp==0&&!(n&&s%(th.arp*2))){let an=ch.map(x=>r+12+x);inst(th.ai||'kal',an[Math.floor(s/th.arp)%an.length],t,n?.22:.3)}
  mus=save;p.step++;p.next=p.t0+p.step*sp+(p.step%2?sp*th.sw:0);}
-function pump(ahead){if(!ctx)return;let until=ctx.currentTime+ahead;players.forEach(p=>{if(p.dead&&p.next>p.dead)return;if(p.next<ctx.currentTime+.05){p.t0+=ctx.currentTime+.1-p.next;p.next=ctx.currentTime+.1}let gd=0;while(p.next<until&&gd++<256){schedStep(p,p.next)}if(!(p.next>=until))p.next=until});
+function pump(ahead){if(!ctx)return;let until=ctx.currentTime+ahead;players.forEach(p=>{if(p.dead&&p.next>p.dead)return;if(p.next<ctx.currentTime+.05){p.t0+=ctx.currentTime+.1-p.next;p.next=ctx.currentTime+.1}let gd=0,lim=offline?4096:256;while(p.next<until&&gd++<lim){schedStep(p,p.next)}if(!(p.next>=until))p.next=until});
  musLP.frequency.setTargetAtTime((night?.6:1)*(1+inten*.35)*((players[players.length-1]||{th:T.menu}).th.lp),ctx.currentTime,.8);
- rainG.gain.setTargetAtTime(ST.mute?0:rainLv*.25*ST.m,ctx.currentTime,1);patG.gain.setTargetAtTime(patLv*.7,ctx.currentTime,.15)}
+ rainG.gain.setTargetAtTime(ST.mute?0:rainLv*.2*ST.m,ctx.currentTime,1);patG.gain.setTargetAtTime(patLv*.55,ctx.currentTime,.15);try{if(window.C9SEE&&C9SEE.tick)C9SEE.tick(ctx,amb,cur,night)}catch(e){}}
 function setScene(key,n){if(!ctx)return;n=!!n;if(key===cur&&n===night)return;cur=key;night=n;let t=ctx.currentTime,fade=offline?.01:2;
  players.forEach(p=>{p.g.gain.cancelScheduledValues(t);p.g.gain.setValueAtTime(p.g.gain.value,t);p.g.gain.linearRampToValueAtTime(0,t+fade);p.dead=t+fade});
  let p=newPlayer(key,n);p.g.gain.setValueAtTime(0,t);p.g.gain.linearRampToValueAtTime(n?.8:1,t+fade);players.push(p);
@@ -395,8 +398,8 @@ let tOff=0;function sfxPlay(k,a){if(!ensure())return;let t=ctx.currentTime+.01+t
 }}
 function ensure(){if(ctx&&offline)return true;if(!ctx){try{let AC=window.AudioContext||window.webkitAudioContext,c;try{c=new AC({latencyHint:'playback'})}catch(e){c=new AC()}build(c);timer=setInterval(()=>{if(!offline&&ctx.state=='running')pump(.6)},90)}catch(e){return false}}if(ctx.state=='suspended'&&!document.hidden)ctx.resume().catch(()=>{});return true}
 document.addEventListener('visibilitychange',()=>{if(!ctx||offline)return;if(document.hidden)ctx.suspend();else ctx.resume()});
-return{ensure,setScene,sfx:sfxPlay,animal,ST,vol:()=>{saveSt();vol()},set inten(v){inten=v},set rain(v){rainLv=v},set pat(v){patLv=v},get ctx(){return ctx},get offline(){return offline},_build:build,set _at(v){tOff=v},_pump:pump,_T:T,
- get players(){return players},_reset(){players=[];cur='';night=false;inten=0;rainLv=0;patLv=0}};
+return{ensure,setScene,sfx:sfxPlay,animal,ST,vol:()=>{saveSt();vol()},set inten(v){inten=v},set rain(v){rainLv=v},set pat(v){patLv=v},get ctx(){return ctx},get offline(){return offline},get amb(){return amb},_build:build,set _at(v){tOff=v},_pump:pump,_T:T,
+ get players(){return players},get _cur(){return cur},_reset(){players=[];cur='';night=false;inten=0;rainLv=0;patLv=0}};
 })();
 
 let AC=null;function audio(){if(SND.ensure()){AC=SND.ctx;sndScene()}}
@@ -1323,7 +1326,7 @@ $('hsAll').onclick=()=>{S.home.hide={};save();hAnimals();hUi();anSheet()};$('hsN
 let gb=$('hsGift');if(gb)gb.onclick=()=>{let s=0;hg.forEach(e=>{let gf=GIFTS[e];S.home.got[e]=1;S.home.items[gf[0]]=(S.home.items[gf[0]]||0)+1;s+=gf[2]});coinGain(s);SND.sfx('coin');toast('🎁 +'+s+' 🪙 von deinen verstauten Tieren');hUi();anSheet()}}
 function expSheet(){let nx=SECS[S.home.sec],cur=SECS[S.home.sec-1];if(!nx)return toast('Deine Insel hat schon die maximale Größe ✨');
 hSheet(`<h3>🏝️ Insel erweitern</h3><p>Stufe ${S.home.sec+1} von ${SECS.length}: <b>${nx[3]}</b></p><p>${cur[0]}×${cur[1]} → <b>${nx[0]}×${nx[1]} Felder</b> · mehr Platz für Tiere, Deko & Lebensräume</p><button id="hExpGo">Erweitern · 🪙 ${nx[2]}</button><small style="display:block">Du hast 🪙 ${S.home.coins}</small>`);
-$('hExpGo').onclick=()=>{if(!pay(nx[2]))return;S.home.sec++;if(window.C9GROW)C9GROW(S.home.sec-1);save();$('hSheet').classList.add('hide');hUi();hRes();hResetV();hAnimals();burst2(0,0);toast('🏝️ '+nx[3]+' freigeschaltet – deine Insel ist gewachsen!')}}
+$('hExpGo').onclick=()=>{if(!pay(nx[2]))return;S.home.sec++;S.home.paidSec=S.home.sec;if(window.C9GROW)C9GROW(S.home.sec-1);save();$('hSheet').classList.add('hide');hUi();hRes();hResetV();hAnimals();burst2(0,0);toast('🏝️ '+nx[3]+' freigeschaltet – deine Insel ist gewachsen!')}}
 function hSky(){if(GC.hsky)return GC.hsky;let th=THEMES[S.home.theme]||THEMES[0],[c,x]=OC(HW,HH),g=x.createLinearGradient(0,0,0,HH);g.addColorStop(0,th.sky[0]);g.addColorStop(1,th.sky[1]);x.fillStyle=g;x.fillRect(0,0,HW,HH);
 if(th.night)for(let i=0;i<70;i++){x.fillStyle='rgba(255,255,255,'+(.3+R()*.7)+')';x.beginPath();x.arc(R()*HW,R()*HH*.7,R()*1.4+.3,0,7);x.fill()}
 return GC.hsky=c}
@@ -3061,18 +3064,13 @@ const oPk=hPick;hPick=function(a,Z,g,init){if(Z.m=='free'&&!Z.cell&&!init){for(l
 const oHA=hAssign;hAssign=function(){oHA();HA.forEach(a=>{if(a.z<0&&a.fc){a.fc=null;a.fck='';let g=hGeo(),p=freePt(g,ISZ(g));if(p){a.u=a.tu=p[0];a.v=a.tv=p[1]}}})};
 // günstigere Inselerweiterung + automatische Erweiterung für Lebensräume
 [0,120,300,550,900,1400].forEach((p,i)=>{if(SECS[i])SECS[i][2]=p});
-let AXN=0;
 function grow(os){let ns=S.home.sec;if(ns==os)return;let [oc,orr]=SECS[os-1],[nc,nr]=SECS[ns-1],sx=Math.round((nc-oc)/2+((oc%2==0&&nc%2==1)?.01:0)),sy=Math.round((nr-orr)/2);sx=Math.floor((nc-oc+1)/2);sy=Math.floor((nr-orr+1)/2);
  S.home.deco.forEach(d=>{d.c+=sx;d.r+=sy});S.home.hab.forEach(h=>{if(h.on){h.c+=sx;h.r+=sy}})}
 function fixRim(){let g=hGeo();S.home.hab.forEach(x=>{if(x.on&&!habCells(x.c,x.r).every(([a,b])=>CIN(a,b,g))){x.on=false;if(!oPH2(x,true))x.on=false}});
  S.home.deco.slice().forEach(d=>{if(CIN(d.c,d.r,g)&&cellFree(d.c,d.r,d))return;let best=null,bd=1e9;for(let r=0;r<g.rows;r++)for(let c=0;c<g.cols;c++){if(!cellFree(c,r,d))continue;let dd=Math.hypot(c-d.c,(r-d.r)*1.2);if(dd<bd){bd=dd;best=[c,r]}}if(best){d.c=best[0];d.r=best[1]}else{S.home.deco.splice(S.home.deco.indexOf(d),1);S.home.inv[d.k]=(S.home.inv[d.k]||0)+1}})}
 window.C9GROW=os=>{grow(os);fixRim()};
-const oPH2=hPlaceHab;hPlaceHab=function(h,re){if(oPH2(h,re))return true;let g0=S.home.sec,ok=false;
- let snap=JSON.stringify([S.home.deco,S.home.hab.map(x=>[x.c,x.r,x.on])]);for(let k=0;k<SECS.length&&S.home.sec<SECS.length;k++){S.home.sec++;grow(S.home.sec-1);if(oPH2(h,re)||oPH2(h,true)){ok=true;break}}
- if(ok)fixRim();
- if(!ok){let[d,hb]=JSON.parse(snap);S.home.deco=d;S.home.hab.forEach((x,i)=>{if(hb[i]){x.c=hb[i][0];x.r=hb[i][1];x.on=hb[i][2]}});S.home.sec=g0;return false}
- if(S.home.sec>g0){AXN+=S.home.sec-g0;save();try{if(HOMEON){hRes();hResetV();hUi()}}catch(e){}let n=SECS[S.home.sec-1][3];setTimeout(()=>{if(AXN){toast('🏝️ Insel automatisch vergrößert – '+n+' (gratis) ✨',3200);AXN=0}},300)}
- return true};
+// v38.1: keine Auto-Erweiterung mehr – Lebensräume haben feste Plätze, Erweiterung nur gegen Taler
+const oPH2=hPlaceHab;hPlaceHab=function(h,re){return oPH2(h,re)};
 const oHF2=homeFix;homeFix=function(){let r=oHF2();S.v35=S.v35||{};if(!S.v35.hx){S.v35.hx=1;let n=0;S.home.hab.forEach(h=>{if(!h.on&&hPlaceHab(h,true))n++});if(n){save();hAnimals&&hAnimals()}}return r};
 C9X.SECS=SECS;
 // ---------- Musik pro Thema / Biom ----------
@@ -3133,17 +3131,111 @@ const oM=menu;menu=function(){let r=oM.apply(this,arguments);try{fit();requestAn
 {const st=document.createElement('style');st.textContent=`#mapScr>*{flex-shrink:0}#v35tabs{flex:0 0 auto!important;height:auto!important;min-height:64px;box-sizing:border-box;flex-wrap:nowrap;align-items:stretch;overflow-y:visible;scroll-snap-type:x proximity;padding:6px 8px 10px;background:linear-gradient(180deg,rgba(255,236,248,.95),rgba(255,236,248,0))}
 #v35tabs button{flex:0 0 auto!important;min-width:58px;height:auto;white-space:nowrap;scroll-snap-align:center;overflow:visible}#v35tabs button small{display:block;font-size:10px;font-weight:700;opacity:.85}`;document.head.appendChild(st);
 const oRM=renderMap;renderMap=function(){let r=oRM.apply(this,arguments);try{let tb=$('v35tabs'),on=tb&&tb.querySelector('button.on');if(on)requestAnimationFrame(()=>{tb.scrollLeft=Math.max(0,on.offsetLeft-(tb.clientWidth-on.offsetWidth)/2)})}catch(e){}return r}}
+// ---------- v39: Lo-Fi See + Brombachsee-Umgebung ----------
+{const M9=[0,4,7,11,14],m7=[0,3,7,10],M7=[0,4,7,11],D7=[0,4,7,10],S4=[0,5,7,10],m9=[0,3,7,10,14];
+const T=SND._T;
+const CLASSIC={
+ menu:{bpm:72,root:60,prog:[[0,M9],[9,m7],[5,M7],[7,S4]],lead:'ep',scale:[0,2,4,7,9],lp:2200,dens:.42,sw:.18,dr:.7},
+ home:{bpm:78,root:62,prog:[[0,M7],[4,m7],[5,M9],[7,D7]],lead:'kal',scale:[0,2,4,7,9],lp:2400,dens:.45,sw:.15,dr:.6},
+ h3:{bpm:54,root:61,prog:[[0,M9],[5,m9],[10,M7],[3,M9]],lead:'ep',scale:[0,2,4,7,9],lp:1600,dens:.26,sw:.1,dr:0}
+};
+const LOFI={
+ menu:{bpm:84,root:60,prog:[[0,M9],[9,m7],[5,M9],[7,S4]],lead:'ep',scale:[0,2,4,7,9],lp:1700,dens:.36,sw:.24,dr:.5,arp:4,ai:'ep'},
+ home:{bpm:82,root:62,prog:[[0,M9],[5,m7],[9,m9],[7,D7]],lead:'ep',scale:[0,2,4,7,9],lp:1750,dens:.38,sw:.22,dr:.48,arp:4,ai:'ep'},
+ // Mondnacht: ruhiger Lo-Fi, kaum Drums
+ h3:{bpm:64,root:61,prog:[[0,M9],[5,m9],[10,M7],[3,M9]],lead:'ep',scale:[0,2,4,7,9],lp:1400,dens:.22,sw:.16,dr:.12,arp:8,ai:'ep'}
+};
+function softAll(){Object.keys(T).forEach(k=>{let th=T[k];if(!th||!th.lp)return;th.lp=Math.min(th.lp,th.lp*.82+200);if(th.dens)th.dens*=.9;if(th.dr==null)th.dr=.85;else th.dr=Math.min(th.dr,th.dr*.9+.05)})}
+softAll();
+function applyStyle(){let L=SND.ST.style!=='classic';let src=L?LOFI:CLASSIC;['menu','home','h3'].forEach(k=>{if(src[k])Object.assign(T[k]||(T[k]={}),src[k])});
+ // home-themes h0-h4: bei Lo-Fi weicher, Mondnacht extra
+ if(L){for(let i=0;i<=4;i++){let k='h'+i;if(!T[k])continue;T[k].lp=Math.min(T[k].lp||2000,i==3?1400:1900);T[k].sw=Math.max(T[k].sw||.1,.18);if(i!=3){T[k].lead=T[k].lead=='pluck'?'ep':T[k].lead;T[k].dr=Math.min(T[k].dr==null?.6:T[k].dr,.55)}}}
+}
+applyStyle();
+
+// ---- Brombachsee Ambience (gefiltertes Rauschen + einfache Rufe) ----
+const C9SEE=window.C9SEE={_on:0,_next:0,_src:null,_rng:null};
+function nbrown(c,sec){let b=c.createBuffer(1,c.sampleRate*sec|0,c.sampleRate),d=b.getChannelData(0),y=0;for(let i=0;i<d.length;i++){y=y*.985+(Math.random()*2-1)*.015;d[i]=y*3.2}return b}
+function nwind(c,sec){let b=c.createBuffer(1,c.sampleRate*sec|0,c.sampleRate),d=b.getChannelData(0),y=0;for(let i=0;i<d.length;i++){let w=Math.random()*2-1;y=y*.92+w*.08;d[i]=y}return b}
+C9SEE.init=function(c,amb){if(!amb||C9SEE._src)return;C9SEE._rng=(function(s){return()=>{s=(s*1664525+1013904223)>>>0;return s/4294967296}})(20261015);
+ // Wellen (sehr tiefes Rauschen, langsam moduliert)
+ let wave=c.createBufferSource();wave.buffer=nbrown(c,6);wave.loop=true;
+ let wf=c.createBiquadFilter();wf.type='lowpass';wf.frequency.value=420;wf.Q.value=.4;
+ let wg=c.createGain();wg.gain.value=.035;
+ let wLFO=c.createOscillator(),wLG=c.createGain();wLFO.frequency.value=.07;wLG.gain.value=.018;wLFO.connect(wLG).connect(wg.gain);wLFO.start();
+ wave.connect(wf).connect(wg).connect(amb);wave.start();
+ // Schilf / Wind
+ let wind=c.createBufferSource();wind.buffer=nwind(c,5);wind.loop=true;
+ let rf=c.createBiquadFilter();rf.type='bandpass';rf.frequency.value=900;rf.Q.value=.6;
+ let rg=c.createGain();rg.gain.value=.012;
+ let rLFO=c.createOscillator(),rLG=c.createGain();rLFO.frequency.value=.11;rLG.gain.value=.006;rLFO.connect(rLG).connect(rg.gain);rLFO.start();
+ wind.connect(rf).connect(rg).connect(amb);wind.start();
+ C9SEE._src={wave,wind,wg,rg,wf};C9SEE._on=1;C9SEE._next=c.currentTime+4+C9SEE._rng()*6;
+ C9SEE._amb=amb;C9SEE._c=c;
+};
+function toneEnv(c,dest,t,f0,f1,dur,peak,type){let g=c.createGain();g.connect(dest);g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(peak,t+.04);g.gain.setTargetAtTime(0,t+.05,dur/4);g.gain.setValueAtTime(0,t+dur+.1);
+ let o=c.createOscillator();o.type=type||'sine';o.frequency.setValueAtTime(f0,t);if(f1)o.frequency.exponentialRampToValueAtTime(Math.max(40,f1),t+dur);o.connect(g);o.start(t);o.stop(t+dur+.15);return o}
+function duck(c,amb,t,p){ // entfernte Ente: nasaler Glissando-Ruf
+ let f=c.createBiquadFilter();f.type='bandpass';f.frequency.value=780;f.Q.value=4;let g=c.createGain();g.gain.value=1;f.connect(g).connect(amb);
+ toneEnv(c,f,t,420*p,280*p,.28,.045,'triangle');toneEnv(c,f,t+.22,380*p,240*p,.22,.03,'triangle')}
+function gull(c,amb,t,p){ // Möwe: fallender Pfiff, weit weg
+ let f=c.createBiquadFilter();f.type='bandpass';f.frequency.value=2100;f.Q.value=6;f.connect(amb);
+ toneEnv(c,f,t,1800*p,900*p,.55,.028,'sine');toneEnv(c,f,t+.35,1400*p,700*p,.4,.018,'sine')}
+function bird(c,amb,t,p){ // leiser Singvogel
+ for(let i=0;i<3;i++){let s=t+i*.07;toneEnv(c,amb,s,(2400+i*180)*p,(2800+i*120)*p,.06,.012,'sine')}}
+function bell(c,amb,t){ // Takelage / Bojen-Glocke
+ let g=c.createGain();g.connect(amb);g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.04,t+.01);g.gain.setTargetAtTime(0,t+.02,.6);
+ let o=c.createOscillator();o.type='sine';o.frequency.value=880;o.connect(g);o.start(t);o.stop(t+1.8);
+ let o2=c.createOscillator(),g2=c.createGain();g2.gain.value=.35;o2.type='sine';o2.frequency.value=1760;o2.connect(g2).connect(g);o2.start(t);o2.stop(t+.4)}
+function clink(c,amb,t){toneEnv(c,amb,t,2400,1800,.08,.02,'triangle');toneEnv(c,amb,t+.05,3200,2200,.06,.012,'sine')}
+C9SEE.tick=function(c,amb,cur,night){if(!amb||!C9SEE._on)return;let home=cur=='menu'||cur=='home'||(cur&&cur[0]=='h');
+ // Wellen etwas leiser nachts / im Level
+ if(C9SEE._src&&C9SEE._src.wg){let base=home?(night?.022:.035):(night?.008:.012);try{C9SEE._src.wg.gain.setTargetAtTime(base,c.currentTime,1.5)}catch(e){}}
+ if(!home&&cur&&cur[0]=='b'){C9SEE._next=Math.max(C9SEE._next,c.currentTime+8);return} // im Level kaum Rufe
+ let t=c.currentTime;if(t<C9SEE._next)return;let rng=C9SEE._rng||Math.random,r=rng();
+ let gap=5+rng()*10;C9SEE._next=t+gap;
+ try{if(r<.28)duck(c,amb,t+.05,.9+rng()*.2);else if(r<.5)gull(c,amb,t+.05,.85+rng()*.25);else if(r<.72)bird(c,amb,t+.05,.9+rng()*.2);else if(r<.88)bell(c,amb,t+.05);else clink(c,amb,t+.05)}catch(e){}};
+C9SEE.schedule=function(c,amb,dur){ // für Offline-Preview: Rufe vorplanen
+ C9SEE.init(c,amb);let rng=C9SEE._rng,t=1.5;while(t<dur-1){let r=rng();
+  if(r<.3)duck(c,amb,t,.95);else if(r<.55)gull(c,amb,t,.9);else if(r<.75)bird(c,amb,t,1);else if(r<.9)bell(c,amb,t);else clink(c,amb,t);
+  t+=4+rng()*8}};
+
+// ---- Settings: Umgebung + Musikstil ----
+const oSP=sndPanel;sndPanel=function(){oSP();let S2=SND.ST;if(S2.a==null)S2.a=.5;if(!S2.style)S2.style='lofi';
+ if(!$('sAv')){$('sEv').parentElement.insertAdjacentHTML('afterend','<br><label>🌊 Umgebung <input id="sAv" type="range" min="0" max="100" style="width:100%"></label><br><label style="display:block;margin:8px 0">🎶 Musikstil<br><select id="sSt" style="width:100%;margin-top:4px;padding:6px;border-radius:10px"><option value="lofi">Lo-Fi See (Brombachsee)</option><option value="classic">Klassisch</option></select></label>');
+  let u0=()=>{S2.m=$('sMv').value/100;S2.e=$('sEv').value/100;S2.a=$('sAv').value/100;S2.mute=$('sMu').checked;S2.style=$('sSt').value;applyStyle();SND.vol();sndBtn()};
+  $('sAv').oninput=u0;$('sSt').onchange=()=>{u0();try{SND._reset();if(typeof sndScene==='function')sndScene()}catch(e){}};
+  // auch bestehende Slider mitziehen
+  $('sMv').oninput=u0;$('sEv').oninput=u0;$('sMu').onchange=u0}
+ $('sAv').value=(S2.a==null?.5:S2.a)*100;$('sSt').value=S2.style==='classic'?'classic':'lofi'};
+
+// ---- Offline-Preview (Menü + Umgebung) ----
+window.C9RENDER=async function(sec){sec=sec||45;const sr=44100,len=Math.floor(sr*sec);
+ const oac=new OfflineAudioContext(2,len,sr);
+ // frische Engine in Offline-Kontext
+ SND._reset();SND._build(oac);SND.ST.mute=false;SND.ST.m=.55;SND.ST.a=.55;SND.ST.e=.5;SND.ST.style='lofi';applyStyle();SND.vol();
+ SND.setScene('menu',false);
+ try{C9SEE.schedule(oac,SND.amb,sec)}catch(e){}
+ SND._pump(sec+.5);
+ const buf=await oac.startRendering();
+ let peak=0,ch0=buf.getChannelData(0),ch1=buf.getChannelData(1);
+ for(let i=0;i<ch0.length;i++){let a=Math.abs(ch0[i]),b=Math.abs(ch1[i]);if(a>peak)peak=a;if(b>peak)peak=b}
+ // Interleaved Float32 für Transfer
+ const interleaved=new Float32Array(ch0.length*2);
+ for(let i=0;i<ch0.length;i++){interleaved[i*2]=ch0[i];interleaved[i*2+1]=ch1[i]}
+ return{sr,sec,peak,peakDb:20*Math.log10(Math.max(peak,1e-9)),samples:interleaved}};
+}
 // ---------- v38: runde Insel mit festen Lebensraum-Plätzen ----------
 {const NB=10;
 SECS.forEach((s,i)=>{s[0]=s[1]=NB+i});
-hGeo=function(){let N=NB+Math.max(0,Math.min(SECS.length,S.home.sec|0||1)-1),cw=56,ch=56,rx=cw*(N+.6)/2*1.1;return{cols:N,rows:N,cw,ch,cx:0,cy:0,rx,ry:rx*.9}};
+// etwas weniger Leerraum am Rand, damit die Insel nicht „leer“ wirkt
+hGeo=function(){let N=NB+Math.max(0,Math.min(SECS.length,S.home.sec|0||1)-1),cw=56,ch=56,rx=cw*(N+.2)/2*1.02;return{cols:N,rows:N,cw,ch,cx:0,cy:0,rx,ry:rx*.9}};
 const HK2=()=>Object.keys(HABS);let SC={};
 function habIn(g,c,r){let q=habGeo(g,{c,r});for(let i=0;i<16;i++){let a=i*Math.PI/8;if(((q.x+Math.cos(a)*q.rx)/g.rx)**2+((q.y+Math.sin(a)*q.ry)/g.ry)**2>.95)return false}return true}
 function slots(g){g=g||hGeo();let key=g.cols;if(SC[key])return SC[key];let K=HK2().length,best=null;
  for(const off of [0,1]){let bl=[];for(let r=off;r<g.rows-1;r+=2)for(let c=off;c<g.cols-1;c+=2)if(habIn(g,c,r))bl.push([c,r]);
   let d=b=>{let q=habGeo(g,{c:b[0],r:b[1]});return Math.hypot(q.x,(q.y-g.ch*.2)*1.1)};bl.sort((a,b)=>d(a)-d(b));if(bl.length>=K&&(!best||d(bl[K-1])<d(best[K-1])))best=bl}
  best=(best||[]).slice(0,K);
- // stabile Reihenfolge: Ring nach Winkel, damit Nachbarn sinnvoll liegen
  let ctr=best.map(b=>{let q=habGeo(g,{c:b[0],r:b[1]});return[b,Math.atan2(q.y-g.ch*.2,q.x),Math.hypot(q.x,q.y-g.ch*.2)]});ctr.sort((a,b)=>Math.round(a[2]/40)-Math.round(b[2]/40)||a[1]-b[1]);
  let m={},cells={};HK2().forEach((k,i)=>{let b=ctr[i]&&ctr[i][0];if(b){m[k]=b;habCells(b[0],b[1]).forEach(([a,bb])=>cells[a+','+bb]=k)}});return SC[key]={m,cells}}
 const slotOf=k=>slots().m[k];
@@ -3160,16 +3252,44 @@ function migrate(){let g=hGeo();LG=0;let seen={};
   let f=null,bd=1e9;for(let r=0;r<g.rows;r++)for(let c=0;c<g.cols;c++){let kk=c+','+r;if(m[kk]||!CIN(c,r,g)||slots(g).cells[kk]||S.home.deco.some(x=>x!==d&&x.c==c&&x.r==r&&m[kk]))continue;let dd=Math.hypot(c-d.c,r-d.r);if(dd<bd){bd=dd;f=[c,r]}}
   if(f){d.c=f[0];d.r=f[1];m[f[0]+','+f[1]]=1}else{S.home.deco.splice(S.home.deco.indexOf(d),1);S.home.inv[d.k]=(S.home.inv[d.k]||0)+1;LG++}});
  if(LG)setTimeout(()=>toast('📦 '+LG+' Deko-Teil'+(LG>1?'e':'')+' passten nicht mehr auf die Insel und liegen im Lager',3500),800);save();return LG}
+function Nof(sec){return NB+Math.max(0,Math.min(SECS.length,sec|0||1)-1)}
+function setSec(ns,shift){ns=Math.max(1,Math.min(SECS.length,ns|0||1));let os=S.home.sec|0||1;if(ns===os){SC={};if(shift)migrate();return os}
+ let sh=Math.round((Nof(ns)-Nof(os))/2);S.home.sec=ns;if(shift!==false)S.home.deco.forEach(d=>{d.c+=sh;d.r+=sh});SC={};migrate();return ns}
+// Schätzung der bezahlten Stufe (ohne Gratis-Auto-Erweiterungen aus v35.1)
+function estimatePaidSec(){let cur=Math.max(1,Math.min(SECS.length,S.home.sec|0||1));
+ if(S.home.paidSec>0)return Math.max(1,Math.min(cur,S.home.paidSec|0));
+ let nh=(S.home.hab||[]).length,nd=(S.home.deco||[]).length,coins=S.home.coins|0;
+ let decoSec=1,caps=[22,38,55,75,95,120];
+ for(let i=0;i<6;i++){if(caps[i]>=nd){decoSec=i+1;break}decoSec=i+1}
+ // Nur klar aufgeblähte Max-Insel korrigieren (v35.1 Auto-Expand → Sternenreich)
+ if(cur>=SECS.length){let likely=(S.v35&&S.v35.hx)||nh>=7||coins<400;
+  if(likely){let paid=Math.max(decoSec,4);if(nd>35)paid=Math.max(paid,5);return Math.min(cur,paid)}}
+ // sonst Stufe behalten (kein Blind-Reset bei Himmelsplateau/Wolkenkontinent)
+ return Math.max(decoSec>cur?cur:cur,1)}
+function applyPaidFix(silent){let cur=S.home.sec|0||1,paid=estimatePaidSec();S.home.paidSec=S.home.paidSec||paid;
+ if(paid<cur){setSec(paid,true);if(!silent)setTimeout(()=>toast('🏝️ Inselgröße korrigiert: '+SECS[paid-1][3]+' ('+SECS[paid-1][0]+'×'+SECS[paid-1][1]+') – Gratis-Erweiterungen für Lebensräume entfernt',4200),600)}
+ else{S.home.paidSec=Math.min(S.home.paidSec,cur);SC={};migrate()}
+ return S.home.sec}
 // alte Speicherstände: einmalig auf das neue Raster umrechnen (zentriert)
-S.v35=S.v35||{};if(!S.v35.v38){let os=S.home.sec|0||1,old=[[5,3],[6,4],[7,5],[8,6],[9,7],[10,8]][os-1]||[5,3],g=hGeo(),dx=Math.round((g.cols-old[0])/2),dy=Math.round((g.rows-old[1])/2);S.home.deco.forEach(d=>{d.c+=dx;d.r+=dy});S.v35.v38=1;SC={};try{migrate()}catch(e){console.error(e)}}
-window.C9GROW=os=>{let a=NB+os-1,b=hGeo().cols,sh=Math.round((b-a)/2);S.home.deco.forEach(d=>{d.c+=sh;d.r+=sh});SC={};migrate()};
+S.v35=S.v35||{};
+if(!S.v35.v38){let os=S.home.sec|0||1,old=[[5,3],[6,4],[7,5],[8,6],[9,7],[10,8]][os-1]||[5,3];
+ // zuerst bezahlte Stufe schätzen, DANN verschieben – keine Gratis-Stufen mitnehmen
+ let paid=estimatePaidSec();S.home.sec=paid;S.home.paidSec=paid;
+ let g=hGeo(),dx=Math.round((g.cols-old[0])/2),dy=Math.round((g.rows-old[1])/2);S.home.deco.forEach(d=>{d.c+=dx;d.r+=dy});S.v35.v38=1;S.v35.v381=1;SC={};try{migrate()}catch(e){console.error(e)}}
+else if(!S.v35.v381){try{applyPaidFix(false)}catch(e){console.error(e)}S.v35.v381=1;save()}
+window.C9GROW=os=>{let a=Nof(os),b=hGeo().cols,sh=Math.round((b-a)/2);S.home.deco.forEach(d=>{d.c+=sh;d.r+=sh});SC={};migrate()};
+// bezahlte Erweiterung merken (Button + Shop)
+const oSB=shopBuy;shopBuy=function(d){if(d&&d.s!=null){let i=+d.s;if(i!=S.home.sec||!pay(SECS[i][2]))return;let os=S.home.sec;S.home.sec=i+1;S.home.paidSec=S.home.sec;if(window.C9GROW)C9GROW(os);toast('🏝️ '+SECS[i][3]+' freigeschaltet – deine Insel ist gewachsen!');save();renderShop();try{if(HOMEON){hUi();hRes();hResetV();hAnimals()}}catch(e){}return}return oSB(d)};
+{const _es=expSheet;expSheet=function(){_es();let b=$('hExpGo');if(!b||b._v381)return;b._v381=1;let o=b.onclick;b.onclick=function(ev){let os=S.home.sec;let r=o&&o.call(this,ev);if(S.home.sec>os){S.home.paidSec=S.home.sec;save()}return r}}}
 const oOH2=openHome;openHome=function(){try{migrate()}catch(e){console.error(e)}return oOH2()};
-// leere Plätze: dezente gepunktete Markierung
+// Zoom näher an den Inhalt (Slots/Deko), weniger leerer Rand
+const oFit=hFit;hFit=function(){let g=hGeo(),rx=g.rx,ry=g.ry;if(g.cols>=13){rx*=.72;ry*=.72}else if(g.cols>=11){rx*=.82;ry*=.82}else{rx*=.92;ry*=.92}
+ return Math.min(1.9,(HW*.98)/(2*rx+6),(HH*.98)/(ry*2.15+40))};
 window.C9SLOTS=function(g,t){let sl=slots(g),own={};S.home.hab.forEach(h=>{if(h.on)own[h.k]=1});X.save();
  Object.entries(sl.m).forEach(([k,b])=>{if(own[k])return;let q=habGeo(g,{c:b[0],r:b[1]});X.globalAlpha=.55;X.fillStyle='rgba(255,255,255,.22)';X.beginPath();X.ellipse(q.x,q.y,q.rx*.9,q.ry*.82,0,0,7);X.fill();X.setLineDash([5,6]);X.lineWidth=2;X.strokeStyle='rgba(141,123,240,.55)';X.stroke();X.setLineDash([]);
   X.globalAlpha=.5;X.font='22px sans-serif';X.textAlign='center';X.textBaseline='middle';X.fillText(HABS[k].e,q.x,q.y-8);X.globalAlpha=.7;X.font='800 9px Nunito,sans-serif';X.fillStyle='#6a55c8';X.fillText('Platz für',q.x,q.y+12);X.fillText('Lebensraum',q.x,q.y+22)});X.restore()};
 window.C9HIN=(g,h)=>{let s=slots(g).m[h.k];return !!s&&s[0]==h.c&&s[1]==h.r};
-C9X.slots=slots;C9X.migrate=migrate;}
+C9X.slots=slots;C9X.migrate=migrate;C9X.estimatePaidSec=estimatePaidSec;C9X.applyPaidFix=applyPaidFix;C9X.setSec=setSec;}
 })();
 
 </script></body></html>
