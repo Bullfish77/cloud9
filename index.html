@@ -1,4 +1,4 @@
-<!-- cloud9 v30 -->
+<!-- cloud9 v31 -->
 <!DOCTYPE html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><title>Cloud9</title><link rel="icon" href="data:,"><link rel="preconnect" href="https://fonts.gstatic.com"><link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet"><meta name="theme-color" content="#ffd6ec">
 <style>:root{--ink:#4b3f7a;--acc:#8d7bf0;--acc2:#ff8fc8;--glass:rgba(255,255,255,.55);--gb:rgba(255,255,255,.7);--f:'Nunito','Baloo 2',ui-rounded,'SF Pro Rounded','Segoe UI',system-ui,sans-serif}
 html,body{margin:0;height:100%;overflow:hidden;background:#cfe6ff;font-family:var(--f);touch-action:none;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent}
@@ -2270,5 +2270,97 @@ hSky=function(){let c=window.C9V29SKY();if(X!==HX)return c;X.drawImage(c,0,0,HW,
  let key=[th,HW,HH,HV.z.toFixed(3),HV.px|0,HV.py|0,S.home.sec].join();if(key!==K){K=key;LO=layout(SCN[th].map(n=>T.sprites[n]&&T.sprites[n]()).filter(Boolean))}
  let t=performance.now()/1000;X.save();X.globalAlpha=.8;LO.forEach((o,i)=>{X.save();X.translate((o.l+o.r)/2,o.b);X.rotate(.025*Math.sin(t*1.2+i*1.7));X.scale(o.sc,o.sc);X.drawImage(o.s.c,-o.s.ax,-o.s.ay,o.s.w,o.s.h);X.restore()});X.restore();return BLANK};
 window.C9.v30={layout:()=>LO.map(o=>({l:o.l,r:o.r,t:o.t,b:o.b})),land};
+})();
+</script><script>
+// ===== v31: Kinder-Modus, Zaubertopf, Helfer-Hand, Vorlesen, Bild-Ziele =====
+(function(){
+S.v31=S.v31||{};
+const css=document.createElement('style');css.textContent=`
+body.kid button{font-size:1.12em}body.kid button.big{min-height:58px;font-size:1.25em}body.kid .mgrid button{min-height:64px}
+body.kid small.hint,body.kid .v22eff,body.kid #v22why,body.kid #craftScr .cfbox,body.kid #cfGo,body.kid #v22cfi{display:none!important}
+#v31say{pointer-events:auto;margin-left:4px}#hud{pointer-events:none}#hud button{pointer-events:auto}
+.v31g{display:inline-flex;align-items:center;gap:1px;margin:0 3px;vertical-align:middle}.v31g i{font-style:normal;font-size:17px;line-height:1;transition:all .3s}.v31g i.off{filter:grayscale(1);opacity:.28}
+.v31g i.on{animation:v31pop .35s}@keyframes v31pop{50%{transform:scale(1.5)}}
+.v31bar{display:inline-block;width:60px;height:10px;border-radius:6px;background:rgba(0,0,0,.1);overflow:hidden;vertical-align:middle;margin-left:3px}.v31bar b{display:block;height:100%;background:linear-gradient(90deg,#8ad06a,#ffd84a);border-radius:6px}
+#v31pot{position:relative;width:min(340px,92vw);margin:4px auto 6px;text-align:center}#v31pot canvas{width:240px;height:170px;display:block;margin:0 auto;touch-action:none}
+#v31pot .ps{position:absolute;top:52px;width:44px;height:44px;display:flex;align-items:center;justify-content:center;pointer-events:none}#v31pot .ps .cc{transform:scale(1.25);animation:v31bob 1.4s ease-in-out infinite alternate}
+@keyframes v31bob{to{transform:scale(1.25) translateY(-6px)}}
+#v31brew{margin:2px auto;display:block}#v31out{position:absolute;left:50%;top:0;transform:translate(-50%,0) scale(0);transition:transform .45s cubic-bezier(.3,1.6,.5,1);pointer-events:none;font-weight:900;color:#6a55d8;text-shadow:0 2px 0 #fff}#v31out.on{transform:translate(-50%,-30px) scale(1.4)}
+.card.cfc.v31glow{box-shadow:0 0 0 3px #ffe36a,0 0 18px 6px rgba(255,220,90,.75);animation:v31gl 1.2s ease-in-out infinite alternate}@keyframes v31gl{to{box-shadow:0 0 0 3px #ffd02a,0 0 26px 10px rgba(255,210,60,.9)}}
+#v31ghost{position:fixed;z-index:200;pointer-events:none;transform:translate(-50%,-50%) scale(1.4)}
+#v31hand{position:fixed;z-index:130;pointer-events:none;font-size:42px;display:none;filter:drop-shadow(0 3px 3px rgba(0,0,0,.3));animation:v31tap .9s ease-in-out infinite}
+@keyframes v31tap{0%,100%{transform:translate(-30%,0) scale(1)}50%{transform:translate(-30%,14px) scale(.9)}}
+#v31hand.drag{animation:v31drag 2.2s ease-in-out infinite}@keyframes v31drag{0%{transform:translate(var(--x0),var(--y0)) scale(1)}15%{transform:translate(var(--x0),var(--y0)) scale(.85)}75%{transform:translate(var(--x1),var(--y1)) scale(.85)}90%,100%{transform:translate(var(--x1),var(--y1)) scale(1);opacity:.2}}
+#v31buddy{position:absolute;width:56px;height:56px;right:-6px;top:-44px;pointer-events:none;animation:v31bob2 1.6s ease-in-out infinite alternate}@keyframes v31bob2{to{transform:translateY(-5px) rotate(-4deg)}}
+.v31spk{position:absolute;left:10px;top:-16px;width:34px;height:34px;padding:0;border-radius:50%;font-size:16px;margin:0}
+#v31kid{position:fixed;inset:0;z-index:140;background:rgba(40,30,90,.55);display:flex;align-items:center;justify-content:center}#v31kid .panel{background:#fff;border-radius:24px;padding:18px;max-width:330px;width:88%;text-align:center}#v31kid button{width:100%;margin:6px 0}
+`;document.head.appendChild(css);
+const kid=()=>!!S.kid;const applyKid=()=>document.body.classList.toggle('kid',kid());applyKid();
+// ---------- Vorlesen ----------
+const canSpeak='speechSynthesis' in window&&typeof SpeechSynthesisUtterance!='undefined';
+function say(t){if(!canSpeak)return toast('🔇 Vorlesen geht auf diesem Gerät leider nicht');try{speechSynthesis.cancel();let u=new SpeechSynthesisUtterance(t.replace(/<[^>]+>/g,' ').replace(/[\u{1F000}-\u{1FFFF}\u2600-\u27BF\uFE0F\u200D]/gu,' ').replace(/\s+/g,' ').trim());u.lang='de-DE';u.rate=.95;u.pitch=1.1;let v=speechSynthesis.getVoices().find(v=>/^de/i.test(v.lang));if(v)u.voice=v;speechSynthesis.speak(u)}catch(e){}}
+function goalSpeech(){if(!G||!G.goals)return'';let p=Object.entries(G.goals).map(([k,n])=>{if(k[1]==':'){let a=ANIMALS.find(x=>x[0]==k.slice(2));return'finde '+(a?a[1]:'das Tier')}return n+' '+(GN[k]||k)});return'Dein Ziel: '+p.join(', und ')+'.'}
+$('quit').insertAdjacentHTML('afterend','<button id="v31say" class="sec sm" title="Vorlesen">🔊</button>');$('v31say').onclick=e=>{e.stopPropagation();say(goalSpeech())};if(!canSpeak)$('v31say').style.display='none';
+// ---------- Bild-Ziele ----------
+const ICON=k=>GI[k]?GI[k].split(' ')[0]:'⭐';
+function picGoals(){if(!G||!G.goals)return'';return Object.entries(G.goals).map(([k,n])=>{let v=Math.min(gv(G,k)||0,n);if(k[1]==':'){let e=k.slice(2);return`<span class="v31g"><img class="v25a" src="${animalImg(e)}" style="${v>=n?'':'filter:grayscale(1);opacity:.45'}">${v>=n?'✅':''}</span>`}
+ if(n<=10){let s='';for(let i=0;i<n;i++)s+=`<i class="${i<v?'on':'off'}">${ICON(k)}</i>`;return`<span class="v31g">${s}</span>`}
+ return`<span class="v31g"><i>${ICON(k)}</i><span class="v31bar"><b style="width:${v/n*100}%"></b></span></span>`}).join(' ')}
+let lastSig='';const gEl=$('goal');new MutationObserver(()=>{if(!kid()||!G||!G.goals||G.done)return;let sig=Object.keys(G.goals).map(k=>Math.min(gv(G,k)||0,G.goals[k])).join();if(gEl.dataset.v31===sig&&gEl.querySelector('.v31g'))return;gEl.dataset.v31=sig;gEl.innerHTML=picGoals()}).observe(gEl,{childList:true,characterData:true,subtree:true});
+// ---------- Kinder-Modus: Auto-Ausrüstung, kein Verlieren ----------
+function goalsFor(mode,li){if(window.C9V23&&C9V23.goalsFor)return C9V23.goalsFor(mode,li);return mode=='level'?[LEVELS[li][1],LEVELS[li][0]]:[dailyGoals,DB]}
+const oPre=preStart;preStart=function(mode,li){if(!kid())return oPre(mode,li);let rec=[];try{let[g,b]=goalsFor(mode,li);rec=window.C9REC?C9REC(g,b):[]}catch(e){}
+ let a=S.ld.a&&S.alb[S.ld.a]?S.ld.a:null;PEND={c:rec,a};start(mode,li);setTimeout(()=>{if(rec.length)toast('🎒 Deine Wolken: '+rec.map(t=>TYPES[t][1]).join(' '));if(S.v31.autoSay!==0)setTimeout(()=>say(goalSpeech()),900)},500)};
+const oFin=finish;finish=function(){if(kid()&&G&&!G.done&&G.mode=='level'&&!goalsMet()){let li=G.li,prev=S.stars[li]||0,og=goalsMet;goalsMet=()=>true;try{oFin()}finally{goalsMet=og}
+  S.stars[li]=Math.max(prev,1);if(G.res){G.res.st=1;G.res.kid=1}save();setTimeout(()=>toast('🌈 Gut gemacht! Nächstes Mal schaffst du mehr Sterne ⭐'),1200);return}return oFin()};
+// settings + first start
+const oSnd=sndPanel;sndPanel=function(){oSnd();if(!$('sKid')){$('sOk').insertAdjacentHTML('beforebegin','<label style="display:block;margin:10px 0"><input id="sKid" type="checkbox"> 🧒 Kinder-Modus <small style="display:block;opacity:.7;margin-left:22px">Große Knöpfe, Wolken werden automatisch ausgesucht, kein Verlieren, Bild-Ziele</small></label><label style="display:block;margin:6px 0" id="sSayL"><input id="sSay" type="checkbox"> 🔊 Ziele automatisch vorlesen</label>');
+ $('sKid').onchange=()=>{S.kid=$('sKid').checked;save();applyKid()};$('sSay').onchange=()=>{S.v31.autoSay=$('sSay').checked?1:0;save()};if(!canSpeak)$('sSayL').style.display='none'}$('sKid').checked=kid();$('sSay').checked=S.v31.autoSay!==0}
+function askKid(){if(S.kid!==undefined||$('v31kid')||/[?&]noask/.test(location.search)||location.hash.startsWith('#isle=')||location.hash.startsWith('#g'))return;let o=document.createElement('div');o.id='v31kid';o.innerHTML=`<div class="panel"><img src="${animalImg('🐰')}" style="width:80px"><h2 style="margin:4px 0">Wer spielt heute?</h2><p style="font-size:14px">Im Kinder-Modus gibt es große Knöpfe, Bild-Ziele, Vorlesen – und man kann nicht verlieren.</p><button class="big" data-k="1">🧒 Kinder-Modus</button><button class="sec" data-k="0">🧑 Normal spielen</button><small style="opacity:.7">Später änderbar unter 🔊 Einstellungen</small></div>`;document.body.appendChild(o);
+ o.querySelectorAll('button').forEach(b=>b.onclick=()=>{S.kid=b.dataset.k=='1';save();applyKid();o.remove();SND.sfx('tap');if(kid())setTimeout(()=>say('Hallo! Tippe auf Spielen, und los gehts!'),300)})}
+setTimeout(askKid,900);
+// ---------- Zaubertopf ----------
+const scr=$('craftScr');scr.querySelector('h2').insertAdjacentHTML('afterend','<div id="v31pot"><span id="v31out"></span><canvas></canvas><div class="ps" id="v31pa" style="left:calc(50% - 56px)"></div><div class="ps" id="v31pb" style="left:calc(50% + 12px)"></div><button class="big" id="v31brew">🪄 Zaubern!</button><small id="v31ph" style="display:block;font-weight:700">Zieh zwei leuchtende Wolken in den Topf</small></div>');
+const pc=$('v31pot').querySelector('canvas'),pd=Math.min(3,devicePixelRatio||1);pc.width=240*pd;pc.height=170*pd;const px=pc.getContext('2d');px.scale(pd,pd);
+let brew=0,bub=[],potRun=false;
+function drawPot(t){let x=px;x.clearRect(0,0,240,170);
+ // fire
+ for(let i=0;i<5;i++){let fx=88+i*16,h=18+Math.sin(t*9+i*2)*5+(brew?10:0);let g=x.createLinearGradient(0,170,0,170-h-8);g.addColorStop(0,'#ff7a3a');g.addColorStop(1,'rgba(255,220,90,0)');x.fillStyle=g;x.beginPath();x.moveTo(fx-9,168);x.quadraticCurveTo(fx,168-h*1.4,fx+9,168);x.fill()}
+ // legs + body
+ x.fillStyle='#4a3a7a';[[78,140],[154,140]].forEach(([a,b])=>{x.beginPath();x.ellipse(a+4,b+12,6,12,0,0,7);x.fill()});
+ let g=x.createRadialGradient(100,90,10,120,105,80);g.addColorStop(0,'#8a78d8');g.addColorStop(1,'#3e2f78');x.fillStyle=g;x.beginPath();x.moveTo(44,70);x.bezierCurveTo(36,150,204,150,196,70);x.closePath();x.fill();x.strokeStyle='rgba(30,20,70,.5)';x.lineWidth=2.5;x.stroke();
+ x.fillStyle='rgba(255,255,255,.25)';x.beginPath();x.ellipse(70,98,8,18,-.3,0,7);x.fill();
+ // liquid
+ let lc=brew?`hsl(${(t*120)%360},85%,70%)`:'#7fe0d0';x.fillStyle=lc;x.beginPath();x.ellipse(120,70,74,15,0,0,7);x.fill();
+ x.strokeStyle='#2e2260';x.lineWidth=7;x.beginPath();x.ellipse(120,68,78,17,0,0,7);x.stroke();x.strokeStyle='#9c8ae8';x.lineWidth=2.5;x.beginPath();x.ellipse(120,66,78,17,0,Math.PI,2*Math.PI);x.stroke();
+ // bubbles
+ if(Math.random()<(brew?.6:.12))bub.push({x:70+Math.random()*100,y:70,r:2+Math.random()*(brew?7:4),v:20+Math.random()*30,l:1});
+ bub=bub.filter(b=>(b.l-=.016)>0);bub.forEach(b=>{b.y-=b.v*.016;x.strokeStyle='rgba(255,255,255,'+b.l+')';x.fillStyle='rgba(255,255,255,'+b.l*.3+')';x.lineWidth=1.5;x.beginPath();x.arc(b.x+Math.sin(t*4+b.r)*3,b.y,b.r,0,7);x.fill();x.stroke()});
+ if(brew){for(let i=0;i<6;i++){let a=t*3+i,rr=30+Math.sin(t*5+i)*10;x.fillStyle=`hsla(${(i*60+t*200)%360},90%,75%,.8)`;x.font='14px sans-serif';x.fillText('✦',120+Math.cos(a)*rr*1.8-5,40+Math.sin(a)*rr*.5)}}}
+function potLoop(n){if(!potRun)return;if(scr.classList.contains('hide')){potRun=false;return}drawPot(n/1000);requestAnimationFrame(potLoop)}
+function potStart(){if(!potRun){potRun=true;requestAnimationFrame(potLoop)}}
+function canWith(i){if(spare(i)<1)return false;return RECIPES.some(r=>{if(r[0]!=i&&r[1]!=i)return false;let j=r[0]==i?r[1]:r[0];return i==j?spare(i)>=2:spare(j)>=1})}
+const oRC=renderCraft;renderCraft=function(){oRC();let cs=$('cfGrid');cs.querySelectorAll('.cfc').forEach(c=>{let t=+c.dataset.t;c.classList.toggle('v31glow',canWith(t)&&!CF.includes(t))});
+ $('v31pa').innerHTML=CF[0]!=null?cloudChip(CF[0]):'';$('v31pb').innerHTML=CF[1]!=null?cloudChip(CF[1]):'';$('v31brew').disabled=CF.length<2||brew;
+ $('v31ph').textContent=CF.length==2?'Super! Jetzt auf 🪄 Zaubern tippen':CF.length==1?'Noch eine Wolke in den Topf!':cs.querySelector('.v31glow')?'Zieh zwei leuchtende Wolken in den Topf':'Sammle doppelte Wolken in den Runden – dann leuchten sie hier';potStart();if(!S.v31.potHint)setTimeout(potHint,500)};
+$('v31brew').onclick=()=>{if(CF.length<2||brew)return;brew=1;SND.sfx('bloom');vib(20);$('v31brew').disabled=true;let before=JSON.stringify(S.col);
+ setTimeout(()=>{brew=0;doCraft();let ok=JSON.stringify(S.col)!==before;let o=$('v31out');if(ok){o.innerHTML=$('cfR').innerHTML;o.classList.add('on');for(let i=0;i<20;i++)bub.push({x:120,y:60,r:3+Math.random()*5,v:40+Math.random()*60,l:1});setTimeout(()=>o.classList.remove('on'),1600)}renderCraft()},1300)};
+// drag & drop into the pot
+let DR=null;scr.addEventListener('pointerdown',e=>{let c=e.target.closest('#cfGrid .cfc');if(!c||c.classList.contains('lock'))return;DR={c,x:e.clientX,y:e.clientY,mv:false,id:e.pointerId}},true);
+addEventListener('pointermove',e=>{if(!DR||e.pointerId!==DR.id)return;if(!DR.mv&&Math.hypot(e.clientX-DR.x,e.clientY-DR.y)>12){DR.mv=true;let g=document.createElement('div');g.id='v31ghost';g.innerHTML=cloudChip(+DR.c.dataset.t);document.body.appendChild(g)}if(DR.mv){let g=$('v31ghost');g.style.left=e.clientX+'px';g.style.top=e.clientY+'px';e.preventDefault()}},{passive:false});
+addEventListener('pointerup',e=>{if(!DR)return;let d=DR;DR=null;let g=$('v31ghost');if(g)g.remove();if(!d.mv)return;let r=pc.getBoundingClientRect();if(e.clientX>r.left&&e.clientX<r.right&&e.clientY>r.top-30&&e.clientY<r.bottom){if(CF.length>=2)CF=[];d.c.dataset.drop=1;d.c.click();SND.sfx('splash')}
+ d.c.addEventListener('click',ev=>{},{once:true});window.__v31sup=Date.now()});
+scr.addEventListener('click',e=>{if(window.__v31sup&&Date.now()-window.__v31sup<350&&e.target.closest('#cfGrid .cfc')&&!e.target.closest('.cfc').dataset.drop){e.stopPropagation();e.preventDefault()}let c=e.target.closest('.cfc');if(c)delete c.dataset.drop},true);
+// ---------- Helfer-Hand ----------
+const hand=document.createElement('div');hand.id='v31hand';hand.textContent='👆';document.body.appendChild(hand);
+function handAt(el){if(!el){hand.style.display='none';return}let r=el.getBoundingClientRect();hand.className='';hand.style.left=(r.left+r.width/2)+'px';hand.style.top=(r.top+Math.min(r.height,140)/2)+'px';hand.style.display='block'}
+function handDrag(a,b){let ra=a.getBoundingClientRect(),rb=b.getBoundingClientRect();hand.className='drag';hand.style.left='0px';hand.style.top='0px';hand.style.setProperty('--x0',(ra.left+ra.width/2)+'px');hand.style.setProperty('--y0',(ra.top+ra.height/2)+'px');hand.style.setProperty('--x1',(rb.left+rb.width/2)+'px');hand.style.setProperty('--y1',(rb.top+rb.height*.45)+'px');hand.style.display='block'}
+window.C9.handAt=handAt;
+function potHint(){if(S.v31.potHint||scr.classList.contains('hide')||$('v22co'))return;let g=$('cfGrid').querySelector('.v31glow');if(!g)return;S.v31.potHint=1;save();scr.scrollTop=0;if(g.getBoundingClientRect().bottom>innerHeight)g.scrollIntoView({block:'end'});setTimeout(()=>{handDrag(g,pc);toast('👆 Zieh die leuchtende Wolke in den Zaubertopf!',3500);if(kid())say('Zieh die leuchtende Wolke in den Zaubertopf!');let off=()=>{hand.style.display='none';removeEventListener('pointerdown',off,true)};addEventListener('pointerdown',off,true);setTimeout(off,9000)},400)}
+// attach hand + buddy + speaker to v22 coach cards
+new MutationObserver(ms=>{if(!ms.some(m=>m.target!==hand&&!(m.target.id||'').startsWith('v31')))return;let co=$('v22co');if(!co){if(hand.dataset.co){hand.style.display='none';delete hand.dataset.co}return}hand.dataset.co=1;let hole=co.querySelector('.hole'),tip=co.querySelector('.tip');if(!tip)return;
+ if(!tip.querySelector('#v31buddy')){tip.insertAdjacentHTML('afterbegin',`<img id="v31buddy" src="${animalImg('🐰')}">`+(canSpeak?'<button class="sec v31spk">🔊</button>':''));let sp=tip.querySelector('.v31spk');if(sp)sp.onclick=e=>{e.stopPropagation();say(tip.querySelector('.tx').innerText)}}
+ setTimeout(()=>{let r=hole.getBoundingClientRect();if(r.width<4){hand.style.display='none';return}hand.className='';hand.style.left=(r.left+r.width/2)+'px';hand.style.top=Math.min(r.bottom-30,r.top+Math.min(r.height,160)/2)+'px';hand.style.display='block';hand.style.zIndex=125},420)}).observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['style']});
+C9.preStart=preStart;C9.finish=finish;window.C9.v31={say,goalSpeech,picGoals,askKid,canWith,potHint,handDrag};
 })();
 </script></body></html>
