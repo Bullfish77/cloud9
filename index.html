@@ -1029,7 +1029,7 @@ drops=drops.filter(d=>!d.dead);if(BI==5){let gw=plants.filter(p=>p.h>=1).length,
 let cap=BI==2?Math.floor(G.snow/8)+plants.filter(p=>p.h>=1).length:plants.filter(p=>p.h>=1).length+(G.energy>0?1:0);
 if((sun>.6||moon)&&cap>animals.length&&animals.length<10&&R()<dt*.6*(G.cp=='ani'?1.2:1)*(WX&&WX.k=='clear'&&WX.day?1.5:1))spawnAnimal(I);
 $('time').textContent=Math.ceil(G.t)+'s';$('score').textContent=G.score+' ✨';$('energy').textContent='⚡'+G.energy;
-$('goal').textContent=(G.mode=='level'?(G.master?'👑 ':'')+'Level '+(G.li+1)+': ':G.mode=='endless'?'🧭 Reise '+G.er+': ':'☁️ Wolke 9: ')+goalStr(G.goals,G);
+{let gE=$('goal'),gs=(G.mode=='level'?(G.master?'👑 ':'')+'Level '+(G.li+1)+': ':G.mode=='endless'?'🧭 Reise '+G.er+': ':'☁️ Wolke 9: ')+goalStr(G.goals,G);if(!(window.C9&&C9.v31&&C9.v31.kidGoal&&C9.v31.kidGoal())){if(gE.textContent!==gs)gE.textContent=gs}}
 if(G.mode=='level'&&goalsMet())finish();else if(G.t<=0)finish()}
 if(CEL){plants.forEach((p,i)=>{X.save();X.translate(p.x,I.y);X.rotate(Math.sin(n/260+i)*.18);X.translate(-p.x,-I.y);plant(p,I,n);X.restore()});animals.forEach(a=>celAnimal(a,I,n,CEL.t));if(!animals.length)mascot(I,n,CEL.t)}else{plants.forEach(p=>plant(p,I,n));
 animals.forEach(a=>{let fl=FLY.includes(a.e),vx=Math.cos(n/900+a.ph);drawAnimal(a.e,a.x+Math.sin(n/900+a.ph)*12,I.y+(GC.bob||0)-2-(fl?30+Math.sin(n/400+a.ph)*8:Math.abs(Math.sin(n/300+a.ph))*6),1,n,a.ph,vx<0)})}
@@ -2379,7 +2379,7 @@ function potHint(){if(S.v31.potHint||scr.classList.contains('hide')||$('v22co'))
 new MutationObserver(ms=>{if(!ms.some(m=>m.target!==hand&&!(m.target.id||'').startsWith('v31')))return;let co=$('v22co');if(!co){if(hand.dataset.co){hand.style.display='none';delete hand.dataset.co}return}hand.dataset.co=1;let hole=co.querySelector('.hole'),tip=co.querySelector('.tip');if(!tip)return;
  if(!tip.querySelector('#v31buddy')){tip.insertAdjacentHTML('afterbegin',`<img id="v31buddy" src="${animalImg('🐰')}">`+(canSpeak?'<button class="sec v31spk">🔊</button>':''));let sp=tip.querySelector('.v31spk');if(sp)sp.onclick=e=>{e.stopPropagation();say(tip.querySelector('.tx').innerText)}}
  setTimeout(()=>{let r=hole.getBoundingClientRect();if(r.width<4){hand.style.display='none';return}hand.className='';hand.style.left=(r.left+r.width/2)+'px';hand.style.top=Math.min(r.bottom-30,r.top+Math.min(r.height,160)/2)+'px';hand.style.display='block';hand.style.zIndex=125},420)}).observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['style']});
-C9.preStart=preStart;C9.finish=finish;window.C9.v31={say,goalSpeech,picGoals,askKid,canWith,potHint,handDrag};
+C9.preStart=preStart;C9.finish=finish;window.C9.v31={kidGoal(){if(!kid()||!G||!G.goals)return false;let e=$('goal'),sig=Object.keys(G.goals).map(k=>Math.min(gv(G,k)||0,G.goals[k])).join();if(e.dataset.v31!==sig||!e.querySelector('.v31g')){e.dataset.v31=sig;e.innerHTML=picGoals()}return true},say,goalSpeech,picGoals,askKid,canWith,potHint,handDrag};
 })();
 </script><script>
 // ===== v32: PWA, Tagesbelohnung, Events (Halloween/Advent), Tiere wachsen + Eier, Fotomodus, Spielstand-Code =====
@@ -2401,7 +2401,7 @@ body.v32photo #homeScr .hbar,body.v32photo #hInfo,body.v32photo #homeScr .hbot,b
 const ov=(h,id)=>{let o=document.createElement('div');o.className='v32ov';o.id=id||'';o.innerHTML='<div class="panel">'+h+'</div>';o.onclick=e=>{if(e.target===o)o.remove()};document.body.appendChild(o);return o};
 const randCloud=maxT=>{let c=TYPES.map((t,i)=>[t,i]).filter(([t])=>t[3]<=maxT&&t[3]<4);let p=c[Math.floor(R()*c.length)];return p?p[1]:0};
 // ---------- PWA ----------
-if('serviceWorker' in navigator&&location.protocol!=='file:'&&!/[?&]nosw/.test(location.search)){addEventListener('load',()=>navigator.serviceWorker.register('sw.js').then(r=>{r.update&&r.update()}).catch(()=>{}))}
+if('serviceWorker' in navigator&&location.protocol!=='file:'&&!/[?&]nosw/.test(location.search)){addEventListener('load',()=>navigator.serviceWorker.register('sw.js').then(r=>{r.update&&r.update().catch(()=>{})}).catch(()=>{}))}
 let BIP=null;addEventListener('beforeinstallprompt',e=>{e.preventDefault();BIP=e;let b=$('v32inst');if(b)b.style.display=''});
 // ---------- Tagesbelohnung ----------
 const DR=[['🪙',25],['🪙',40],['☁️',1],['🪙',60],['☁️',2],['🪙',90],['🎁',150]];
@@ -2501,8 +2501,8 @@ C9.preStart=preStart;
 </script><script>
 // ---------- Stabilität: Fehlerprotokoll + Canvas-Schutz ----------
 {let EL=[];try{EL=JSON.parse(localStorage.c9err||'[]')}catch(e){}
-window.C9ERR=function(e,w){let m=(w||'')+': '+(e&&(e.stack||e.message)||e);console.error('[C9]',m);let last=EL[EL.length-1];if(last&&last.m==m.slice(0,400)){last.n++;last.t=Date.now()}else EL.push({m:m.slice(0,400),n:1,t:Date.now(),v:'v35.1'});EL=EL.slice(-8);try{localStorage.c9err=JSON.stringify(EL)}catch(_){}};
-addEventListener('error',e=>C9ERR(e.error||e.message,'err'));addEventListener('unhandledrejection',e=>C9ERR(e.reason,'prom'));
+window.C9ERR=function(e,w){let m=(w||'')+': '+(e&&(e.stack||e.message)||e);console.error('[C9]',m);let last=EL[EL.length-1];if(last&&last.m==m.slice(0,400)){last.n++;last.t=Date.now()}else EL.push({m:m.slice(0,400),n:1,t:Date.now(),v:'v39.1'});EL=EL.slice(-8);try{localStorage.c9err=JSON.stringify(EL)}catch(_){}};
+addEventListener('error',e=>C9ERR(e.error||e.message,'err'));addEventListener('unhandledrejection',e=>{let r=e.reason,m=String(r&&(r.message||r)||'');if(/ServiceWorker|Failed to fetch|NetworkError|Load failed|fetching the script/i.test(m))return;C9ERR(r,'prom')});
 const P=CanvasRenderingContext2D.prototype,oA=P.arc,oE=P.ellipse;
 P.arc=function(x,y,r,a,b,c){return oA.call(this,x,y,r>0?r:0,a,b,c)};P.ellipse=function(x,y,rx,ry,ro,a,b,c){return oE.call(this,x,y,rx>0?rx:0,ry>0?ry:0,ro,a,b,c)};
 const oRG=P.createRadialGradient;P.createRadialGradient=function(x0,y0,r0,x1,y1,r1){return oRG.call(this,x0,y0,r0>0?r0:0,x1,y1,r1>0?r1:0)};
