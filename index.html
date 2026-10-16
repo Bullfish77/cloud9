@@ -1489,8 +1489,8 @@ const FOODS={
 const FAV={'🐰':'salat','🦔':'nuss','🐿️':'nuss','🦋':'nektar','🐝':'nektar','🦜':'nektar','🦩':'nektar','🦎':'kaktus','🐪':'kaktus','🦂':'kaktus','🦭':'suppe','🐧':'suppe','🐢':'suppe','🦦':'suppe','🐻‍❄️':'eis','🦅':'beeren','🦉':'beeren','🐒':'beeren','🦊':'beeren','🦄':'stern','🐉':'stern','🦇':'stern','🪼':'stern','🐋':'stern'};
 const TRICK={'🐰':['salto','Salto'],'🐧':['rutsch','Bauchrutscher'],'🦭':['rutsch','Bauchrutscher'],'🐻‍❄️':['rutsch','Bauchrutscher'],'🐋':['salto','Riesensprung'],'🦦':['salto','Rückwärtssalto'],'🪼':['dreh','Pirouette'],'🐢':['dreh','Panzerdreher'],'🦊':['dreh','Schwanzjagd'],'🐒':['salto','Flickflack'],'🐉':['salto','Looping'],'🦄':['salto','Regenbogensprung'],'🦅':['salto','Looping'],'🦜':['dreh','Pirouette'],'🦉':['dreh','Kopfdreher']};
 const trickOf=e=>TRICK[e]||['hops','Freudensprung'];
-const CAP={pet:3,feed:2,play:2};
-function fr(e){let f=H.fr[e];if(!f)f=H.fr[e]={p:0};if(f.d!==today){f.d=today;f.pet=0;f.feed=0;f.play=0}return f}
+const CAP={pet:3,feed:2,play:2,bath:2};
+function fr(e){let f=H.fr[e];if(!f)f=H.fr[e]={p:0};if(f.d!==today){f.d=today;f.pet=0;f.feed=0;f.play=0;f.bath=0;f.care=0}if(f.bath==null)f.bath=0;return f}
 const hearts=e=>Math.floor((H.fr[e]?H.fr[e].p:0)/10);
 function addFp(e,n){let f=fr(e),h0=hearts(e);f.p=Math.min(100,f.p+n);let h1=hearts(e);save();if(h1>h0){let msg=e+' '+anName(e)+' – Freundschaft '+h1+' ❤️';if(h0<3&&h1>=3)msg+=' · neuer Trick: '+trickOf(e)[1]+'!';else if(h0<6&&h1>=6)msg+=' · neuer Trick: Tanz!';else if(h1==10)msg+=' · beste Freunde 👑';setTimeout(()=>toast(msg,3500),400);SND.sfx('levelup')}}
 window.C9V20={SEEDS,FOODS,FAV,fr,hearts,addFp};
@@ -1528,16 +1528,19 @@ function s2w(p){return{x:(p.x-hOX())/HV.z,y:(p.y-hOY())/HV.z}}
 let RM=null;
 function closeRad(){let r=$('v2rad');if(r)r.classList.add('hide');RM=null}
 function openRad(a){let g=hGeo(),[sx,sy]=w2s(a.sx,a.sy),b=HC.getBoundingClientRect();sx+=b.left;sy+=b.top;let r=$('v2rad'),f=fr(a.e),hh=hearts(a.e),tk=trickOf(a.e);RM=a;
- let items=[['pet','✋','Streicheln',f.pet>=CAP.pet],['feed','🍽️','Füttern',f.feed>=CAP.feed],['play','🎾','Spielen',false],['trick',hh>=3?'✨':'🔒',hh>=3?tk[1]:'ab 3 ❤️',hh<3],['card','ℹ️','Karte',false]];
+ let items=[['pet','✋','Streicheln',f.pet>=CAP.pet],['feed','🍽️','Füttern',f.feed>=CAP.feed],['bath','🛁','Baden',f.bath>=CAP.bath],['play','🎾','Spielen',false],['trick',hh>=3?'✨':'🔒',hh>=3?tk[1]:'ab 3 ❤️',hh<3],['card','ℹ️','Karte',false]];
  let R0=62,cx=Math.max(R0+30,Math.min(innerWidth-R0-30,sx)),cy=Math.max(R0+40,Math.min(innerHeight-R0-50,sy));
  r.innerHTML=`<div class="v2rc" style="left:${cx}px;top:${cy}px"><span class="v2rh">${'❤️'.repeat(Math.min(hh,10))||'🤍'}</span>`+items.map((it,i)=>{let an=-Math.PI/2+(i-(items.length-1)/2)*0.78*(items.length>4?1:1.1),x=Math.cos(an)*R0,y=Math.sin(an)*R0+ (an>0?0:0);return`<button data-a="${it[0]}" class="${it[3]?'dim':''}" style="transform:translate(${x-24}px,${y-24}px)"><b>${it[1]}</b><small>${it[2]}</small></button>`}).join('')+'</div>';
  r.classList.remove('hide');r.querySelectorAll('button').forEach(bt=>bt.onclick=ev=>{ev.stopPropagation();let k=bt.dataset.a,e=a.e;closeRad();act(k,a)})}
 function act(k,a){let e=a.e,f=fr(e);
- if(k=='pet'){if(f.pet>=CAP.pet){toast(e+' wurde heute schon genug gestreichelt 💜 – morgen wieder');return}f.pet++;a.hop=1;for(let i=0;i<5;i++)HFT.push({x:a.sx+(R()-.5)*30,y:a.sy-20-i*8,s:'💗',l:1+i*.12});SND.animal(e);vib(12);addFp(e,3);wishEv('pet',e);toast(e+' '+anName(e)+' schnurrt vor Freude 💗 ('+f.pet+'/'+CAP.pet+' heute)')}
+ if(k=='pet'){if(f.pet>=CAP.pet){toast(e+' wurde heute schon genug gestreichelt 💜 – morgen wieder');return}f.pet++;a.hop=1;for(let i=0;i<5;i++)HFT.push({x:a.sx+(R()-.5)*30,y:a.sy-20-i*8,s:'💗',l:1+i*.12});SND.animal(e);vib(12);addFp(e,3);wishEv('pet',e);toast(e+' '+anName(e)+' schnurrt vor Freude 💗 ('+f.pet+'/'+CAP.pet+' heute)');careChk(a)}
+ else if(k=='bath'){if(f.bath>=CAP.bath){toast(e+' ist heute schon blitzsauber ✨ – morgen wieder');return}f.bath++;a.hop=1;for(let i=0;i<7;i++)HFT.push({x:a.sx+(R()-.5)*34,y:a.sy-14-i*7,s:i%3?'🫧':'💗',l:1+i*.1});SND.sfx('splash');SND.animal(e);vib(12);addFp(e,3);toast(e+' '+anName(e)+' planscht fröhlich 🫧 ('+f.bath+'/'+CAP.bath+' heute)');careChk(a)}
  else if(k=='feed')feedSheet(a);
  else if(k=='play'){if(window.C9V21&&C9V21.play)C9V21.play(a);else toast('🎾 Minispiele kommen gleich im nächsten Update!')}
  else if(k=='trick'){if(hearts(e)<3)return toast('Tricks gibt es ab 3 ❤️ Freundschaft');doTrick(a,hearts(e)>=6&&R()<.4?'tanz':trickOf(e)[0])}
  else if(k=='card')anCard(e)}
+function careChk(a){let e=a.e,f=fr(e);if(f.care||!(f.pet>0&&f.feed>0&&f.bath>0))return;H.careD=H.careD&&H.careD.d===today?H.careD:{d:today,n:0};if(H.careD.n>=5){f.care=1;save();return}f.care=1;H.careD.n++;setTimeout(()=>{coinGain(10);SND.sfx('star');for(let i=0;i<6;i++)HFT.push({x:a.sx+(R()-.5)*40,y:a.sy-30-i*6,s:'💖',l:1.2+i*.1});toast('💖 Rundum gepflegt! '+e+' '+anName(e)+' wurde gestreichelt, gefüttert und gebadet: +10 🪙',3500)},900);save()}
+window.C9.care={careChk,fr:e=>fr(e),act:(k,a)=>act(k,a),openRad:a=>openRad(a)};
 function doTrick(a,tk){a.tk=tk;a.tk0=performance.now();SND.animal(a.e);if(tk=='salto'||tk=='hops')SND.sfx('whoosh');if(Z_m(a)=='swim')SND.sfx('splash');setTimeout(()=>{HFT.push({x:a.sx,y:a.sy-40,s:'👏 '+(tk=='tanz'?'Tanz!':trickOf(a.e)[1]+'!'),l:1.3})},700)}
 const Z_m=a=>hZone(hGeo(),a).m;
 function cook(k){let F=FOODS[k];if(!Object.entries(F.r).every(([i,n])=>(H.items[i]||0)>=n))return false;Object.entries(F.r).forEach(([i,n])=>H.items[i]-=n);H.food[k]=(H.food[k]||0)+1;save();SND.sfx('craft');wishEv('cook',k);return true}
@@ -1545,7 +1548,7 @@ function feedSheet(a){let e=a.e,f=fr(e),fav=FAV[e]||'beeren';
  let row=([k,F])=>{let n=H.food[k]||0,can=Object.entries(F.r).every(([i,m])=>(H.items[i]||0)>=m);return`<div class="v2fr ${k==fav?'fav':''}"><b>${F.e}</b><span>${F.n}${k==fav?' <em>❤ Lieblingsessen</em>':''}<small>${Object.entries(F.r).map(([i,m])=>i+' '+(H.items[i]||0)+'/'+m).join(' · ')} · hast ${n}</small></span><button class="sec sm" data-c="${k}" ${can?'':'disabled'}>🍳 Kochen</button><button class="sm" data-f="${k}" ${n&&f.feed<CAP.feed?'':'disabled'}>Füttern</button></div>`};
  hSheet(`<h3>🍽️ ${e} ${anName(e)} füttern</h3><p><small>${f.feed}/${CAP.feed} Mahlzeiten heute · Lieblingsessen gibt doppelt ❤️ · Zutaten aus Geschenken & Garten</small></p><div class="anl">`+Object.entries(FOODS).sort((x,y)=>(y[0]==fav)-(x[0]==fav)).map(row).join('')+'</div>');
  let sh=$('hSheet');sh.querySelectorAll('[data-c]').forEach(b=>b.onclick=()=>{if(cook(b.dataset.c)){toast(FOODS[b.dataset.c].e+' '+FOODS[b.dataset.c].n+' gekocht!');feedSheet(a)}});
- sh.querySelectorAll('[data-f]').forEach(b=>b.onclick=()=>{let k=b.dataset.f;if(!(H.food[k]>0)||f.feed>=CAP.feed)return;H.food[k]--;f.feed++;let fv=k==fav;addFp(e,fv?20:10);a.hop=1;HFT.push({x:a.sx,y:a.sy-40,s:'😋 '+FOODS[k].e+(fv?' ❤️❤️':' ❤️'),l:1.5});SND.sfx('gift');SND.animal(e);wishEv('feed',e);sh.classList.add('hide');toast(e+' '+anName(e)+(fv?' liebt '+FOODS[k].n+'! +2 ❤️':' mag '+FOODS[k].n+' +1 ❤️'))})}
+ sh.querySelectorAll('[data-f]').forEach(b=>b.onclick=()=>{let k=b.dataset.f;if(!(H.food[k]>0)||f.feed>=CAP.feed)return;H.food[k]--;f.feed++;setTimeout(()=>careChk(a),50);let fv=k==fav;addFp(e,fv?20:10);a.hop=1;HFT.push({x:a.sx,y:a.sy-40,s:'😋 '+FOODS[k].e+(fv?' ❤️❤️':' ❤️'),l:1.5});SND.sfx('gift');SND.animal(e);wishEv('feed',e);sh.classList.add('hide');toast(e+' '+anName(e)+(fv?' liebt '+FOODS[k].n+'! +2 ❤️':' mag '+FOODS[k].n+' +1 ❤️'))})}
 function anCard(e){let f=fr(e),hh=hearts(e),fav=FOODS[FAV[e]||'beeren'],tk=trickOf(e),gf=GIFTS[e];
  hSheet(`<div class="v2card"><img src="${animalImg(e)}"><h3>${anName(e)}</h3><div class="v2hearts">${[...Array(10)].map((_,i)=>i<hh?'❤️':'🤍').join('')}</div><div class="v2bar"><i style="width:${(f.p%10)*10}%"></i></div><small>${hh<10?'noch '+(10-f.p%10)+' Punkte bis zum nächsten Herz':'Beste Freunde 👑'}</small>
  <p>🍽️ Lieblingsessen: <b>${fav.e} ${fav.n}</b></p><p>🎁 Geschenk: ${gf[0]} ${gf[1]} · +${Math.round(hh*6)}% Taler${hh>=5?' · +1 Extra-'+gf[0]:''}${hh>=10?' · +⭐':''}</p>
@@ -1722,7 +1725,7 @@ function visSheet(v){let H=S.home,V0=VIS[v.e];let q=VP[v.e];if(q)q.hop=1;SND.ani
  let sb=$('v40shop');if(sb)sb.onclick=()=>{$('hSheet').classList.add('hide');let need=P.find(x=>!x[1](H));SHT=need&&/Wäldchen|Wiese|See|Wüsten/.test(need[0])?'hab':'deco';renderShop();show('shopScr')};
  let b=$('v21stay');if(b)b.onclick=()=>{H.res.push(v.e);H.vis=null;coinGain(50);save();SND.sfx('newanimal');burst2(VP[v.e].x,VP[v.e].y-20);$('hSheet').classList.add('hide');let hm=visHome(v.e);if(hm&&VP[v.e]){VP[v.e].tx=hm[0];VP[v.e].ty=hm[1]}toast('🎉 '+v.e+' '+V0.n+' zieht auf deine Insel! +50 🪙',4000);hUi()}}
 const oTap2=hTap;hTap=function(p){if(window.C9VIS){let g=hGeo(),best=null,bd=1e9;HA.forEach(a=>{if(a.sx==null)return;let d=Math.hypot(a.sx-p.x,a.sy-p.y);if(d<bd){bd=d;best=a}});if(best&&bd<g.cw*.75){best.hop=1;SND.animal(best.e)}return}
- let v=visTapCheck(p);if(v){$('v2rad')&&$('v2rad').classList.add('hide');return visSheet(v)}oTap2(p)};
+ let v=visTapCheck(p);if(v){let q=VP[v.e],vd=q?Math.hypot(q.sx-p.x,Math.max(q.sy-34*(q.sc||1),Math.min(q.sy,p.y))-p.y):1e9,ad=1e9;HA.forEach(a=>{if(a.sx!=null)ad=Math.min(ad,Math.hypot(a.sx-p.x,a.sy-p.y))});if(ad<vd*.8)v=null}if(v){$('v2rad')&&$('v2rad').classList.add('hide');return visSheet(v)}oTap2(p)};
 // ---------- Share & visit ----------
 const DK=Object.keys(DECO),HK=Object.keys(HABS);
 function encIsle(){let H=S.home;return b64e({v:1,i:H.iid,n:(S.me&&S.me.n)||'',a:(S.me&&S.me.a)|0,t:H.theme|0,s:H.sec,d:H.deco.filter(d=>DECO[d.k]).map(d=>[DK.indexOf(d.k),d.c,d.r]),h:H.hab.filter(h=>h.on).map(h=>[HK.indexOf(h.k),h.lv,h.c,h.r]),e:ownedAn().filter(e=>!H.hide[e]).slice(0,40),r:(H.res||[]).filter(e=>VIS[e])})}
@@ -1828,7 +1831,7 @@ function body(){let V=fx();
  return(inv.length?'<small>Im Vorrat: '+inv.map(([k,n])=>FOODS()[k].e+'×'+n).join(' ')+'</small>':'')+(ks.length?ks.map(k=>{let Fd=FOODS()[k],who=ownedAn().filter(e=>FAV()[e]==k).slice(0,4).join('');return`<div class="v22row"><b style="font-size:26px">${Fd.e}</b><span>${Fd.n}<small>${Object.entries(Fd.r).map(([i,n])=>i+'×'+n).join(' + ')}${who?' · Liebling von '+who:''}</small></span><button class="sm" data-cook="${k}">Kochen</button></div>`}).join(''):'<div class="v22empty">Gerade fehlen Zutaten 🧺<br><small>Zutaten bekommst du aus Geschenken der Tiere und aus dem Garten.</small></div>')}
 function wire(sh){let V=fx();
  sh.querySelectorAll('[data-feed]').forEach(b=>b.onclick=()=>{let e=b.dataset.feed,f=V.fr(e),fav=FAV()[e]||'beeren';let k=(H.food[fav]>0)?fav:Object.keys(H.food).find(k=>H.food[k]>0);if(!k){heft('kueche');return}if(f.feed>=2)return;
-  H.food[k]--;f.feed++;let fv=k==fav;V.addFp(e,fv?20:10);let a=HA.find(x=>x.e==e);if(a){a.hop=1;if(a.sx!=null)HFT.push({x:a.sx,y:a.sy-40,s:'😋 '+FOODS()[k].e+(fv?' ❤️❤️':' ❤️'),l:1.5})}SND.sfx('gift');SND.animal(e);V.wishEv('feed',e);save();heft()});
+  H.food[k]--;f.feed++;let fv=k==fav;V.addFp(e,fv?20:10);let a=HA.find(x=>x.e==e);if(a){setTimeout(()=>{try{C9.care.careChk(a)}catch(_){}},50);a.hop=1;if(a.sx!=null)HFT.push({x:a.sx,y:a.sy-40,s:'😋 '+FOODS()[k].e+(fv?' ❤️❤️':' ❤️'),l:1.5})}SND.sfx('gift');SND.animal(e);V.wishEv('feed',e);save();heft()});
  sh.querySelectorAll('[data-claim]').forEach(b=>b.onclick=()=>{let w=H.wish.l[+b.dataset.claim];if(!w||w.c||w.p<w.n)return;w.c=1;coinGain(w.r);V.addFp(w.e,10);SND.sfx('claim');vib(25);save();hUi();heft()});
  sh.querySelectorAll('[data-bed]').forEach(b=>b.onclick=()=>{let d=beds()[+b.dataset.bed];if(d.pl&&d.pl.g>=1){F.harvest(d);heft()}else F.bedSheet(d)});
  sh.querySelectorAll('[data-water]').forEach(b=>b.onclick=()=>{sh.classList.add('hide');F.setWM(true)});
