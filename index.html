@@ -3616,4 +3616,43 @@ window.C9V42={slots,cin:(c,r,g)=>{g=g||hGeo();return c>=0&&r>=0&&c<g.cols&&r<g.r
 SK='';mig();
 window.C9.v42=window.C9V42;
 })();
-</script></body></html>
+</script><script>/* v42.1: Kapitel-Vorschau, Einzug-Animation, Tier stellt sich vor (Kindermodus) */
+(function(){
+const S=C9.S;S.v42=S.v42||{};const V=S.v42;V.si=V.si||{};V.kd=V.kd||0;
+const QS=location.search,FORCE=/[?&]story/.test(QS),QUIET=/[?&]noask/.test(QS)&&!FORCE;
+const FOOD={'🐰':'Gras, Kräuter und Gemüse','🦋':'süßen Nektar aus Blüten','🐝':'Nektar und Blütenpollen','🦔':'Käfer, Würmer und Schnecken','🦎':'Insekten und Spinnen','🐪':'Gras, Blätter und dornige Pflanzen','🦂':'Insekten und Spinnen','🦅':'Fische und kleine Tiere','🦭':'Fische','🐧':'Fische und Krill (winzige Krebse)','🐻‍❄️':'vor allem Robben','🦉':'Lemminge und Mäuse','🦜':'Samen, Nüsse und Früchte','🐒':'Früchte, Blätter und Insekten','🐢':'Pflanzen, Würmer und kleine Tiere','🦩':'kleine Krebse und Algen','🦦':'Fische und Krebse','🦇':'Insekten','🦊':'Mäuse, Beeren und Insekten','🐿️':'Nüsse, Samen und Tannenzapfen','🪼':'Plankton – winzige Meerestierchen','🐋':'Krill – winzige Krebse','🐸':'Insekten und Würmer','🦢':'Wasserpflanzen und Gras','🐐':'Gras, Kräuter und Blätter','🐆':'Wildschafe und Steinböcke','🐙':'Krebse und Muscheln','🦚':'Samen, Insekten und kleine Tiere','🐠':'Algen und Plankton','🦀':'Algen und kleine Tiere','🐡':'Muscheln und Krebse','🦈':'Fische','🐍':'Mäuse und Eidechsen','🦗':'Pflanzen und kleine Insekten','🦙':'Gras und Heu','🦥':'Blätter','🐅':'Hirsche und Wildschweine','🐊':'Fische und andere Tiere','🦛':'Gras – das fressen sie nachts an Land','🦖':'Fleisch – der echte T. rex jagte andere Dinosaurier','🦕':'Blätter von hohen Bäumen','🐌':'Blätter und Pflanzen','🦌':'Flechten, Moos und Gras','🐺':'Moschusochsen und Hasen','🐳':'Fische und Tintenfische','🐻':'Beeren, Nüsse und Fische – wie echte Bären','🐭':'Samen und Körner','🐹':'Körner und Samen','🐞':'Blattläuse','🦡':'vor allem Regenwürmer','🐦':'Insekten, Würmer und Beeren','🐶':'Fleisch und Hundefutter','🐱':'Fleisch und Katzenfutter'};
+const FAN={'🦄':'Einhörner gibt es nur in Märchen und Geschichten.','🐉':'Drachen gibt es nur in Märchen – echte Drachen gibt es nicht.','🐲':'Drachen gibt es nur in Märchen – echte Drachen gibt es nicht.'};
+const AN=e=>ANIMALS.find(a=>a[0]==e),NM=e=>(AN(e)||[e,e])[1],HB=e=>{let k=C9V42.AH[e];return k&&HABS[k]?HABS[k]:null};
+const css=document.createElement('style');css.textContent=`#v421{position:fixed;inset:0;z-index:9500;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#3a2a5a;text-align:center;font-family:inherit;animation:v421f .35s}
+#v421 h2{margin:.2em;font-size:26px;text-shadow:0 2px 0 #fff8}#v421 p{margin:.3em 1em;font-size:17px;font-weight:700;text-shadow:0 1px 0 #fff8;max-width:340px}
+#v421 .hb{font-size:84px;filter:drop-shadow(0 6px 10px #0005);animation:v421p 1.6s ease-in-out infinite}
+#v421 .row{display:flex;gap:10px;margin:14px 0;flex-wrap:wrap;justify-content:center}#v421 .row span{font-size:46px;opacity:0;animation:v421in .6s forwards}
+#v421 .row span.u{filter:brightness(0) opacity(.55)}#v421 .sk{position:absolute;top:calc(14px + env(safe-area-inset-top));right:14px;background:#fff8;border:2px solid #fff;color:#4a3a6a;border-radius:20px;padding:8px 16px;font:inherit;font-weight:800}
+#v421 .mv{font-size:58px;position:relative;animation:v421mv 1.5s ease-in-out forwards}#v421 .card{background:#fff;color:#4a3a6a;border-radius:24px;padding:18px 20px;max-width:330px;box-shadow:0 10px 30px #0004;text-align:left}
+#v421 .card .big{font-size:70px;text-align:center;animation:v421p 1.4s ease-in-out infinite}#v421 .card b{color:#7a4ad0;display:inline;font-size:inherit;text-shadow:none;margin:0}#v421 .card p{font-size:16px;margin:.45em 0;text-shadow:none;font-weight:600}#v421 .card h3{font-size:22px;color:#4a3a6a}#v421 .card button{display:block;margin:14px auto 0;background:#7a4ad0;color:#fff;border:0;border-radius:18px;padding:10px 26px;font:inherit;font-size:18px;font-weight:800}
+@keyframes v421f{from{opacity:0}}@keyframes v421p{50%{transform:translateY(-8px) scale(1.04)}}@keyframes v421in{from{opacity:0;transform:translateY(30px) scale(.5)}to{opacity:1;transform:none}}
+@keyframes v421mv{0%{left:-140px;transform:scale(.8)}60%{left:0;transform:scale(1.1)}100%{left:0;top:-40px;transform:scale(.3);opacity:0}}`;document.head.appendChild(css);
+function ov(bg,html,ms,cb){let o=document.createElement('div');o.id='v421';o.style.background=bg;o.innerHTML=html+(ms?'<button class="sk">Weiter ›</button>':'');document.body.appendChild(o);let done=0,t;const end=()=>{if(done)return;done=1;clearTimeout(t);o.remove();cb&&cb()};
+ if(ms){o.onclick=end;t=setTimeout(end,ms)}return{o,end}}
+function lvAnimals(li){let b=LEVELS[li][0];return ANIMALS.filter(a=>{let r=a[2];return Array.isArray(r)?r.includes(b):r===b}).map(a=>a[0])}
+function story(li,cb){let es=lvAnimals(li),B0=BIOMES[LEVELS[li][0]],sky=(B0.sky||['#6a8ad8','#c8d8ff']);
+ let open=es.filter(e=>!S.alb[e]);if(!open.length)return cb();let h=HB(open[0]);
+ ov(`linear-gradient(180deg,${sky[0]},${sky[1]})`,`<small style="letter-spacing:2px;font-weight:800">LEVEL ${li+1}</small><div class="hb">${B0.e||'☁️'}</div><h2>${B0.n}</h2>
+ <p>Diese Tiere suchen hier ein Zuhause${h?' – sie ziehen danach in '+h.e+' '+h.n+' auf deiner Insel':''}:</p>
+ <div class="row">${es.map((e,i)=>`<span class="${S.alb[e]?'':'u'}" style="animation-delay:${.25+i*.2}s">${e}</span>`).join('')}</div><p style="font-size:14px;opacity:.9">Tippe zum Starten</p>`,3200,cb)}
+function moveIn(es,cb){let e=es[0],h=HB(e);if(!h)return cb();
+ ov('linear-gradient(180deg,#8ad0ff,#e8fff0)',`<h2 style="color:#4a3a6a;text-shadow:none">${e} ${NM(e)} zieht ein!</h2><div style="display:flex;align-items:flex-end;gap:6px;margin:20px"><div class="mv">${es.slice(0,3).join('')}</div><div class="hb">${h.e}</div></div><p style="color:#4a3a6a;text-shadow:none">Neues Zuhause: ${h.e} ${h.n}${es.length>1?' · und '+(es.length-1)+' weitere':''}</p>`,2600,cb)}
+function intro(e,cb){let h=HB(e),f=(C9.v41.F||{})[e]||FAN[e]||'',food=FOOD[e],n=NM(e),fan=!!FAN[e];
+ let txt=`Hallo, ich bin ${n}! `+(h?`Ich wohne bei ${h.n}. `:'')+(food?`Ich esse ${food}. `:'')+f;
+ let r=ov('#0007',`<div class="card"><div class="big">${e}</div><h3 style="margin:.2em 0;text-align:center">Hallo, ich bin ${n}!</h3>
+ ${h?`<p>🏡 <b>Mein Zuhause:</b> ${h.e} ${h.n}</p>`:''}${food?`<p>🍽️ <b>Ich esse:</b> ${food}</p>`:fan?'<p>✨ <b>Fantasietier</b></p>':''}${f?`<p>💡 <b>Wusstest du?</b> ${f}</p>`:''}<button>Tschüss, ${n}! 👋</button></div>`,0);
+ r.o.querySelector('button').onclick=()=>{r.end();SND.sfx('tap');try{speechSynthesis.cancel()}catch(_){};cb&&cb()};try{if(C9.v31&&C9.v31.say&&(S.v31||{}).autoSay!==0)C9.v31.say(txt)}catch(_){}}
+const oP=preStart;preStart=function(mode,li){if(mode!=='level'||QUIET||V.si[li]||$('v421'))return oP.apply(this,arguments);V.si[li]=1;save();let a=arguments,t=this;story(li,()=>oP.apply(t,a))};C9.preStart=preStart;
+const oF=finish;finish=function(){let before=Object.assign({},S.alb),g=G,li=g&&g.li,mode=g&&g.mode;let r=oF.apply(this,arguments);
+ if(mode!=='level'||(QUIET&&!FORCE))return r;let nw=Object.keys(S.alb).filter(e=>S.alb[e]&&!before[e]);
+ setTimeout(()=>{if($('v421'))return;const kidIntro=()=>{if(!S.kid)return;let pool=nw.length?nw:lvAnimals(li).filter(e=>S.alb[e]);if(!pool.length)pool=Object.keys(S.alb).filter(e=>S.alb[e]&&AN(e));if(!pool.length)return;let e=nw.length?nw[0]:pool[(V.kd++)%pool.length];save();intro(e)};
+  if(nw.length)moveIn(nw,kidIntro);else kidIntro()},1100);return r};C9.finish=finish;
+window.C9.v421={story,moveIn,intro,FOOD,lvAnimals};
+})();
+</script>
+</body></html>
