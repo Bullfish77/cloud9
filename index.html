@@ -3655,4 +3655,29 @@ const oF=finish;finish=function(){let before=Object.assign({},S.alb),g=G,li=g&&g
 window.C9.v421={story,moveIn,intro,FOOD,lvAnimals};
 })();
 </script>
+<script>/* v42.2: spontane Aufgaben – verirrte Tiere zurückbringen */
+(function(){
+const S=C9.S,TODAY=(location.search.match(/[?&]date=(\d{4}-\d\d-\d\d)/)||[])[1]||today;S.v42=S.v42||{};const V=S.v42,X=window.C9V42,AH=X.AH,MAXD=3,REW=5;
+const HOT={wueste:1,vulkan:1},COLD={eis:1,berg:1},WET={teich:1,see:1,riff:1,meer:1};
+const NM=e=>(ANIMALS.find(a=>a[0]==e)||[e,e])[1];
+function why(from,to){if(HOT[to]&&!HOT[from])return'dort ist es viel zu heiß!';if(COLD[to]&&!COLD[from])return'dort ist es viel zu kalt!';if(to=='dino')return'die Dinos sind ihm viel zu groß!';if(to=='hoehle')return'dort ist es so dunkel!';return'es vermisst sein Zuhause.'}
+let next=60+Math.random()*60;
+function owned(k){return S.home.hab.some(h=>h.on&&h.k==k)}
+function spawn(force){if(HA.some(a=>a.ex&&a.ex.task))return null;let c=HA.filter(a=>{let k=AH[a.e];return k&&owned(k)&&HABS[k].m!='swim'});if(!c.length)return null;
+ let a=c[Math.random()*c.length|0],from=AH[a.e],T=S.home.hab.filter(h=>h.on&&h.k!==from&&!WET[h.k]&&HABS[h.k].m!='swim').map(h=>h.k);if(!T.length)return null;
+ let pref=T.filter(k=>(HOT[k]&&COLD[from])||(COLD[k]&&HOT[from])||HOT[k]||COLD[k]),to=(pref.length?pref:T)[Math.random()*(pref.length||T.length)|0];
+ a.ex={from,to,s:0,ph:'go',task:1,t0:Date.now()};toast('❗ '+a.e+' '+NM(a.e)+' hat sich verirrt – tipp es an!',2800);return a}
+const oS=hStep;hStep=function(list,g,dt){let r=oS.apply(this,arguments);if(list===HA&&!HED){HA.forEach(a=>{let E=a.ex;if(E&&E.task&&E.ph=='stuck'&&Date.now()-E.t0>150000){E.ph='back';E.task=0}});
+ let d=V.sp&&V.sp.d==TODAY?V.sp:{d:TODAY,n:0};if(d.n<MAXD){next-=dt;if(next<=0){next=150+Math.random()*120;spawn()}}}return r};
+function card(a){let E=a.ex,h=HABS[E.to],H0=HABS[E.from];
+ hSheet(`<h3>${a.e} Oh nein!</h3><p><b>${NM(a.e)}</b> ist in ${h.e} ${h.n} gelandet – ${why(E.from,E.to)}</p><p>Bring es zurück nach ${H0.e} ${H0.n}!</p><button id="v422b">🏡 Zurückbringen</button>`);
+ $('v422b').onclick=()=>{$('hSheet').classList.add('hide');if(!a.ex||!a.ex.task)return;a.ex.ph='back';a.ex.task=0;let d=V.sp&&V.sp.d==TODAY?V.sp:{d:TODAY,n:0};d.n++;V.sp=d;S.home.coins+=REW;save();try{SND.sfx('celebrate')}catch(_){};try{vib(20)}catch(_){};toast('💚 Danke! '+a.e+' geht nach Hause · +'+REW+' 🪙',2600);try{hUi()}catch(_){};if(S.kid&&C9.v31&&C9.v31.say)C9.v31.say(NM(a.e)+' ist wieder zu Hause. Danke!')}}
+const oT=hTap;hTap=function(p){let g=hGeo(),best=null,bd=1e9;HA.forEach(a=>{if(a.sx==null)return;let d=Math.hypot(a.sx-p.x,(a.sy-12)-p.y);if(d<bd){bd=d;best=a}});
+ if(best&&best.ex&&best.ex.task&&best.ex.ph=='stuck'&&bd<g.cw*.8){let vp=window.C9.VP&&C9.VP(),vd=1e9;if(vp)Object.values(vp).forEach(q=>{if(q&&q.sx!=null)vd=Math.min(vd,Math.hypot(q.sx-p.x,q.sy-p.y))});if(bd<=vd){return card(best)}}
+ return oT.apply(this,arguments)};
+// Markierung über verirrtem Tier
+const oD=homeDraw;homeDraw=function(n,dt){HA.forEach(a=>{if(a.ex&&a.ex.task&&a.ex.ph=='stuck'&&a.sx!=null){let x=a.sx,y=a.sy,b=Math.sin(n/180)*3;(window.C9VDRAW=window.C9VDRAW||[]).push(()=>{let c=HX;c.save();c.fillStyle='#fff';c.strokeStyle='#ff6a5a';c.lineWidth=3;c.beginPath();c.arc(x,y-46+b,13,0,7);c.fill();c.stroke();c.font='bold 17px sans-serif';c.textAlign='center';c.textBaseline='middle';c.fillStyle='#e8402a';c.fillText('!',x,y-45+b);c.restore()})}});return oD.apply(this,arguments)};
+window.C9.v422={spawn,card,why,setNext:v=>{next=v}};
+})();
+</script>
 </body></html>
