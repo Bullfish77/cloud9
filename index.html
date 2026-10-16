@@ -2076,10 +2076,10 @@ C9.start=start;C9.finish=finish;window.C9.v23={startEndless,enNext,get EN(){retu
 </script><script>
 // ===== v25: Tiere in Texten als gezeichnete Sprites (statt Emoji, z.B. 🐆 Schneeleopard) =====
 (function(){
-const EM=[...new Set(ANIMALS.map(a=>a[0]))].sort((a,b)=>b.length-a.length);
+let EM0=[],EMn=-1;const EMf=()=>{if(EMn!==ANIMALS.length){EMn=ANIMALS.length;EM0=[...new Set(ANIMALS.map(a=>a[0]))].sort((a,b)=>b.length-a.length)}return EM0};
 const esc=t=>t.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const st=document.createElement('style');st.textContent='img.v25a{height:2em;width:2em;vertical-align:-.7em;margin:-.3em -.05em}';document.head.appendChild(st);
-function rich(el){if(!el||el.querySelector('img.v25a,.v31g'))return;let t=el.textContent;if(!EM.some(e=>t.includes(e)))return;let h=esc(t);EM.forEach(e=>{if(h.includes(e))h=h.split(e).join('\u0000'+EM.indexOf(e)+'\u0001')});
+function rich(el){if(!el||el.querySelector('img.v25a,.v31g'))return;const EM=EMf();let t=el.textContent;if(!EM.some(e=>t.includes(e)))return;let h=esc(t);EM.forEach(e=>{if(h.includes(e))h=h.split(e).join('\u0000'+EM.indexOf(e)+'\u0001')});
  h=h.replace(/\u0000(\d+)\u0001/g,(m,i)=>{let e=EM[+i],a=ANIMALS.find(x=>x[0]==e);return '<img class="v25a" src="'+animalImg(e)+'" alt="'+e+'" title="'+(a?a[1]:'')+'">'});el.innerHTML=h}
 ['goal','ldG','toast','hint','celT','endS'].forEach(id=>{let el=$(id);if(!el)return;rich(el);new MutationObserver(()=>rich(el)).observe(el,{childList:true,characterData:true,subtree:true})});
 window.C9.v25={rich};
