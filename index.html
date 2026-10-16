@@ -1300,6 +1300,7 @@ if(HDR){let p=hPos(e);HDR.x=p.x;HDR.y=p.y;return}
 if(HPAN){let dx=c.x-HPAN.x,dy=c.y-HPAN.y;if(Math.hypot(dx,dy)>8)HPAN.moved=true;if(HPAN.moved){HV.px=HPAN.px+dx;HV.py=HPAN.py+dy;hClampV()}}}
 function hUp(e){let had=HPT.has(e.pointerId);HPT.delete(e.pointerId);if(HPN){if(HPT.size<2)HPN=null;HPAN=null;return}if(!had)return;
 if(HDR){let g=hGeo(),p=hPos(e),d=HDR.d,isH=HDR.hab;HDR=null;
+ if(isH&&window.C9V42){C9V42.drop(d,p);save();hAnimals();hUi();return}
  if(isH){let[c,r]=hHabCell(g,p),inIsl=(p.x/g.rx)**2+((p.y-g.ch*.2)/g.ry)**2<1.15;if(habFits(g,c,r,d)){d.c=c;d.r=r;SND.sfx('place')}else if(!inIsl){d.on=false;toast(HABS[d.k].e+' '+HABS[d.k].n+' eingelagert 📦')}else toast('Hier ist kein Platz für 2×2 Felder')}
  else{let cell=hCell(g,{x:p.x,y:p.y+g.cw*.3});if(!cell){S.home.deco=S.home.deco.filter(x=>x!==d);S.home.inv[d.k]=(S.home.inv[d.k]||0)+1;toast(DECO[d.k][0]+' eingelagert 📦')}
  else{let o=S.home.deco.find(x=>x!==d&&x.c==cell[0]&&x.r==cell[1]);if(o){o.c=d.c;o.r=d.r;d.c=cell[0];d.r=cell[1];SND.sfx('place')}else if(cellFree(cell[0],cell[1],d)){d.c=cell[0];d.r=cell[1];SND.sfx('place')}else toast('Dort steht ein Lebensraum')}}
@@ -1369,15 +1370,15 @@ function homeDraw(n,dt){if(!HX)return;let t=n/1000,g=hGeo(),th=THEMES[S.home.the
 X.drawImage(hSky(),0,0,HW,HH);
 for(let i=0;i<4;i++){let x=((t*(8+i*3)+i*137)%(HW+160))-80,y=40+i*((HH*.75)/4);X.globalAlpha=.75;puffs(X,x,y,14+i*3,'#fff',th.night?'#c8c4f0':'#e9e2ff');X.globalAlpha=1}
 let bob=Math.sin(t*1.1)*3;X.save();X.translate(hOX(),hOY()+bob*HV.z);X.scale(HV.z,HV.z);
-let{cx,cy,rx,ry}=g;dE(cx,cy+ry*1.62-bob,rx*.6,ry*.12,'rgba(90,70,170,.10)');
+if(window.C9V42)C9V42.base(g,t,th,bob);else{let{cx,cy,rx,ry}=g;dE(cx,cy+ry*1.62-bob,rx*.6,ry*.12,'rgba(90,70,170,.10)');
 X.fillStyle=(()=>{let gg=X.createLinearGradient(0,cy,0,cy+ry*1.6);gg.addColorStop(0,th.base);gg.addColorStop(1,drk2(th.base,.25));return gg})();X.beginPath();X.ellipse(cx,cy+ry*.15,rx*.98,ry*1.05,0,0,Math.PI);X.quadraticCurveTo(cx-rx*.4,cy+ry*1.05,cx,cy+ry*1.35);X.quadraticCurveTo(cx+rx*.4,cy+ry*1.05,cx+rx*.98,cy+ry*.15);X.fill();
 X.strokeStyle=drk2(th.base,.15);X.lineWidth=2;X.lineCap='round';for(let i=0;i<5;i++){let x=cx+(i-2)*rx*.28,y0=cy+ry*.9-Math.abs(i-2)*ry*.2;X.beginPath();X.moveTo(x,y0);X.quadraticCurveTo(x+Math.sin(t+i)*6,y0+16,x+Math.sin(t*.8+i)*4,y0+30-Math.abs(i-2)*6);X.stroke()}
 let tg=X.createRadialGradient(cx-rx*.3,cy-ry*.5,10,cx,cy,rx*1.1);tg.addColorStop(0,th.top2);tg.addColorStop(1,th.top);dE(cx,cy+ry*.12,rx,ry,drk2(th.top,.12));X.fillStyle=tg;X.beginPath();X.ellipse(cx,cy,rx,ry,0,0,7);X.fill();
 X.strokeStyle='rgba(255,255,255,.6)';X.lineWidth=3;X.beginPath();X.ellipse(cx,cy,rx-4,ry-4,0,Math.PI*1.05,Math.PI*1.6);X.stroke();
-for(let i=0;i<14;i++){let a=i*2.4,r=.55+((i*37)%40)/100,x=cx+Math.cos(a)*rx*r*.9,y=cy+Math.sin(a)*ry*r*.85;X.strokeStyle=drk2(th.top,.18);X.lineWidth=1.5;X.beginPath();X.moveTo(x-3,y);X.lineTo(x-1,y-5);X.moveTo(x+2,y);X.lineTo(x+3,y-4);X.stroke()}
+for(let i=0;i<14;i++){let a=i*2.4,r=.55+((i*37)%40)/100,x=cx+Math.cos(a)*rx*r*.9,y=cy+Math.sin(a)*ry*r*.85;X.strokeStyle=drk2(th.top,.18);X.lineWidth=1.5;X.beginPath();X.moveTo(x-3,y);X.lineTo(x-1,y-5);X.moveTo(x+2,y);X.lineTo(x+3,y-4);X.stroke()}}
 
 let sc=g.cw/50,items=[];if(window.C9SLOTS)try{C9SLOTS(g,t)}catch(e){}
-S.home.hab.forEach(h=>{if(!h.on||(HDR&&HDR.d===h))return;if(window.C9HIN&&!C9HIN(g,h))return;let q=habGeo(g,h);HDB[h.k](q,t,h.lv);HDP[h.k](q,t,h.lv).forEach(([y,f])=>items.push({y,f}));
+S.home.hab.forEach(h=>{if(!h.on||(HDR&&HDR.d===h))return;if(window.C9HIN&&!C9HIN(g,h))return;let q=habGeo(g,h);if(!window.C9V42)HDB[h.k](q,t,h.lv);HDP[h.k](q,t,h.lv).forEach(([y,f])=>items.push({y,f}));
  items.push({y:q.y+q.ry+1,f:()=>{X.textAlign='center';X.textBaseline='middle';let w=34+h.lv*9,yy=q.y+q.ry-2;dP(q.x-w/2,yy-8,w,16,8,'rgba(255,255,255,.9)');X.font='12px sans-serif';X.fillText(HABS[h.k].e,q.x-w/2+10,yy+.5);X.font='800 10px Nunito,sans-serif';X.fillStyle='#e0a020';X.fillText('★'.repeat(h.lv),q.x+7,yy+.5)}})});
 if(HED){for(let r=0;r<g.rows;r++)for(let c=0;c<g.cols;c++){if(window.C9CIN&&!C9CIN(c,r,g))continue;let[x,y]=cellXY(g,c,r);X.fillStyle=cellFree(c,r)?'rgba(255,255,255,.35)':'rgba(141,123,240,.18)';X.beginPath();X.ellipse(x,y,g.cw*.42,g.ch*.38,0,0,7);X.fill()}
 if(HDR){if(HDR.hab){let[c,r]=hHabCell(g,HDR),ok=habFits(g,c,r,HDR.d);if(c>=0&&r>=0&&c<g.cols-1&&r<g.rows-1){let q=habGeo(g,{c,r});X.strokeStyle=ok?'#8d7bf0':'#ff7a9a';X.lineWidth=3;X.setLineDash([6,5]);X.beginPath();X.ellipse(q.x,q.y,q.rx,q.ry,0,0,7);X.stroke();X.setLineDash([])}}
@@ -3003,7 +3004,7 @@ if(window.C9REC){const oR=C9REC;window.C9REC=function(goals,b){let r=oR(goals,b)
 C9.preStart=preStart;window.C9.v35={get M(){return M},hint,CHAP,ACT,CHL,CHS,LV0,chIntro,mTap,SCF,KB,get B0(){return B0}};
 
 // ---------- Heimatinsel: Felder im Inselrand, Lebensräume für alle ----------
-const CIN=(c,r,g)=>{g=g||hGeo();if(c<0||r<0||c>=g.cols||r>=g.rows)return false;let[x,y]=cellXY(g,c,r),k=(px,py)=>(px/g.rx)**2+(py/g.ry)**2<=.93;return k(x-g.cw*.55,y)&&k(x+g.cw*.55,y)&&k(x-g.cw*.45,y+g.cw*.3)&&k(x+g.cw*.45,y+g.cw*.3)&&k(x,y+g.ch*.42)&&k(x,y-g.ch*.45)};
+const CIN=(c,r,g)=>{if(window.C9V42)return C9V42.cin(c,r,g);g=g||hGeo();if(c<0||r<0||c>=g.cols||r>=g.rows)return false;let[x,y]=cellXY(g,c,r),k=(px,py)=>(px/g.rx)**2+(py/g.ry)**2<=.93;return k(x-g.cw*.55,y)&&k(x+g.cw*.55,y)&&k(x-g.cw*.45,y+g.cw*.3)&&k(x+g.cw*.45,y+g.cw*.3)&&k(x,y+g.ch*.42)&&k(x,y-g.ch*.45)};
 window.C9CIN=CIN;
 const oCF=cellFree;cellFree=function(c,r,skip){return CIN(c,r)&&oCF(c,r,skip)};
 const oHF=habFits;habFits=function(g,c,r,skip){return oHF(g,c,r,skip)&&habCells(c,r).every(([a,b])=>CIN(a,b,g))};
@@ -3066,7 +3067,7 @@ const absP=(Z,a)=>[Z.x+a.u*Z.rx,Z.y+a.v*Z.ry];
 function farPt(g,Z,hz){let best=null,bd=-1;for(let k=0;k<6;k++){let p=freePt(g,Z);if(!p)continue;let x=Z.x+p[0]*Z.rx,y=Z.y+p[1]*Z.ry,d=Math.hypot((x-hz.x)/hz.rx,(y-hz.y)/hz.ry);if(d>bd&&d<5){bd=d;best=p}}return best}
 function freePt(g,Z){for(let k=0;k<16;k++){let ang=R()*7,rr=Math.sqrt(R())*.88,u=Math.cos(ang)*rr,v=Math.sin(ang)*rr;if(!hBlocked(g,Z.x+u*Z.rx,Z.y+v*Z.ry))return[u,v]}return null}
 const oHS=hStep;hStep=function(list,g,dt){list.forEach(a=>{if(!(a.z>=0))return;let h=S.home.hab[a.z];if(!h||!h.on){a.out=0;return}let sw=HABS[h.k]&&HABS[h.k].m=='swim';
- if(!a.out){if(!sw&&!a.mv&&R()<dt*.06){let [x,y]=absP(oZ(g,a),a),Z=ISZ(g);a.out=1;a.ot=9+R()*9;a.u=(x-Z.x)/Z.rx;a.v=(y-Z.y)/Z.ry;let p=farPt(g,Z,oZ(g,a));if(p){a.tu=p[0];a.tv=p[1]}a.w=a.ot}}
+ if(!a.out){if(!window.C9V42&&!sw&&!a.mv&&R()<dt*.06){let [x,y]=absP(oZ(g,a),a),Z=ISZ(g);a.out=1;a.ot=9+R()*9;a.u=(x-Z.x)/Z.rx;a.v=(y-Z.y)/Z.ry;let p=farPt(g,Z,oZ(g,a));if(p){a.tu=p[0];a.tv=p[1]}a.w=a.ot}}
  else if(a.out==1){a.ot-=dt;a.w=Math.max(a.w,1);if(!a.mv&&a.ot>0&&R()<dt*.6){let p=farPt(g,ISZ(g),oZ(g,a));if(p){a.tu=p[0];a.tv=p[1]}}
   if(a.ot<=0){let Z=ISZ(g),hz=oZ(g,a);a.out=2;a.tu=(hz.x-Z.x)/Z.rx;a.tv=(hz.y-Z.y)/Z.ry;a.w=9}}
  else if(a.out==2){a.w=Math.max(a.w,1);let Z=ISZ(g),hz=oZ(g,a),[x,y]=absP(Z,a);if(Math.hypot(x-hz.x,(y-hz.y)*1.4)<hz.rx*.8||!a.mv&&Math.hypot(a.tu-a.u,a.tv-a.v)<.03){a.out=0;a.u=(x-hz.x)/hz.rx;a.v=(y-hz.y)/hz.ry;let q=Math.hypot(a.u,a.v);if(q>.9){a.u*=.9/q;a.v*=.9/q}hPick(a,hz,g);a.w=1+R()*2}}});
@@ -3270,7 +3271,7 @@ SECS.forEach((s,i)=>{s[0]=s[1]=NB+i});
 hGeo=function(){let N=NB+Math.max(0,Math.min(SECS.length,S.home.sec|0||1)-1),cw=56,ch=56,rx=cw*(N+.2)/2*1.02;return{cols:N,rows:N,cw,ch,cx:0,cy:0,rx,ry:rx*.9}};
 const HK2=()=>Object.keys(HABS);let SC={};
 function habIn(g,c,r){let q=habGeo(g,{c,r});for(let i=0;i<16;i++){let a=i*Math.PI/8;if(((q.x+Math.cos(a)*q.rx)/g.rx)**2+((q.y+Math.sin(a)*q.ry)/g.ry)**2>.95)return false}return true}
-function slots(g){g=g||hGeo();let key=g.cols;if(SC[key])return SC[key];let K=HK2().length,best=null;
+function slots(g){if(window.C9V42)return C9V42.slots(g);g=g||hGeo();let key=g.cols;if(SC[key])return SC[key];let K=HK2().length,best=null;
  for(const off of [0,1]){let bl=[];for(let r=off;r<g.rows-1;r+=2)for(let c=off;c<g.cols-1;c+=2)if(habIn(g,c,r))bl.push([c,r]);
   let d=b=>{let q=habGeo(g,{c:b[0],r:b[1]});return Math.hypot(q.x,(q.y-g.ch*.2)*1.1)};bl.sort((a,b)=>d(a)-d(b));if(bl.length>=K&&(!best||d(bl[K-1])<d(best[K-1])))best=bl}
  best=(best||[]).slice(0,K);
@@ -3512,5 +3513,107 @@ V.pics=V.pics.slice(0,MAXP).map(p=>p&&TPL[p.t]?{t:p.t,o:(p.o||[]).slice(0,MAXO).
 let g=document.querySelector('#menu .mgrid');if(g){g.insertAdjacentHTML('beforeend','<button class="sec" id="bWk"><b>📅</b>Woche<span class="badge" id="v41wkB" style="display:none"></span></button><button class="sec" id="bPaint"><b>🎨</b>Malen</button>');$('bWk').onclick=wkSheet;$('bPaint').onclick=paint}
 wk();badge();
 window.C9.v41={page,wk,wev,wkSheet,paint,render,cheer,petUpd,TASKS,F,wall,V:()=>V};
+})();
+</script><script>
+// ===== v42: Insel 4×4 – 16 Lebensräume, weiche Übergänge, Wege & Brücken, jedes Tier hat genau ein Zuhause =====
+(function(){
+try{if(!localStorage.c9v2_bak_v41&&localStorage.c9v2)localStorage.c9v2_bak_v41=localStorage.c9v2}catch(e){}
+S.v42=S.v42||{};const V=S.v42;
+HABS.meer={n:'Tiefsee',e:'🐋',p:400,a:[],m:'swim',d:'Wale, Kraken und Quallen schweben im tiefen Blau'};
+if(!HDB.meer)HDB.meer=(q,t,lv)=>(HDB.riff||HDB.see)(q,t,lv);if(!HDP.meer)HDP.meer=()=>[];
+const MAP={wiese:['🐰','🦋','🐝','🐞'],wald:['🦔','🦊','🐿️','🦡'],wueste:['🦎','🐪','🦂','🐍','🦗'],eis:['🐻‍❄️','🐧','🦭','🦉','🐺','🦌'],nest:['🦅','🐦'],see:['🦦','🦢'],teich:['🐸','🐊','🦛','🦩','🐢'],
+ riff:['🐠','🦀','🐡','🦈'],meer:['🐋','🐳','🐙','🪼'],berg:['🐐','🐆','🦙'],sterne:['🐶','🐱','🦚','🦄'],hoehle:['🦇','🐌'],vulkan:['🐉','🐲'],dino:['🦖','🦕'],suess:['🐻','🐭','🐹'],dschungel:['🦜','🐒','🦥','🐅']};
+const AH={};Object.entries(MAP).forEach(([k,l])=>{HABS[k].a=l.slice();l.forEach(e=>AH[e]=k)});
+const DEF=['eis','berg','nest','sterne','wald','see','meer','hoehle','wiese','teich','riff','vulkan','suess','dschungel','wueste','dino'];
+if(!Array.isArray(V.order)||V.order.length!==16||DEF.some(k=>!V.order.includes(k)))V.order=DEF.slice();
+const WATER={see:1,teich:1,riff:1,meer:1};
+const COL={wiese:'#b6eaa0',wald:'#86cf86',wueste:'#f6dfa4',eis:'#eef7ff',nest:'#f1ecff',see:'#86ccf2',teich:'#92d4c2',riff:'#72d2e6',meer:'#5aa6e6',berg:'#cfc3ae',sterne:'#bdb4f2',hoehle:'#a898b6',vulkan:'#9a8090',dino:'#cddc98',suess:'#ffd6f2',dschungel:'#62bf72'};
+const N=13,slotCR=i=>[1+3*(i%4),1+3*Math.floor(i/4)];
+hGeo=function(){let cw=56,ch=46;return{cols:N,rows:N,cw,ch,cx:0,cy:-ch*.35,rx:cw*6.62,ry:ch*6.62}};
+hFit=function(){let g=hGeo();return Math.min(1.9,(HW*.97)/(2*g.rx+8),(HH*.93)/(2*g.ry*1.16+30))};
+let SK='',SV=null;
+function slots(g){let k=V.order.join();if(k===SK)return SV;let m={},cells={};V.order.forEach((h,i)=>{let[c,r]=slotCR(i);m[h]=[c,r];[[c,r],[c+1,r],[c,r+1],[c+1,r+1]].forEach(([a,b])=>cells[a+','+b]=h)});SK=k;return SV={m,cells}}
+const own=k=>S.home.hab.find(h=>h.on&&h.k==k);
+// ---------- Zonen: jedes Tier lebt in seinem Feld (auch wenn der Lebensraum noch nicht gekauft ist) ----------
+function homeZ(g,e){let k=AH[e];if(!k)return null;let s=slots().m[k];if(!s)return null;let q=habGeo(g,{c:s[0],r:s[1]});return{x:q.x,y:q.y,rx:q.rx*.7,ry:q.ry*.6,m:HABS[k].m,h:own(k)||null,k}}
+const oZ=hZone;hZone=function(g,a){let Z=homeZ(g,a.e);if(!Z)return oZ(g,a);if(a.ex){let E=a.ex,p=exPos(g,a);if(p)return{x:p[0],y:p[1],rx:g.cw*.12,ry:g.ch*.1,m:'walk',ex:1}}return Z};
+hAssign=function(){let g=hGeo();HA.forEach(a=>{let k=AH[a.e],h=k?S.home.hab.findIndex(x=>x.on&&x.k==k):-1,z=k?(h>=0?h:-1):-1,key=k||'';if(a.hk!==key||a.z!==z){let first=a.hk===undefined;a.hk=key;a.z=z;a.out=0;a.ex=null;let Z=hZone(g,a);hPick(a,Z,g,true);a.vx=a.vy=0;a.w=R()*2;if(!first)a.pop=1}})};
+// ---------- Ausflüge entlang der Wege (kommen immer zurück) ----------
+function nb(k){let i=V.order.indexOf(k),x=i%4,y=i/4|0,r=[];[[1,0],[-1,0],[0,1],[0,-1]].forEach(([dx,dy])=>{let X2=x+dx,Y2=y+dy;if(X2>=0&&X2<4&&Y2>=0&&Y2<4)r.push(V.order[Y2*4+X2])});return r}
+function tileC(g,k){let s=slots().m[k],q=habGeo(g,{c:s[0],r:s[1]});return[q.x,q.y+q.ry*.15]}
+function exPos(g,a){let E=a.ex,A=tileC(g,E.from),B=tileC(g,E.to),M=[(A[0]+B[0])/2,(A[1]+B[1])/2],s=E.s;// go: 0..1, stay, back: 1..0
+ const L=(p,q,f)=>[p[0]+(q[0]-p[0])*f,p[1]+(q[1]-p[1])*f];return s<.5?L(A,M,s*2):L(M,B,(s-.5)*2)}
+const SPD=.11;
+const oHS=hStep;hStep=function(list,g,dt){if(list===HA){let busy=list.some(a=>a.ex);list.forEach(a=>{a.out=0;let E=a.ex;if(E){if(E.ph=='go'){E.s=Math.min(1,E.s+dt*SPD);if(E.s>=1){E.ph=E.task?'stuck':'stay';E.t=4+R()*4}}else if(E.ph=='stay'){E.t-=dt;if(E.t<=0)E.ph='back'}else if(E.ph=='back'){E.s=Math.max(0,E.s-dt*SPD*1.4);if(E.s<=0){a.ex=null;let Z=hZone(g,a);a.u=a.v=0;hPick(a,Z,g);a.w=1}}a.tu=a.tv=0;a.u*=.9;a.v*=.9;a.dir=(E.ph=='back')?tileC(g,E.from)[0]<tileC(g,E.to)[0]:tileC(g,E.to)[0]<tileC(g,E.from)[0]}});
+ if(!busy&&!HED&&R()<dt/25){let c=list.filter(a=>AH[a.e]&&HABS[AH[a.e]].m!='swim'&&!a.ex);if(c.length){let a=c[R()*c.length|0],n=nb(AH[a.e]).filter(k=>!WATER[k]||HABS[AH[a.e]].m=='swim');if(n.length)a.ex={from:AH[a.e],to:n[R()*n.length|0],s:0,ph:'go'}}}}
+ return oHS(list,g,dt)};
+// ---------- Insel zeichnen: abgerundetes Quadrat, Untergrund weich überblendet, Wege, Brücken, natürliche Ränder ----------
+function rr(x,X0,Y0,W,H,R){x.beginPath();x.moveTo(X0+R,Y0);x.arcTo(X0+W,Y0,X0+W,Y0+H,R);x.arcTo(X0+W,Y0+H,X0,Y0+H,R);x.arcTo(X0,Y0+H,X0,Y0,R);x.arcTo(X0,Y0,X0+W,Y0,R);x.closePath()}
+const hx=h=>[parseInt(h.slice(1,3),16),parseInt(h.slice(3,5),16),parseInt(h.slice(5,7),16)];const mx=(a,b,f)=>a.map((v,i)=>Math.round(v+(b[i]-v)*f));
+let GK='',GC2=null;
+function tileK(c,r){if(c%3==0||r%3==0)return null;return V.order[(r/3|0)*4+(c/3|0)]}
+function ground(g,th){let ow=V.order.map(k=>own(k)?1:0).join(''),key=[V.order.join(),ow,th.top,th.n].join('|');if(key===GK)return GC2;GK=key;
+ let W=g.rx*2,H=g.ry*2,q=Math.min(2.5,(devicePixelRatio||1)*1.25),c=document.createElement('canvas');c.width=W*q|0;c.height=H*q|0;let x=c.getContext('2d');x.scale(q,q);
+ const tc=k=>{let b=hx(COL[k]);return own(k)?b:mx(b,hx(th.top),.5)};
+ // 1) Farbfeld: jede Probe mischt die nahen Felder weich (Übergänge statt Zäune)
+ const Q=4,M2=N*Q,s=document.createElement('canvas');s.width=s.height=M2;let sx=s.getContext('2d'),im=sx.createImageData(M2,M2),T=V.order.map((k,i)=>({k,c:tc(k),x0:3*(i%4)+.5,y0:3*(i/4|0)+.5,w:WATER[k]?1:0}));
+ for(let r=0;r<M2;r++)for(let cc=0;cc<M2;cc++){let px=(cc+.5)/Q,py=(r+.5)/Q,sw=0,col=[0,0,0],ww=0,lw=0;T.forEach(t=>{let dx=Math.max(t.x0-px,0,px-(t.x0+2)),dy=Math.max(t.y0-py,0,py-(t.y0+2)),d=Math.hypot(dx,dy),w=Math.exp(-(d*d)/.28);sw+=w;col[0]+=t.c[0]*w;col[1]+=t.c[1]*w;col[2]+=t.c[2]*w;if(t.w)ww+=w;else lw+=w});
+  col=col.map(v=>v/sw);let mix2=Math.min(ww,lw)/sw;if(mix2>.12)col=mx(col,[246,228,176],Math.min(.75,mix2*2.2));let top=hx(th.top),edge=Math.min(1,Math.max(0,1-sw*1.6));col=mx(col,top,edge*.6);
+  let i=(r*M2+cc)*4;im.data[i]=col[0];im.data[i+1]=col[1];im.data[i+2]=col[2];im.data[i+3]=255}
+ sx.putImageData(im,0,0);let m=s;
+ x.save();rr(x,0,0,W,H,44);x.clip();x.fillStyle=th.top;x.fillRect(0,0,W,H);x.imageSmoothingEnabled=true;x.imageSmoothingQuality='high';
+ // Raster: Zelle c liegt bei cellXY → Weltkoordinaten zu Bild
+ let [ax,ay]=cellXY(g,0,0),[bx,by]=cellXY(g,N-1,N-1),pw=(bx-ax)/(N-1),ph=(by-ay)/(N-1),ox=ax-pw/2+g.rx,oy=ay-ph/2+g.ry;x.drawImage(m,ox,oy,pw*N,ph*N);if(ox>0||oy>0){}
+ // weicher Rand zum Inselgras
+ let eg=x.createLinearGradient(0,0,0,H);x.globalAlpha=.25;x.strokeStyle=th.top2||'#fff';x.lineWidth=18;rr(x,9,9,W-18,H-18,36);x.stroke();x.globalAlpha=1;
+ const P=(cc,r)=>{let[a,b]=cellXY(g,cc,r);return[a+g.rx,b+g.ry]};
+ // 2) Wege (sanft geschwungen) zwischen den Feldern
+ x.lineCap='round';x.lineJoin='round';
+ const trail=(pts)=>{x.strokeStyle='rgba(150,120,80,.18)';x.lineWidth=g.cw*.34;x.beginPath();pts.forEach((p,i)=>i?x.lineTo(...p):x.moveTo(...p));x.stroke();x.strokeStyle='#f5e8c8';x.lineWidth=g.cw*.26;x.stroke();x.fillStyle='rgba(190,160,110,.45)';for(let i=1;i<pts.length;i++){let[p0,p1]=[pts[i-1],pts[i]];for(let k=0;k<3;k++){let f=(k+.5)/3+((i*7+k)%3-1)*.05;x.beginPath();x.arc(p0[0]+(p1[0]-p0[0])*f+(k%2?3:-3),p0[1]+(p1[1]-p0[1])*f,1.4,0,7);x.fill()}}};
+ const wig=(p0,p1,n,amp)=>{let r=[];for(let i=0;i<=n;i++){let f=i/n,px=p0[0]+(p1[0]-p0[0])*f,py=p0[1]+(p1[1]-p0[1])*f,o=Math.sin(f*Math.PI*2+p0[0]*.01)*amp*(i&&i<n?1:0);if(p0[0]==p1[0])px+=o;else py+=o;r.push([px,py])}return r};
+ for(let L=3;L<=9;L+=3){trail(wig(P(L,1),P(L,11),10,4));trail(wig(P(1,L),P(11,L),10,4))}
+ // 3) Brücken, wo der Weg zwischen zwei Wasserfeldern liegt; natürliche Ränder
+ for(let j=0;j<4;j++)for(let i=0;i<4;i++){let k=V.order[j*4+i];
+  [[1,0],[0,1]].forEach(([dx,dy])=>{if(i+dx>3||j+dy>3)return;let k2=V.order[(j+dy)*4+i+dx],cx2,cy2;let [a1,b1]=dx?P(3*(i+1),3*j+1):P(3*i+1,3*(j+1)),[a2,b2]=dx?P(3*(i+1),3*j+2):P(3*i+2,3*(j+1));
+   let mxp=(a1+a2)/2,myp=(b1+b2)/2;
+   if(WATER[k]&&WATER[k2]){x.save();x.translate(mxp,myp);if(!dx)x.rotate(Math.PI/2);x.fillStyle='#c89a62';x.strokeStyle='#8a6038';x.lineWidth=1.2;for(let p=-2;p<=2;p++){x.beginPath();x.rect(-g.cw*.22,p*6-2.5,g.cw*.44,5);x.fill();x.stroke()}x.strokeStyle='#8a6038';x.lineWidth=2;x.beginPath();x.moveTo(-g.cw*.22,-15);x.lineTo(-g.cw*.22,15);x.moveTo(g.cw*.22,-15);x.lineTo(g.cw*.22,15);x.stroke();x.restore();return}
+   // Randschmuck: Schilf am Wasser, Steine an Fels/Schnee, sonst Büsche
+   let kind=WATER[k]||WATER[k2]?'reed':(['eis','berg','hoehle','vulkan'].includes(k)||['eis','berg','hoehle','vulkan'].includes(k2))?'stone':'bush';
+   for(let n=0;n<2;n++){let f=n?.78:.22,px=a1+(a2-a1)*f,py=b1+(b2-b1)*f,side=n?1:-1;if(dx)px+=side*g.cw*.2;else py+=side*g.ch*.2;
+    if(kind=='reed'){x.strokeStyle='#5a9a4a';x.lineWidth=1.6;for(let r2=-1;r2<=1;r2++){x.beginPath();x.moveTo(px+r2*3,py+3);x.quadraticCurveTo(px+r2*4,py-6,px+r2*5,py-11);x.stroke()}x.fillStyle='#8a5a3a';x.beginPath();x.ellipse(px+2,py-10,1.6,3.4,0,0,7);x.fill()}
+    else if(kind=='stone'){x.fillStyle='#b4aab8';x.beginPath();x.ellipse(px,py,6,4,0,0,7);x.fill();x.fillStyle='#d8d0dc';x.beginPath();x.ellipse(px-1.5,py-1.5,3,1.8,0,0,7);x.fill();x.fillStyle='#a49aa8';x.beginPath();x.ellipse(px+6,py+2,3.5,2.4,0,0,7);x.fill()}
+    else{[[0,0,6],[-5,2,4.5],[5,2,4.5]].forEach(([a,b,r2])=>{x.fillStyle='#5cb06a';x.beginPath();x.arc(px+a,py+b-3,r2,0,7);x.fill()});x.fillStyle='rgba(255,255,255,.35)';x.beginPath();x.arc(px-2,py-6,2,0,7);x.fill();x.fillStyle='#ff9ac0';x.beginPath();x.arc(px+3,py-5,1.3,0,7);x.fill()}}})}
+ x.restore();c.W=W;c.H=H;return GC2=c}
+function base(g,t,th,bob){let{cx,cy,rx,ry}=g,R0=44;X.save();
+ dE(cx,ry*1.55-bob,rx*.6,ry*.08,'rgba(90,70,170,.10)');
+ // Felswand + hängende Unterseite
+ let gg=X.createLinearGradient(0,ry*.6,0,ry*1.5);gg.addColorStop(0,th.base);gg.addColorStop(1,drk2(th.base,.28));X.fillStyle=gg;
+ X.beginPath();X.moveTo(-rx,0);X.lineTo(-rx,ry-R0+14);X.quadraticCurveTo(-rx,ry+14,-rx+R0,ry+14);X.quadraticCurveTo(-rx*.45,ry*1.12,-rx*.18,ry*1.38);X.quadraticCurveTo(0,ry*1.52,rx*.18,ry*1.38);X.quadraticCurveTo(rx*.45,ry*1.12,rx-R0,ry+14);X.quadraticCurveTo(rx,ry+14,rx,ry-R0+14);X.lineTo(rx,0);X.closePath();X.fill();
+ X.strokeStyle=drk2(th.base,.15);X.lineWidth=2;X.lineCap='round';for(let i=0;i<5;i++){let x0=(i-2)*rx*.22,y0=ry*1.08+(2-Math.abs(i-2))*ry*.08;X.beginPath();X.moveTo(x0,y0);X.quadraticCurveTo(x0+Math.sin(t+i)*5,y0+14,x0+Math.sin(t*.8+i)*3,y0+24);X.stroke()}
+ dE(0,ry+6,rx*.9,10,'rgba(60,40,110,.0)');X.fillStyle=drk2(th.top,.16);rr(X,-rx,-ry+8,rx*2,ry*2,R0);X.fill();
+ let G=ground(g,th);X.drawImage(G,-rx,-ry,G.W,G.H);
+ X.strokeStyle='rgba(255,255,255,.55)';X.lineWidth=3;X.beginPath();X.moveTo(-rx+R0,-ry+4);X.lineTo(rx*.2,-ry+4);X.stroke();
+ // Wasser lebt: sanfte Kreise in gekauften Wasserfeldern
+ V.order.forEach((k,i)=>{if(!WATER[k]||!own(k))return;let[c,r]=slotCR(i),q=habGeo(g,{c,r});for(let n=0;n<2;n++){let f=(t*.3+n/2+i*.17)%1;X.strokeStyle='rgba(255,255,255,'+(1-f)*.45+')';X.lineWidth=1.3;X.beginPath();X.ellipse(q.x+(n?-1:1)*q.rx*.3,q.y+(n?6:-4),6+f*16,2+f*5,0,0,7);X.stroke()}});
+ X.restore()}
+// ---------- Gestalten: Lebensraum auf ein anderes Feld ziehen = tauschen ----------
+function drop(d,p){let g=hGeo(),bi=-1,bd=1e9;V.order.forEach((k,i)=>{let[c,r]=slotCR(i),q=habGeo(g,{c,r}),dd=Math.hypot(q.x-p.x,q.y-p.y);if(dd<bd){bd=dd;bi=i}});let ai=V.order.indexOf(d.k);if(bi<0||bi==ai||bd>g.cw*2.2){SND.sfx('nope');return}
+ let k2=V.order[bi];V.order[bi]=d.k;V.order[ai]=k2;SK='';GK='';S.home.hab.forEach(h=>{if(h.on){let s=slots().m[h.k];h.c=s[0];h.r=s[1]}});try{C9X.migrate()}catch(e){}SND.sfx('place');toast(HABS[d.k].e+' '+HABS[d.k].n+' ⇄ '+HABS[k2].e+' '+HABS[k2].n)}
+// ---------- einmalige Umstellung alter Spielstände ----------
+function mig(){if(V.mig)return;let H=S.home,ref=0,old=0;
+ // bezahlte Erweiterungen zurückerstatten (Insel hat jetzt feste Größe)
+ let ps=Math.max(1,Math.min(SECS.length,H.paidSec||H.sec||1));for(let i=1;i<ps;i++)ref+=SECS[i][2]|0;
+ // doppelte Lebensräume (alter „Noch einen“) zurückerstatten
+ let seen={};H.hab=H.hab.filter(h=>{if(!HABS[h.k])return false;if(seen[h.k]){ref+=HABS[h.k].p;return false}seen[h.k]=1;return true});
+ // alte Deko-Positionen relativ übertragen
+ let og=V.oldGeo||[H.sec],ocols=[10,11,12,13,14,15][Math.max(0,Math.min(5,(H.sec|0||1)-1))];H.deco.forEach(d=>{d.c=Math.round(d.c/(ocols-1)*(N-1));d.r=Math.round(d.r/(ocols-1)*(N-1))});
+ V.mig=1;V.ref=ref;if(ref){H.coins+=ref}SK='';try{C9X.migrate()}catch(e){console.error(e)}
+ H.hab.forEach(h=>{let s=slots().m[h.k];if(s){h.c=s[0];h.r=s[1];h.on=true}});save();
+ if(ref)setTimeout(()=>toast('🏝️ Deine Insel ist jetzt ein Quadrat mit 16 Lebensräumen! Erweiterungen werden nicht mehr gebraucht – du bekommst '+ref+' 🪙 zurück.',5500),900)}
+// keine Erweiterung mehr (Shop-Tab + Knopf ausblenden)
+const css=document.createElement('style');css.textContent='#hExp{display:none!important}#shTabs [data-t="sec"]{display:none!important}#shGrid .hab .sec2.sm{display:none!important}';document.head.appendChild(css);
+window.C9V42={slots,cin:(c,r,g)=>{g=g||hGeo();return c>=0&&r>=0&&c<g.cols&&r<g.rows},base,drop,migrate:null,MAP,AH,V:()=>V,ground,homeZ,nb,tileC,exPos,own,slotCR,WATER};
+SK='';mig();
+window.C9.v42=window.C9V42;
 })();
 </script></body></html>
