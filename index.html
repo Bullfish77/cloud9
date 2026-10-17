@@ -3528,19 +3528,21 @@ const DEF=['eis','berg','nest','sterne','wald','see','meer','hoehle','wiese','te
 if(!Array.isArray(V.order)||V.order.length!==16||DEF.some(k=>!V.order.includes(k)))V.order=DEF.slice();
 const WATER={see:1,teich:1,riff:1,meer:1};
 const COL={wiese:'#b6eaa0',wald:'#86cf86',wueste:'#f6dfa4',eis:'#eef7ff',nest:'#f1ecff',see:'#86ccf2',teich:'#92d4c2',riff:'#72d2e6',meer:'#5aa6e6',berg:'#cfc3ae',sterne:'#bdb4f2',hoehle:'#a898b6',vulkan:'#9a8090',dino:'#cddc98',suess:'#ffd6f2',dschungel:'#62bf72'};
-const N=13,slotCR=i=>[1+3*(i%4),1+3*Math.floor(i/4)];
-hGeo=function(){let cw=56,ch=46;return{cols:N,rows:N,cw,ch,cx:0,cy:-ch*.35,rx:cw*6.62,ry:ch*6.62}};
-hFit=function(){let g=hGeo();return Math.min(1.9,(HW*.97)/(2*g.rx+8),(HH*.93)/(2*g.ry*1.16+30))};
+const N=17,SPX=170,SPY=140,ROWS=[3,5,5,3],LAY=[];ROWS.forEach((n,j)=>{for(let i=0;i<n;i++)LAY.push([(i-(n-1)/2)*SPX,(j-1.5)*SPY])});
+const slotCR=i=>{let[x,y]=LAY[i];return[x/56+7.5,(y+46*.15)/46+7.5]};
+const BR=[];LAY.forEach((p,i)=>LAY.forEach((q,j)=>{if(j<=i)return;let dx=Math.abs(p[0]-q[0]),dy=Math.abs(p[1]-q[1]);if(dy<1&&dx<SPX+1)BR.push([i,j]);else if(dx<1&&Math.abs(dy-SPY)<1){let mid=Math.min(p[1],q[1])>-SPY&&Math.max(p[1],q[1])<SPY;if(mid?Math.abs(p[0])!=SPX:p[0]==0)BR.push([i,j])}}));
+hGeo=function(){let cw=56,ch=46;return{cols:N,rows:N,cw,ch,cx:0,cy:-ch*.35,rx:cw*8.9,ry:ch*8.9}};
+hFit=function(){let g=hGeo();return Math.min(1.9,(HW*.98)/(2*g.rx+8),(HH*.93)/(2*g.ry*1.3+30))};
 let SK='',SV=null;
-function slots(g){let k=V.order.join();if(k===SK)return SV;let m={},cells={};V.order.forEach((h,i)=>{let[c,r]=slotCR(i);m[h]=[c,r];[[c,r],[c+1,r],[c,r+1],[c+1,r+1]].forEach(([a,b])=>cells[a+','+b]=h)});SK=k;return SV={m,cells}}
+function slots(g){let k=V.order.join();if(k===SK)return SV;let m={},cells={};let g0=hGeo();V.order.forEach((h,i)=>{let[c,r]=slotCR(i);m[h]=[c,r];let q=habGeo(g0,{c,r});for(let a=0;a<N;a++)for(let b=0;b<N;b++){let[x,y]=cellXY(g0,a,b);if(((x-q.x)/(q.rx*1.3))**2+((y-q.y)/(q.ry*1.45))**2<1)cells[a+','+b]=h}});SK=k;return SV={m,cells}}
 const own=k=>S.home.hab.find(h=>h.on&&h.k==k);
 // ---------- Zonen: jedes Tier lebt in seinem Feld (auch wenn der Lebensraum noch nicht gekauft ist) ----------
 function homeZ(g,e){let k=AH[e];if(!k)return null;let s=slots().m[k];if(!s)return null;let q=habGeo(g,{c:s[0],r:s[1]});return{x:q.x,y:q.y,rx:q.rx*.7,ry:q.ry*.6,m:HABS[k].m,h:own(k)||null,k}}
 const oZ=hZone;hZone=function(g,a){let Z=homeZ(g,a.e);if(!Z)return oZ(g,a);if(a.ex){let E=a.ex,p=exPos(g,a);if(p)return{x:p[0],y:p[1],rx:g.cw*.12,ry:g.ch*.1,m:'walk',ex:1}}return Z};
 hAssign=function(){let g=hGeo();HA.forEach(a=>{let k=AH[a.e],h=k?S.home.hab.findIndex(x=>x.on&&x.k==k):-1,z=k?(h>=0?h:-1):-1,key=k||'';if(a.hk!==key||a.z!==z){let first=a.hk===undefined;a.hk=key;a.z=z;a.out=0;a.ex=null;let Z=hZone(g,a);hPick(a,Z,g,true);a.vx=a.vy=0;a.w=R()*2;if(!first)a.pop=1}})};
 // ---------- Ausflüge entlang der Wege (kommen immer zurück) ----------
-function nb(k){let i=V.order.indexOf(k),x=i%4,y=i/4|0,r=[];[[1,0],[-1,0],[0,1],[0,-1]].forEach(([dx,dy])=>{let X2=x+dx,Y2=y+dy;if(X2>=0&&X2<4&&Y2>=0&&Y2<4)r.push(V.order[Y2*4+X2])});return r}
-function tileC(g,k){let s=slots().m[k],q=habGeo(g,{c:s[0],r:s[1]});return[q.x,q.y+q.ry*.15]}
+function nb(k){let i=V.order.indexOf(k),r=[];BR.forEach(([a,b])=>{if(a==i)r.push(V.order[b]);else if(b==i)r.push(V.order[a])});return r}
+function tileC(g,k){let s=slots().m[k],q=habGeo(g,{c:s[0],r:s[1]});return[q.x,q.y+q.ry*.1]}
 function exPos(g,a){let E=a.ex,A=tileC(g,E.from),B=tileC(g,E.to),M=[(A[0]+B[0])/2,(A[1]+B[1])/2],s=E.s;// go: 0..1, stay, back: 1..0
  const L=(p,q,f)=>[p[0]+(q[0]-p[0])*f,p[1]+(q[1]-p[1])*f];return s<.5?L(A,M,s*2):L(M,B,(s-.5)*2)}
 const SPD=.11;
@@ -3584,17 +3586,61 @@ function ground(g,th){let ow=V.order.map(k=>own(k)?1:0).join(''),key=[V.order.jo
     else if(kind=='stone'){x.fillStyle='#b4aab8';x.beginPath();x.ellipse(px,py,6,4,0,0,7);x.fill();x.fillStyle='#d8d0dc';x.beginPath();x.ellipse(px-1.5,py-1.5,3,1.8,0,0,7);x.fill();x.fillStyle='#a49aa8';x.beginPath();x.ellipse(px+6,py+2,3.5,2.4,0,0,7);x.fill()}
     else{[[0,0,6],[-5,2,4.5],[5,2,4.5]].forEach(([a,b,r2])=>{x.fillStyle='#5cb06a';x.beginPath();x.arc(px+a,py+b-3,r2,0,7);x.fill()});x.fillStyle='rgba(255,255,255,.35)';x.beginPath();x.arc(px-2,py-6,2,0,7);x.fill();x.fillStyle='#ff9ac0';x.beginPath();x.arc(px+3,py-5,1.3,0,7);x.fill()}}})}
  x.restore();c.W=W;c.H=H;return GC2=c}
-function base(g,t,th,bob){let{cx,cy,rx,ry}=g,R0=44;X.save();
- dE(cx,ry*1.55-bob,rx*.6,ry*.08,'rgba(90,70,170,.10)');
- // Felswand + hängende Unterseite
- let gg=X.createLinearGradient(0,ry*.6,0,ry*1.5);gg.addColorStop(0,th.base);gg.addColorStop(1,drk2(th.base,.28));X.fillStyle=gg;
- X.beginPath();X.moveTo(-rx,0);X.lineTo(-rx,ry-R0+14);X.quadraticCurveTo(-rx,ry+14,-rx+R0,ry+14);X.quadraticCurveTo(-rx*.45,ry*1.12,-rx*.18,ry*1.38);X.quadraticCurveTo(0,ry*1.52,rx*.18,ry*1.38);X.quadraticCurveTo(rx*.45,ry*1.12,rx-R0,ry+14);X.quadraticCurveTo(rx,ry+14,rx,ry-R0+14);X.lineTo(rx,0);X.closePath();X.fill();
- X.strokeStyle=drk2(th.base,.15);X.lineWidth=2;X.lineCap='round';for(let i=0;i<5;i++){let x0=(i-2)*rx*.22,y0=ry*1.08+(2-Math.abs(i-2))*ry*.08;X.beginPath();X.moveTo(x0,y0);X.quadraticCurveTo(x0+Math.sin(t+i)*5,y0+14,x0+Math.sin(t*.8+i)*3,y0+24);X.stroke()}
- dE(0,ry+6,rx*.9,10,'rgba(60,40,110,.0)');X.fillStyle=drk2(th.top,.16);rr(X,-rx,-ry+8,rx*2,ry*2,R0);X.fill();
- let G=ground(g,th);X.drawImage(G,-rx,-ry,G.W,G.H);
- X.strokeStyle='rgba(255,255,255,.55)';X.lineWidth=3;X.beginPath();X.moveTo(-rx+R0,-ry+4);X.lineTo(rx*.2,-ry+4);X.stroke();
- // Wasser lebt: sanfte Kreise in gekauften Wasserfeldern
- V.order.forEach((k,i)=>{if(!WATER[k]||!own(k))return;let[c,r]=slotCR(i),q=habGeo(g,{c,r});for(let n=0;n<2;n++){let f=(t*.3+n/2+i*.17)%1;X.strokeStyle='rgba(255,255,255,'+(1-f)*.45+')';X.lineWidth=1.3;X.beginPath();X.ellipse(q.x+(n?-1:1)*q.rx*.3,q.y+(n?6:-4),6+f*16,2+f*5,0,0,7);X.stroke()}});
+function base(g,t,th,bob){let{rx,ry}=g;X.save();
+ const D=(c,f)=>drk2(c,f);
+ // Schatten unter der großen Insel
+ dE(0,ry*1.35-bob,rx*.5,ry*.06,'rgba(80,60,160,.12)');
+ // Unterseite: hängender Fels mit Schichten
+ let gg=X.createLinearGradient(0,0,0,ry*1.2);gg.addColorStop(0,th.base);gg.addColorStop(1,D(th.base,.3));X.fillStyle=gg;
+ X.beginPath();X.ellipse(0,8,rx,ry,0,0,Math.PI);X.bezierCurveTo(-rx*.85,ry*.55,-rx*.45,ry*.95,-rx*.14,ry*1.12);X.quadraticCurveTo(0,ry*1.22,rx*.14,ry*1.12);X.bezierCurveTo(rx*.45,ry*.95,rx*.85,ry*.55,rx,8);X.closePath();X.fill();
+ X.strokeStyle=D(th.base,.12);X.lineWidth=2;for(let k=1;k<=2;k++){X.beginPath();X.ellipse(0,8+ry*.12*k,rx*(1-.17*k),ry*(1-.17*k),0,.25,Math.PI-.25);X.stroke()}
+ X.strokeStyle='#6aa860';X.lineWidth=2;X.lineCap='round';for(let i=0;i<7;i++){let a=.35+i*.4,x0=Math.cos(a)*rx*.97,y0=8+Math.sin(a)*ry*.97;X.beginPath();X.moveTo(x0,y0);X.quadraticCurveTo(x0+Math.sin(t+i)*4,y0+12,x0+Math.sin(t*.8+i)*3,y0+20+(i%3)*6);X.stroke()}
+ // Grasrand + Oberfläche
+ X.fillStyle=D(th.top,.18);X.beginPath();X.ellipse(0,8,rx,ry,0,0,7);X.fill();
+ let tg=X.createRadialGradient(-rx*.25,-ry*.35,10,0,0,rx*1.05);tg.addColorStop(0,th.top2||th.top);tg.addColorStop(1,th.top);X.fillStyle=tg;X.beginPath();X.ellipse(0,0,rx,ry,0,0,7);X.fill();
+ X.strokeStyle='rgba(255,255,255,.5)';X.lineWidth=3;X.beginPath();X.ellipse(0,0,rx-5,ry-5,0,Math.PI*1.08,Math.PI*1.62);X.stroke();
+ // Grashalme verstreut (fest, nicht zufällig pro Frame)
+ X.strokeStyle=D(th.top,.22);X.lineWidth=1.3;for(let i=0;i<70;i++){let a=i*2.399,rr2=Math.sqrt((i+.5)/70)*.93,x0=Math.cos(a)*rx*rr2,y0=Math.sin(a)*ry*rr2;if(isle(g,x0,y0,1.25))continue;X.beginPath();X.moveTo(x0-2,y0);X.lineTo(x0-3,y0-5);X.moveTo(x0,y0);X.lineTo(x0,y0-7);X.moveTo(x0+2,y0);X.lineTo(x0+3,y0-5);X.stroke()}
+ // Hängebrücken
+ BR.forEach(([a,b])=>bridge(g,a,b,t));
+ // kleine schwebende Inseln
+ V.order.forEach((k,i)=>islet(g,k,i,t,th));
+ X.restore()}
+function isle(g,x,y,f){return V.order.some((k,i)=>{let[c,r]=slotCR(i),q=habGeo(g,{c,r});return((x-q.x)/(q.rx*f))**2+((y-q.y-6)/(q.ry*f))**2<1})}
+function edgeP(q,tx,ty){let a=Math.atan2((ty-q.y)/q.ry,(tx-q.x)/q.rx);return[q.x+Math.cos(a)*q.rx*.9,q.y+Math.sin(a)*q.ry*.9+4]}
+function bridge(g,a,b,t){let qa=habGeo(g,{c:slotCR(a)[0],r:slotCR(a)[1]}),qb=habGeo(g,{c:slotCR(b)[0],r:slotCR(b)[1]}),A=edgeP(qa,qb.x,qb.y),B=edgeP(qb,qa.x,qa.y);
+ let dx=B[0]-A[0],dy=B[1]-A[1],L=Math.hypot(dx,dy),ux=dx/L,uy=dy/L,nx=-uy,ny=ux,W=9,sag=Math.min(8,L*.1);if(ny<0){nx=-nx;ny=-ny}
+ const P=(f,o)=>[A[0]+dx*f+nx*o,A[1]+dy*f+ny*o+Math.sin(f*Math.PI)*sag];
+ // Schatten
+ X.strokeStyle='rgba(60,40,90,.14)';X.lineWidth=W*2.2;X.lineCap='round';X.beginPath();for(let f=0;f<=1.001;f+=.1){let p=P(f,0);f?X.lineTo(p[0],p[1]+10):X.moveTo(p[0],p[1]+10)}X.stroke();
+ // Bretter
+ let n=Math.max(3,Math.round(L/7));for(let i2=0;i2<n;i2++){let f=(i2+.5)/n,p1=P(f,-W),p2=P(f,W);X.strokeStyle=i2%2?'#b88450':'#c8945c';X.lineWidth=L/n*.78;X.lineCap='butt';X.beginPath();X.moveTo(...p1);X.lineTo(...p2);X.stroke()}
+ X.lineCap='round';
+ // Seile + Pfosten
+ [-W,W].forEach(o=>{X.strokeStyle='#7a5434';X.lineWidth=2.4;[A,B].forEach((E,e)=>{let p=P(e,o);X.beginPath();X.moveTo(p[0],p[1]);X.lineTo(p[0],p[1]-11);X.stroke()});
+  X.strokeStyle='#e8d4a8';X.lineWidth=1.4;X.beginPath();for(let f=0;f<=1.001;f+=.1){let p=P(f,o);let yy=p[1]-11+Math.sin(f*Math.PI)*sag*.6;f?X.lineTo(p[0],yy):X.moveTo(p[0],yy)}X.stroke();
+  X.strokeStyle='rgba(232,212,168,.7)';X.lineWidth=.9;for(let f=.2;f<.9;f+=.2){let p=P(f,o);X.beginPath();X.moveTo(p[0],p[1]-11+Math.sin(f*Math.PI)*sag*.6);X.lineTo(p[0],p[1]);X.stroke()}})}
+const DET={wiese:'flower',wald:'grass',wueste:'dots',eis:'spark',nest:'cloud',berg:'rock',sterne:'star',hoehle:'rock',vulkan:'ember',dino:'grass',suess:'candy',dschungel:'grass'};
+function islet(g,k,i,t,th){let[c,r]=slotCR(i),q=habGeo(g,{c,r}),o=!!own(k),col=COL[k],w=WATER[k],x0=q.x,y0=q.y+6,RX=q.rx*.98,RY=q.ry*.92;
+ // weicher Schatten auf der großen Insel (atmet leicht = schwebt)
+ let br=1+Math.sin(t*1.3+i)*.04;dE(x0,y0+RY+12,RX*.9*br,RY*.32*br,'rgba(60,40,100,.16)');
+ let lift=-3-Math.sin(t*1.3+i)*1.2;X.save();X.translate(0,lift);
+ // Unterseite
+ let rock=o?drk2(col,.38):'#c8bcd8';X.fillStyle=rock;X.beginPath();X.ellipse(x0,y0,RX,RY,0,0,Math.PI);X.quadraticCurveTo(x0-RX*.5,y0+RY+14,x0,y0+RY+18);X.quadraticCurveTo(x0+RX*.5,y0+RY+14,x0+RX,y0);X.fill();
+
+ // Oberfläche
+ let top=o?col:'#eee8f6';X.fillStyle=drk2(top,.12);X.beginPath();X.ellipse(x0,y0+3,RX,RY,0,0,7);X.fill();
+ let gr=X.createRadialGradient(x0-RX*.3,y0-RY*.4,4,x0,y0,RX);gr.addColorStop(0,'#ffffff'+(o?'55':'88'));gr.addColorStop(.5,top);gr.addColorStop(1,top);X.fillStyle=top;X.beginPath();X.ellipse(x0,y0,RX,RY,0,0,7);X.fill();X.fillStyle=gr;X.fill();
+ if(o&&w){let wc=k=='meer'?'#3a8ed8':k=='riff'?'#4ac4dc':k=='teich'?'#5ab8a8':'#5ab0e8';X.fillStyle='#f4e2b0';X.beginPath();X.ellipse(x0,y0,RX*.86,RY*.8,0,0,7);X.fill();let wg=X.createRadialGradient(x0,y0,2,x0,y0,RX*.8);wg.addColorStop(0,drk2(wc,-.25)||wc);wg.addColorStop(1,wc);X.fillStyle=wc;X.beginPath();X.ellipse(x0,y0+1,RX*.76,RY*.68,0,0,7);X.fill();
+  for(let n=0;n<2;n++){let f=(t*.3+n/2+i*.17)%1;X.strokeStyle='rgba(255,255,255,'+(1-f)*.5+')';X.lineWidth=1.3;X.beginPath();X.ellipse(x0+(n?-1:1)*RX*.25,y0+(n?5:-4),5+f*14,1.6+f*4,0,0,7);X.stroke()}}
+ else if(o){let d=DET[k],rnd=n=>((Math.sin(i*91+n*37.7)*43758.5)%1+1)%1;for(let n=0;n<7;n++){let a=rnd(n)*6.283,rr2=.35+rnd(n+9)*.5,px=x0+Math.cos(a)*RX*rr2,py=y0+Math.sin(a)*RY*rr2;
+   if(d=='flower'){X.fillStyle=['#ff8ac0','#fff','#ffd84a'][n%3];X.beginPath();X.arc(px,py,1.8,0,7);X.fill()}else if(d=='grass'){X.strokeStyle=drk2(col,.25);X.lineWidth=1.2;X.beginPath();X.moveTo(px-2,py);X.lineTo(px-3,py-4);X.moveTo(px+1,py);X.lineTo(px+2,py-5);X.stroke()}
+   else if(d=='dots'){X.fillStyle=drk2(col,.18);X.beginPath();X.arc(px,py,1.2,0,7);X.fill()}else if(d=='spark'){X.fillStyle='rgba(160,200,255,.7)';X.beginPath();X.arc(px,py,1.3,0,7);X.fill()}
+   else if(d=='rock'){X.fillStyle=drk2(col,.2);X.beginPath();X.ellipse(px,py,3,2,0,0,7);X.fill()}else if(d=='star'){X.fillStyle='rgba(255,255,255,'+(.4+.4*Math.sin(t*2+n))+')';X.beginPath();X.arc(px,py,1.4,0,7);X.fill()}
+   else if(d=='ember'){X.fillStyle='rgba(255,140,60,'+(.4+.3*Math.sin(t*3+n))+')';X.beginPath();X.arc(px,py,1.5,0,7);X.fill()}else if(d=='candy'){X.fillStyle=['#ff9ad0','#9ad8ff','#fff09a'][n%3];X.beginPath();X.arc(px,py,1.8,0,7);X.fill()}
+   else if(d=='cloud'){X.fillStyle='rgba(255,255,255,.7)';X.beginPath();X.arc(px,py,3,0,7);X.fill()}}}
+ // Lichtkante
+ X.strokeStyle='rgba(255,255,255,'+(o?.6:.8)+')';X.lineWidth=1.6;X.beginPath();X.ellipse(x0,y0,RX-2,RY-2,0,Math.PI*1.1,Math.PI*1.7);X.stroke();
  X.restore()}
 // ---------- Gestalten: Lebensraum auf ein anderes Feld ziehen = tauschen ----------
 function drop(d,p){let g=hGeo(),bi=-1,bd=1e9;V.order.forEach((k,i)=>{let[c,r]=slotCR(i),q=habGeo(g,{c,r}),dd=Math.hypot(q.x-p.x,q.y-p.y);if(dd<bd){bd=dd;bi=i}});let ai=V.order.indexOf(d.k);if(bi<0||bi==ai||bd>g.cw*2.2){SND.sfx('nope');return}
@@ -3612,7 +3658,8 @@ function mig(){if(V.mig)return;let H=S.home,ref=0,old=0;
  if(ref)setTimeout(()=>toast('🏝️ Deine Insel ist jetzt ein Quadrat mit 16 Lebensräumen! Erweiterungen werden nicht mehr gebraucht – du bekommst '+ref+' 🪙 zurück.',5500),900)}
 // keine Erweiterung mehr (Shop-Tab + Knopf ausblenden)
 const css=document.createElement('style');css.textContent='#hExp{display:none!important}#shTabs [data-t="sec"]{display:none!important}#shGrid .hab .sec2.sm{display:none!important}';document.head.appendChild(css);
-window.C9V42={slots,cin:(c,r,g)=>{g=g||hGeo();return c>=0&&r>=0&&c<g.cols&&r<g.rows},base,drop,migrate:null,MAP,AH,V:()=>V,ground,homeZ,nb,tileC,exPos,own,slotCR,WATER};
+if(V.mig&&V.n!==17){S.home.deco.forEach(d=>{d.c+=2;d.r+=2});V.n=17;save()}else V.n=17;S.home.hab.forEach(h=>{if(h.on){let s0=slots().m[h.k];if(s0){h.c=s0[0];h.r=s0[1]}}});
+window.C9V42={BR,LAY,isle,slots,cin:(c,r,g)=>{g=g||hGeo();if(c<0||r<0||c>=g.cols||r>=g.rows)return false;let[x,y]=cellXY(g,c,r);if((x/(g.rx*.9))**2+((y+6)/(g.ry*.86))**2>1)return false;if(isle(g,x,y+8,1.3))return false;return !BR.some(([a,b])=>{let A=habGeo(g,{c:slotCR(a)[0],r:slotCR(a)[1]}),B=habGeo(g,{c:slotCR(b)[0],r:slotCR(b)[1]}),dx=B.x-A.x,dy=B.y-A.y,f=Math.max(0,Math.min(1,((x-A.x)*dx+(y-A.y)*dy)/(dx*dx+dy*dy))),px=A.x+dx*f,py=A.y+dy*f;return Math.hypot(x-px,(y-py)*1.2)<26})},base,drop,migrate:null,MAP,AH,V:()=>V,ground,homeZ,nb,tileC,exPos,own,slotCR,WATER};
 SK='';mig();
 window.C9.v42=window.C9V42;
 })();
