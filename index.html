@@ -3528,9 +3528,9 @@ const DEF=['eis','berg','nest','sterne','wald','see','meer','hoehle','wiese','te
 if(!Array.isArray(V.order)||V.order.length!==16||DEF.some(k=>!V.order.includes(k)))V.order=DEF.slice();
 const WATER={see:1,teich:1,riff:1,meer:1};
 const COL={wiese:'#b6eaa0',wald:'#86cf86',wueste:'#f6dfa4',eis:'#eef7ff',nest:'#f1ecff',see:'#86ccf2',teich:'#92d4c2',riff:'#72d2e6',meer:'#5aa6e6',berg:'#cfc3ae',sterne:'#bdb4f2',hoehle:'#a898b6',vulkan:'#9a8090',dino:'#cddc98',suess:'#ffd6f2',dschungel:'#62bf72'};
-const N=17,SPX=170,SPY=140,ROWS=[3,5,5,3],LAY=[];ROWS.forEach((n,j)=>{for(let i=0;i<n;i++)LAY.push([(i-(n-1)/2)*SPX,(j-1.5)*SPY])});
+const N=17,SPX=170,SPY=140,ROWS=[3,5,5,3],LAY=[[-255,-210],[-85,-210],[255,-210],[-340,-70],[-170,-70],[85,-210],[170,-70],[340,-70],[-340,70],[-170,70],[-85,210],[170,70],[340,70],[-255,210],[85,210],[255,210],[0,0]],PZ=16;// v44: Dorfplatz = Knoten 16
 const slotCR=i=>{let[x,y]=LAY[i];return[x/56+7.5,(y+46*.15)/46+7.5]};
-const BR=[];LAY.forEach((p,i)=>LAY.forEach((q,j)=>{if(j<=i)return;let dx=Math.abs(p[0]-q[0]),dy=Math.abs(p[1]-q[1]);if(dy<1&&dx<SPX+1)BR.push([i,j]);else if(dx<1&&Math.abs(dy-SPY)<1){let mid=Math.min(p[1],q[1])>-SPY&&Math.max(p[1],q[1])<SPY;if(mid?Math.abs(p[0])!=SPX:p[0]==0)BR.push([i,j])}}));
+const BR=[[0,1],[1,5],[5,2],[13,10],[10,14],[14,15],[3,4],[6,7],[8,9],[11,12],[3,8],[7,12],[0,4],[2,6],[13,9],[15,11],[1,16],[5,16],[4,16],[6,16],[9,16],[11,16],[10,16],[14,16]];
 hGeo=function(){let cw=56,ch=46;return{cols:N,rows:N,cw,ch,cx:0,cy:-ch*.35,rx:cw*8.9,ry:ch*8.9}};
 hFit=function(){let g=hGeo();return Math.min(1.9,(HW*.98)/(2*g.rx+8),(HH*.93)/(2*g.ry*1.3+30))};
 let SK='',SV=null;
@@ -3549,18 +3549,18 @@ function bridgePts(g,i,j){let qa=qOf(g,i),qb=qOf(g,j),A=edgeP(qa,qb.x,qb.y),B=ed
 function rim(q,p0,p1,o){let a0=Math.atan2((p0[1]-4-q.y)/q.ry,(p0[0]-q.x)/q.rx),a1=Math.atan2((p1[1]-4-q.y)/q.ry,(p1[0]-q.x)/q.rx),d=a1-a0;while(d>Math.PI)d-=2*Math.PI;while(d<-Math.PI)d+=2*Math.PI;
  // um die Unterseite (vorne) herum laufen, damit das Tier sichtbar bleibt
  if(Math.sin(a0+d/2)<0)d+=d>0?-2*Math.PI:2*Math.PI;for(let n=1;n<8;n++){let a=a0+d*n/8;o.push([q.x+Math.cos(a)*q.rx*.86,q.y+Math.sin(a)*q.ry*.86+4])}}
-function path(from,to){let I=V.order.indexOf(from),J=V.order.indexOf(to);if(I<0||J<0)return null;let n=V.order.length,D=Array(n).fill(1e9),P=Array(n).fill(-1),U=Array(n).fill(0);D[I]=0;
+const IX=k=>k=='@P'?PZ:V.order.indexOf(k);function path(from,to){let I=IX(from),J=IX(to);if(I<0||J<0)return null;let n=LAY.length,D=Array(n).fill(1e9),P=Array(n).fill(-1),U=Array(n).fill(0);D[I]=0;
  for(;;){let u=-1;for(let k=0;k<n;k++)if(!U[k]&&D[k]<1e9&&(u<0||D[k]<D[u]))u=k;if(u<0||u==J)break;U[u]=1;BR.forEach(([a,b])=>{let v=a==u?b:b==u?a:-1;if(v<0)return;let c=D[u]+1+(WATER[V.order[v]]&&v!=J?4:0);if(c<D[v]){D[v]=c;P[v]=u}})}
  if(D[J]>=1e9)return null;let r=[J];while(r[0]!=I)r.unshift(P[r[0]]);return r}
-function route(g,from,to){let key=V.order.join()+'|'+from+'|'+to;if(RC[key])return RC[key];let ix=path(from,to);if(!ix)return null;let pts=[tileC(g,from)];
- for(let m=0;m+1<ix.length;m++){let b=bridgePts(g,ix[m],ix[m+1]);if(m>0&&WATER[V.order[ix[m]]]){rim(qOf(g,ix[m]),pts[pts.length-1],b[0],pts)}pts.push(...b);let last=m+2==ix.length;if(last)pts.push(tileC(g,to));else if(!WATER[V.order[ix[m+1]]])pts.push(tileC(g,V.order[ix[m+1]]))}
+function route(g,from,to){let key=V.order.join()+'|'+from+'|'+to;if(RC[key])return RC[key];let ix=path(from,to);if(!ix)return null;const CN=i=>i==PZ?(()=>{let q=qOf(g,PZ);return[q.x,q.y+6]})():tileC(g,V.order[i]);let pts=[CN(ix[0])];
+ for(let m=0;m+1<ix.length;m++){let b=bridgePts(g,ix[m],ix[m+1]);if(m>0&&WATER[V.order[ix[m]]]){rim(qOf(g,ix[m]),pts[pts.length-1],b[0],pts)}pts.push(...b);let last=m+2==ix.length;if(last)pts.push(CN(ix[m+1]));else if(!WATER[V.order[ix[m+1]]])pts.push(CN(ix[m+1]))}
  let cum=[0];for(let k=1;k<pts.length;k++)cum.push(cum[k-1]+Math.hypot(pts[k][0]-pts[k-1][0],pts[k][1]-pts[k-1][1]));return RC[key]={pts,cum,L:cum[cum.length-1]||1,ix}}
 function rAt(Rt,s){let d=Math.max(0,Math.min(1,s))*Rt.L,c=Rt.cum,k=1;while(k<c.length-1&&c[k]<d)k++;let f=(d-c[k-1])/((c[k]-c[k-1])||1),p=Rt.pts[k-1],q=Rt.pts[k];return[p[0]+(q[0]-p[0])*f,p[1]+(q[1]-p[1])*f]}
-function exPos(g,a){let E=a.ex,Rt=route(g,E.from,E.to);if(!Rt)return null;return rAt(Rt,E.s)}
-function onGraph(g,x,y){if(isle(g,x,y,1.02))return true;return BR.some(([i,j])=>{let b=bridgePts(g,i,j);for(let k=1;k<b.length;k++){let p=b[k-1],q=b[k],dx=q[0]-p[0],dy=q[1]-p[1],f=Math.max(0,Math.min(1,((x-p[0])*dx+(y-p[1])*dy)/(dx*dx+dy*dy||1)));if(Math.hypot(x-p[0]-dx*f,y-p[1]-dy*f)<13)return true}return false})}
+function exPos(g,a){let E=a.ex,Rt=route(g,E.from,E.to);if(!Rt)return null;let p=rAt(Rt,E.s);if(E.to=='@P'&&window.C9PLPOS){let q=C9PLPOS(a,E,p);if(q)return q}return p}
+function onGraph(g,x,y){if(isle(g,x,y,1.02))return true;{let q=qOf(g,PZ);if(((x-q.x)/(q.rx*1.3))**2+((y-q.y-6)/(q.ry*1.3))**2<1)return true}return BR.some(([i,j])=>{let b=bridgePts(g,i,j);for(let k=1;k<b.length;k++){let p=b[k-1],q=b[k],dx=q[0]-p[0],dy=q[1]-p[1],f=Math.max(0,Math.min(1,((x-p[0])*dx+(y-p[1])*dy)/(dx*dx+dy*dy||1)));if(Math.hypot(x-p[0]-dx*f,y-p[1]-dy*f)<13)return true}return false})}
 const SPD=.11;
-const oHS=hStep;hStep=function(list,g,dt){if(list===HA){let busy=list.some(a=>a.ex);list.forEach(a=>{a.out=0;let E=a.ex;if(E){let Rt=route(g,E.from,E.to);if(!Rt){a.ex=null;return}let VS=dt*24/Rt.L;E.mv=E.ph=='go'||E.ph=='back';if(E.ph=='go'){E.s=Math.min(1,E.s+VS);if(E.s>=1){E.ph=E.task?'stuck':'stay';E.t=4+R()*4}}else if(E.ph=='stay'){E.t-=dt;if(E.t<=0)E.ph='back'}else if(E.ph=='back'){E.s=Math.max(0,E.s-VS*1.25);if(E.s<=0){a.ex=null;let Z=hZone(g,a);a.u=a.v=0;hPick(a,Z,g);a.w=1}}a.tu=a.tv=0;a.u*=.9;a.v*=.9;if(a.ex){let p0=rAt(Rt,E.s),p1=rAt(Rt,E.s+(E.ph=='back'?-1:1)*3/Rt.L);if(Math.abs(p1[0]-p0[0])>.3)a.dir=p1[0]<p0[0]}}});
- if(!busy&&!HED&&R()<dt/25){let c=list.filter(a=>AH[a.e]&&HABS[AH[a.e]].m!='swim'&&!a.ex);if(c.length){let a=c[R()*c.length|0],n=nb(AH[a.e]).filter(k=>!WATER[k]||HABS[AH[a.e]].m=='swim');if(n.length)a.ex={from:AH[a.e],to:n[R()*n.length|0],s:0,ph:'go'}}}}
+const oHS=hStep;hStep=function(list,g,dt){if(list===HA){let busy=list.some(a=>a.ex&&a.ex.to!=='@P');list.forEach(a=>{a.out=0;let E=a.ex;if(E){let Rt=route(g,E.from,E.to);if(!Rt){a.ex=null;return}let VS=dt*24*(E.sp||1)/Rt.L;E.mv=E.ph=='go'||E.ph=='back';if(E.ph=='go'){E.s=Math.min(1,E.s+VS);if(E.s>=1){E.ph=E.task?'stuck':'stay';E.t=4+R()*4}}else if(E.ph=='stay'){E.t-=dt;if(E.t<=0)E.ph='back'}else if(E.ph=='back'){E.s=Math.max(0,E.s-VS*1.25);if(E.s<=0){a.ex=null;let Z=hZone(g,a);a.u=a.v=0;hPick(a,Z,g);a.w=1}}a.tu=a.tv=0;a.u*=.9;a.v*=.9;if(a.ex){let p0=rAt(Rt,E.s),p1=rAt(Rt,E.s+(E.ph=='back'?-1:1)*3/Rt.L);if(Math.abs(p1[0]-p0[0])>.3)a.dir=p1[0]<p0[0]}}});
+ if(!busy&&!HED&&R()<dt/25){let c=list.filter(a=>AH[a.e]&&HABS[AH[a.e]].m!='swim'&&!a.ex);if(c.length){let a=c[R()*c.length|0],n=nb(AH[a.e]).filter(k=>k&&(!WATER[k]||HABS[AH[a.e]].m=='swim'));if(n.length)a.ex={from:AH[a.e],to:n[R()*n.length|0],s:0,ph:'go'}}}}
  return oHS(list,g,dt)};
 // ---------- Insel zeichnen: abgerundetes Quadrat, Untergrund weich überblendet, Wege, Brücken, natürliche Ränder ----------
 function rr(x,X0,Y0,W,H,R){x.beginPath();x.moveTo(X0+R,Y0);x.arcTo(X0+W,Y0,X0+W,Y0+H,R);x.arcTo(X0+W,Y0+H,X0,Y0+H,R);x.arcTo(X0,Y0+H,X0,Y0,R);x.arcTo(X0,Y0,X0+W,Y0,R);x.closePath()}
@@ -3618,7 +3618,7 @@ function base(g,t,th,bob){let{rx,ry}=g;X.save();
  // Grashalme verstreut (fest, nicht zufällig pro Frame)
  X.strokeStyle=D(th.top,.22);X.lineWidth=1.3;for(let i=0;i<70;i++){let a=i*2.399,rr2=Math.sqrt((i+.5)/70)*.93,x0=Math.cos(a)*rx*rr2,y0=Math.sin(a)*ry*rr2;if(isle(g,x0,y0,1.25))continue;X.beginPath();X.moveTo(x0-2,y0);X.lineTo(x0-3,y0-5);X.moveTo(x0,y0);X.lineTo(x0,y0-7);X.moveTo(x0+2,y0);X.lineTo(x0+3,y0-5);X.stroke()}
  // Hängebrücken
- BR.forEach(([a,b])=>bridge(g,a,b,t));
+ BR.forEach(([a,b])=>bridge(g,a,b,t));if(window.C9PLAZA)C9PLAZA(g,t);
  // kleine schwebende Inseln
  V.order.forEach((k,i)=>islet(g,k,i,t,th));
  X.restore()}
@@ -3675,7 +3675,7 @@ function mig(){if(V.mig)return;let H=S.home,ref=0,old=0;
 // keine Erweiterung mehr (Shop-Tab + Knopf ausblenden)
 const css=document.createElement('style');css.textContent='#hExp{display:none!important}#shTabs [data-t="sec"]{display:none!important}#shGrid .hab .sec2.sm{display:none!important}';document.head.appendChild(css);
 if(V.mig&&V.n!==17){S.home.deco.forEach(d=>{d.c+=2;d.r+=2});V.n=17;save()}else V.n=17;S.home.hab.forEach(h=>{if(h.on){let s0=slots().m[h.k];if(s0){h.c=s0[0];h.r=s0[1]}}});
-window.C9V42={BR,LAY,isle,slots,cin:(c,r,g)=>{g=g||hGeo();if(c<0||r<0||c>=g.cols||r>=g.rows)return false;let[x,y]=cellXY(g,c,r);if((x/(g.rx*.9))**2+((y+6)/(g.ry*.86))**2>1)return false;if(isle(g,x,y+8,1.3))return false;return !BR.some(([a,b])=>{let A=habGeo(g,{c:slotCR(a)[0],r:slotCR(a)[1]}),B=habGeo(g,{c:slotCR(b)[0],r:slotCR(b)[1]}),dx=B.x-A.x,dy=B.y-A.y,f=Math.max(0,Math.min(1,((x-A.x)*dx+(y-A.y)*dy)/(dx*dx+dy*dy))),px=A.x+dx*f,py=A.y+dy*f;return Math.hypot(x-px,(y-py)*1.2)<26})},base,drop,migrate:null,MAP,AH,route,rAt,path,onGraph,bridgePts,V:()=>V,ground,homeZ,nb,tileC,exPos,own,slotCR,WATER};
+window.C9V42={BR,LAY,isle,slots,cin:(c,r,g)=>{g=g||hGeo();if(c<0||r<0||c>=g.cols||r>=g.rows)return false;let[x,y]=cellXY(g,c,r);if((x/(g.rx*.9))**2+((y+6)/(g.ry*.86))**2>1)return false;if(isle(g,x,y+8,1.3))return false;if(window.C9PLBLK&&C9PLBLK(g,x,y))return false;return !BR.some(([a,b])=>{let A=habGeo(g,{c:slotCR(a)[0],r:slotCR(a)[1]}),B=habGeo(g,{c:slotCR(b)[0],r:slotCR(b)[1]}),dx=B.x-A.x,dy=B.y-A.y,f=Math.max(0,Math.min(1,((x-A.x)*dx+(y-A.y)*dy)/(dx*dx+dy*dy))),px=A.x+dx*f,py=A.y+dy*f;return Math.hypot(x-px,(y-py)*1.2)<26})},base,drop,migrate:null,MAP,AH,PZ,qOf,IX,route,rAt,path,onGraph,bridgePts,V:()=>V,ground,homeZ,nb,tileC,exPos,own,slotCR,WATER};
 SK='';mig();
 window.C9.v42=window.C9V42;
 })();
@@ -4134,4 +4134,129 @@ window.C9LAND2=function(th,O0x,O0y,k){let A=window.C9LANDA;if(!A)return;let [st,
  X.restore()};
 window.C9.v433g={pal};
 })();
-</script></body></html>
+</script><script>/* v44: Dorfplatz (Mitte, Tagesrhythmus, 3–5 Tiere, Tierfest) + Gartenecke (feste Beete, 4/6/8) */
+(function(){
+const X2=window.C9V42,PZ=X2.PZ,S=C9.S;S.v44=S.v44||{};const V4=S.v44;const dayK=()=>C9.v20.dayK();
+const R=Math.random,TAU=Math.PI*2;
+const PQ=()=>X2.qOf(hGeo(),PZ);
+const PR=()=>{let q=PQ();return{x:q.x,y:q.y+6,rx:q.rx*1.3,ry:q.ry*1.3}};
+const HR=()=>dayK().h;
+// ---------- Tagesrhythmus ----------
+function phase(h){h=h==null?HR():h;if(h>=6.5&&h<10.5)return'fruehstueck';if(h>=10.5&&h<13.5)return'picknick';if(h>=13.5&&h<16.5)return'fangen';if(h>=16.5&&h<21.5)return'feuer';return'nacht'}
+const PH={fruehstueck:{n:'Frühstück',e:'🥐',min:3,max:4},picknick:{n:'Picknick',e:'🧺',min:3,max:5},fangen:{n:'Fangen spielen',e:'🏃',min:4,max:5},feuer:{n:'Lagerfeuer',e:'🔥',min:3,max:5},nacht:{n:'Nachtruhe',e:'🌙',min:0,max:1}};
+// ---------- Felder blockieren (Platz + Garten) ----------
+const GS=[[7,15],[8,15],[7,16],[8,16],[6,15],[9,15],[6,16],[9,16]];
+function cap(){let n=S.home.hab.filter(h=>h.on).length;return n>=11?8:n>=6?6:4}
+const isG=(c,r,all)=>GS.slice(0,all?8:cap()).some(([a,b])=>a==c&&b==r);
+const oCin=X2.cin;X2.cin=function(c,r,g){if(isG(c,r,1))return true;return oCin.apply(this,arguments)};
+window.C9PLBLK=function(g,x,y){let P=PR();if(((x-P.x)/(P.rx+30))**2+((y-P.y)/(P.ry+26))**2<1)return true;return false};
+// Garten: Beete nur in der Gartenecke, andere Deko nicht dort
+let PK=null;
+const oCF=cellFree;cellFree=function(c,r,skip){let k=skip&&skip.k||PK,g=isG(c,r,1);if(k=='feld'){if(!isG(c,r))return false;return !S.home.deco.some(d=>d!==skip&&d.c==c&&d.r==r)}else if(g)return false;return oCF(c,r,skip)};
+const oP=hPlace;hPlace=function(k){if(k!=='feld'){PK=k;try{return oP.apply(this,arguments)}finally{PK=null}}
+ let sl=GS.slice(0,cap()).find(([c,r])=>!S.home.deco.some(d=>d.c==c&&d.r==r));if(!sl){toast('🌱 Die Gartenecke ist voll ('+cap()+' Beete) – mit mehr Lebensräumen wird sie größer');return}
+ S.home.deco.push({k:'feld',c:sl[0],r:sl[1]});S.home.inv.feld--;save();hUi();SND.sfx('place');toast('🌱 Beet in die Gartenecke gesetzt')};
+// Umzug alter Spielstände: Beete in die Gartenecke (beste zuerst), Rest ins Lager (Ernte/Saat zurück); andere Deko aus Platz/Garten schieben
+function migrate(){let H=S.home,g=hGeo(),n=0;
+ if(V4.mg!==1){let beds=H.deco.filter(d=>d.k=='feld'),C=cap();beds.sort((a,b)=>(b.pl?1+(b.pl.g||0):0)-(a.pl?1+(a.pl.g||0):0));
+  let keep=beds.slice(0,C),extra=beds.slice(C),inf=[];keep.forEach((d,i)=>{d.c=GS[i][0];d.r=GS[i][1]});
+  extra.forEach(d=>{if(d.pl){let S0=C9V20.SEEDS[d.pl.s];H.seeds=H.seeds||{};H.items=H.items||{};if(S0&&(d.pl.g||0)>=1){Object.entries(S0.y).forEach(([k,m])=>{H.items[k]=(H.items[k]||0)+m});H.coins+=S0.c|0;inf.push('Ernte')}else{H.seeds[d.pl.s]=(H.seeds[d.pl.s]||0)+1;inf.push('Saat')}}H.inv.feld=(H.inv.feld||0)+1});
+  H.deco=H.deco.filter(d=>!extra.includes(d));V4.mg=1;V4.mgx=extra.length;n++;
+  if(beds.length)setTimeout(()=>toast('🌱 Neu: die Gartenecke! '+keep.length+' Beet'+(keep.length>1?'e':'')+' stehen jetzt ordentlich beisammen'+(extra.length?' · '+extra.length+' ins Lager'+(inf.length?' (Ernte/Saat zurück)':''):''),4800),1200)}
+ H.deco.slice().forEach(d=>{if(d.k=='feld'){if(isG(d.c,d.r))return;let sl=GS.slice(0,cap()).find(([c,r])=>!H.deco.some(o=>o!==d&&o.c==c&&o.r==r));if(sl){d.c=sl[0];d.r=sl[1]}else{H.deco=H.deco.filter(o=>o!==d);H.inv.feld=(H.inv.feld||0)+1}n++;return}
+  if(cellFree(d.c,d.r,d))return;let best=null,bd=1e9;for(let r=0;r<g.rows;r++)for(let c=0;c<g.cols;c++){if(!cellFree(c,r,d))continue;let dd=Math.hypot(c-d.c,(r-d.r)*1.2);if(dd<bd){bd=dd;best=[c,r]}}
+  if(best){d.c=best[0];d.r=best[1]}else{H.deco=H.deco.filter(o=>o!==d);H.inv[d.k]=(H.inv[d.k]||0)+1}n++});
+ if(n)save();return n}
+// ---------- Zeichnen: Platz + Gartenecke (Bodenebene) ----------
+const dk=()=>dayK();
+function stones(P){X.save();X.beginPath();X.ellipse(P.x,P.y,P.rx,P.ry,0,0,TAU);X.clip();X.strokeStyle='rgba(120,100,150,.22)';X.lineWidth=1.2;
+ for(let k=1;k<4;k++){X.beginPath();X.ellipse(P.x,P.y,P.rx*k/4,P.ry*k/4,0,0,TAU);X.stroke()}for(let k=0;k<16;k++){let a=k/16*TAU+(k%2)*.1;X.beginPath();X.moveTo(P.x+Math.cos(a)*P.rx*.25,P.y+Math.sin(a)*P.ry*.25);X.lineTo(P.x+Math.cos(a)*P.rx,P.y+Math.sin(a)*P.ry);X.stroke()}X.restore()}
+function fountain(x,y,t){dE(x,y+4,18,7,'rgba(70,60,140,.18)');let g1=X.createLinearGradient(0,y-8,0,y+6);g1.addColorStop(0,'#e8e2f4');g1.addColorStop(1,'#b8acd4');dE(x,y,17,7,'#c8bce0');X.fillStyle=g1;X.fillRect(x-17,y-6,34,6);dE(x,y-6,17,6.5,'#ece6f8');dE(x,y-6,14,5,'#8ad0f4');
+ X.fillStyle='#d8d0ec';X.fillRect(x-2.5,y-20,5,14);dE(x,y-20,7,2.6,'#e8e2f4');for(let i=0;i<6;i++){let k=(t*1.2+i/6)%1,a=i/6*TAU,r=k*10;X.fillStyle='rgba(170,220,255,'+(1-k)*.9+')';X.beginPath();X.arc(x+Math.cos(a)*r,y-22+k*15-Math.sin(k*Math.PI)*8,1.6,0,TAU);X.fill()}}
+function fire(x,y,t,lv){dE(x,y+3,16,5,'rgba(60,40,40,.25)');X.strokeStyle='#8a5a3a';X.lineWidth=4;X.lineCap='round';X.beginPath();X.moveTo(x-12,y+2);X.lineTo(x+10,y-3);X.moveTo(x+12,y+2);X.lineTo(x-10,y-3);X.stroke();
+ for(let i=0;i<7;i++){let a=i/7*TAU;dE(x+Math.cos(a)*15,y+Math.sin(a)*5+1,3.4,2.4,'#a8a0b8')}
+ if(lv<=.2){for(let i=0;i<4;i++){X.fillStyle='rgba(255,'+(90+i*20)+',40,'+(.5+.4*Math.sin(t*3+i))+')';X.beginPath();X.arc(x-6+i*4,y-1,1.6,0,TAU);X.fill()}return}
+ for(let i=0;i<3;i++){let f=1-i*.28,h=(20+Math.sin(t*9+i*2)*3)*f*lv,w=8*f;let gg=X.createLinearGradient(0,y-h,0,y);gg.addColorStop(0,'rgba(255,240,140,0)');gg.addColorStop(.3,i==2?'#fff3b0':i==1?'#ffc040':'#ff7a2a');gg.addColorStop(1,i==2?'#ffe070':'#ff5a1a');X.fillStyle=gg;X.beginPath();X.moveTo(x-w,y);X.quadraticCurveTo(x-w*.8,y-h*.5,x+Math.sin(t*7+i)*2,y-h);X.quadraticCurveTo(x+w*.8,y-h*.5,x+w,y);X.fill()}
+ for(let i=0;i<4;i++){let k=(t*.7+i/4)%1;X.fillStyle='rgba(255,200,90,'+(1-k)+')';X.beginPath();X.arc(x+Math.sin(t*3+i*2)*6,y-22-k*26,1.3,0,TAU);X.fill()}}
+function glow(x,y,r,a,col){X.save();X.globalCompositeOperation='lighter';let g=X.createRadialGradient(x,y,2,x,y,r);g.addColorStop(0,col.replace('A',a));g.addColorStop(1,col.replace('A',0));X.fillStyle=g;X.beginPath();X.arc(x,y,r,0,TAU);X.fill();X.restore()}
+function blanket(x,y,c1,c2){X.save();X.translate(x,y);X.transform(1,0,-.35,1,0,0);X.fillStyle=c1;X.fillRect(-20,-9,40,18);X.fillStyle=c2;for(let i=0;i<4;i++)for(let j=0;j<2;j++)if((i+j)%2)X.fillRect(-20+i*10,-9+j*9,10,9);X.restore()}
+function lamp(x,y,on){X.fillStyle='#7a6a9a';X.fillRect(x-1.2,y-22,2.4,22);dE(x,y,4,1.6,'rgba(70,60,140,.25)');X.fillStyle=on?'#fff0a8':'#e8e2f4';X.beginPath();X.arc(x,y-24,4,0,TAU);X.fill();if(on)glow(x,y-24,16,.4,'rgba(255,220,120,A)')}
+let FEST=null;
+window.C9PLAZA=function(g,t){let P=PR(),ph=phase(),D=dk(),night=D.dk>.4||ph=='nacht';
+ // Gartenecke (Boden)
+ garden(g,t);
+ // Platz: weicher Rand, helle Pflastersteine
+ dE(P.x,P.y+5,P.rx+5,P.ry+4,'rgba(80,60,150,.16)');let pg=X.createRadialGradient(P.x-P.rx*.3,P.y-P.ry*.4,6,P.x,P.y,P.rx*1.1);pg.addColorStop(0,'#fbf6ee');pg.addColorStop(1,'#e6dccc');X.fillStyle=pg;X.beginPath();X.ellipse(P.x,P.y,P.rx,P.ry,0,0,TAU);X.fill();
+ X.strokeStyle='rgba(255,255,255,.8)';X.lineWidth=2;X.beginPath();X.ellipse(P.x,P.y,P.rx-2,P.ry-2,0,Math.PI*1.1,Math.PI*1.75);X.stroke();X.strokeStyle='#cbbfae';X.lineWidth=2.4;X.beginPath();X.ellipse(P.x,P.y,P.rx,P.ry,0,0,TAU);X.stroke();stones(P);
+ // Blumen am Rand
+ for(let i=0;i<10;i++){let a=i/10*TAU+.3;if(Math.abs(Math.sin(a))<.25)continue;let x=P.x+Math.cos(a)*(P.rx+3),y=P.y+Math.sin(a)*(P.ry+2);X.fillStyle=['#ff9ac8','#ffd36a','#a8d8ff','#c8a8ff'][i%4];X.beginPath();X.arc(x,y,2.4,0,TAU);X.fill();X.fillStyle='#fff6c8';X.beginPath();X.arc(x,y,.9,0,TAU);X.fill()}
+ // Laternen (leuchten abends/nachts)
+ [[-.78,-.55],[.78,-.55],[-.78,.62],[.78,.62]].forEach(([a,b])=>lamp(P.x+P.rx*a,P.y+P.ry*b,D.dk>.3||!!FEST));
+ // Mitte je nach Tageszeit
+ let cx=P.x,cy=P.y+2;
+ if(FEST){fire(cx,cy,t,1);glow(cx,cy-10,70,.35,'rgba(255,170,90,A)')}
+ else if(ph=='feuer'){fire(cx,cy,t,1);glow(cx,cy-10,60,.42*(.6+D.dk*.6),'rgba(255,170,90,A)')}
+ else if(ph=='nacht'){fire(cx,cy,t,0);glow(cx,cy,24,.25,'rgba(255,140,60,A)')}
+ else{fountain(cx,cy,t);if(ph=='fruehstueck'){blanket(cx-34,cy+20,'#fff4d8','#ffc8a0');X.font='11px sans-serif';X.textAlign='center';X.fillText('🥐',cx-40,cy+22);X.fillText('🥛',cx-28,cy+20)}else if(ph=='picknick'){blanket(cx+34,cy+20,'#e8fff0','#ff9aa8');X.font='12px sans-serif';X.textAlign='center';X.fillText('🧺',cx+32,cy+19);X.font='10px sans-serif';X.fillText('🍓',cx+44,cy+22)}}
+ // Schild
+ if(!FEST){X.font='800 9px Nunito,sans-serif';let lb=PH[ph].e+' '+PH[ph].n,w=X.measureText(lb).width+12;X.fillStyle='rgba(255,255,255,.9)';X.beginPath();X.roundRect?X.roundRect(cx-w/2,P.y+P.ry+6,w,15,7.5):X.rect(cx-w/2,P.y+P.ry+6,w,15);X.fill();X.fillStyle='#6a55c8';X.textAlign='center';X.textBaseline='middle';X.fillText(lb,cx,P.y+P.ry+14)}};
+function garden(g,t){let C=cap(),cells=GS.slice(0,C).map(([c,r])=>cellXY(g,c,r)),all=GS.map(([c,r])=>cellXY(g,c,r));
+ let x0=Math.min(...cells.map(p=>p[0]))-34,x1=Math.max(...cells.map(p=>p[0]))+34,y0=Math.min(...cells.map(p=>p[1]))-26,y1=Math.max(...cells.map(p=>p[1]))+16;
+ dE((x0+x1)/2,y1+2,(x1-x0)/2+4,8,'rgba(80,60,150,.12)');X.fillStyle='rgba(176,140,100,.22)';X.beginPath();X.roundRect?X.roundRect(x0,y0,x1-x0,y1-y0,12):X.rect(x0,y0,x1-x0,y1-y0);X.fill();
+ // Zaun (Pfosten + Latte) rundum, vorne mit Tor-Lücke
+ X.strokeStyle='#c89a6a';X.lineWidth=2;X.beginPath();X.moveTo(x0+4,y0+6);X.lineTo(x1-4,y0+6);X.moveTo(x0+4,y0+6);X.lineTo(x0+4,y1-2);X.moveTo(x1-4,y0+6);X.lineTo(x1-4,y1-2);let mx=(x0+x1)/2;X.moveTo(x0+4,y1-2);X.lineTo(mx-12,y1-2);X.moveTo(mx+12,y1-2);X.lineTo(x1-4,y1-2);X.stroke();
+ X.fillStyle='#e0b888';const post=(x,y)=>{X.fillRect(x-1.6,y-7,3.2,9);X.beginPath();X.arc(x,y-7,1.6,0,TAU);X.fill()};for(let x=x0+4;x<=x1-3;x+=18){post(x,y0+6)}for(let y=y0+6;y<=y1;y+=16){post(x0+4,y);post(x1-4,y)}post(mx-12,y1-2);post(mx+12,y1-2);
+ // freie Beet-Plätze: gestrichelt
+ GS.slice(0,C).forEach(([c,r])=>{if(S.home.deco.some(d=>d.c==c&&d.r==r))return;let[x,y]=cellXY(g,c,r);X.save();X.setLineDash([4,4]);X.strokeStyle='rgba(140,100,60,.45)';X.lineWidth=1.5;X.beginPath();X.roundRect?X.roundRect(x-22,y-12,44,16,6):X.rect(x-22,y-12,44,16);X.stroke();X.restore()});
+ // Schild
+ X.font='800 9px Nunito,sans-serif';let lb='🌱 Gartenecke · '+S.home.deco.filter(d=>d.k=='feld').length+'/'+C,w=X.measureText(lb).width+12;X.fillStyle='rgba(255,255,255,.92)';X.beginPath();X.roundRect?X.roundRect(mx-w/2,y1+3,w,15,7.5):X.rect(mx-w/2,y1+3,w,15);X.fill();X.fillStyle='#8a5a2a';X.textAlign='center';X.textBaseline='middle';X.fillText(lb,mx,y1+10.5)}
+// ---------- Tiere auf dem Platz ----------
+function spot(a,E){let P=PR(),ph=E.fest?'fest':phase(),n=E.i||0;let r=ph=='fest'?(.38+(n%3)*.2):.62,a0=E.ang;return[P.x+Math.cos(a0)*P.rx*r,P.y+Math.sin(a0)*P.ry*r]}
+window.C9PLPOS=function(a,E,p){let sp=spot(a,E);if(E.ph=='go'||E.ph=='back'){let w=Math.max(0,Math.min(1,(E.s-.82)/.18));w=w*w*(3-2*w);return[p[0]+(sp[0]-p[0])*w,p[1]+(sp[1]-p[1])*w]}
+ if(E.ph=='stay'){let P=PR(),act=E.fest?'fest':E.act;if(act=='fangen'){let tt=E.tt||0,an=E.ang+tt*.9*(E.cw?1:-1)*0+tt*.9;return[P.x+Math.cos(an)*P.rx*.62,P.y+Math.sin(an)*P.ry*.62]}if(act=='fest'){let tt=E.tt||0;return[sp[0]+Math.sin(tt*5+E.ang*3)*4,sp[1]+Math.cos(tt*4+E.ang)*2]}return sp}return null};
+function atPlaza(){return HA.filter(a=>a.ex&&a.ex.to=='@P'&&!a.ex.fest)}
+function freeAnimals(){return HA.filter(a=>{let k=X2.AH[a.e];return k&&HABS[k]&&HABS[k].m!='swim'&&!a.ex&&!a.scared&&a.sx!=null})}
+let nextSend=3,lastPh=null;
+function send(a,opt){let k=X2.AH[a.e],used=HA.filter(b=>b.ex&&b.ex.to=='@P').map(b=>b.ex.ang),ang;for(let i=0;i<12;i++){ang=R()*TAU;if(!used.some(u=>Math.abs(Math.atan2(Math.sin(u-ang),Math.cos(u-ang)))<.7))break}
+ if(Math.abs(Math.sin(ang))<.2)ang+=.4;// nicht genau links/rechts (Brückenenden)
+ a.ex=Object.assign({from:k,to:'@P',s:0,ph:'go',ang,act:phase(),dur:40+R()*45,i:HA.indexOf(a)},opt||{});a.plT=Date.now()}
+const oS=hStep;hStep=function(list,g,dt){if(list===HA&&!HED&&!window.C9VIS){
+  HA.forEach(a=>{let E=a.ex;if(!E||E.to!=='@P')return;if(E.ph=='stay'){if(!E.st){E.st=1;E.t=E.fest?999:E.dur;E.tt=0}E.tt+=dt;if(!E.fest&&E.act!==phase()&&E.t>6)E.t=4+R()*3}});
+  if(!FEST){let ph=phase(),cfg=PH[ph],n=atPlaza().length;if(ph!==lastPh){lastPh=ph;nextSend=2}
+   nextSend-=dt;if(nextSend<=0){nextSend=7+R()*9;let tgt=cfg.min+((Date.now()/6e4|0)%(cfg.max-cfg.min+1));if(n<tgt){let c=freeAnimals().sort((x,y)=>(x.plT||0)-(y.plT||0)).slice(0,6);if(c.length)send(c[R()*c.length|0])}
+    else if(n>cfg.max){let a=atPlaza().find(a=>a.ex.ph=='stay');if(a)a.ex.t=Math.min(a.ex.t,2)}}}
+  else festStep(dt)}
+ let r=oS.apply(this,arguments);
+ if(list===HA)HA.forEach(a=>{let E=a.ex;if(!E||E.to!=='@P'||E.ph!=='stay')return;let P=PR(),act=E.fest?'fest':E.act,[x]=spot(a,E);
+  if(act=='fangen'){a.spd=30;a.mv=true;let an=E.ang+(E.tt||0)*.9;a.dir=Math.sin(an)<0?false:true;a.dir=-Math.sin(an)*P.rx<0}
+  else if(act=='fest'){a.spd=0;if(!(a.hop>0)&&R()<dt*1.4)a.hop=1;if(R()<dt*.8)a.dir=!a.dir}
+  else{a.spd=0;a.dir=x>P.x}if(act!='fangen')E.mv=false});
+ return r};
+// ---------- Tierfest ----------
+const CD=3*3600e3,FD=25;
+function festLeft(){return Math.max(0,(V4.fest||0)+CD-Date.now())}
+function festSheet(){let L=festLeft();if(FEST)return;if(L>0){hSheet(`<h3>🎉 Tierfest</h3><p>Das letzte Fest ist noch nicht lange her – alle ruhen sich aus.</p><p><b>Nächstes Fest in ${Math.ceil(L/6e4)} Min.</b></p><p><small>${PH[phase()].e} Gerade auf dem Dorfplatz: ${PH[phase()].n}</small></p>`);return}
+ hSheet(`<h3>🎉 Tierfest auf dem Dorfplatz?</h3><p>Alle Tiere kommen für eine kleine <b>Tanzparty</b> (ca. ${FD} Sekunden) und gehen danach wieder nach Hause.</p><p><small>Belohnung: +15 🪙 und ein bisschen Freundschaft für alle Gäste · danach 3 Std. Pause</small></p><button id="v44fest">💃 Los geht’s!</button>`);
+ $('v44fest').onclick=()=>{$('hSheet').classList.add('hide');startFest()}}
+let CONF=[];
+function startFest(){if(FEST||festLeft()>0)return;V4.fest=Date.now();save();FEST={t:0,guests:[]};let walk=HA.filter(a=>{let k=X2.AH[a.e];return k&&HABS[k]&&HABS[k].m!='swim'&&!(a.ex&&a.ex.task)&&!a.scared});
+ walk.forEach((a,i)=>{if(a.ex&&a.ex.to=='@P'){a.ex.fest=1;a.ex.sp=2.4;a.ex.i=i;if(a.ex.ph=='back')a.ex.ph='go';a.ex.st=0}else if(!a.ex){send(a,{fest:1,sp:2.6,i});a.ex.ang=i/Math.max(1,walk.length)*TAU+R()*.2}FEST.guests.push(a)});
+ try{SND.setScene('fest',false);SND.inten=1}catch(_){}toast('🎉 Tierfest! Alle kommen zum Dorfplatz …',2400);SND.sfx&&SND.sfx('celebrate')}
+function festStep(dt){FEST.t+=dt;if(R()<dt*30)CONF.push({x:(R()-.5)*2,y:-1,vx:(R()-.5)*30,vy:14+R()*26,c:'hsl('+(R()*360|0)+',90%,70%)',l:1.6+R()*1.6});
+ HA.forEach(a=>{let k=X2.AH[a.e];if(k&&HABS[k]&&HABS[k].m=='swim'&&R()<dt*.6)a.hop=1});
+ if(FEST.t>=FD+6){let n=0;FEST.guests.forEach(a=>{if(a.ex&&a.ex.fest){if(a.ex.ph=='stay'||a.ex.ph=='go'){n++;try{C9V20.addFp(a.e,2)}catch(_){}}a.ex.ph='back';a.ex.fest=0;a.ex.sp=1.6}});S.home.coins+=15;save();try{hUi()}catch(_){}
+  FEST=null;CONF=[];try{sndScene()}catch(_){}toast('💜 Was für ein Fest! +15 🪙 · '+n+' Gäste haben mitgetanzt',3200)}}
+const oD=homeDraw;homeDraw=function(n,dt){if(FEST||CONF.length){let P=PR(),d=Math.min(.05,(dt||16)/1000);CONF.forEach(c=>{c.x2=c.x2==null?P.x+c.x*P.rx*1.4:c.x2;c.y2=c.y2==null?P.y-40-R()*90:c.y2;c.x2+=c.vx*d;c.y2+=c.vy*d;c.l-=d});CONF=CONF.filter(c=>c.l>0);
+  let L=CONF.slice();(window.C9VDRAW=window.C9VDRAW||[]).push(()=>{L.forEach(c=>{X.fillStyle=c.c;X.save();X.translate(c.x2,c.y2);X.rotate(c.l*6);X.fillRect(-2,-1,4,2);X.restore()})})}return oD.apply(this,arguments)};
+// Musik fürs Fest
+try{SND._T.fest={bpm:116,root:65,prog:[[0,[0,4,7,11]],[5,[0,4,7,11]],[9,[0,3,7,10]],[7,[0,4,7,10]]],lead:'kal',scale:[0,2,4,7,9],lp:3600,dens:.72,sw:.12,dr:.85,arp:4,ai:'ep'}}catch(_){}
+// Tippen auf den Platz → Tierfest
+const oT=hTap;hTap=function(p){if(!HED&&!window.C9VIS){let P=PR(),g=hGeo(),bd=1e9;HA.forEach(a=>{if(a.sx!=null)bd=Math.min(bd,Math.hypot(a.sx-p.x,(a.sy-12)-p.y))});let vt=window.C9.visTap&&C9.visTap(p);
+  if(!vt&&bd>g.cw*.4&&((p.x-P.x)/P.rx)**2+((p.y-P.y)/P.ry)**2<1){try{SND.sfx('tap')}catch(_){}return festSheet()}}return oT.apply(this,arguments)};
+// Szene beim Fest beibehalten
+const oSc=window.sndScene;if(typeof sndScene=='function'){sndScene=function(){if(FEST){try{SND.setScene('fest',false)}catch(_){}return}return oSc.apply(this,arguments)}}
+const oO=openHome;openHome=function(){let r;try{migrate()}catch(e){console.error(e)}r=oO.apply(this,arguments);return r};
+window.C9.v44={phase,PH,cap,GS,migrate,startFest,festSheet,festLeft,get FEST(){return FEST},atPlaza,send,PR};
+})();
+</script>
+</body></html>
