@@ -1369,7 +1369,7 @@ list.forEach((a,i)=>{let Z=Zs[i],sp=(a.fl?30:22)*(Z.m=='free'?1:Z.m=='slide'?.9:
 function homeDraw(n,dt){if(!HX)return;let t=n/1000,g=hGeo(),th=THEMES[S.home.theme]||THEMES[0];withCtx(HX,()=>{
 X.drawImage(hSky(),0,0,HW,HH);
 for(let i=0;i<4;i++){let x=((t*(8+i*3)+i*137)%(HW+160))-80,y=40+i*((HH*.75)/4);X.globalAlpha=.75;puffs(X,x,y,14+i*3,'#fff',th.night?'#c8c4f0':'#e9e2ff');X.globalAlpha=1}
-let bob=Math.sin(t*1.1)*3;X.save();X.translate(hOX(),hOY()+bob*HV.z);X.scale(HV.z,HV.z);
+let bob=Math.sin(t*1.1)*3;X.save();X.translate(Math.round(hOX()*D)/D,Math.round((hOY()+bob*HV.z)*D)/D);X.scale(HV.z,HV.z);
 if(window.C9V42)C9V42.base(g,t,th,bob);else{let{cx,cy,rx,ry}=g;dE(cx,cy+ry*1.62-bob,rx*.6,ry*.12,'rgba(90,70,170,.10)');
 X.fillStyle=(()=>{let gg=X.createLinearGradient(0,cy,0,cy+ry*1.6);gg.addColorStop(0,th.base);gg.addColorStop(1,drk2(th.base,.25));return gg})();X.beginPath();X.ellipse(cx,cy+ry*.15,rx*.98,ry*1.05,0,0,Math.PI);X.quadraticCurveTo(cx-rx*.4,cy+ry*1.05,cx,cy+ry*1.35);X.quadraticCurveTo(cx+rx*.4,cy+ry*1.05,cx+rx*.98,cy+ry*.15);X.fill();
 X.strokeStyle=drk2(th.base,.15);X.lineWidth=2;X.lineCap='round';for(let i=0;i<5;i++){let x=cx+(i-2)*rx*.28,y0=cy+ry*.9-Math.abs(i-2)*ry*.2;X.beginPath();X.moveTo(x,y0);X.quadraticCurveTo(x+Math.sin(t+i)*6,y0+16,x+Math.sin(t*.8+i)*4,y0+30-Math.abs(i-2)*6);X.stroke()}
@@ -1600,7 +1600,7 @@ const oHD=homeDraw;homeDraw=function(n,dt){if(n-lastU>1000){lastU=n;DK_=dayK();b
  if(du>.02){X.globalCompositeOperation='soft-light';X.fillStyle='rgba(255,140,90,'+(du*.55)+')';X.fillRect(0,0,HW,HH);X.globalCompositeOperation='source-over'}
  if(dk>.02){X.globalCompositeOperation='multiply';let c=a=>Math.round(255-(255-a)*dk*.85);X.fillStyle=`rgb(${c(105)},${c(115)},${c(190)})`;X.fillRect(0,0,HW,HH);X.globalCompositeOperation='source-over';
   let top=hOY()-g.ry*1.05*HV.z;ST.forEach(([sx,sy,r,ph])=>{let y=sy*HH*.45;if(y>top-6)return;X.globalAlpha=dk*(.5+Math.sin(t*2+ph)*.4);dE(sx*HW,y,r,r,'#fff')});X.globalAlpha=dk;X.font='26px sans-serif';X.textAlign='center';X.textBaseline='middle';X.fillText('🌙',HW-34,Math.min(36,top-10)>14?36:36);X.globalAlpha=1}
- let bob=Math.sin(t*1.1)*3;X.save();X.translate(hOX(),hOY()+bob*HV.z);X.scale(HV.z,HV.z);
+ let bob=Math.sin(t*1.1)*3;X.save();X.translate(Math.round(hOX()*D)/D,Math.round((hOY()+bob*HV.z)*D)/D);X.scale(HV.z,HV.z);
  if(dk>.3){X.globalCompositeOperation='lighter';let sc=g.cw/50;S.home.deco.forEach(d=>{if(d.k!='laterne'&&d.k!='haus')return;let[x,y]=cellXY(g,d.c,d.r),yy=y-(d.k=='laterne'?44:20)*sc,R0=(d.k=='laterne'?60:44)*sc*(1+Math.sin(t*3+x)*.04),gl=X.createRadialGradient(x,yy,2,x,yy,R0);gl.addColorStop(0,'rgba(255,220,130,'+(.55*dk)+')');gl.addColorStop(1,'rgba(255,200,100,0)');X.fillStyle=gl;X.beginPath();X.arc(x,yy,R0,0,7);X.fill()});
   FF.forEach((f,i)=>{let x=Math.sin(t*f.sp+f.ph)*g.rx*.8*f.u+Math.cos(t*.3+i)*20,y=g.ch*.1+Math.cos(t*f.sp*.8+f.ph*2)*g.ry*.7*f.v-20,al=(.5+Math.sin(t*4+f.ph)*.5)*dk,gl=X.createRadialGradient(x,y,0,x,y,9);gl.addColorStop(0,'rgba(230,255,140,'+al+')');gl.addColorStop(1,'rgba(200,255,100,0)');X.fillStyle=gl;X.beginPath();X.arc(x,y,9,0,7);X.fill()});X.globalCompositeOperation='source-over'}
  if(WC){let cx=WC.x,cy=WC.y-70/HV.z;X.globalAlpha=.95;puffs(X,cx,cy,22,'#fff','#c8d6f0');X.globalAlpha=1;for(let i=0;i<10;i++){let k=(t*2.2+i/10)%1,x=cx+(i/9-.5)*34+Math.sin(i*7)*3;X.strokeStyle='rgba(120,180,255,'+(1-k)*.9+')';X.lineWidth=2;X.beginPath();X.moveTo(x,cy+12+k*48);X.lineTo(x-1,cy+20+k*48);X.stroke()}
@@ -4151,7 +4151,9 @@ const HR=()=>dayK().h;
 function phase(h){h=h==null?HR():h;if(h>=6.5&&h<10.5)return'fruehstueck';if(h>=10.5&&h<13.5)return'picknick';if(h>=13.5&&h<16.5)return'fangen';if(h>=16.5&&h<21.5)return'feuer';return'nacht'}
 const PH={fruehstueck:{n:'Frühstück',e:'🥐',min:3,max:4},picknick:{n:'Picknick',e:'🧺',min:3,max:5},fangen:{n:'Fangen spielen',e:'🏃',min:4,max:5},feuer:{n:'Lagerfeuer',e:'🔥',min:3,max:5},nacht:{n:'Nachtruhe',e:'🌙',min:0,max:1}};
 // ---------- Felder blockieren (Platz + Garten) ----------
-const GS=[[7,15],[8,15],[7,16],[8,16],[6,15],[9,15],[6,16],[9,16]];
+const GS=[[7,14],[8,14],[7,15],[8,15],[6,14],[9,14],[6,15],[9,15]];// v44.3: eine Reihe höher, ganz auf der Inseloberfläche
+if(V4.g3!==1){V4.g3=1;V4.msig=''}
+const GOF=.45;{const oCXY=cellXY;cellXY=function(g,c,r){let p=oCXY(g,c,r);if((r===14||r===15)&&c>=6&&c<=9)p[1]+=g.ch*GOF;return p}}
 function cap(){let n=S.home.hab.filter(h=>h.on).length;return Math.min(GS.length,n>=11?8:n>=6?6:4)}
 const isG=(c,r,all)=>GS.slice(0,all?8:cap()).some(([a,b])=>a==c&&b==r);
 const oCin=X2.cin;X2.cin=function(c,r,g){if(isG(c,r,1))return true;return oCin.apply(this,arguments)};
@@ -4198,7 +4200,7 @@ window.C9PLAZA=function(g,t){let P=PR(),ph=phase(),D=dk(),night=D.dk>.4||ph=='na
  // Blumen am Rand
  for(let i=0;i<10;i++){let a=i/10*TAU+.3;if(Math.abs(Math.sin(a))<.25)continue;let x=P.x+Math.cos(a)*(P.rx+3),y=P.y+Math.sin(a)*(P.ry+2);X.fillStyle=['#ff9ac8','#ffd36a','#a8d8ff','#c8a8ff'][i%4];X.beginPath();X.arc(x,y,2.4,0,TAU);X.fill();X.fillStyle='#fff6c8';X.beginPath();X.arc(x,y,.9,0,TAU);X.fill()}
  }if(!(PM&2))return;
- gsign(g);
+ (window.C9VDRAW=window.C9VDRAW||[]).push(()=>gsign(g));// v44.3: Schild zuletzt (über Rand, Gras, Deko)
  // Laternen (leuchten abends/nachts)
  [[-.78,-.55],[.78,-.55],[-.78,.62],[.78,.62]].forEach(([a,b])=>lamp(P.x+P.rx*a,P.y+P.ry*b,D.dk>.3||!!FEST));
  // Mitte je nach Tageszeit
@@ -4219,7 +4221,7 @@ function garden(g,t){let C=cap(),cells=GS.slice(0,C).map(([c,r])=>cellXY(g,c,r))
  GS.slice(0,C).forEach(([c,r])=>{if(S.home.deco.some(d=>d.c==c&&d.r==r))return;let[x,y]=cellXY(g,c,r);X.save();X.setLineDash([4,4]);X.strokeStyle='rgba(140,100,60,.45)';X.lineWidth=1.5;X.beginPath();X.roundRect?X.roundRect(x-22,y-12,44,16,6):X.rect(x-22,y-12,44,16);X.stroke();X.restore()});
 }
 function gsign(g){let C=cap(),cells=GS.slice(0,C).map(([c,r])=>cellXY(g,c,r));let x0=Math.min(...cells.map(p=>p[0]))-34,x1=Math.max(...cells.map(p=>p[0]))+34,y1=Math.max(...cells.map(p=>p[1]))+16,mx=(x0+x1)/2;
- X.font='800 9px Nunito,sans-serif';let lb='🌱 Gartenecke · '+S.home.deco.filter(d=>d.k=='feld').length+'/'+C,w=X.measureText(lb).width+12;X.fillStyle='rgba(255,255,255,.92)';X.beginPath();X.roundRect?X.roundRect(mx-w/2,y1+3,w,15,7.5):X.rect(mx-w/2,y1+3,w,15);X.fill();X.fillStyle='#8a5a2a';X.textAlign='center';X.textBaseline='middle';X.fillText(lb,mx,y1+10.5)}
+ X.save();X.globalAlpha=1;X.globalCompositeOperation='source-over';X.shadowBlur=0;X.font='800 9px Nunito,sans-serif';let lb='🌱 Gartenecke · '+S.home.deco.filter(d=>d.k=='feld').length+'/'+C,w=X.measureText(lb).width+12;X.fillStyle='#fff';X.strokeStyle='rgba(138,90,42,.35)';X.lineWidth=1;X.beginPath();X.roundRect?X.roundRect(mx-w/2,y1+3,w,15,7.5):X.rect(mx-w/2,y1+3,w,15);X.fill();X.stroke();X.fillStyle='#5a3414';X.textAlign='center';X.textBaseline='middle';X.fillText(lb,mx,y1+10.5);X.restore()}
 // ---------- Tiere auf dem Platz ----------
 function spot(a,E){let P=PR(),ph=E.fest?'fest':phase(),n=E.i||0;let r=ph=='fest'?(.52+(n%3)*.16):.62,a0=E.ang;return[P.x+Math.cos(a0)*P.rx*r,P.y+Math.sin(a0)*P.ry*r]}
 window.C9PLPOS=function(a,E,p){let sp=spot(a,E);if(E.ph=='go'||E.ph=='back'){let w=Math.max(0,Math.min(1,(E.s-.82)/.18));w=w*w*(3-2*w);return[p[0]+(sp[0]-p[0])*w,p[1]+(sp[1]-p[1])*w]}
@@ -4247,7 +4249,8 @@ const oS=hStep;hStep=function(list,g,dt){if(list===HA&&!HED&&!window.C9VIS){
 // ---------- Tierfest ----------
 const CD=3*3600e3,FD=25;
 function festLeft(){return Math.max(0,(V4.fest||0)+CD-Date.now())}
-function festSheet(){let L=festLeft();if(FEST)return;if(L>0){hSheet(`<h3>🎉 Tierfest</h3><p>Das letzte Fest ist noch nicht lange her – alle ruhen sich aus.</p><p><b>Nächstes Fest in ${Math.ceil(L/6e4)} Min.</b></p><p><small>${PH[phase()].e} Gerade auf dem Dorfplatz: ${PH[phase()].n}</small></p>`);return}
+function festSheet(){if(window.C9PLSHEET&&!FEST)return C9PLSHEET();return festSheet0()}
+function festSheet0(){let L=festLeft();if(FEST)return;if(L>0){hSheet(`<h3>🎉 Tierfest</h3><p>Das letzte Fest ist noch nicht lange her – alle ruhen sich aus.</p><p><b>Nächstes Fest in ${Math.ceil(L/6e4)} Min.</b></p><p><small>${PH[phase()].e} Gerade auf dem Dorfplatz: ${PH[phase()].n}</small></p>`);return}
  hSheet(`<h3>🎉 Tierfest auf dem Dorfplatz?</h3><p>Alle Tiere kommen für eine kleine <b>Tanzparty</b> (ca. ${FD} Sekunden) und gehen danach wieder nach Hause.</p><p><small>Belohnung: +15 🪙 und ein bisschen Freundschaft für alle Gäste · danach 3 Std. Pause</small></p><button id="v44fest">💃 Los geht’s!</button>`);
  $('v44fest').onclick=()=>{$('hSheet').classList.add('hide');startFest()}}
 let CONF=[];
@@ -4364,10 +4367,10 @@ function build(l,m,bobPx,args){let T0=performance.now();try{build0(l,m,bobPx,arg
 function build0(l,m,bobPx,args){let w=HC.width,h=HC.height,MX=Math.round(w*.18),MY=Math.round(h*.18)+Math.ceil(10*HV.z*D)+2,W=w+2*MX,H=h+2*MY;
  if(!l.c){l.c=document.createElement('canvas');l.c.__big=1}
  if(l.c.width!==W||l.c.height!==H){l.c.width=W;l.c.height=H}let x=l.c.getContext('2d');x.setTransform(1,0,0,1,0,0);x.clearRect(0,0,W,H);
- x.setTransform(m.a,0,0,m.d,m.e+MX,m.f-bobPx+MY);let o=X;X=x;window.C9BM=l.bm;try{oB.apply(null,args)}finally{X=o;window.C9BM=15}
+ x.setTransform(m.a,0,0,m.d,m.e+MX,m.f+MY);let o=X;X=x;window.C9BM=l.bm;try{oB.apply(null,args)}finally{X=o;window.C9BM=15}
  l.m={a:m.a,e:m.e,f:m.f,MX,MY};builds++}
 function covers(l,m){let k=m.a/l.m.a,x=m.e-k*(l.m.e+l.m.MX),y=m.f-k*(l.m.f+l.m.MY);return x<=1&&y<=Math.ceil(12*HV.z*D)&&x+l.c.width*k>=HC.width-1&&y+l.c.height*k>=HC.height-Math.ceil(12*HV.z*D)}
-function blit(l,m,bobPx){let k=m.a/l.m.a,x=m.e-k*(l.m.e+l.m.MX),y=m.f+bobPx-k*(l.m.f+l.m.MY);X.save();X.setTransform(1,0,0,1,0,0);
+function blit(l,m,bobPx){let k=m.a/l.m.a,x=m.e-k*(l.m.e+l.m.MX),y=m.f-k*(l.m.f+l.m.MY);X.save();X.setTransform(1,0,0,1,0,0);
  if(Math.abs(k-1)<1e-6){X.drawImage(l.c,Math.round(x),Math.round(y))}else{X.imageSmoothingEnabled=true;X.drawImage(l.c,x,y,l.c.width*k,l.c.height*k)}X.restore()}
 X2.base=function(g,t,th,bob){
  if(window.C9NOCACHE||!HC)return oB.apply(this,arguments);
@@ -4379,7 +4382,7 @@ X2.base=function(g,t,th,bob){
  for(let i=0;i<2;i++){let l=L[i];let fresh=ok(l)&&l.vk===vk;if(fresh)continue;
   if(idle||!ok(l)){if(!ok(l)&&!idle&&l.c&&l.m&&l.sk!==sk){/* Inhalt geändert (z. B. Beet) → sofort */}
    if(stage<=i||!ok(l)){build(l,m,bobPx,arguments);l.sk=sk;l.vk=vk;stage=i+1;break}}}
- let use=L.every(l=>ok(l)&&covers(l,m));
+ let use=L.every(l=>ok(l)&&covers(l,m)&&Math.abs(m.a/l.m.a-1)<1e-6);// v44.3: beim Zoomen alles live (kein skaliertes Bild) → Ebenen bleiben exakt beisammen
  if(!use)return oB.apply(this,arguments);// Rand nicht abgedeckt → direkt zeichnen
  blit(L[0],m,bobPx);
  window.C9BM=2;try{oB.apply(this,arguments)}finally{window.C9BM=15}
@@ -4451,6 +4454,71 @@ const oRS=renderShop;renderShop=function(){oRS();if(SHT!='deco')return;let c=$('
 const oOH=openHome;openHome=function(){let r=oOH.apply(this,arguments);try{V.seed()}catch(_){}return r};
 refund();
 window.C9.v442={refund,total,placed};
+})();
+</script>
+<script>/* v44.3p: Dorfplatz-Blatt erklärt, was gerade los ist (mit den Tieren), + kleine Mitmach-Aktion je Tageszeit; Fangen = 18-s-Tipp-Spiel */
+(function(){
+const V=C9.v44,S=C9.S;S.v44=S.v44||{};const V4=S.v44;V4.pa=V4.pa||{};
+const CDA=15*60e3;// Pause je Aktion
+const TXT={fruehstueck:['🥐','Die Tiere frühstücken gerade zusammen!','Hörnchen, Milch und Beeren – lecker!','🍪 Leckerli verteilen','🍪'],
+ picknick:['🧺','Die Tiere machen ein Picknick!','Auf der Decke gibt es Erdbeeren und Brote.','🍓 Essen teilen','🍓'],
+ fangen:['🏃','Die Tiere spielen gerade Fangen!','Wer ist am schnellsten? Spiel mit und fang sie!','🏃 Mitspielen!',''],
+ feuer:['🔥','Die Tiere sitzen am Lagerfeuer!','Es ist warm und gemütlich – sie erzählen sich Geschichten.','🍡 Marshmallows rösten','🍡'],
+ nacht:['🌙','Nachtruhe – die Tiere schlafen.','Morgen früh ist hier wieder was los.','','']};
+const nm=e=>{try{return anName(e)}catch(_){return e}};
+const fp=(e,n)=>{try{C9V20.addFp(e,n)}catch(_){}};
+function here(){return V.atPlaza().filter(a=>a.ex&&(a.ex.ph=='stay'||a.ex.ph=='go'))}
+function left(ph){return Math.max(0,(V4.pa[ph]||0)+CDA-Date.now())}
+function sheet(){if(V.FEST)return;let ph=V.phase(),T=TXT[ph],L=here(),st=L.filter(a=>a.ex.ph=='stay').length,n=L.length;
+ let faces=L.map(a=>`<img src="${animalImg(a.e)}" alt="" title="${nm(a.e)}" style="width:42px;height:42px;margin:0 1px">`).join('');
+ let cnt=ph=='nacht'?'':n?`<p style="margin:4px 0"><b>${n} Tier${n>1?'e':''} ${st?'sind hier':'sind auf dem Weg'}</b></p><div style="margin:2px 0 6px">${faces}</div>`:`<p>Gerade ist niemand da – gleich kommt bestimmt wer vorbei.</p>`;
+ let act='';if(T[3]&&n){let l=left(ph);act=l>0?`<p><small>${T[0]} Gerade erst gemacht – wieder in ${Math.ceil(l/6e4)} Min.</small></p>`:`<button id="v443act">${T[3]}</button>`}
+ let fl=V.festLeft(),fest=fl>0?`<p><small>🎉 Tierfest wieder in ${Math.ceil(fl/6e4)} Min.</small></p>`:`<button id="v443fest" class="sec">🎉 Tierfest feiern</button>`;
+ hSheet(`<h3>${T[0]} ${T[1]}</h3><p>${T[2]}</p>${cnt}${act}${fest}`);
+ let b=$('v443act');if(b)b.onclick=()=>{$('hSheet').classList.add('hide');V4.pa[ph]=Date.now();save();ph=='fangen'?catchGame(L.map(a=>a.e)):treat(ph,L)};
+ let f=$('v443fest');if(f)f.onclick=()=>{$('hSheet').classList.add('hide');V.startFest()}}
+// kleine Aktion: alle hüpfen, Symbole steigen auf, +Freundschaft
+let FX=[];
+function treat(ph,L){let em=TXT[ph][4];L.forEach((a,i)=>{setTimeout(()=>{a.hop=1;FX.push({a,em,t:0})},i*180)});let c=2+L.length;S.home.coins+=c;save();try{hUi()}catch(_){}
+ L.forEach(a=>fp(a.e,1));try{SND.sfx('star')}catch(_){}toast(em+' '+L.map(a=>a.e).join('')+' freuen sich! +'+c+' 🪙 · Freundschaft +1',3200)}
+const oHD=homeDraw;homeDraw=function(n,dt){let r=oHD.apply(this,arguments);if(FX.length){let d=Math.min(.05,(dt||16)/1000);FX.forEach(f=>f.t+=d);FX=FX.filter(f=>f.t<1.6);
+  let L=FX.slice();(window.C9VDRAW=window.C9VDRAW||[]).push(()=>{L.forEach(f=>{if(f.a.sx==null)return;let k=f.t/1.6;X.save();X.globalAlpha=Math.min(1,(1-k)*2.5);X.font='16px sans-serif';X.textAlign='center';X.fillText(f.em,f.a.sx,f.a.sy-22-k*26);X.font='11px sans-serif';X.fillText('💖',f.a.sx+10,f.a.sy-30-k*34);X.restore()})})}return r};
+// ---------- Fangen: Tipp-Spiel ----------
+let GAME=null;
+function catchGame(list){if(GAME)return;list=list.slice(0,5);if(!list.length)return;
+ let o=document.createElement('div');o.id='v443catch';o.style.cssText='position:fixed;inset:0;z-index:9000;background:rgba(40,30,80,.45);display:flex;align-items:center;justify-content:center;touch-action:none;user-select:none;-webkit-user-select:none';
+ o.innerHTML=`<div style="position:relative;width:min(94vw,440px);height:min(78vh,620px);border-radius:26px;overflow:hidden;background:radial-gradient(120% 90% at 50% 20%,#d9ffd0,#9be08c 60%,#7cc96e);box-shadow:0 10px 40px rgba(0,0,0,.3)">
+ <div id="v443hud" style="position:absolute;left:0;right:0;top:0;padding:10px 14px;display:flex;justify-content:space-between;font:800 18px Nunito,sans-serif;color:#3a5a2a;z-index:2"><span id="v443n">🏃 0</span><span id="v443t">⏱️ 18</span></div>
+ <div id="v443f" style="position:absolute;inset:0"></div>
+ <div id="v443msg" style="position:absolute;left:0;right:0;top:40%;text-align:center;font:900 26px Nunito,sans-serif;color:#fff;text-shadow:0 2px 8px rgba(0,0,0,.35);z-index:3">Fang die Tiere!<br><small style="font-size:16px">Tipp sie schnell an 👆</small></div></div>`;
+ document.body.appendChild(o);let F=o.querySelector('#v443f'),box=F.getBoundingClientRect(),W=box.width,H=box.height,R=Math.random;
+ let A=list.map((e,i)=>{let im=document.createElement('img');im.src=animalImg(e);im.alt='';im.draggable=false;im.style.cssText='position:absolute;left:0;top:0;width:76px;height:76px;will-change:transform;pointer-events:none';F.appendChild(im);
+  return{e,im,x:40+R()*(W-120),y:70+R()*(H-160),vx:(R()<.5?-1:1)*(60+R()*50),vy:(R()-.5)*120,cool:0,caught:0,turn:R()}});
+ GAME={A,o,t:18,n:0,run:false,start:performance.now()+900,done:false,pops:[]};
+ const hit=ev=>{if(!GAME||!GAME.run)return;ev.preventDefault();let b=F.getBoundingClientRect(),pt=ev.touches?ev.touches[0]:ev,px=pt.clientX-b.left,py=pt.clientY-b.top;
+  let best=null,bd=1e9;A.forEach(a=>{if(a.cool>0)return;let d=Math.hypot(px-(a.x+38),py-(a.y+40));if(d<52&&d<bd){bd=d;best=a}});
+  if(best){best.cool=.8;best.caught++;GAME.n++;fp(best.e,0);try{SND.sfx('star')}catch(_){}vib&&vib(12);let p=document.createElement('div');p.textContent='💖';p.style.cssText=`position:absolute;left:${best.x+24}px;top:${best.y}px;font-size:30px;pointer-events:none;transition:transform .7s ease-out,opacity .7s;z-index:2`;F.appendChild(p);requestAnimationFrame(()=>{p.style.transform='translateY(-60px) scale(1.4)';p.style.opacity=0});setTimeout(()=>p.remove(),800);$('v443n').textContent='🏃 '+GAME.n}
+  else{try{SND.sfx('tap')}catch(_){}}};
+ o.addEventListener('pointerdown',hit);
+ let last=performance.now();
+ function step(now){if(!GAME||GAME.o!==o)return;let dt=Math.min(.05,(now-last)/1000);last=now;
+  if(!GAME.run&&now>=GAME.start&&!GAME.done){GAME.run=true;$('v443msg').style.display='none'}
+  if(GAME.run){GAME.t-=dt;$('v443t').textContent='⏱️ '+Math.max(0,Math.ceil(GAME.t));if(GAME.t<=0)return end()}
+  let sp=1+(18-Math.max(0,GAME.t))/18*.6;
+  A.forEach(a=>{if(a.cool>0){a.cool-=dt;let k=Math.max(0,a.cool/.8);a.im.style.opacity=k<.3?1:.35;a.im.style.transform=`translate(${a.x}px,${a.y}px) scale(${1-k*.3})`;if(a.cool<=0){a.x=R()<.5?-10:W-66;a.y=70+R()*(H-160);a.vx=(a.x<0?1:-1)*(70+R()*50)}return}
+   a.turn-=dt;if(a.turn<=0){a.turn=.6+R()*1.2;a.vy=(R()-.5)*160;if(R()<.3)a.vx*=-1}
+   a.x+=a.vx*dt*sp;a.y+=a.vy*dt*sp;if(a.x<-6){a.x=-6;a.vx=Math.abs(a.vx)}if(a.x>W-70){a.x=W-70;a.vx=-Math.abs(a.vx)}if(a.y<50){a.y=50;a.vy=Math.abs(a.vy)}if(a.y>H-84){a.y=H-84;a.vy=-Math.abs(a.vy)}
+   let hop=Math.abs(Math.sin(now/120+a.turn*7))*8,fl=a.vx<0?-1:1;a.im.style.opacity=1;a.im.style.transform=`translate(${a.x}px,${a.y-hop}px) scaleX(${fl})`});
+  requestAnimationFrame(step)}
+ requestAnimationFrame(step);
+ function end(){GAME.run=false;GAME.done=true;let n=GAME.n,c=Math.min(12,2+Math.floor(n/2));S.home.coins+=c;let got=A.filter(a=>a.caught);got.forEach(a=>fp(a.e,1));save();try{hUi()}catch(_){}try{SND.sfx('celebrate')}catch(_){}
+  let m=$('v443msg');m.style.display='block';m.innerHTML=`${n>=10?'Super schnell! 🌟':n>=5?'Toll gefangen! 🎉':'Gut gemacht! 😊'}<br><small style="font-size:17px">${n}× gefangen · +${c} 🪙${got.length?' · '+got.map(a=>a.e).join('')+' 💖':''}</small><br><button id="v443ok" style="margin-top:14px;font-size:18px">Fertig</button>`;
+  $('v443ok').onclick=close;setTimeout(()=>{if(GAME&&GAME.o===o)close()},6000)}
+ function close(){if(o.parentNode)o.remove();GAME=null}}
+// Schild unter dem Platz antippen → immer das Platz-Blatt
+const oT=hTap;hTap=function(p){if(!HED&&!window.C9VIS&&!V.FEST&&p){let P=V.PR();if(Math.abs(p.x-P.x)<70&&p.y>P.y+P.ry+2&&p.y<P.y+P.ry+26){try{SND.sfx('tap')}catch(_){}return sheet()}}return oT.apply(this,arguments)};
+window.C9PLSHEET=sheet;
+window.C9.v443={sheet,catchGame,treat,get GAME(){return GAME},left};
 })();
 </script>
 </body></html>
