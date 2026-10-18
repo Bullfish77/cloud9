@@ -5196,4 +5196,20 @@ const oD=homeDraw;homeDraw=function(n,dt){if(G.flip>0&&V.hasG()){G.flip=Math.max
    X.restore()})}
  return oD.apply(this,arguments)};
 })();</script>
+<script>/* v47.2: 6-7-Hände beim Skelett-Tanz */
+(function(){const V=C9.v431;if(!V)return;const K=V.RO.s,ST={};window.C9.v472=ST;let pd=0,d0=0,dm=2;
+const oD=homeDraw;homeDraw=function(n,dt){let now=performance.now();if(K.dance>pd+.05){d0=now;dm=K.dance}pd=K.dance;
+ if(K.dance>0&&V.hasS()&&K.x!=null){let t=n/1000,dir=K.face||1,dn=Math.sin(t*16)*.4,x=K.x,y=K.y;
+  // Hände in Weltkoordinaten (wie skel(): Arme enden bei (±11, -30∓dn*14), gespiegelt mit dir)
+  let L={x:x-11,y:y-30+dir*dn*14},Rr={x:x+11,y:y-30-dir*dn*14},age=(now-d0)/1000,f=K.dance;
+  ST.l=L;ST.r=Rr;ST.t=now;
+  (window.C9VDRAW=window.C9VDRAW||[]).push(()=>{let m=X.getTransform(),cs=Math.hypot(m.a,m.b)/(window.devicePixelRatio||1)||1,fs=Math.max(17,21/cs),
+   pop=Math.min(1,age/.25),sc=pop<1?Math.sin(pop*Math.PI*.5)*1.3-(pop>.75?(pop-.75)*1.2:0):1,al=Math.min(1,f/.35,age/.08);sc=Math.max(.05,sc);ST.fs=fs;ST.al=al;
+   [['6',L,-1],['7',Rr,1]].forEach(([c,h,sd],i)=>{X.save();X.globalAlpha=al;X.translate(h.x+sd*fs*.36,h.y-fs*.62);X.rotate(Math.sin(t*16+i*Math.PI)*.22+sd*.08);X.scale(sc,sc);
+    X.font=`900 ${fs}px Nunito,system-ui,sans-serif`;X.textAlign='center';X.textBaseline='middle';X.lineJoin='round';
+    X.lineWidth=fs*.32;X.strokeStyle='#3a2a5a';X.strokeText(c,0,0);X.lineWidth=fs*.14;X.strokeStyle='#fff';X.strokeText(c,0,0);
+    let g=X.createLinearGradient(0,-fs*.5,0,fs*.5);g.addColorStop(0,i?'#7ad8ff':'#ffd34a');g.addColorStop(1,i?'#5a8aff':'#ff8a3a');X.fillStyle=g;X.fillText(c,0,0);X.restore()})})}
+ else ST.l=ST.r=null;
+ return oD.apply(this,arguments)};
+})();</script>
 </body></html>
