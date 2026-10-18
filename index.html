@@ -175,6 +175,8 @@ button.sm{padding:8px 12px;font-size:14px;margin:2px}.hbar b{font-size:16px;back
 <div id="end" class="scr mid hide"><h2 id="endT"></h2><div id="stars"></div><div id="endS"></div><div id="lvtxt" style="font-size:13px;margin-top:6px"></div><div id="lvbar"><div id="lvfill"></div></div><div id="endR" class="cards"></div>
 <button id="bNext">Weiter ▶</button><button id="again">Nochmal</button><button class="sec" id="home">Menü</button></div>
 <script>
+/* v46.2: ZENTRALER SCHALTER Testphase – alle Minispiel-Limits aus. false = Limits (2×/Tier, 6/Tag, Taler-Quote) wieder an. Auch erreichbar als C9.MG_UNLIMITED */window.C9_MG_UNLIMITED=true;
+
 const C=document.getElementById('c');let X=C.getContext('2d');let W,H,D=Math.min(2,devicePixelRatio||1);
 function rs(){W=innerWidth;H=innerHeight;C.width=W*D;C.height=H*D;X.setTransform(D,0,0,D,0,0)}addEventListener('resize',rs);rs();
 const $=id=>document.getElementById(id),R=Math.random;
@@ -1639,7 +1641,7 @@ const V=C9V20;
 const MG={fangen:{n:'Fangen',e:'🏃',d:'Tippe das Tier, bevor es weghüpft!'},fische:{n:'Fische springen lassen',e:'🐟',d:'Tippe die Fische, wenn sie aus dem See springen!'},sterne:{n:'Sternschnuppen fangen',e:'🌠',d:'Tippe die Sternschnuppen, bevor sie verglühen!'}};
 const MGMAX=6,DUR=25;
 function gameFor(a){let m=hZone(hGeo(),a).m;return m=='swim'||m=='slide'&&['🐧','🦭'].includes(a.e)?'fische':m=='perch'||m=='fly'||a.fl?'sterne':'fangen'}
-function play(a){let H=S.home,f=V.fr(a.e);if(H.mg.d!==today){H.mg={d:today,n:0}}if(M){mgClose()}if(f.play>=2)return hSheet(`<h3>😴 ${a.e} ist müde</h3><p>Jedes Tier spielt 2× pro Tag. Probier ein anderes Tier – oder morgen wieder!</p><p><small>noch ${Math.max(0,MGMAX-H.mg.n)} Spiele heute</small></p><button onclick="$('hSheet').classList.add('hide')">OK</button>`);if(H.mg.n>=MGMAX)return hSheet(`<h3>🎾 Heute genug gespielt</h3><p>Du hast heute schon ${MGMAX} Minispiele gespielt. Morgen gibt es neue Runden!</p><button onclick="$('hSheet').classList.add('hide')">OK</button>`);
+function play(a){let H=S.home,f=V.fr(a.e);if(H.mg.d!==today){H.mg={d:today,n:0}}if(M){mgClose()}if(!(window.C9&&C9.MG_UNLIMITED)&&f.play>=2)return hSheet(`<h3>😴 ${a.e} ist müde</h3><p>Jedes Tier spielt 2× pro Tag. Probier ein anderes Tier – oder morgen wieder!</p><p><small>noch ${Math.max(0,MGMAX-H.mg.n)} Spiele heute</small></p><button onclick="$('hSheet').classList.add('hide')">OK</button>`);if(!(window.C9&&C9.MG_UNLIMITED)&&H.mg.n>=MGMAX)return hSheet(`<h3>🎾 Heute genug gespielt</h3><p>Du hast heute schon ${MGMAX} Minispiele gespielt. Morgen gibt es neue Runden!</p><button onclick="$('hSheet').classList.add('hide')">OK</button>`);
  let k=gameFor(a),G2=MG[k];hSheet(`<h3>${G2.e} ${G2.n}</h3><img src="${animalImg(a.e)}" style="width:72px"><p>${G2.d}</p><p><small>${DUR} Sekunden · Belohnung: ❤️ für ${a.e} + 🪙 · noch ${MGMAX-H.mg.n} Spiele heute</small></p><button id="v21go">▶ Los geht's!</button>`);$('v21go').onclick=()=>{$('hSheet').classList.add('hide');startMG(k,a)}}
 const FISHK={fish:['#ffb35a','#ff8a3a','#ffd9a8'],trop:['#7fd8ff','#3aa0e8','#ffe36a'],blue:['#c9a6ff','#8d6be8','#ffd0f0'],gold:['#ffe26a','#f5b82e','#fff6c8']};
 function drawFish(x,k,sc,t){let c=FISHK[k],w=Math.sin(t*14)*.18;x.save();x.scale(sc,sc);x.lineJoin='round';x.lineWidth=2.5;x.strokeStyle='rgba(70,50,120,.35)';
@@ -3784,7 +3786,7 @@ const EL=document.getElementById('v43mg'),CV=EL.querySelector('canvas'),CD=EL.qu
 let M=null;
 function portrait(e,size){let c=document.createElement('canvas'),d=Math.min(3,devicePixelRatio||1);c.width=c.height=size*d;let x=c.getContext('2d'),o=X;X=x;try{x.scale(d,d);drawAnimal(e,size/2,size*.8,size/46,performance.now(),0,false)}catch(_){}X=o;return c}
 function nm(e){return(ANIMALS.find(a=>a[0]==e)||[e,e])[1]}
-function quota(e){let H=S.home;if(!H.mg||H.mg.d!==today)H.mg={d:today,n:0};let f=C9V20.fr(e);return{left:Math.max(0,MAXR-H.mg.n),mine:Math.max(0,PERA-(f.play||0)),f,H}}
+function quota(e){let H=S.home;if(!H.mg||H.mg.d!==today)H.mg={d:today,n:0};let f=C9V20.fr(e);if(C9.MG_UNLIMITED)return{left:99,mine:99,f,H};return{left:Math.max(0,MAXR-H.mg.n),mine:Math.max(0,PERA-(f.play||0)),f,H}}
 function open(e){let g=GAME[e];if(!g)return false;let F=FAM[g.f],tw=g.tw,q=quota(e),rw=q.left>0&&q.mine>0;
  EL.classList.remove('hide');resize();M=null;drawIdle(e,g);
  card(`<h2>${F.e} ${tw.n}</h2>`,e,`<p>${tw.d}</p><p><small>${F.how}</small></p><p><small>${ROUND} Sekunden · ${rw?'Belohnung: ❤️ + 🪙':'Heute ohne Taler – einfach zum Spaß!'}</small></p>`,[["▶ Los geht's!",()=>start(e,rw)],['Später','sec',close]]);
@@ -4871,4 +4873,5 @@ V3.reg('huepf',{n:'Hüpf-Läufer',e:'🥕',how:'Tippen = hüpfen! In der Luft no
 </script>
 <script>/* v46.1: Dachs-Geschenk umbenannt – alte 🍄-Geschenke werden zu 🪱 Regenwürmern */
 (function(){function mig(){try{let H=C9.S&&C9.S.home,I=H&&H.items;if(I&&I['🍄']){I['🪱']=(I['🪱']||0)+I['🍄'];delete I['🍄'];try{save()}catch(_){}}}catch(_){}}mig();setTimeout(mig,500);if(typeof openHome=='function'){const o=openHome;openHome=function(){mig();return o.apply(this,arguments)}}})();</script>
+<script>try{Object.defineProperty(C9,'MG_UNLIMITED',{get(){return!!window.C9_MG_UNLIMITED},set(v){window.C9_MG_UNLIMITED=!!v},configurable:true})}catch(e){}</script>
 </body></html>
