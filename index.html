@@ -262,7 +262,7 @@ const today=new Date().toISOString().slice(0,10);let seed=[...today].reduce((a,c
 const DB=Math.abs(seed>>2)%4;
 const CH=[["plants",8+Math.abs(seed)%6],["animals",4+Math.abs(seed>>3)%3],["energy",3+Math.abs(seed>>5)%3]][Math.abs(seed)%3];
 const dailyGoals={[CH[0]]:CH[1]};
-function goalStr(goals,g){return Object.entries(goals).map(([k,n])=>{if(k[0]=='a'&&k[1]==':'){let e=k.slice(2),a=ANIMALS.find(x=>x[0]==e);return e+(g?(gv(g,k)>=n?'✅':' '+Math.min(gv(g,k),n)+'/'+n):' '+a[1])}return GI[k]+' '+(g?Math.min(gv(g,k),n)+'/':'')+n+(g?'':' '+GN[k])}).join(' · ')}
+function goalStr(goals,g){return Object.entries(goals).map(([k,n])=>{if(k[0]=='a'&&k[1]==':'){let e=k.slice(2),a=ANIMALS.find(x=>x[0]==e);return e+(g?(gv(g,k)>=n?'✅':' '+Math.min(gv(g,k),n)+'/'+n):' '+a[1])}return (GI[k]||'⭐')+' '+(g?Math.min(gv(g,k)|0,n)+'/':'')+n+(g?'':' '+(GN[k]||''))}).join(' · ')}
 function gv(g,k){return k=='leaves'?g.leaves|0:k=='species'?Object.keys(g.spec).length:k[1]==':'?(g.spec[k.slice(2)]||0):g[k]}
 function menu(){let l=plv(S.xp);$('prof').textContent='⭐ Spielerlevel '+l;$('xpfill').style.width=Math.min(100,(S.xp-lvXp(l))/(lvXp(l+1)-lvXp(l))*100)+'%';
 let nx=REWARDS.find(r=>r[0]>l);$('xptxt').textContent=(S.xp|0)+' XP'+(nx?' · Lv '+nx[0]+': '+nx[1]:' · alle Belohnungen frei');
@@ -3024,7 +3024,7 @@ const HAB2={
  suess:{n:'Zuckerland',e:'🍭',p:350,a:['🐻','🐭','🐹'],m:'walk',d:'Süße Tiere naschen zwischen Bonbons'},
  dino:{n:'Dinotal',e:'🦖',p:400,a:['🦖','🦕','🐌'],m:'walk',d:'Mini-Dinos stapfen durch Farne'},
  dschungel:{n:'Dschungel',e:'🌴',p:300,a:['🦥','🐅','🐒','🦜','🐍'],m:'walk',d:'Dschungeltiere klettern & schleichen'}};
-Object.assign(HABS,HAB2);S.home.hab=S.home.hab.filter(x=>HABS[x.k]);
+HAB2.meer=HAB2.meer||{n:'Tiefsee',e:'🐋',p:400,a:[],m:'swim',d:'Wale, Kraken und Quallen schweben im tiefen Blau'};Object.assign(HABS,HAB2);S.home.hab=S.home.hab.filter(x=>HABS[x.k]);
 const XTRA={wiese:['🐞','🐰'],wald:['🦡','🐞','🐿️'],wueste:['🐍','🦗','🦙'],nest:['🐦','🐲'],see:['🐸','🦢','🪼','🐙'],vulkan:['🦖','🦕','🐌'],eis:['🐺','🐳','🐆']};
 Object.entries(XTRA).forEach(([k,l])=>{if(HABS[k])l.forEach(e=>{if(!HABS[k].a.includes(e))HABS[k].a.push(e)})});
 const hE=(x,y,a,b,c,r)=>{X.fillStyle=c;X.beginPath();X.ellipse(x,y,Math.abs(a),Math.abs(b),r||0,0,7);X.fill()};
@@ -3519,7 +3519,7 @@ window.C9.v41={page,wk,wev,wkSheet,paint,render,cheer,petUpd,TASKS,F,wall,V:()=>
 (function(){
 try{if(!localStorage.c9v2_bak_v41&&localStorage.c9v2)localStorage.c9v2_bak_v41=localStorage.c9v2}catch(e){}
 S.v42=S.v42||{};const V=S.v42;
-HABS.meer={n:'Tiefsee',e:'🐋',p:400,a:[],m:'swim',d:'Wale, Kraken und Quallen schweben im tiefen Blau'};
+HABS.meer=HABS.meer||{n:'Tiefsee',e:'🐋',p:400,a:[],m:'swim',d:'Wale, Kraken und Quallen schweben im tiefen Blau'};
 if(!HDB.meer)HDB.meer=(q,t,lv)=>(HDB.riff||HDB.see)(q,t,lv);if(!HDP.meer)HDP.meer=()=>[];
 const MAP={wiese:['🐰','🦋','🐝','🐞'],wald:['🦔','🦊','🐿️','🦡'],wueste:['🦎','🐪','🦂','🐍','🦗'],eis:['🐻‍❄️','🐧','🦭','🦉','🐺','🦌'],nest:['🦅','🐦'],see:['🦦','🦢'],teich:['🐸','🐊','🦛','🦩','🐢'],
  riff:['🐠','🦀','🐡','🦈'],meer:['🐋','🐳','🐙','🪼'],berg:['🐐','🐆','🦙'],sterne:['🐶','🐱','🦚','🦄'],hoehle:['🦇','🐌'],vulkan:['🐉','🐲'],dino:['🦖','🦕'],suess:['🐻','🐭','🐹'],dschungel:['🦜','🐒','🦥','🐅']};
@@ -3980,4 +3980,13 @@ const oT=hTap;hTap=function(p){let g=hGeo(),G=RO.g,K=RO.s;
 window.C9.v431={RO,scare,hasG,hasS,setScare:v=>{tScare=v}};
 })();
 </script>
-</body></html>
+<script>/* v43.2: Regen-Ziel bekommt Symbol, Platzhalter nur auf leeren Inseln als kleines Schild */
+(function(){
+GI.rain=GI.rain||'💧';GN.rain=GN.rain||'Regen';
+window.C9SLOTS=function(g,t){let sl=C9V42.slots(g),own={};S.home.hab.forEach(h=>{if(h.on)own[h.k]=1});X.save();
+ Object.entries(sl.m).forEach(([k,b])=>{if(own[k]||!HABS[k])return;let q=habGeo(g,{c:b[0],r:b[1]});
+  X.globalAlpha=.6;X.setLineDash([5,6]);X.lineWidth=2;X.strokeStyle='rgba(141,123,240,.5)';X.beginPath();X.ellipse(q.x,q.y+6,q.rx*.8,q.ry*.72,0,0,7);X.stroke();X.setLineDash([]);X.globalAlpha=1;
+  let lb=HABS[k].e+' '+HABS[k].n+' · frei';X.font='800 10px Nunito,sans-serif';let w=X.measureText(lb).width+16,cx=q.x,cy=q.y+q.ry*.86+6;
+  X.fillStyle='rgba(255,255,255,.88)';X.beginPath();X.roundRect?X.roundRect(cx-w/2,cy-9,w,18,9):X.rect(cx-w/2,cy-9,w,18);X.fill();X.fillStyle='#6a55c8';X.textAlign='center';X.textBaseline='middle';X.fillText(lb,cx,cy+.5)});X.restore()};
+})();
+</script></body></html>
