@@ -2613,7 +2613,7 @@ ACT.forEach((ch,ci)=>{ch.bi=bi;ch.B.forEach((b,j)=>{let o=Object.assign({},b);de
 window.C9NB=b=>b==6||b==9||NIGHT.has(b);
 const chOf=b=>BCH[b]||null,mOf=b=>BCH[b]?BCH[b].m:null;
 // Tier-Extras (Heimatinsel)
-const GF2={'🐠':['🐚','Muschel',12],'🦀':['🦪','Auster',12],'🐡':['🫧','Perle',14],'🦈':['💎','Meeresglas',16],'🐍':['🏺','Tonkrug',12],'🦗':['🌵','Kaktusblüte',12],'🦙':['🧶','Lamawolle',15],'🦥':['🍃','Blatt',12],'🐅':['🥭','Mango',14],'🐊':['🪷','Seerose',14],'🦛':['🍉','Melone',15],'🦖':['🦴','Fossil',15],'🐌':['🔥','Glutstein',13],'🦕':['🥚','Dino-Ei',18],'🦌':['🔔','Glöckchen',14],'🐺':['❄️','Eisblume',14],'🐳':['🌊','Meerperle',17],'🐻':['🍬','Gummibonbon',13],'🐭':['🧀','Käsekeks',12],'🐹':['🌰','Zuckernuss',14],'🐞':['🍀','Kleeblatt',14],'🦡':['🍄','Glückspilz',13],'🐦':['🪶','Feder',15],'🐶':['🦴','Mondknochen',16],'🐱':['🌙','Mondsichel',17],'🐲':['👑','Krone',20]};
+const GF2={'🐠':['🐚','Muschel',12],'🦀':['🦪','Auster',12],'🐡':['🫧','Perle',14],'🦈':['💎','Meeresglas',16],'🐍':['🏺','Tonkrug',12],'🦗':['🌵','Kaktusblüte',12],'🦙':['🧶','Lamawolle',15],'🦥':['🍃','Blatt',12],'🐅':['🥭','Mango',14],'🐊':['🪷','Seerose',14],'🦛':['🍉','Melone',15],'🦖':['🦴','Fossil',15],'🐌':['🔥','Glutstein',13],'🦕':['🥚','Dino-Ei',18],'🦌':['🔔','Glöckchen',14],'🐺':['❄️','Eisblume',14],'🐳':['🌊','Meerperle',17],'🐻':['🍬','Gummibonbon',13],'🐭':['🧀','Käsekeks',12],'🐹':['🌰','Zuckernuss',14],'🐞':['🍀','Kleeblatt',14],'🦡':['🪱','Regenwurm',13],'🐦':['🪶','Feder',15],'🐶':['🦴','Mondknochen',16],'🐱':['🌙','Mondsichel',17],'🐲':['👑','Krone',20]};
 try{Object.assign(GIFTS,GF2)}catch(e){}
 const CP2={'🐠':'ani','🦀':'grow','🐡':'rare','🦈':'bolt','🐍':'time','🦗':'grow','🦙':'rare','🦥':'time','🐅':'bolt','🐊':'grow','🦛':'ani','🦖':'bolt','🐌':'grow','🦕':'rare','🦌':'time','🐺':'bolt','🐳':'rare','🐻':'ani','🐭':'grow','🐹':'time','🐞':'rare','🦡':'grow','🐦':'ani','🐶':'time','🐱':'rare','🐲':'bolt'};
 try{Object.keys(CP2).forEach(e=>{if(ANIMALS.some(a=>a[0]==e))COMP[e]=CP2[e]})}catch(e){}
@@ -4693,12 +4693,12 @@ V3.reg('tauch',{n:'Tauch-Abenteuer',e:'🫧',how:'Finger halten und ziehen = sch
 const V3=C9.v43;if(!V3)return;const FX=V3.FX,R=Math.random,clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),TAU=Math.PI*2;
 const TW={
  '🐰':{n:'Möhren-Wiese',d:'Hüpf über die Maulwurfshügel und sammle knackige Möhren! Der Maulwurf winkt dir zu.',it:'🥕',sc:'meadow',mech:'mole',hop:1,fact:'Ein Hase kann über 3 Meter weit springen – so weit, wie ein Auto lang ist.'},
- '🦊':{n:'Laub-Sprung',d:'Spring von oben mitten in die Laubhaufen – raschel, raschel! Das gibt Extrapunkte. Über Baumstämme hüpfst du drüber.',it:'🍄',sc:'forest',mech:'leaf',fact:'Füchse springen hoch in die Luft und landen mit der Schnauze zuerst im Laub oder Schnee – so fangen sie Mäuse.'},
+ '🦊':{n:'Laub-Sprung',d:'Sammle süße Brombeeren am Waldweg! Spring von oben mitten in die Laubhaufen – raschel, raschel! Über Baumstämme hüpfst du drüber.',it:'bb',sc:'forest',mech:'leaf',fact:'Füchse fressen nicht nur Mäuse – im Herbst naschen sie auch gern süße Brombeeren und Äpfel.'},
  '🐿️':{n:'Ast-Hüpfer',d:'Hüpf von Ast zu Ast und sammle Nüsse! Oben in den Bäumen gibt es die meisten.',it:'🌰',sc:'tree',mech:'branch',fact:'Eichhörnchen steuern beim Springen mit ihrem buschigen Schwanz.'},
  '🐐':{n:'Fels-Kletterer',d:'Spring die Felsstufen hoch bis zum Gipfel! Jeder Gipfel gibt einen Bonus.',it:'🌼',sc:'mount',mech:'ledge',fact:'Bergziegen haben weiche Polster unter den Hufen – die halten wie Gummisohlen.'},
  '🦌':{n:'Glöckchen-Schneefeld',d:'Lauf übers Schneefeld und sammle klingende Glöckchen! Über die Schneehaufen springst du drüber.',it:'🔔',sc:'snow',mech:'snow',fact:'Rentiere haben breite Hufe, die wie Schneeschuhe funktionieren.'},
  '🐺':{n:'Mondschein-Lauf',d:'Nachts im Schnee: sammle Schneeflocken! Mit 5 Flocken hintereinander heulst du den Mond an – Auuuh!',it:'❄️',sc:'night',mech:'howl',fact:'Wölfe heulen, damit ihre Familie weiß, wo sie gerade sind.'},
- '🦖':{n:'Vulkan-Hüpfer',d:'Der Vulkan pustet kleine Steinchen! Der Schatten zeigt, wo sie landen – spring drüber und sammle Blätter.',it:'🌿',sc:'volcano',mech:'pebble',fact:'Manche Dinosaurier hatten Federn – fast wie Vögel.'},
+ '🦖':{n:'Vulkan-Hüpfer',d:'Der Vulkan pustet kleine Steinchen! Der Schatten zeigt, wo sie landen – spring drüber und sammle goldenen Bernstein.',it:'amber',sc:'volcano',mech:'pebble',fact:'Manche Dinosaurier hatten Federn – fast wie Vögel. Und im Bernstein findet man manchmal winzige Tiere aus der Urzeit.'},
  '🐶':{n:'Mond-Hüpfer',d:'Auf dem Mond ist alles ganz leicht – du hüpfst riesig hoch! Sammle Sterne über den Kratern.',it:'⭐',sc:'moon',mech:'moon',fact:'Auf dem Mond ist man sechsmal leichter – man könnte sechsmal so hoch hüpfen.'}};
 const MUS={k:'hop',bpm:132,roots:[60,65,67,62,64],leads:['pluck','mar','flute'],prog:[[0,[0,4,7,9]],[5,[0,4,7,9]],[7,[0,4,7,10]],[0,[0,4,7,12]]],scale:[0,2,4,7,9],lp:4200,dens:.68,sw:.22,dr:.9,arp:4,ai:'pluck'};
 // eigene Geräusche
@@ -4792,7 +4792,7 @@ function make(x,W,H,e,tw,kid,fx){
    x.strokeStyle='rgba(120,90,80,.35)';x.lineWidth=U*.8;x.beginPath();x.moveTo(p.x,G-p.z-U*3.5);x.lineTo(p.x+U*2,G-p.z-U*9);x.stroke()});
   // Sammelsachen
   its.forEach(it=>{let yy=it.y+Math.sin(it.b*3)*U*.7,r=U*(it.big?4.8:3.8);let gl=x.createRadialGradient(it.x,yy,1,it.x,yy,r*1.4);gl.addColorStop(0,'rgba(255,255,255,.75)');gl.addColorStop(1,'rgba(255,255,255,0)');x.fillStyle=gl;x.beginPath();x.arc(it.x,yy,r*1.4,0,TAU);x.fill();
-   x.font=`${Math.round(r)}px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif`;x.textAlign='center';x.textBaseline='middle';x.fillText(it.big?(m=='moon'?'🌟':'💎'):tw.it,it.x,yy)});
+   x.font=`${Math.round(r)}px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif`;x.textAlign='center';x.textBaseline='middle';if(!it.big&&tw.it=='bb')berry(x,it.x,yy,r*.5);else if(!it.big&&tw.it=='amber')amber(x,it.x,yy,r*.5);else x.fillText(it.big?(m=='moon'?'🌟':'💎'):tw.it,it.x,yy)});
   // Schatten + Tier
   let base=A.plat?A.plat.y:G,hgt=Math.max(0,base-A.y),k=clamp(1-hgt/(U*40),.3,1);x.fillStyle=`rgba(40,30,80,${.18*k})`;x.beginPath();x.ellipse(A.x,base+U*.4,U*4*k,U*1.1*k,0,0,TAU);x.fill();
   if(howl>0){let gw=x.createRadialGradient(A.x,A.y-U*6,2,A.x,A.y-U*6,U*18);gw.addColorStop(0,`rgba(255,246,200,${.45*Math.min(1,howl)})`);gw.addColorStop(1,'rgba(255,246,200,0)');x.fillStyle=gw;x.beginPath();x.arc(A.x,A.y-U*6,U*18,0,TAU);x.fill()}
@@ -4848,15 +4848,27 @@ function make(x,W,H,e,tw,kid,fx){
    if(!o.cl){x.font=`${Math.round(U*2.6)}px sans-serif`;x.textAlign='center';x.fillText('⬇️',o.x,b-h-U*5+Math.sin(T*5)*U)}}
   else if(o.k=='log'){x.fillStyle='#8a5a3a';V3.rrect(x,L,b-h,w,h,h/2);x.fill();x.fillStyle='#c8945a';x.beginPath();x.ellipse(L+w-h*.3,b-h/2,h*.32,h*.48,0,0,TAU);x.fill();x.strokeStyle='#8a5a3a';x.lineWidth=1;x.beginPath();x.ellipse(L+w-h*.3,b-h/2,h*.15,h*.24,0,0,TAU);x.stroke();x.fillStyle='#5aa848';x.beginPath();x.ellipse(L+w*.35,b-h,U*1.6,U*.6,0,0,TAU);x.fill()}
   else if(o.k=='drift'){let gg=x.createLinearGradient(0,b-h,0,b);gg.addColorStop(0,'#ffffff');gg.addColorStop(1,tw.sc=='night'?'#a8b8e8':'#cfe4f4');x.fillStyle=gg;x.beginPath();x.moveTo(L-U,b);x.quadraticCurveTo(L+w*.2,b-h*1.1,o.x,b-h);x.quadraticCurveTo(L+w*.85,b-h*1.15,L+w+U,b);x.fill();x.fillStyle='rgba(255,255,255,.9)';x.beginPath();x.arc(o.x-w*.15,b-h*.8,U*.5,0,TAU);x.fill()}
-  else if(o.k=='stump'){x.fillStyle='#8a5a3a';x.fillRect(L,b-h,w,h);x.fillStyle='#c8945a';x.beginPath();x.ellipse(o.x,b-h,w/2,U*1.1,0,0,TAU);x.fill();x.font=`${Math.round(U*2.6)}px sans-serif`;x.textAlign='center';x.textBaseline='alphabetic';x.fillText('🍄',L+w*.9,b)}
+  else if(o.k=='stump'){x.fillStyle='#8a5a3a';x.fillRect(L,b-h,w,h);x.fillStyle='#c8945a';x.beginPath();x.ellipse(o.x,b-h,w/2,U*1.1,0,0,TAU);x.fill();x.strokeStyle='#4e9a42';x.lineWidth=U*.5;x.lineCap='round';for(let k=0;k<4;k++){x.beginPath();x.moveTo(L+w*.95,b);x.lineTo(L+w*.95+(k-1.5)*U*.9,b-U*(1.6+k%2))}x.stroke()}
   else if(o.k=='boulder'){x.fillStyle='#a8a8c0';x.beginPath();x.ellipse(o.x,b-h*.45,w/2,h*.55,0,0,TAU);x.fill();x.fillStyle='#8a8aa4';x.beginPath();x.arc(o.x-w*.15,b-h*.5,U*1.1,0,TAU);x.arc(o.x+w*.18,b-h*.7,U*.7,0,TAU);x.fill()}
   else if(o.k=='fern'){x.strokeStyle='#3e8a42';x.lineWidth=U*.7;x.lineCap='round';for(let k=0;k<5;k++){let a=-Math.PI/2+(k-2)*.38;x.beginPath();x.moveTo(o.x,b);x.quadraticCurveTo(o.x+Math.cos(a)*h*.6,b+Math.sin(a)*h*.9,o.x+Math.cos(a)*h*1.2,b+Math.sin(a)*h)}x.stroke()}
   else if(o.k=='peb'){x.fillStyle='#6a5048';x.beginPath();x.ellipse(o.x,b-h*.45,w/2,h*.5,0,0,TAU);x.fill();x.fillStyle='#ff9a50';x.beginPath();x.arc(o.x+w*.15,b-h*.6,U*.6,0,TAU);x.fill()}
   else{x.fillStyle='#9a8a7a';x.beginPath();x.ellipse(o.x,b-h*.45,w/2,h*.55,0,0,TAU);x.fill()}}
+ // Brombeere: eine runde, dichte Beere aus Kügelchen + grüne Kelchblätter + Stielchen (keine Traube!)
+ function berry(x,px,py,r){r*=1.15;let P=[[0,0]];for(let k=0;k<6;k++)P.push([Math.cos(k*1.047)*.42,Math.sin(k*1.047)*.4]);for(let k=0;k<6;k++)P.push([Math.cos(k*1.047+.52)*.72,Math.sin(k*1.047+.52)*.62]);P.sort((a,b)=>a[1]-b[1]);
+  x.fillStyle='#24103a';x.beginPath();x.ellipse(px,py+r*.05,r*.92,r*.82,0,0,TAU);x.fill();
+  P.forEach(([a,b])=>{let gx=px+a*r,gy=py+b*r,gg=x.createRadialGradient(gx-r*.08,gy-r*.09,r*.02,gx,gy,r*.27);gg.addColorStop(0,'#9a6ac8');gg.addColorStop(.55,'#43205e');gg.addColorStop(1,'#26103c');x.fillStyle=gg;x.beginPath();x.arc(gx,gy,r*.26,0,TAU);x.fill()});
+  x.fillStyle='rgba(255,255,255,.8)';P.forEach(([a,b],i)=>{if(i%3)return;x.beginPath();x.arc(px+a*r-r*.08,py+b*r-r*.1,r*.06,0,TAU);x.fill()});
+  x.fillStyle='#5aae4a';for(let k=0;k<5;k++){let a=-Math.PI/2+(k-2)*.55;x.beginPath();x.ellipse(px+Math.cos(a)*r*.32,py-r*.72+Math.sin(a)*r*.12,r*.3,r*.11,a,0,TAU);x.fill()}
+  x.strokeStyle='#4e8a3a';x.lineWidth=Math.max(1.5,r*.12);x.lineCap='round';x.beginPath();x.moveTo(px,py-r*.75);x.quadraticCurveTo(px+r*.1,py-r*1.1,px+r*.35,py-r*1.25);x.stroke()}
+ // Bernstein: goldener Tropfen mit Glanz
+ function amber(x,px,py,r){let gg=x.createRadialGradient(px-r*.3,py-r*.3,r*.1,px,py,r*1.1);gg.addColorStop(0,'#fff0a0');gg.addColorStop(.5,'#ffb030');gg.addColorStop(1,'#c86a10');x.fillStyle=gg;x.beginPath();x.moveTo(px,py-r*1.2);x.quadraticCurveTo(px+r*1.1,py-r*.2,px+r*.8,py+r*.5);x.arc(px,py+r*.3,r*.85,.25,Math.PI-.25);x.quadraticCurveTo(px-r*1.1,py-r*.2,px,py-r*1.2);x.fill();
+  x.strokeStyle='rgba(140,70,10,.5)';x.lineWidth=1;x.stroke();x.fillStyle='rgba(255,255,255,.8)';x.beginPath();x.ellipse(px-r*.35,py-r*.2,r*.15,r*.3,.4,0,TAU);x.fill()}
  function land(p){let fast=A.vy>U*30;A.on=1;A.plat=p;A.jumps=0;A.vy=0;A.hold=0;A.sq=fast?.32:.15;A.land=.12;if(fast)SFX.land();fx.burst(A.x,A.y,moon?['#e8e8f4']:['rgba(255,255,255,.7)'],moon?8:4,moon?60:50,2.2);
   if(p&&p.top&&!p.got){p.got=1;score+=3;SFX.peak();fx.text(p.x,p.y-U*14,'⛰️ Gipfel! +3','#fff6c0');fx.burst(p.x,p.y,['#ffffff','#ffe066','#ff9ad0'],22,190,4)}}
  return g}
 V3.reg('huepf',{n:'Hüpf-Läufer',e:'🥕',how:'Tippen = hüpfen! In der Luft nochmal tippen = Doppelsprung.',mus:MUS,make},TW);
 })();
 </script>
+<script>/* v46.1: Dachs-Geschenk umbenannt – alte 🍄-Geschenke werden zu 🪱 Regenwürmern */
+(function(){function mig(){try{let H=C9.S&&C9.S.home,I=H&&H.items;if(I&&I['🍄']){I['🪱']=(I['🪱']||0)+I['🍄'];delete I['🍄'];try{save()}catch(_){}}}catch(_){}}mig();setTimeout(mig,500);if(typeof openHome=='function'){const o=openHome;openHome=function(){mig();return o.apply(this,arguments)}}})();</script>
 </body></html>
