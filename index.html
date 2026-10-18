@@ -4152,7 +4152,7 @@ function phase(h){h=h==null?HR():h;if(h>=6.5&&h<10.5)return'fruehstueck';if(h>=1
 const PH={fruehstueck:{n:'Frühstück',e:'🥐',min:3,max:4},picknick:{n:'Picknick',e:'🧺',min:3,max:5},fangen:{n:'Fangen spielen',e:'🏃',min:4,max:5},feuer:{n:'Lagerfeuer',e:'🔥',min:3,max:5},nacht:{n:'Nachtruhe',e:'🌙',min:0,max:1}};
 // ---------- Felder blockieren (Platz + Garten) ----------
 const GS=[[7,15],[8,15],[7,16],[8,16],[6,15],[9,15],[6,16],[9,16]];
-function cap(){let n=S.home.hab.filter(h=>h.on).length;return n>=11?8:n>=6?6:4}
+function cap(){let n=S.home.hab.filter(h=>h.on).length;return Math.min(GS.length,n>=11?8:n>=6?6:4)}
 const isG=(c,r,all)=>GS.slice(0,all?8:cap()).some(([a,b])=>a==c&&b==r);
 const oCin=X2.cin;X2.cin=function(c,r,g){if(isG(c,r,1))return true;return oCin.apply(this,arguments)};
 window.C9PLBLK=function(g,x,y){let P=PR();if(((x-P.x)/(P.rx+30))**2+((y-P.y)/(P.ry+26))**2<1)return true;return false};
@@ -4198,6 +4198,7 @@ window.C9PLAZA=function(g,t){let P=PR(),ph=phase(),D=dk(),night=D.dk>.4||ph=='na
  // Blumen am Rand
  for(let i=0;i<10;i++){let a=i/10*TAU+.3;if(Math.abs(Math.sin(a))<.25)continue;let x=P.x+Math.cos(a)*(P.rx+3),y=P.y+Math.sin(a)*(P.ry+2);X.fillStyle=['#ff9ac8','#ffd36a','#a8d8ff','#c8a8ff'][i%4];X.beginPath();X.arc(x,y,2.4,0,TAU);X.fill();X.fillStyle='#fff6c8';X.beginPath();X.arc(x,y,.9,0,TAU);X.fill()}
  }if(!(PM&2))return;
+ gsign(g);
  // Laternen (leuchten abends/nachts)
  [[-.78,-.55],[.78,-.55],[-.78,.62],[.78,.62]].forEach(([a,b])=>lamp(P.x+P.rx*a,P.y+P.ry*b,D.dk>.3||!!FEST));
  // Mitte je nach Tageszeit
@@ -4207,7 +4208,7 @@ window.C9PLAZA=function(g,t){let P=PR(),ph=phase(),D=dk(),night=D.dk>.4||ph=='na
  else if(ph=='nacht'){fire(cx,cy,t,0);glow(cx,cy,24,.25,'rgba(255,140,60,A)')}
  else{fountain(cx,cy,t);if(ph=='fruehstueck'){blanket(cx-34,cy+20,'#fff4d8','#ffc8a0');X.font='11px sans-serif';X.textAlign='center';X.fillText('🥐',cx-40,cy+22);X.fillText('🥛',cx-28,cy+20)}else if(ph=='picknick'){blanket(cx+34,cy+20,'#e8fff0','#ff9aa8');X.font='12px sans-serif';X.textAlign='center';X.fillText('🧺',cx+32,cy+19);X.font='10px sans-serif';X.fillText('🍓',cx+44,cy+22)}}
  // Schild
- if(!FEST){X.font='800 9px Nunito,sans-serif';let lb=PH[ph].e+' '+PH[ph].n,w=X.measureText(lb).width+12;X.fillStyle='rgba(255,255,255,.9)';X.beginPath();X.roundRect?X.roundRect(cx-w/2,P.y+P.ry+6,w,15,7.5):X.rect(cx-w/2,P.y+P.ry+6,w,15);X.fill();X.fillStyle='#6a55c8';X.textAlign='center';X.textBaseline='middle';X.fillText(lb,cx,P.y+P.ry+14)}};
+ if(!FEST){X.font='800 9px Nunito,sans-serif';let st=plazaState(),lb=ph=='nacht'||st.stay?PH[ph].e+' '+PH[ph].n:st.go?PH[ph].e+' '+PH[ph].n+' · gleich geht’s los':'🌿 Platz ist frei',w=X.measureText(lb).width+12;X.fillStyle='rgba(255,255,255,.9)';X.beginPath();X.roundRect?X.roundRect(cx-w/2,P.y+P.ry+6,w,15,7.5):X.rect(cx-w/2,P.y+P.ry+6,w,15);X.fill();X.fillStyle='#6a55c8';X.textAlign='center';X.textBaseline='middle';X.fillText(lb,cx,P.y+P.ry+14)}};
 function garden(g,t){let C=cap(),cells=GS.slice(0,C).map(([c,r])=>cellXY(g,c,r)),all=GS.map(([c,r])=>cellXY(g,c,r));
  let x0=Math.min(...cells.map(p=>p[0]))-34,x1=Math.max(...cells.map(p=>p[0]))+34,y0=Math.min(...cells.map(p=>p[1]))-26,y1=Math.max(...cells.map(p=>p[1]))+16;
  dE((x0+x1)/2,y1+2,(x1-x0)/2+4,8,'rgba(80,60,150,.12)');X.fillStyle='rgba(176,140,100,.22)';X.beginPath();X.roundRect?X.roundRect(x0,y0,x1-x0,y1-y0,12):X.rect(x0,y0,x1-x0,y1-y0);X.fill();
@@ -4216,22 +4217,25 @@ function garden(g,t){let C=cap(),cells=GS.slice(0,C).map(([c,r])=>cellXY(g,c,r))
  X.fillStyle='#e0b888';const post=(x,y)=>{X.fillRect(x-1.6,y-7,3.2,9);X.beginPath();X.arc(x,y-7,1.6,0,TAU);X.fill()};for(let x=x0+4;x<=x1-3;x+=18){post(x,y0+6)}for(let y=y0+6;y<=y1;y+=16){post(x0+4,y);post(x1-4,y)}post(mx-12,y1-2);post(mx+12,y1-2);
  // freie Beet-Plätze: gestrichelt
  GS.slice(0,C).forEach(([c,r])=>{if(S.home.deco.some(d=>d.c==c&&d.r==r))return;let[x,y]=cellXY(g,c,r);X.save();X.setLineDash([4,4]);X.strokeStyle='rgba(140,100,60,.45)';X.lineWidth=1.5;X.beginPath();X.roundRect?X.roundRect(x-22,y-12,44,16,6):X.rect(x-22,y-12,44,16);X.stroke();X.restore()});
- // Schild
+}
+function gsign(g){let C=cap(),cells=GS.slice(0,C).map(([c,r])=>cellXY(g,c,r));let x0=Math.min(...cells.map(p=>p[0]))-34,x1=Math.max(...cells.map(p=>p[0]))+34,y1=Math.max(...cells.map(p=>p[1]))+16,mx=(x0+x1)/2;
  X.font='800 9px Nunito,sans-serif';let lb='🌱 Gartenecke · '+S.home.deco.filter(d=>d.k=='feld').length+'/'+C,w=X.measureText(lb).width+12;X.fillStyle='rgba(255,255,255,.92)';X.beginPath();X.roundRect?X.roundRect(mx-w/2,y1+3,w,15,7.5):X.rect(mx-w/2,y1+3,w,15);X.fill();X.fillStyle='#8a5a2a';X.textAlign='center';X.textBaseline='middle';X.fillText(lb,mx,y1+10.5)}
 // ---------- Tiere auf dem Platz ----------
 function spot(a,E){let P=PR(),ph=E.fest?'fest':phase(),n=E.i||0;let r=ph=='fest'?(.52+(n%3)*.16):.62,a0=E.ang;return[P.x+Math.cos(a0)*P.rx*r,P.y+Math.sin(a0)*P.ry*r]}
 window.C9PLPOS=function(a,E,p){let sp=spot(a,E);if(E.ph=='go'||E.ph=='back'){let w=Math.max(0,Math.min(1,(E.s-.82)/.18));w=w*w*(3-2*w);return[p[0]+(sp[0]-p[0])*w,p[1]+(sp[1]-p[1])*w]}
  if(E.ph=='stay'){let P=PR(),act=E.fest?'fest':E.act;if(act=='fangen'){let tt=E.tt||0,an=E.ang+tt*.9*(E.cw?1:-1)*0+tt*.9;return[P.x+Math.cos(an)*P.rx*.62,P.y+Math.sin(an)*P.ry*.62]}if(act=='fest'){let tt=E.tt||0;return[sp[0]+Math.sin(tt*5+E.ang*3)*4,sp[1]+Math.cos(tt*4+E.ang)*2]}return sp}return null};
+function plazaState(){let L=atPlaza();return{stay:L.filter(a=>a.ex.ph=='stay').length,go:L.filter(a=>a.ex.ph=='go').length}}
 function atPlaza(){return HA.filter(a=>a.ex&&a.ex.to=='@P'&&!a.ex.fest)}
 function freeAnimals(){return HA.filter(a=>{let k=X2.AH[a.e];return k&&HABS[k]&&HABS[k].m!='swim'&&!a.ex&&!a.scared&&a.sx!=null})}
-let nextSend=3,lastPh=null;
+let nextSend=3,lastPh=null,SEED=0;
 function send(a,opt){let k=X2.AH[a.e],used=HA.filter(b=>b.ex&&b.ex.to=='@P').map(b=>b.ex.ang),ang;for(let i=0;i<12;i++){ang=R()*TAU;if(!used.some(u=>Math.abs(Math.atan2(Math.sin(u-ang),Math.cos(u-ang)))<.7))break}
  if(Math.abs(Math.sin(ang))<.2)ang+=.4;// nicht genau links/rechts (Brückenenden)
  a.ex=Object.assign({from:k,to:'@P',s:0,ph:'go',ang,act:phase(),dur:40+R()*45,i:HA.indexOf(a)},opt||{});a.plT=Date.now()}
 const oS=hStep;hStep=function(list,g,dt){if(list===HA&&!HED&&!window.C9VIS){
-  HA.forEach(a=>{let E=a.ex;if(!E||E.to!=='@P')return;if(E.ph=='stay'){if(!E.st){E.st=1;E.t=E.fest?999:E.dur;E.tt=0}E.tt+=dt;if(!E.fest&&E.act!==phase()&&E.t>6)E.t=4+R()*3}});
-  if(!FEST){let ph=phase(),cfg=PH[ph],n=atPlaza().length;if(ph!==lastPh){lastPh=ph;nextSend=2}
-   nextSend-=dt;if(nextSend<=0){nextSend=7+R()*9;let tgt=cfg.min+((Date.now()/6e4|0)%(cfg.max-cfg.min+1));if(n<tgt){let c=freeAnimals().sort((x,y)=>(x.plT||0)-(y.plT||0)).slice(0,6);if(c.length)send(c[R()*c.length|0])}
+  HA.forEach(a=>{let E=a.ex;if(!E||E.to!=='@P')return;if(E.ph=='stay'){if(!E.st){E.st=1;E.t=E.fest?999:E.dur;E.tt=0;if(!E.fest)E.act=phase()}E.tt+=dt;if(!E.fest&&E.act!==phase()){if(phase()=='nacht'||E.st&&E.tt>E.dur*.6){if(E.t>6)E.t=4+R()*3}else E.act=phase()}}});
+  if(!FEST){let ph=phase(),cfg=PH[ph],n=atPlaza().filter(a=>a.ex.ph=='go'||a.ex.ph=='stay').length;if(ph!==lastPh){lastPh=ph;nextSend=2}
+   if(SEED){let fa=freeAnimals();if(fa.length||SEED>40){SEED=0;let tgt=Math.min(cfg.max,cfg.min+((Date.now()/6e4|0)%(cfg.max-cfg.min+1)));fa.sort((x,y)=>(x.plT||0)-(y.plT||0)).slice(0,Math.max(0,Math.min(tgt-n,cfg.max-atPlaza().length))).forEach(a=>{send(a);a.ex.s=1;a.ex.ph='stay'});n=atPlaza().filter(a=>a.ex.ph=='go'||a.ex.ph=='stay').length}else SEED++}
+   nextSend-=dt;if(nextSend<=0){nextSend=n<cfg.min?2+R()*3:7+R()*9;let tgt=cfg.min+((Date.now()/6e4|0)%(cfg.max-cfg.min+1));if(n<tgt&&atPlaza().length<cfg.max){let c=freeAnimals().sort((x,y)=>(x.plT||0)-(y.plT||0)).slice(0,6);if(c.length)send(c[R()*c.length|0])}
     else if(n>cfg.max){let a=atPlaza().find(a=>a.ex.ph=='stay');if(a)a.ex.t=Math.min(a.ex.t,2)}}}
   else festStep(dt)}
  let r=oS.apply(this,arguments);
@@ -4264,7 +4268,7 @@ const oT=hTap;hTap=function(p){if(!HED&&!window.C9VIS){let P=PR(),g=hGeo(),bd=1e
 // Szene beim Fest beibehalten
 const oSc=window.sndScene;if(typeof sndScene=='function'){sndScene=function(){if(FEST){try{SND.setScene('fest',false)}catch(_){}return}return oSc.apply(this,arguments)}}
 const oO=openHome;openHome=function(){let r;try{migrate()}catch(e){console.error(e)}r=oO.apply(this,arguments);return r};
-window.C9.v44={phase,PH,cap,GS,migrate,startFest,festSheet,festLeft,get FEST(){return FEST},atPlaza,send,PR};
+window.C9.v44={seed(){SEED=1},plazaState,phase,PH,cap,GS,migrate,startFest,festSheet,festLeft,get FEST(){return FEST},atPlaza,send,PR};
 })();
 </script>
 <script>/* v44.1a: Performance – Tier-Sprites (je Tier gecacht, ~15 fps neu gezeichnet), Software-Canvas für Vorschaubilder */
@@ -4285,14 +4289,14 @@ drawAnimal=function(e,x,y,sc,n,ph,flip){
  if(!ON||!(sc>0)||MODE==0)return drawAnimal0.apply(this,arguments);
  let m=X.getTransform(),ps=Math.hypot(m.a,m.b)*sc;if(!(ps>0)||ps>12||Math.abs(m.b)>1e-3)return drawAnimal0.apply(this,arguments);
  let key=e+'|'+ph+'|'+(flip?1:0),c=CACHE.get(key);if(!c&&(BUD<=0||!BOX[e]&&MB<=0))return drawAnimal0.apply(this,arguments);if(!BOX[e])MB--;let bx=box(e);if(!c)BUD--;
- let mvg=CUR&&(CUR.mv||CUR.hop>0||CUR.ex&&CUR.ex.mv),age=c?n-c.n:0,need=!c||Math.abs(c.ps-ps)>ps*.04||n<c.n||(age>=(mvg?RF:RF*2)&&(BUD>0||age>RF*6));if(need&&c&&Math.abs(c.ps-ps)<=ps*.04)BUD--;
- if(need){let w=Math.ceil((bx.r-bx.l)*ps)+2,h=Math.ceil((bx.b-bx.t)*ps)+2;if(w*h>1.2e6)return drawAnimal0.apply(this,arguments);
+ let mvg=CUR&&(CUR.mv||CUR.hop>0||CUR.ex&&CUR.ex.mv),age=c?n-c.n:0,scm=c&&Math.abs(c.ps-ps)>ps*.04,GE=window.C9GEST&&C9GEST(250),need=!c||n<c.n||(scm?(!GE&&BUD>0):(age>=(mvg?RF:RF*2)&&(BUD>0||age>RF*6)));if(need&&c)BUD--;
+ if(need){let w=Math.ceil((bx.r-bx.l)*ps)+2,h=Math.ceil((bx.b-bx.t)*ps)+2;if(w*h>1.2e6)return drawAnimal0.apply(this,arguments);BUD-=Math.floor(w*h/50000);
   if(!c){let cv=document.createElement('canvas');cv.__big=1;c={cv,x:cv.getContext('2d',MODE==2?{willReadFrequently:true}:undefined)};CACHE.set(key,c)}
-  if(c.cv.width<w||c.cv.height<h||c.cv.width>w*1.6||c.cv.height>h*1.6){c.cv.width=w;c.cv.height=h}else{c.x.setTransform(1,0,0,1,0,0);c.x.clearRect(0,0,w+1,h+1)}
+  if(c.cv.width<w||c.cv.height<h||c.cv.width>w*2.2||c.cv.height>h*2.2){c.cv.width=w;c.cv.height=h}else{c.x.setTransform(1,0,0,1,0,0);c.x.clearRect(0,0,w+1,h+1)}
   c.x.setTransform(ps,0,0,ps,-bx.l*ps+1,-bx.t*ps+1);c.x.globalAlpha=1;let o=X;X=c.x;try{drawAnimal0(e,0,0,1,n,ph,flip)}finally{X=o}
   c.ps=ps;c.n=n;c.w=w;c.h=h;c.u=FR;C9SPR.stats.draw++}
  c.u=FR;C9SPR.stats.blit++;
- X.save();X.translate(x,y);X.scale(1/Math.hypot(m.a,m.b),1/Math.hypot(m.a,m.b));X.drawImage(c.cv,0,0,c.w,c.h,bx.l*ps-1,bx.t*ps-1,c.w,c.h);X.restore();X.globalAlpha=1};
+ X.save();X.translate(x,y);X.scale(1/Math.hypot(m.a,m.b),1/Math.hypot(m.a,m.b));let kk=ps/c.ps;X.drawImage(c.cv,0,0,c.w,c.h,bx.l*ps-kk,bx.t*ps-kk,c.w*kk,c.h*kk);X.restore();X.globalAlpha=1};
 const oHA=hDrawAnimal;hDrawAnimal=function(a){let o=CUR;CUR=a;try{return oHA.apply(this,arguments)}finally{CUR=o}};
 const oHD=homeDraw;homeDraw=function(n,dt){ON=true;FR++;BUD=12;MB=3;try{return oHD.apply(this,arguments)}finally{ON=false;if(FR%300==0)CACHE.forEach((c,k)=>{if(FR-c.u>600)CACHE.delete(k)})}};
 })();
@@ -4348,34 +4352,51 @@ const oHD=homeDraw;homeDraw=function(n,dt){let F=V44.FEST;let d=Math.min(.05,dt|
 V44.conf=()=>CF;V44.swim=()=>SW;V44.pool=pool;
 })();
 </script>
-<script>/* v44.1d: Performance – statische Insel-Ebenen (Unterseite / Oberfläche+Brücken+Platz+Garten) als Offscreen-Bild, nur bei Zoom/Pan/Änderung neu */
+<script>/* v44.2d: statische Insel-Ebenen als Offscreen-Bild – während Gesten nie neu bauen: Pan/Zoom = altes Bild verschoben/skaliert, Neubau erst nach 250 ms Ruhe, verteilt auf 2 Frames; Rand ringsum für Pan */
 (function(){const X2=window.C9V42;if(!X2||!X2.base)return;
-const oB=X2.base;let L1=null,L2=null,KEY='',chg=0,valid=false,MG=0,builds=0;
+const oB=X2.base;let builds=0,lastVK='',chg=0,stage=0,SK='';
+const L=[{c:null,m:null,sk:'',vk:'',bm:1},{c:null,m:null,sk:'',vk:'',bm:4}];
 function gkey(){try{return S.home.deco.filter(d=>d.k=='feld').map(d=>d.c+','+d.r).join(';')+'/'+(C9.v44?C9.v44.cap():0)}catch(e){return''}}
-function key(g,th){return [HV.z.toFixed(5),HV.px.toFixed(2),HV.py.toFixed(2),HW,HH,D,th.base,th.top,th.top2,g.rx,g.ry,(X2.V().order||[]).join(),gkey(),HED?1:0].join('|')}
-function mk(c,w,h){if(!c){c=document.createElement('canvas');c.__big=1}if(c.width!==w||c.height!==h){c.width=w;c.height=h}else{let x=c.getContext('2d');x.setTransform(1,0,0,1,0,0);x.clearRect(0,0,w,h)}return c}
-function layer(c,m,bobPx,bm,args){let x=c.getContext('2d');x.setTransform(m.a,m.b,m.c,m.d,m.e,m.f-bobPx+MG);let o=X;X=x;window.C9BM=bm;try{oB.apply(null,args)}finally{X=o;window.C9BM=15}}
+const skey=(g,th)=>[HW,HH,D,th.base,th.top,th.top2,g.rx,g.ry,(X2.V().order||[]).join(),gkey(),HED?1:0,S.home.theme].join('|');
+const vkey=()=>HV.z.toFixed(5)+'|'+HV.px.toFixed(2)+'|'+HV.py.toFixed(2);
+window.C9GEST=function(ms){return performance.now()-chg<(ms||250)};
+function build(l,m,bobPx,args){let T0=performance.now();try{build0(l,m,bobPx,args)}finally{l.ms=performance.now()-T0;(l.hist=l.hist||[]).push(Math.round(l.ms))}}
+function build0(l,m,bobPx,args){let w=HC.width,h=HC.height,MX=Math.round(w*.18),MY=Math.round(h*.18)+Math.ceil(10*HV.z*D)+2,W=w+2*MX,H=h+2*MY;
+ if(!l.c){l.c=document.createElement('canvas');l.c.__big=1}
+ if(l.c.width!==W||l.c.height!==H){l.c.width=W;l.c.height=H}let x=l.c.getContext('2d');x.setTransform(1,0,0,1,0,0);x.clearRect(0,0,W,H);
+ x.setTransform(m.a,0,0,m.d,m.e+MX,m.f-bobPx+MY);let o=X;X=x;window.C9BM=l.bm;try{oB.apply(null,args)}finally{X=o;window.C9BM=15}
+ l.m={a:m.a,e:m.e,f:m.f,MX,MY};builds++}
+function covers(l,m){let k=m.a/l.m.a,x=m.e-k*(l.m.e+l.m.MX),y=m.f-k*(l.m.f+l.m.MY);return x<=1&&y<=Math.ceil(12*HV.z*D)&&x+l.c.width*k>=HC.width-1&&y+l.c.height*k>=HC.height-Math.ceil(12*HV.z*D)}
+function blit(l,m,bobPx){let k=m.a/l.m.a,x=m.e-k*(l.m.e+l.m.MX),y=m.f+bobPx-k*(l.m.f+l.m.MY);X.save();X.setTransform(1,0,0,1,0,0);
+ if(Math.abs(k-1)<1e-6){X.drawImage(l.c,Math.round(x),Math.round(y))}else{X.imageSmoothingEnabled=true;X.drawImage(l.c,x,y,l.c.width*k,l.c.height*k)}X.restore()}
 X2.base=function(g,t,th,bob){
  if(window.C9NOCACHE||!HC)return oB.apply(this,arguments);
- let k=key(g,th),now=performance.now();if(k!==KEY){KEY=k;chg=now;valid=false}
- if(!valid&&now-chg<180)return oB.apply(this,arguments);// während Zoom/Pan direkt zeichnen
- let m=X.getTransform();if(Math.abs(m.b)>1e-6||Math.abs(m.c)>1e-6)return oB.apply(this,arguments);
- let bobPx=bob*HV.z*D;
- if(!valid){MG=Math.ceil(10*HV.z*D)+2;let w=HC.width,h=HC.height+2*MG;L1=mk(L1,w,h);L2=mk(L2,w,h);layer(L1,m,bobPx,1,arguments);layer(L2,m,bobPx,4,arguments);valid=true;builds++}
- let oy=Math.round(bobPx)-MG;
- X.save();X.setTransform(1,0,0,1,0,0);X.drawImage(L1,0,oy);X.restore();
+ let m=X.getTransform();if(Math.abs(m.b)>1e-6||Math.abs(m.c)>1e-6||Math.abs(m.a-m.d)>1e-6)return oB.apply(this,arguments);
+ let sk=skey(g,th),vk=vkey(),now=performance.now(),bobPx=bob*HV.z*D;if(vk!==lastVK){lastVK=vk;chg=now;stage=0}
+ const ok=l=>l.c&&l.m&&l.sk===sk;
+ // Neubau: nur in Ruhe (oder wenn noch gar kein Bild da ist), höchstens eine Ebene pro Frame
+ let idle=now-chg>250;
+ for(let i=0;i<2;i++){let l=L[i];let fresh=ok(l)&&l.vk===vk;if(fresh)continue;
+  if(idle||!ok(l)){if(!ok(l)&&!idle&&l.c&&l.m&&l.sk!==sk){/* Inhalt geändert (z. B. Beet) → sofort */}
+   if(stage<=i||!ok(l)){build(l,m,bobPx,arguments);l.sk=sk;l.vk=vk;stage=i+1;break}}}
+ let use=L.every(l=>ok(l)&&covers(l,m));
+ if(!use)return oB.apply(this,arguments);// Rand nicht abgedeckt → direkt zeichnen
+ blit(L[0],m,bobPx);
  window.C9BM=2;try{oB.apply(this,arguments)}finally{window.C9BM=15}
- X.save();X.setTransform(1,0,0,1,0,0);X.drawImage(L2,0,oy);X.restore();
+ blit(L[1],m,bobPx);
  window.C9BM=8;try{oB.apply(this,arguments)}finally{window.C9BM=15}};
-window.C9BASEC={get builds(){return builds},get valid(){return valid},inval(){KEY=''}};
+window.C9BASEC={get builds(){return builds},get valid(){return L.every(l=>l.sk===SK||l.c)},inval(){L.forEach(l=>{l.sk=''})},L};
 })();
 </script>
-<script>/* v44.1f: adaptive Auflösung – wenn die Insel dauerhaft ruckelt, Canvas-Auflösung stufenweise senken (2 → 1,75 → 1,5), nie unter 1,5 */
-(function(){let ema=16.7,bad=0,last=0,drops=0;const D0=D;
-const oHD=homeDraw;homeDraw=function(n,dt){let r=oHD.apply(this,arguments);if(last&&!document.hidden){let f=n-last;if(f>0&&f<250){ema=ema*.95+f*.05;if(ema>24)bad+=f;else bad=Math.max(0,bad-f*.5);
-  if(bad>3000&&D>1.5&&drops<2){D=Math.max(1.5,D-.25);drops++;bad=0;ema=16.7;try{hRes()}catch(e){}try{C9BASEC&&C9BASEC.inval()}catch(e){}}}}last=n;return r};
-const oO=openHome;openHome=function(){last=0;bad=0;return oO.apply(this,arguments)};
-window.C9ADPR={get D(){return D},get ema(){return ema},get drops(){return drops},reset(){D=D0;drops=0;try{hRes()}catch(e){}}};
+<script>/* v44.2f: adaptive Auflösung – auf DPR≥2-Handys nie unter 2 (scharfe Schrift); nur wenn es ohne Gesten dauerhaft sehr ruckelt (>40 ms, 6 s) eine Stufe runter (1,75), und wieder hoch, sobald es flüssig läuft */
+(function(){let ema=16.7,bad=0,good=0,last=0,drops=0;const D0=D,FLOOR=(devicePixelRatio||1)>=2?Math.min(D0,1.75):Math.min(D0,1.5);
+function setD(v){if(v===D)return;D=v;try{hRes()}catch(e){}try{C9BASEC&&C9BASEC.inval()}catch(e){}}
+const oHD=homeDraw;homeDraw=function(n,dt){let r=oHD.apply(this,arguments);let G=window.C9GEST&&C9GEST(600);if(last&&!document.hidden&&!G){let f=n-last;if(f>0&&f<250){ema=ema*.95+f*.05;
+  if(ema>40)bad+=f;else bad=Math.max(0,bad-f*.5);if(ema<20)good+=f;else good=0;
+  if(bad>6000&&D>FLOOR&&drops<1){setD(Math.max(FLOOR,D-.25));drops++;bad=0;good=0;ema=16.7}
+  else if(good>8000&&D<D0){setD(Math.min(D0,D+.25));drops=Math.max(0,drops-1);good=0}}}last=n;return r};
+const oO=openHome;openHome=function(){last=0;bad=0;good=0;return oO.apply(this,arguments)};
+window.C9ADPR={get D(){return D},get ema(){return ema},get drops(){return drops},FLOOR,reset(){drops=0;setD(D0)}};
 })();
 </script>
 <script>/* v44.1g: Tippen auf Lebensräume – Tier nur bei Treffer auf das sichtbare Tier, sonst öffnet das Inselchen; Schild öffnet immer; zweites Tippen aufs Tier → Lebensraum; 🏠-Blase */
@@ -4414,6 +4435,22 @@ const oT=hTap;hTap=function(p){
 // 🏠-Blase zeichnen
 const oHD=homeDraw;homeDraw=function(n,dt){if(HOUSE){let k=(performance.now()-HOUSE.t)/2500;if(k>=1)HOUSE=null;else{let o=owned().find(o=>o.i===HOUSE.i);if(o){let al=Math.min(1,(1-k)*4,k*12),x=o.q.x,y=o.q.y-o.q.ry-14+Math.sin(n/200)*2;(window.C9VDRAW=window.C9VDRAW||[]).push(()=>{X.save();X.globalAlpha=al;X.fillStyle='rgba(255,255,255,.95)';X.strokeStyle='rgba(141,123,240,.7)';X.lineWidth=1.6;X.beginPath();X.arc(x,y,11,0,7);X.fill();X.stroke();X.beginPath();X.moveTo(x-4,y+9);X.lineTo(x,y+15);X.lineTo(x+4,y+9);X.fill();X.font='12px sans-serif';X.textAlign='center';X.textBaseline='middle';X.fillText('🏠',x,y+.5);X.restore()})}}}return oHD.apply(this,arguments)};
 window.C9.v441g={abox,visHit,animalHit,labelHit,isleHit,get HOUSE(){return HOUSE}};
+})();
+</script>
+<script>/* v44.2: Beete nur so viele wie in die Gartenecke passen; Überzählige im Lager einmalig erstatten; Dorfplatz sofort besetzt */
+(function(){
+const S=C9.S,V=C9.v44,PRICE=()=>DECO.feld[1];
+const placed=()=>S.home.deco.filter(d=>d.k=='feld').length,total=()=>placed()+(S.home.inv.feld||0);
+function refund(){let H=S.home;S.v44=S.v44||{};if(S.v44.bfx)return 0;let x=Math.max(0,Math.min(H.inv.feld||0,total()-V.cap()));S.v44.bfx=1;
+ if(x){H.inv.feld-=x;H.coins+=x*PRICE();setTimeout(()=>{toast('🌱 Die Gartenecke hat nur '+V.cap()+' Plätze – '+x+' Beet'+(x>1?'e':'')+' aus dem Lager zurückgegeben: +'+x*PRICE()+' 🪙',5200);try{hUi()}catch(_){}},1500)}save();return x}
+const oSB=shopBuy;shopBuy=function(d){if(d&&d.k=='feld'&&total()>=V.cap()){toast('🌱 Gartenecke voll ('+total()+'/'+V.cap()+') – mit mehr Lebensräumen wird sie größer'+(V.cap()<8?' ('+(V.cap()<6?'ab 6':'ab 11')+')':''),3600);SND.sfx&&SND.sfx('nope');return}return oSB.apply(this,arguments)};
+const oRS=renderShop;renderShop=function(){oRS();if(SHT!='deco')return;let c=$('shGrid').querySelector('[data-k=feld]');if(!c)return;let C=V.cap(),T=total();
+ if(T>=C){let b=c.querySelector('.buy');if(b){b.classList.add('poor');b.disabled=true;b.textContent='Gartenecke voll ('+T+'/'+C+')';b.style.fontSize='10px'}
+  let h=document.createElement('small');h.className='v442h';h.style.cssText='display:block;font-size:9.5px;line-height:1.2;margin-top:2px;color:#7a5236';h.textContent=C<8?'🏡 Mehr Lebensräume ('+(C<6?'6':'11')+'+) → mehr Platz':'🌱 Alle 8 Plätze belegt';c.appendChild(h)}
+ else{let b=c.querySelector('.buy');if(b&&!c.querySelector('.v442h')){let h=document.createElement('small');h.className='v442h';h.style.cssText='display:block;font-size:9.5px;color:#7a5236';h.textContent='🌱 '+T+'/'+C+' in der Gartenecke';c.appendChild(h)}}};
+const oOH=openHome;openHome=function(){let r=oOH.apply(this,arguments);try{V.seed()}catch(_){}return r};
+refund();
+window.C9.v442={refund,total,placed};
 })();
 </script>
 </body></html>
