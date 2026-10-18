@@ -1197,7 +1197,7 @@ lbFlush();
 const RANKS=[[1,'Wolkenküken','🐣'],[3,'Tropfenfänger','💧'],[5,'Regenmacher','🌧️'],[8,'Sturmlehrling','🌬️'],[11,'Blitzbändiger','⚡'],[15,'Regenbogenweber','🌈'],[20,'Wolkenhüter','☁️'],[26,'Himmelsmeister','👑']];
 function rankOf(l){let r=RANKS[0];RANKS.forEach(x=>{if(l>=x[0])r=x});return r}
 function coinGain(n){n=Math.round(n);if(n>0){S.home.coins+=n;S.home.earned=(S.home.earned||0)+n;save()}}
-const GIFTS={'🐰':['🥕','Möhre',6],'🦋':['🌸','Blüte',6],'🐝':['🍯','Honig',10],'🦔':['🌰','Nuss',7],'🦎':['🪨','Glitzerstein',7],'🐪':['🌵','Kaktusfrucht',7],'🦂':['🪨','Glitzerstein',7],'🦅':['🪶','Feder',8],'🦭':['🐚','Muschel',8],'🐧':['🐚','Muschel',8],'🐻‍❄️':['❄️','Schneeflocke',9],'🦉':['🪶','Feder',8],'🦜':['🪶','Feder',8],'🐒':['🍌','Banane',7],'🐢':['🐚','Muschel',8],'🦩':['🪶','Feder',8],'🦦':['🐚','Muschel',8],'🦄':['⭐','Stern',15],'🐉':['🔥','Glutstein',12],'🦇':['💎','Kristall',10],'🦊':['🍁','Ahornblatt',8],'🐿️':['🌰','Nuss',7],'🪼':['💎','Kristall',10],'🐋':['⭐','Stern',15]};
+const GIFTS={'🐰':['🥕','Möhre',6],'🦋':['🌸','Blüte',6],'🐝':['🍯','Honig',10],'🦔':['🪲','Käfer',7],'🦎':['🪨','Glitzerstein',7],'🐪':['🌵','Kaktusfrucht',7],'🦂':['🪨','Glitzerstein',7],'🦅':['🪶','Feder',8],'🦭':['🐚','Muschel',8],'🐧':['🐚','Muschel',8],'🐻‍❄️':['❄️','Schneeflocke',9],'🦉':['🪶','Feder',8],'🦜':['🪶','Feder',8],'🐒':['🍌','Banane',7],'🐢':['🐚','Muschel',8],'🦩':['🪶','Feder',8],'🦦':['🐚','Muschel',8],'🦄':['⭐','Stern',15],'🐉':['🔥','Glutstein',12],'🦇':['💎','Kristall',10],'🦊':['🍁','Ahornblatt',8],'🐿️':['🌰','Nuss',7],'🪼':['💎','Kristall',10],'🐋':['⭐','Stern',15]};
 const CPK={grow:['🌱','Pflanzen wachsen 25% schneller'],time:['⏱️','+4 Sekunden Rundenzeit'],bolt:['⚡','Gewitter 13% schneller'],snow:['❄️','+20% Schnee'],rare:['✨','Seltene Wolken +15%'],leaf:['🍂','+20% Blätter'],ani:['🐾','Tiere kommen 20% öfter']};
 const COMP={'🐰':'ani','🦋':'rare','🐝':'grow','🦔':'bolt','🦎':'time','🐪':'time','🦂':'bolt','🦅':'ani','🦭':'snow','🐧':'snow','🐻‍❄️':'snow','🦉':'time','🦜':'grow','🐒':'grow','🐢':'time','🦩':'rare','🦦':'ani','🦄':'rare','🐉':'bolt','🦇':'ani','🦊':'leaf','🐿️':'leaf','🪼':'bolt','🐋':'grow'};
 // recipes: a + b = result (TYPES index)
@@ -1488,8 +1488,9 @@ const FOODS={
  suppe:{n:'Muschelsuppe',e:'🍲',r:{'🐚':1,'🫐':1}},
  kaktus:{n:'Kaktussaft',e:'🍹',r:{'🌵':1,'🫐':1}},
  eis:{n:'Eisbecher',e:'🍧',r:{'❄️':1,'🫐':1}},
- stern:{n:'Sternbonbon',e:'🍬',r:{'💎':1,'🌸':1}}};
-const FAV={'🐰':'salat','🦔':'nuss','🐿️':'nuss','🦋':'nektar','🐝':'nektar','🦜':'nektar','🦩':'nektar','🦎':'kaktus','🐪':'kaktus','🦂':'kaktus','🦭':'suppe','🐧':'suppe','🐢':'suppe','🦦':'suppe','🐻‍❄️':'eis','🦅':'beeren','🦉':'beeren','🐒':'beeren','🦊':'beeren','🦄':'stern','🐉':'stern','🦇':'stern','🪼':'stern','🐋':'stern'};
+ stern:{n:'Sternbonbon',e:'🍬',r:{'💎':1,'🌸':1}},
+ krabbel:{n:'Krabbel-Snack',e:'🥣',r:{'🪲':2}}};
+const FAV={'🐰':'salat','🦔':'krabbel','🐿️':'nuss','🦋':'nektar','🐝':'nektar','🦜':'nektar','🦩':'nektar','🦎':'krabbel','🐪':'kaktus','🦂':'krabbel','🦭':'suppe','🐧':'suppe','🐢':'suppe','🦦':'suppe','🐻‍❄️':'eis','🦅':'beeren','🦉':'beeren','🐒':'beeren','🦊':'beeren','🦄':'stern','🐉':'stern','🦇':'krabbel','🪼':'stern','🐋':'stern'};
 const TRICK={'🐰':['salto','Salto'],'🐧':['rutsch','Bauchrutscher'],'🦭':['rutsch','Bauchrutscher'],'🐻‍❄️':['rutsch','Bauchrutscher'],'🐋':['salto','Riesensprung'],'🦦':['salto','Rückwärtssalto'],'🪼':['dreh','Pirouette'],'🐢':['dreh','Panzerdreher'],'🦊':['dreh','Schwanzjagd'],'🐒':['salto','Flickflack'],'🐉':['salto','Looping'],'🦄':['salto','Regenbogensprung'],'🦅':['salto','Looping'],'🦜':['dreh','Pirouette'],'🦉':['dreh','Kopfdreher']};
 const trickOf=e=>TRICK[e]||['hops','Freudensprung'];
 const CAP={pet:3,feed:2,play:2,bath:2};
@@ -2619,7 +2620,7 @@ const GF2={'🐠':['🐚','Muschel',12],'🦀':['🦪','Auster',12],'🐡':['�
 try{Object.assign(GIFTS,GF2)}catch(e){}
 const CP2={'🐠':'ani','🦀':'grow','🐡':'rare','🦈':'bolt','🐍':'time','🦗':'grow','🦙':'rare','🦥':'time','🐅':'bolt','🐊':'grow','🦛':'ani','🦖':'bolt','🐌':'grow','🦕':'rare','🦌':'time','🐺':'bolt','🐳':'rare','🐻':'ani','🐭':'grow','🐹':'time','🐞':'rare','🦡':'grow','🐦':'ani','🐶':'time','🐱':'rare','🐲':'bolt'};
 try{Object.keys(CP2).forEach(e=>{if(ANIMALS.some(a=>a[0]==e))COMP[e]=CP2[e]})}catch(e){}
-try{if(window.C9V20){let F={'🐠':'suppe','🦀':'suppe','🐡':'suppe','🦈':'suppe','🐍':'kaktus','🦗':'kaktus','🦙':'salat','🦥':'beeren','🐅':'beeren','🐊':'suppe','🦛':'salat','🦖':'beeren','🐌':'salat','🦕':'salat','🦌':'salat','🐺':'eis','🐳':'eis','🐻':'nektar','🐭':'nuss','🐹':'nuss','🐞':'nektar','🦡':'nuss','🐦':'beeren','🐶':'stern','🐱':'stern','🐲':'stern'};Object.keys(F).forEach(e=>{if(ANIMALS.some(a=>a[0]==e))C9V20.FAV[e]=F[e]})}}catch(e){}
+try{if(window.C9V20){let F={'🐠':'suppe','🦀':'suppe','🐡':'suppe','🦈':'suppe','🐍':'kaktus','🦗':'kaktus','🦙':'salat','🦥':'beeren','🐅':'beeren','🐊':'suppe','🦛':'salat','🦖':'beeren','🐌':'salat','🦕':'salat','🦌':'salat','🐺':'eis','🐳':'eis','🐻':'nektar','🐭':'nuss','🐹':'nuss','🐞':'nektar','🦡':'krabbel','🐦':'beeren','🐶':'stern','🐱':'stern','🐲':'stern'};Object.keys(F).forEach(e=>{if(ANIMALS.some(a=>a[0]==e))C9V20.FAV[e]=F[e]})}}catch(e){}
 try{let H2={see:['🐠','🦀','🐡','🦈','🐊','🦛','🐳'],wueste:['🐍','🦗','🦙'],wald:['🦥','🐅','🦌','🐺','🦡','🐞','🐭','🐹','🐻','🦖','🦕','🐌','🐶','🐱'],nest:['🐦','🐲']};Object.entries(H2).forEach(([h,l])=>{if(HABS[h])l.forEach(e=>{if(ANIMALS.some(a=>a[0]==e)&&!HABS[h].a.includes(e))HABS[h].a.push(e)})})}catch(e){}
 // ---------- Level ----------
 const LV0=LEVELS.length,CHL={};const BAL=window.C9BAL||{};
@@ -5180,4 +5181,19 @@ function make(x,W,H,e,tw,kid,fx){
 V3.reg('buddel',{n:'Buddeln & Suchen',e:'🐾',how:'Wischen = graben! Das Tier läuft deinem Finger nach.',mus:MUS,make},TW);
 })();
 </script>
+<script>/* v47.1: Igel schenkt jetzt Käfer 🪲. Alte 🌰 bleiben (auch Eichhörnchen/Hamster/Ziege schenken Nüsse) – wer schon einen Igel hat, bekommt einmalig 2 🪲 für den neuen Krabbel-Snack */
+(function(){function mig(){try{let S=C9.S,H=S&&S.home;if(!H||S.v471)return;S.v471=1;if(H.got&&H.got['🦔']){H.items=H.items||{};H.items['🪲']=(H.items['🪲']||0)+2}try{save()}catch(_){}}catch(_){}}mig();setTimeout(mig,500);if(typeof openHome=='function'){const o=openHome;openHome=function(){mig();return o.apply(this,arguments)}}})();</script>
+<script>/* v47.1b: FLIP!-Blase am Geist */
+(function(){const V=C9.v431;if(!V)return;const G=V.RO.g,D=1.5;
+const oT=hTap;hTap=function(p){let s0=G.spin;let r=oT.apply(this,arguments);if(G.spin===1&&s0!==1){G.flip=D;G.f0=performance.now()}return r};
+const oD=homeDraw;homeDraw=function(n,dt){if(G.flip>0&&V.hasG()){G.flip=Math.max(0,D-(performance.now()-G.f0)/1000);let f=G.flip,k=D-f,t=n/1000,x=G.x+40,y=G.y-40-34+Math.sin(t*2.2)*5;
+  (window.C9VDRAW=window.C9VDRAW||[]).push(()=>{let pop=k<.28?(k/.28):1,sc=k<.28?Math.sin(pop*Math.PI*.5)*1.25-(pop>.8?(pop-.8)*1.25:0):1+Math.sin(k*9)*.04,al=Math.min(1,f/.4);sc=Math.max(.05,sc);
+   X.save();X.globalAlpha=al;X.translate(x,y-k*6);X.rotate(Math.sin(k*14)*.16*Math.max(.25,1-k/D));X.scale(sc,sc);
+   X.fillStyle='#fff';X.strokeStyle='#8a5ad8';X.lineWidth=2.5;X.beginPath();X.moveTo(-14,9);X.lineTo(-24,18);X.lineTo(-5,10);X.closePath();X.fill();X.stroke();
+   X.beginPath();if(X.roundRect)X.roundRect(-25,-13,50,24,12);else X.rect(-25,-13,50,24);X.fill();X.stroke();X.fillStyle='#fff';X.fillRect(-15,8,11,4);
+   X.font='900 15px Nunito,system-ui,sans-serif';X.textAlign='center';X.textBaseline='middle';X.lineWidth=3;X.strokeStyle='rgba(255,170,220,.9)';X.strokeText('FLIP!',0,0);X.fillStyle='#6a3ac0';X.fillText('FLIP!',0,0);
+   X.fillStyle='#ffd34a';[[-30,-14,.9],[29,-15,1.1],[31,8,.7]].forEach(([a,b,r],i)=>{let tw=.6+.4*Math.sin(t*12+i*2);X.save();X.translate(a,b);X.rotate(t*3+i);X.beginPath();for(let j=0;j<8;j++){let rr=(j%2?1.4:4)*r*tw,an=j*Math.PI/4;X.lineTo(Math.cos(an)*rr,Math.sin(an)*rr)}X.closePath();X.fill();X.restore()});
+   X.restore()})}
+ return oD.apply(this,arguments)};
+})();</script>
 </body></html>
