@@ -1833,7 +1833,7 @@ function body(){let V=fx();
   return'<small>Gießen: unten 🌧️ antippen und die Wolke übers Beet ziehen.</small>'+bs.map((d,i)=>{let p=d.pl;if(!p)return`<div class="v22row"><b style="font-size:26px">🌱</b><span>Beet ${i+1} ist frei</span><button class="sm" data-bed="${i}">Pflanzen</button></div>`;let s=SEEDS()[p.s],wt=(p.w||0)>Date.now();
    return`<div class="v22row"><b style="font-size:26px">${s.e}</b><span>${s.n}<div class="v22bar"><i style="width:${p.g*100|0}%"></i></div><small>${p.g>=1?'Fertig!':Math.round(p.g*100)+'% · '+(wt?'💧 gegossen':'🏜️ braucht Wasser')}</small></span>${p.g>=1?`<button class="sm" data-bed="${i}">Ernten</button>`:wt?'':`<button class="sec sm" data-water="1">🌧️ Gießen</button>`}</div>`}).join('')}
  let ks=Object.keys(FOODS()).filter(canCook),inv=Object.entries(H.food||{}).filter(([k,n])=>n>0);
- return(inv.length?'<small>Im Vorrat: '+inv.map(([k,n])=>FOODS()[k].e+'×'+n).join(' ')+'</small>':'')+(ks.length?ks.map(k=>{let Fd=FOODS()[k],who=ownedAn().filter(e=>FAV()[e]==k).slice(0,4).join('');return`<div class="v22row"><b style="font-size:26px">${Fd.e}</b><span>${Fd.n}<small>${Object.entries(Fd.r).map(([i,n])=>i+'×'+n).join(' + ')}${who?' · Liebling von '+who:''}</small></span><button class="sm" data-cook="${k}">Kochen</button></div>`}).join(''):'<div class="v22empty">Gerade fehlen Zutaten 🧺<br><small>Zutaten bekommst du aus Geschenken der Tiere, aus dem Garten und beim 🎣 Angeln.</small></div>')}
+ return(inv.length?'<small>Im Vorrat: '+inv.map(([k,n])=>FOODS()[k].e+'×'+n).join(' ')+'</small>':'')+(ks.length?ks.map(k=>{let Fd=FOODS()[k],wl=ownedAn().filter(e=>FAV()[e]==k),who=wl.slice(0,5).join('')+(wl.length>5?' +'+(wl.length-5):'');return`<div class="v22row"><b style="font-size:26px">${Fd.e}</b><span>${Fd.n}<small>${Object.entries(Fd.r).map(([i,n])=>i+'×'+n).join(' + ')}${who?' · Liebling von '+who:''}</small></span><button class="sm" data-cook="${k}">Kochen</button></div>`}).join(''):'<div class="v22empty">Gerade fehlen Zutaten 🧺<br><small>Zutaten bekommst du aus Geschenken der Tiere, aus dem Garten und beim 🎣 Angeln.</small></div>')}
 function wire(sh){let V=fx();
  sh.querySelectorAll('[data-feed]').forEach(b=>b.onclick=()=>{let e=b.dataset.feed,f=V.fr(e),fav=FAV()[e]||'beeren';let k=(H.food[fav]>0)?fav:Object.keys(H.food).find(k=>H.food[k]>0);if(!k){heft('kueche');return}if(f.feed>=2)return;
   H.food[k]--;f.feed++;let fv=k==fav;V.addFp(e,fv?20:10);let a=HA.find(x=>x.e==e);if(a){setTimeout(()=>{try{C9.care.careChk(a)}catch(_){}},50);a.hop=1;if(a.sx!=null)HFT.push({x:a.sx,y:a.sy-40,s:'😋 '+FOODS()[k].e+(fv?' ❤️❤️':' ❤️'),l:1.5})}SND.sfx('gift');SND.animal(e);V.wishEv('feed',e);save();heft()});
@@ -5184,16 +5184,18 @@ V3.reg('buddel',{n:'Buddeln & Suchen',e:'🐾',how:'Wischen = graben! Das Tier l
 </script>
 <script>/* v47.1: Igel schenkt jetzt Käfer 🪲. Alte 🌰 bleiben (auch Eichhörnchen/Hamster/Ziege schenken Nüsse) – wer schon einen Igel hat, bekommt einmalig 2 🪲 für den neuen Krabbel-Snack */
 (function(){function mig(){try{let S=C9.S,H=S&&S.home;if(!H||S.v471)return;S.v471=1;if(H.got&&H.got['🦔']){H.items=H.items||{};H.items['🪲']=(H.items['🪲']||0)+2}try{save()}catch(_){}}catch(_){}}mig();setTimeout(mig,500);if(typeof openHome=='function'){const o=openHome;openHome=function(){mig();return o.apply(this,arguments)}}})();</script>
-<script>/* v47.1b: FLIP!-Blase am Geist */
+<script>/* v47.1b: FLIP!-Blase am Geist (v48.1b: sauberer Umriss) */
 (function(){const V=C9.v431;if(!V)return;const G=V.RO.g,D=1.5;
 const oT=hTap;hTap=function(p){let s0=G.spin;let r=oT.apply(this,arguments);if(G.spin===1&&s0!==1){G.flip=D;G.f0=performance.now()}return r};
-const oD=homeDraw;homeDraw=function(n,dt){if(G.flip>0&&V.hasG()){G.flip=Math.max(0,D-(performance.now()-G.f0)/1000);let f=G.flip,k=D-f,t=n/1000,x=G.x+40,y=G.y-40-34+Math.sin(t*2.2)*5;
-  (window.C9VDRAW=window.C9VDRAW||[]).push(()=>{let pop=k<.28?(k/.28):1,sc=k<.28?Math.sin(pop*Math.PI*.5)*1.25-(pop>.8?(pop-.8)*1.25:0):1+Math.sin(k*9)*.04,al=Math.min(1,f/.4);sc=Math.max(.05,sc);
-   X.save();X.globalAlpha=al;X.translate(x,y-k*6);X.rotate(Math.sin(k*14)*.16*Math.max(.25,1-k/D));X.scale(sc,sc);
-   X.fillStyle='#fff';X.strokeStyle='#8a5ad8';X.lineWidth=2.5;X.beginPath();X.moveTo(-14,9);X.lineTo(-24,18);X.lineTo(-5,10);X.closePath();X.fill();X.stroke();
-   X.beginPath();if(X.roundRect)X.roundRect(-25,-13,50,24,12);else X.rect(-25,-13,50,24);X.fill();X.stroke();X.fillStyle='#fff';X.fillRect(-15,8,11,4);
+const oD=homeDraw;homeDraw=function(n,dt){if(G.flip>0&&V.hasG()){G.flip=Math.max(0,D-(performance.now()-G.f0)/1000);let f=G.flip,k=D-f,t=n/1000,gx=G.x,y=G.y-58+Math.sin(t*2.2)*5;
+  (window.C9VDRAW=window.C9VDRAW||[]).push(()=>{let m=X.getTransform(),cw=X.canvas.width,px=m.a*gx+m.c*G.y+m.e;
+   if(G.fs==null||Math.abs(px/cw-.5)>.14)G.fs=px>cw*.62?-1:px<cw*.38?1:(G.fs||1);let sd=G.fs,x=gx+38*sd,pop=k<.28?(k/.28):1,sc=k<.28?Math.sin(pop*Math.PI*.5)*1.25-(pop>.8?(pop-.8)*1.25:0):1+Math.sin(k*9)*.04,al=Math.min(1,f/.4);sc=Math.max(.05,sc);
+   X.save();X.globalAlpha=al;X.globalCompositeOperation='source-over';X.setLineDash&&X.setLineDash([]);X.shadowBlur=0;X.shadowColor='transparent';if('filter' in X)X.filter='none';X.lineJoin='round';X.lineCap='round';X.translate(x,y-k*3);X.rotate(Math.sin(k*14)*.16*Math.max(.25,1-k/D));X.scale(sc,sc);
+   X.save();X.scale(sd,1);let L=27,h=13,r=13,PI=Math.PI;X.beginPath();X.moveTo(-L+r,-h);X.lineTo(L-r,-h);X.arc(L-r,0,r,-PI/2,PI/2);X.lineTo(-5,h);
+   X.quadraticCurveTo(-10,h+5,-22,h+10);X.quadraticCurveTo(-16,h+3,-15,h);X.lineTo(-L+r,h);X.arc(-L+r,0,r,PI/2,PI*1.5);X.closePath();
+   X.fillStyle='#fff';X.fill();X.strokeStyle='#8a5ad8';X.lineWidth=2.5;X.stroke();X.restore();
    X.font='900 15px Nunito,system-ui,sans-serif';X.textAlign='center';X.textBaseline='middle';X.lineWidth=3;X.strokeStyle='rgba(255,170,220,.9)';X.strokeText('FLIP!',0,0);X.fillStyle='#6a3ac0';X.fillText('FLIP!',0,0);
-   X.fillStyle='#ffd34a';[[-30,-14,.9],[29,-15,1.1],[31,8,.7]].forEach(([a,b,r],i)=>{let tw=.6+.4*Math.sin(t*12+i*2);X.save();X.translate(a,b);X.rotate(t*3+i);X.beginPath();for(let j=0;j<8;j++){let rr=(j%2?1.4:4)*r*tw,an=j*Math.PI/4;X.lineTo(Math.cos(an)*rr,Math.sin(an)*rr)}X.closePath();X.fill();X.restore()});
+   X.fillStyle='#ffd34a';[[-31,-14,.9],[30,-15,1.1],[33,9,.7]].map(([a,b,r])=>[a*sd,b,r]).forEach(([a,b,r],i)=>{let tw=.6+.4*Math.sin(t*12+i*2);X.save();X.translate(a,b);X.rotate(t*3+i);X.beginPath();for(let j=0;j<8;j++){let rr=(j%2?1.4:4)*r*tw,an=j*Math.PI/4;X.lineTo(Math.cos(an)*rr,Math.sin(an)*rr)}X.closePath();X.fill();X.restore()});
    X.restore()})}
  return oD.apply(this,arguments)};
 })();</script>
@@ -5355,5 +5357,13 @@ function heftBody(){let L=spots(),q=quota();if(!L.length)return'<div class="v22e
  return`<small>Im Wasser wird nicht gepflanzt – hier wird geangelt! Fische, Muscheln und Garnelen sind Zutaten für die 🍳 Küche.${C9.MG_UNLIMITED?'':' Heute noch '+q.left+' Fänge.'}</small>`+L.map(k=>`<div class="v22row"><b style="font-size:26px">${HABS[k].e}</b><span>${HABS[k].n}<small>${SP[k].c.filter(c=>c[0]!='🥾').map(c=>c[0]+' '+c[1]).join(' · ')}</small></span><button class="sm" onclick="C9FISH.go('${k}')">🎣 Angeln</button></div>`).join('')+`<div class="v22row"><span><small>${rec}</small></span></div>`}
 window.C9FISH={open,go:k=>{let s=$('hSheet');if(s)s.classList.add('hide');open(k)},spots,quota,heftBody,SP,get G(){return G},tap,MAXF};
 })();
+</script>
+<script>
+/* v48.1: Lieblingsessen nach echter Nahrung (FAV wird nicht gespeichert → keine Migration nötig) */
+(function(){if(!window.C9V20)return;Object.assign(C9V20.FAV,{
+'🦭':'fisch','🐧':'fisch','🦈':'fisch','🐊':'fisch','🐱':'fisch','🐶':'fisch','🐅':'fisch','🐆':'fisch',
+'🦦':'fischfest','🐙':'fischfest',
+'🐠':'krill','🦩':'krill',
+'🐸':'krabbel','🐍':'krabbel','🐞':'krabbel','🦚':'krabbel'});C9V20.v481=1})();
 </script>
 </body></html>
