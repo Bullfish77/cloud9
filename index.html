@@ -299,7 +299,7 @@ function build(c){ctx=c;offline=(typeof OfflineAudioContext!='undefined'&&c inst
  let lim=c.createDynamicsCompressor();lim.threshold.value=-22;lim.knee.value=16;lim.ratio.value=2.5;lim.attack.value=.03;lim.release.value=.4;
  let lim2=c.createDynamicsCompressor();lim2.threshold.value=-7;lim2.knee.value=1;lim2.ratio.value=20;lim2.attack.value=.002;lim2.release.value=.25;let mg=c.createGain();mg.gain.value=.78;
  let warm=c.createBiquadFilter();warm.type='lowpass';warm.frequency.value=5200;warm.Q.value=.45;let dc=c.createBiquadFilter();dc.type='highpass';dc.frequency.value=30;
- out=c.createGain();out.connect(dc).connect(warm).connect(lim).connect(lim2).connect(mg).connect(c.destination);
+ out=c.createGain();OUTN=dc;out.connect(dc).connect(warm).connect(lim).connect(lim2).connect(mg).connect(c.destination);
  rev=c.createConvolver();rev.buffer=impulse(c,1.8,3.5);let rg=c.createGain();rg.gain.value=.5;rev.connect(rg).connect(out);let hp=c.createBiquadFilter();hp.type='highpass';hp.frequency.value=280;hp.connect(rev);
  dly=c.createDelay(1);let fb=c.createGain(),dl=c.createBiquadFilter();dl.type='lowpass';dl.frequency.value=1800;fb.gain.value=.32;dly.connect(dl).connect(fb).connect(dly);let dg=c.createGain();dg.gain.value=.35;dl.connect(dg).connect(out);
  mus=c.createGain();musLP=c.createBiquadFilter();musLP.type='lowpass';musLP.frequency.value=2000;musLP.Q.value=.55;duck=c.createGain();mus.connect(musLP).connect(duck).connect(out);drm=c.createGain();drm.gain.value=1;drm.connect(out);let ms=c.createGain();ms.gain.value=.45;musLP.connect(ms).connect(hp);let md=c.createGain();md.gain.value=.18;let mh=c.createBiquadFilter();mh.type='highpass';mh.frequency.value=500;musLP.connect(mh).connect(md).connect(dly);
@@ -311,12 +311,12 @@ function build(c){ctx=c;offline=(typeof OfflineAudioContext!='undefined'&&c inst
  let rb=noiseBuf(c,3,(i,d)=>{let w=R()*2-1;return i?d[i-1]*.6+w*.4:w});
  rain=c.createBufferSource();rain.buffer=rb;rain.loop=true;let rf=c.createBiquadFilter();rf.type='lowpass';rf.frequency.value=1400;rainG=c.createGain();rainG.gain.value=0;rain.connect(rf).connect(rainG).connect(out);rain.start();
  let pat=c.createBufferSource();pat.buffer=noiseBuf(c,2,(i,d)=>{let w=(R()<.01?(R()*2-1)*.35:(R()*2-1)*.04);return i?d[i-1]*.5+w*.5:w});pat.loop=true;let pf=c.createBiquadFilter();pf.type='lowpass';pf.frequency.value=2200;pf.Q.value=.5;patG=c.createGain();patG.gain.value=0;pat.connect(pf).connect(patG).connect(sfx);pat.start();
- vol();try{if(window.C9SEE&&C9SEE.init)C9SEE.init(c,amb)}catch(e){}}
-function vol(){if(!ctx)return;let t=ctx.currentTime;mus.gain.setTargetAtTime(ST.mute?0:ST.m*1.05,t,.1);sfx.gain.setTargetAtTime(ST.mute?0:ST.e*.9,t,.05);if(drm)drm.gain.setTargetAtTime(ST.mute?0:ST.m*1.05,t,.1);if(amb)amb.gain.setTargetAtTime(ST.mute?0:(ST.a==null?.5:ST.a)*.65,t,.15);out.gain.setTargetAtTime(.55,t,.05)}
+ vol();try{if(!REND&&window.C9SEE&&C9SEE.init)C9SEE.init(c,amb)}catch(e){}}
+function vol(){if(!ctx)return;let t=ctx.currentTime;if(BUFS&&!offline)BUFS.g.gain.setTargetAtTime(bufLv(BUFS.e),t+.35,.1);mus.gain.setTargetAtTime(ST.mute?0:ST.m*1.05,t,.1);sfx.gain.setTargetAtTime(ST.mute?0:ST.e*.9,t,.05);if(drm)drm.gain.setTargetAtTime(ST.mute?0:ST.m*1.05,t,.1);if(amb)amb.gain.setTargetAtTime(ST.mute?0:(ST.a==null?.5:ST.a)*.65,t,.15);out.gain.setTargetAtTime(.55,t,.05)}
 // ---- Stimmen ----
 function env(g,t,a,peak,d){a=Math.max(a,.006);g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(peak,t+a);g.gain.setTargetAtTime(0,t+a,Math.max(.01,d/5));g.gain.setValueAtTime(0,t+a+d*1.4+.02)}
 function osc(type,f,t,stop,dest){let o=ctx.createOscillator();o.type=type;o.frequency.setValueAtTime(f,t);o.connect(dest);o.start(t);o.stop(Math.max(stop,t+.05)+.6);return o}
-let VL=[];function voice(t,dur,dest){DBG.notes++;if(!offline){if(t<ctx.currentTime)DBG.late++;let now=ctx.currentTime;if(VL.length>64)VL=VL.filter(v=>v[1]>now);let act=0;for(const v of VL)if(v[0]<=t+.005&&v[1]>t)act++;if(act>=28){DBG.drop++;return null}VL.push([t,t+dur+.1])}let g=ctx.createGain();g.connect(dest);return g}
+let VL=[];function voice(t,dur,dest){DBG.notes++;if(!offline){if(t<ctx.currentTime)DBG.late++;let now=ctx.currentTime;if(VL.length>64)VL=VL.filter(v=>v[1]>now);let act=0;for(const v of VL)if(v[0]<=t+.005&&v[1]>t)act++;if(act>=28){DBG.drop++;return null}VL.push([t,t+dur+.1,CURP])}let g=ctx.createGain();g.connect(dest);return g}
 function inst(kind,m,t,vel,dest){dest=dest||mus;let f=mtof(m);
  if(kind=='ep'){let g=voice(t,2.6,dest,.35,.25);if(!g)return;env(g,t,.02,.13*vel,2.2);osc('sine',f,t,t+2.6,g);let g2=ctx.createGain();g2.connect(g);env(g2,t,.015,.35,.35);osc('sine',f*2.002,t,t+.6,g2);let g3=ctx.createGain();g3.connect(g);env(g3,t,.03,.08,.8);osc('triangle',f*.5,t,t+1.2,g3)}
  else if(kind=='kal'){let g=voice(t,1.4,dest,.4,.3);if(!g)return;env(g,t,.003,.18*vel,1.2);osc('sine',f,t,t+1.4,g);let g2=ctx.createGain();g2.connect(g);env(g2,t,.004,.15,.12);osc('sine',f*3,t,t+.2,g2)}
@@ -336,16 +336,19 @@ function snare(t,v){noise(t,.14,'bandpass',1650,.55,.035*v,mus,.01);let g=voice(
 function hat(t,v){noise(t,.045,'bandpass',4200,.55,.009*v,mus,.006)}
 function shaker(t,v){noise(t,.07,'bandpass',3200,.4,.006*v,mus,.012)}
 // ---- Sequencer ----
-function newPlayer(key,n){let th=T[key]||T.menu,g=ctx.createGain();g.gain.value=0;g.connect(mus);let t0=ctx.currentTime+.15;return{key,th,night:n,g,step:0,t0,next:t0,rng:mkRng(key.length*977+key.charCodeAt(key.length-1)*31),motif:null,bar:0}}
+function newPlayer(key,n,at){let th=T[key]||T.menu,g=ctx.createGain();g.gain.value=0;g.connect(mus);let dg=ctx.createGain();dg.gain.value=0;dg.connect(drm);let t0=Math.max(ctx.currentTime+.15,at||0);return{key,th,night:n,g,dg,nodes:[],step:0,t0,next:t0,rng:mkRng(key.length*977+key.charCodeAt(key.length-1)*31),motif:null,bar:0}}
 function chordAt(p){let c=p.th.prog[p.bar%p.th.prog.length];return[p.th.root+c[0],c[1]]}
-function schedStep(p,t){let th=p.th,n=p.night,s=p.step%16,bar=Math.floor(p.step/16);p.bar=bar;let[r,ch]=chordAt(p),I=Math.min(1,inten),dest=p.g,save=mus;mus=dest;
+function schedStep(p,t){if(offline)return schedStep0(p,t);let oO=ctx.createOscillator,oB=ctx.createBufferSource,L=p.nodes;
+ ctx.createOscillator=function(){let x=oO.call(ctx);L.push([x,t]);return x};ctx.createBufferSource=function(){let x=oB.call(ctx);L.push([x,t]);return x};
+ CURP=p;try{schedStep0(p,t)}finally{CURP=null;delete ctx.createOscillator;delete ctx.createBufferSource;if(L.length>600){let lim=ctx.currentTime-6;p.nodes=L.filter(q=>q[1]>lim)}}}
+function schedStep0(p,t){let th=p.th,n=p.night,s=p.step%16,bar=Math.floor(p.step/16);p.bar=bar;let[r,ch]=chordAt(p),I=Math.min(1,inten),dest=p.g,save=mus;mus=dest;
  let sp=60/(th.bpm*(n?.86:1))/4;let lofi=ST.style=='lofi'&&(p.key=='menu'||p.key=='home'||p.key[0]=='h')&&!!window.C9LOFI;
  if(s==0){let notes=ch.map(x=>r+x);pad(notes,t,sp*16,n?1.2:1,th.lp);let tw=th.lead=='ep'?'ep':th.lead=='bell'?'bell':'ep';notes.slice(0,4).forEach((m,i)=>inst(tw,m,t+i*.012,.55));if(!lofi)bass(r-24,t,sp*6,1)}
  if(!lofi&&s==10&&!n)bass(r-24+(ch[2]||7),t,sp*4,.8);
  if(s==8&&th.lead!='ep'&&th.lead!='bell')ch.slice(1,4).forEach((x,i)=>inst('ep',r+x,t+i*.015,.35));
  // Drums
  let dv=(n?.45:.55+I*.2)*(th.dr==null?1:th.dr)*(ST.style=='lofi'?.85:1);
- if(lofi){C9LOFI({ctx,t,s,bar,n,sp,drm,duck,r,ch,rng:p.rng,dv:th.dr==null?1:th.dr})}else if(0){if(dv>.02&&(s==0||(s==8&&!n&&p.rng()<.35)))kick(t,dv*(s==8?.55:1));if(dv>.02&&!n&&(s==4||s==12))snare(t,dv*.9);if(dv>.02&&(s==2||s==6||s==10||s==14))shaker(t,dv*(s%4==2?.8:1));if(dv>.02&&s%4==0&&!(n&&s))hat(t,dv*.55)}
+ if(lofi){C9LOFI({ctx,t,s,bar,n,sp,drm:p.dg||drm,duck,r,ch,rng:p.rng,dv:th.dr==null?1:th.dr})}else if(0){if(dv>.02&&(s==0||(s==8&&!n&&p.rng()<.35)))kick(t,dv*(s==8?.55:1));if(dv>.02&&!n&&(s==4||s==12))snare(t,dv*.9);if(dv>.02&&(s==2||s==6||s==10||s==14))shaker(t,dv*(s%4==2?.8:1));if(dv>.02&&s%4==0&&!(n&&s))hat(t,dv*.55)}
  else{if(dv>.02&&(s==0||(s==10&&!n)||(s==7&&I>.6)))kick(t,dv);if(dv>.02&&!n&&(s==4||s==12))snare(t,dv);if(dv>.02&&s%2==0&&!(n&&s%4))hat(t,dv*(s%4?.7:1))}
  
  // Melodie: Motiv pro 2 Takte, wiederholt mit Variation
@@ -356,16 +359,45 @@ function schedStep(p,t){let th=p.th,n=p.night,s=p.step%16,bar=Math.floor(p.step/
   inst(n&&!['bell','koto','cel','flute'].includes(th.lead)?'kal':th.lead,m,t,(n?.5:.7)*(s%4?0.8:1))}
  if(th.arp&&s%th.arp==0&&!(n&&s%(th.arp*2))){let an=ch.map(x=>r+12+x);inst(th.ai||'kal',an[Math.floor(s/th.arp)%an.length],t,n?.22:.3)}
  mus=save;p.step++;p.next=p.t0+p.step*sp+(p.step%2?sp*th.sw:0);}
-const DBG={late:0,skip:0,drop:0,notes:0,maxLag:0,pumps:0};function pump(ahead){if(!ctx)return;DBG.pumps++;let until=ctx.currentTime+ahead;players.forEach(p=>{if(p.dead&&p.next>p.dead)return;if(p.next<ctx.currentTime+.05){DBG.skip++;DBG.maxLag=Math.max(DBG.maxLag,ctx.currentTime-p.next);p.t0+=ctx.currentTime+.1-p.next;p.next=ctx.currentTime+.1}let gd=0,lim=offline?4096:256;while(p.next<until&&gd++<lim){schedStep(p,p.next)}if(!(p.next>=until))p.next=until});
+const DBG={late:0,skip:0,drop:0,notes:0,maxLag:0,pumps:0};function pump(ahead){if(!ctx)return;DBG.pumps++;if(!offline&&players.length){let nw=ctx.currentTime;players=players.filter(q=>{if(q.dead!=null&&(q.killed||q.sw)&&nw>(q.rel||q.dead+FADE+.3)){try{q.g.disconnect();q.dg.disconnect()}catch(e){}return false}return true})}let until=ctx.currentTime+ahead;players.forEach(p=>{if(p.dead&&p.next>p.dead)return;if(p.next<ctx.currentTime+.05){DBG.skip++;DBG.maxLag=Math.max(DBG.maxLag,ctx.currentTime-p.next);p.t0+=ctx.currentTime+.1-p.next;p.next=ctx.currentTime+.1}let gd=0,lim=offline?4096:256;while(p.next<until&&gd++<lim){schedStep(p,p.next)}if(!(p.next>=until))p.next=until});
  musLP.frequency.setTargetAtTime((night?.6:1)*(1+inten*.35)*((players[players.length-1]||{th:T.menu}).th.lp),ctx.currentTime,.8);
- rainG.gain.setTargetAtTime(ST.mute?0:rainLv*.2*ST.m,ctx.currentTime,1);patG.gain.setTargetAtTime(patLv*.55,ctx.currentTime,.15);try{if(window.C9SEE&&C9SEE.tick)C9SEE.tick(ctx,amb,cur,night)}catch(e){}}
-function setScene(key,n){if(!ctx)return;n=!!n;if(key===cur&&n===night)return;cur=key;night=n;let t=ctx.currentTime,fade=offline?.01:2;
- let back=players.find(q=>q.dead&&q.key===key&&q.night===n&&q.dead>t+.3);players.forEach(p=>{if(p===back)return;p.g.gain.cancelScheduledValues(t);p.g.gain.setValueAtTime(p.g.gain.value,t);p.g.gain.linearRampToValueAtTime(0,t+fade);p.dead=t+fade});
- if(back){back.dead=0;back.g.gain.cancelScheduledValues(t);back.g.gain.setValueAtTime(back.g.gain.value,t);back.g.gain.linearRampToValueAtTime(n?.8:1,t+fade*.5);players=players.filter(q=>q!==back);players.push(back);return}
- let p=newPlayer(key,n);p.g.gain.setValueAtTime(0,t);p.g.gain.linearRampToValueAtTime(n?.8:1,t+fade);players.push(p);
- if(!offline)setTimeout(()=>{players=players.filter(q=>!q.dead||q.dead>ctx.currentTime);},fade*1000+300)}
+ rainG.gain.setTargetAtTime(ST.mute?0:rainLv*.2*ST.m,ctx.currentTime,1);patG.gain.setTargetAtTime(patLv*.55,ctx.currentTime,.15);try{if(!REND&&window.C9SEE&&C9SEE.tick)C9SEE.tick(ctx,amb,cur,night)}catch(e){}}
+const FADE=.5,LBARS=8;let CURP=null,GEN=0,BUFS=null,BUFC=new Map(),RQ=Promise.resolve(),REND=false,OUTN=null,RABORT=false;addEventListener('pagehide',()=>{RABORT=true});addEventListener('pageshow',()=>{RABORT=false});const MST={renders:0,ms:0,mainMs:0,hit:0,miss:0,fallback:0,bytes:0};
+function fadeP(p,t){if(p.killed)return;p.killed=1;p.rel=0;let end=t+FADE;[p.g,p.dg].forEach(g=>{try{g.gain.cancelScheduledValues(t);g.gain.setValueAtTime(Math.min(1,g.gain.value),t);g.gain.linearRampToValueAtTime(0,end)}catch(e){}});p.dead=t;for(const q of p.nodes){try{q[0].stop(end+.02)}catch(e){}}p.nodes=[];for(const v of VL)if(v[2]===p)v[1]=Math.min(v[1],end+.02)}
+function bufLv(e){return(e.n?.8:1)*(ST.mute?0:ST.m/Math.max(.01,e.m))}
+function bufStop(t){let B=BUFS;if(!B)return;BUFS=null;try{B.g.gain.cancelScheduledValues(t);B.g.gain.setValueAtTime(B.g.gain.value,t);B.g.gain.linearRampToValueAtTime(0,t+FADE);B.src.stop(t+FADE+.03)}catch(e){}setTimeout(()=>{try{B.g.disconnect()}catch(e){}},(FADE+.4)*1000)}
+const useBuf=k=>!window.C9NOBUF&&typeof OfflineAudioContext!='undefined'&&!/^b\d/.test(k);
+const bKey=(k,n)=>k+'|'+(n?1:0)+'|'+ST.style;
+function renderLoop(k,n){let th=T[k]||T.menu,sp=60/(th.bpm*(n?.86:1))/4,len=sp*16*LBARS,sr=Math.min(ctx.sampleRate,24000),TAIL=4,N=Math.ceil((.15+len+TAIL)*sr);
+ let oac=new OfflineAudioContext(2,N,sr),t0=performance.now();
+ const SV={ctx,offline,out,mus,musLP,duck,drm,sfx,amb,rev,dly,rain,rainG,patG,players,cur,night,NB,OUTN},mu=ST.mute;
+ REND=true;try{ST.mute=false;build(oac);out.disconnect();out.connect(oac.destination);[[out,.55],[mus,ST.m*1.05],[drm,ST.m*1.05]].forEach(([g,v])=>{g.gain.cancelScheduledValues(0);g.gain.value=v});players=[];cur='';night=false;setScene(k,n);pump(.15+len-1e-4)}
+ finally{REND=false;ST.mute=mu;({ctx,offline,out,mus,musLP,duck,drm,sfx,amb,rev,dly,rain,rainG,patG,players,cur,night,NB,OUTN}=SV)}
+ let mainMs=performance.now()-t0;
+ let rp=new Promise((res,rej)=>{for(let q=1;q<(N/sr)-.2;q+=1)oac.suspend(q).then(()=>{if(RABORT){rej(new Error('abort'));return}oac.resume()});oac.startRendering().then(res,rej)});
+ return rp.then(B=>{let L=Math.round(len*sr),off=Math.round(.15*sr),buf=new AudioBuffer({numberOfChannels:2,length:L,sampleRate:sr});
+  for(let c=0;c<2;c++){let s0=B.getChannelData(c),d=buf.getChannelData(c);for(let i=0;i<L;i++){let j=off+i,v=s0[j];if(j+L<N)v+=s0[j+L];d[i]=v}}
+  MST.renders++;MST.ms=Math.round(performance.now()-t0);MST.mainMs=Math.round(mainMs);let e={buf,n,m:ST.m,sp,th,k};return e})}
+function getLoop(k,n,gen){let ck=bKey(k,n),e=BUFC.get(ck);if(e){MST.hit++;BUFC.delete(ck);BUFC.set(ck,e);return Promise.resolve(e)}MST.miss++;
+ let pr=RQ.then(()=>{if(gen!==GEN&&!BUFC.has(ck))return null;let e2=BUFC.get(ck);if(e2)return e2;return renderLoop(k,n).then(e3=>{BUFC.set(ck,e3);while(BUFC.size>4)BUFC.delete(BUFC.keys().next().value);let by=0;BUFC.forEach(v=>by+=v.buf.length*8);MST.bytes=by;return e3})});RQ=pr.catch(()=>{});return pr}
+function startLive(key,n,at){let p=newPlayer(key,n,at),lv=n?.8:1;p.g.gain.setValueAtTime(0,p.t0);p.g.gain.linearRampToValueAtTime(lv,p.t0+.3);p.dg.gain.setValueAtTime(0,p.t0);p.dg.gain.linearRampToValueAtTime(1,p.t0+.3);players.push(p)}
+function setScene(key,n){if(!ctx)return;n=n===undefined?night:!!n;if(key===cur&&n===night)return;cur=key;night=n;
+ if(offline){players.forEach(p=>{p.dead=0;p.g.gain.value=0});let p=newPlayer(key,n);p.g.gain.value=n?.8:1;p.dg.gain.value=1;players=[p];return}
+ let gen=++GEN,t=ctx.currentTime,busy=!!BUFS||players.some(p=>!p.killed),at=busy?t+FADE+.02:t+.05;
+ players.forEach(p=>fadeP(p,t));bufStop(t);
+ if(!useBuf(key)){startLive(key,n,at);return}
+ let cached=BUFC.has(bKey(key,n));if(!cached)startLive(key,n,at);
+ getLoop(key,n,gen).then(e=>{if(!e||gen!==GEN||!ctx)return;let nw=ctx.currentTime,t1=Math.max(nw+.03,at),src=ctx.createBufferSource(),g=ctx.createGain(),lv=bufLv(e),ip=players.find(q=>!q.killed&&!q.sw&&q.key===key&&q.night===n);
+  src.buffer=e.buf;src.loop=true;g.gain.value=0;g.gain.setValueAtTime(0,nw);
+  if(ip){let LL=e.sp*16*LBARS,tb=ip.t0+Math.ceil((nw+.25-ip.t0)/LL)*LL;t1=tb;ip.sw=1;ip.dead=tb;ip.rel=tb+.4;for(const v of VL)if(v[2]===ip)v[1]=Math.min(v[1],tb+.03);for(const q of ip.nodes){if(q[1]>=tb-1e-3){try{q[0].stop(tb)}catch(_){}}}
+   [ip.g,ip.dg].forEach(x=>{try{x.gain.cancelScheduledValues(tb);x.gain.setValueAtTime(x===ip.g?(n?.8:1):1,tb);x.gain.linearRampToValueAtTime(0,tb+.03)}catch(_){}});g.gain.setValueAtTime(lv,t1);MST.swap=(MST.swap||0)+1}
+  else{g.gain.setValueAtTime(0,t1);g.gain.linearRampToValueAtTime(lv,t1+.3)}
+  src.connect(g).connect(OUTN);src.start(t1);BUFS={src,g,e,t0:t1,key,n}})
+ .catch(err=>{MST.fallback++;if(gen===GEN&&ctx&&!players.some(q=>!q.killed))startLive(key,n,Math.max(at,ctx.currentTime+.05))})}
+function prewarm(l){l.forEach(([k,n])=>{if(useBuf(k)&&!BUFC.has(bKey(k,n)))getLoop(k,n,GEN).catch(()=>{})})}
+function active(){let o=players.map(p=>({k:p.key,v:+p.g.gain.value.toFixed(3),d:+p.dg.gain.value.toFixed(3),live:1}));if(BUFS)o.push({k:BUFS.key,v:+BUFS.g.gain.value.toFixed(3),buf:1});return o}
 // ---- Effekte ----
-function key(){let p=players[players.length-1];return p?chordAt(p):[60,M7]}
+function key(){if(BUFS&&ctx){let bl=BUFS.e.sp*16,bar=Math.floor(Math.max(0,ctx.currentTime-BUFS.t0)/bl)%LBARS;return chordAt({th:BUFS.e.th,bar})}let p=players[players.length-1];return p?chordAt(p):[60,M7]}
 function chime(i,t,v=1){let[r,ch]=key(),sc=[0,2,4,7,9,12,14,16,19,21,24],m=r+12+sc[Math.max(0,i)%sc.length];inst('kal',m,t,v,sfx)}
 function tone(f,t,len,type,peak,dest,glide){let g=voice(t,len,dest||sfx,.2);if(!g)return;env(g,t,.004,peak,len);let o=osc(type||'sine',f,t,t+len+.05,g);if(glide)o.frequency.exponentialRampToValueAtTime(glide,t+len);return o}
 const BIRD='🦋🦅🦉🦜🦩🐧'.split(''),BIG=['🐻‍❄️','🐋','🐉','🐪','🦭'];
@@ -400,7 +432,7 @@ let tOff=0;function sfxPlay(k,a){if(!ensure())return;let t=ctx.currentTime+.01+t
 function ensure(){if(ctx&&offline)return true;if(!ctx){try{let AC=window.AudioContext||window.webkitAudioContext,c;try{c=new AC({latencyHint:'playback'})}catch(e){c=new AC()}build(c);timer=setInterval(()=>{if(!offline&&ctx.state=='running')pump(1.6)},40)}catch(e){return false}}if(ctx.state=='suspended'&&!document.hidden)ctx.resume().catch(()=>{});return true}
 document.addEventListener('visibilitychange',()=>{if(!ctx||offline)return;if(document.hidden)ctx.suspend();else ctx.resume()});
 return{dbg:()=>DBG,ensure,setScene,sfx:sfxPlay,animal,ST,vol:()=>{saveSt();vol()},set inten(v){inten=v},set rain(v){rainLv=v},set pat(v){patLv=v},get ctx(){return ctx},get offline(){return offline},get amb(){return amb},get drm(){return drm},get duck(){return duck},_build:build,set _at(v){tOff=v},_pump:pump,_T:T,
- get players(){return players},get _cur(){return cur},_reset(){players=[];cur='';night=false;inten=0;rainLv=0;patLv=0}};
+ get players(){return players},get _cur(){return cur},active,prewarm,get mst(){return MST},get gen(){return GEN},_reset(){try{if(ctx&&!offline){bufStop(ctx.currentTime);players.forEach(p=>fadeP(p,ctx.currentTime))}}catch(e){}BUFC.clear();GEN++;players=[];cur='';night=false;inten=0;rainLv=0;patLv=0}};
 })();
 
 let AC=null;function audio(){if(SND.ensure()){AC=SND.ctx;sndScene()}}
@@ -5384,5 +5416,9 @@ window.C9V482={hid:(a)=>{let g=hGeo(),Z=hZone(g,a);return hid(Z,a.u,a.v,g)},A};
 const oS=hStep;hStep=function(list,g,dt){let r=oS(list,g,dt);try{if(list===HA&&C9.v20.dayK().sleep)list.forEach(a=>{if(a.fl||a.tk||a.u==null)return;let Z=hZone(g,a);if(Z.m=='swim'||!hid(Z,a.u,a.v,g))return;if(a.tu==null||hid(Z,a.tu,a.tv,g))hPick(a,Z,g,false);let k=Math.min(1,(dt>1?dt/1000:dt)*1.5);a.u+=(a.tu-a.u)*k;a.v+=(a.tv-a.v)*k})}catch(e){}return r};
 let done=0;const oHD=homeDraw;homeDraw=function(n,dt){if(!done&&typeof HA!='undefined'&&HA.length){done=1;try{let g=hGeo();HA.forEach(a=>{let Z=hZone(g,a);if(hid(Z,a.u,a.v,g)){hPick(a,Z,g,true);a.vx=a.vy=0}})}catch(e){}}return oHD.apply(this,arguments)};
 })();
+</script>
+<script>
+/* v48.3: Musik-Loops vorwärmen (Menü + aktuelles Insel-Thema) */
+(function(){if(typeof audio!='function')return;const oA=audio;audio=function(){let r=oA.apply(this,arguments);try{if(SND.ctx&&!SND.offline&&!window.__c9pw){window.__c9pw=1;setTimeout(()=>{try{let th=(S.home&&S.home.theme)|0,hk=SND._T['h'+th]?'h'+th:'home',nt=(typeof DAYT!='undefined'&&DAYT=='night')||(typeof WX!='undefined'&&WX&&WX.day===false);SND.prewarm([['menu',nt],[hk,nt]])}catch(e){}},1200)}}catch(e){}return r}})();
 </script>
 </body></html>
