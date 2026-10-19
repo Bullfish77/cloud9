@@ -1424,7 +1424,7 @@ HA.forEach(a=>{let Z=hZone(g,a),x=Z.x+a.u*Z.rx,y=Z.y+a.v*Z.ry,s=sc*(Z.m=='free'?
  a.hy+=(ty-a.hy)*Math.min(1,dt*(a.fl?3:12));if(a.hop)a.hop=Math.max(0,a.hop-dt*(m=='swim'?1.6:2));if(a.pop)a.pop=Math.max(0,a.pop-dt*1.5);let hopH=a.hop?Math.sin(a.hop*Math.PI)*(m=='swim'?42:22):0,hy=a.hy+hopH;a.sx=x;a.sy=m=='swim'?y-2*s-hopH*.55:y-hy-10*s;
  items.push({y,f:()=>{if(a.pop){X.globalAlpha=1-a.pop;}hDrawAnimal(a,x,y,s,n,t,Z,hy,spd);X.globalAlpha=1;if(a.pop)for(let i=0;i<6;i++){let an=i/6*7;dE(x+Math.cos(an)*a.pop*0+Math.cos(an)*(1-a.pop)*20,y-12+Math.sin(an)*(1-a.pop)*14,3,3,'rgba(255,255,255,'+a.pop+')')}
  if(!S.home.got[a.e]){let by=(m=='swim'?y-2*s-hopH*.5:y-hy)-44*s+Math.sin(t*3+a.ph)*3;X.fillStyle='rgba(255,255,255,.92)';X.beginPath();X.arc(x+10*s,by,12,0,7);X.fill();X.beginPath();X.moveTo(x+4*s,by+9);X.lineTo(x+6*s,by+16);X.lineTo(x+12*s,by+10);X.fill();X.strokeStyle='rgba(240,190,60,'+(.55+Math.sin(t*4+a.ph)*.3)+')';X.lineWidth=2;X.beginPath();X.arc(x+10*s,by,12,0,7);X.stroke();X.font='14px sans-serif';X.textAlign='center';X.textBaseline='middle';X.fillText(GIFTS[a.e][0],x+10*s,by+1);X.font='9px sans-serif';X.fillText('🎁',x+10*s+11,by+10)}}})});
-items.sort((a,b)=>a.y-b.y).forEach(i=>i.f());{let vd=window.C9VDRAW||[];window.C9VDRAW=[];vd.forEach(f=>{try{f()}catch(e){}})}
+items.sort((a,b)=>a.y-b.y).forEach(i=>(window.C9ITEM||(f=>f()))(i.f));{let vd=window.C9VDRAW||[];window.C9VDRAW=[];vd.forEach(f=>(window.C9ITEM||(f=>{try{f()}catch(e){}}))(f))}
 if(HDR){X.save();X.globalAlpha=.8;if(HDR.hab){let q={x:HDR.x,y:HDR.y,rx:g.cw*1.02,ry:g.ch*.86},h=HDR.d;HDB[h.k](q,t,h.lv);HDP[h.k](q,t,h.lv).forEach(([y,f])=>f())}else{X.translate(HDR.x,HDR.y+g.cw*.3);X.scale(sc*1.15,sc*1.15);DD[HDR.d.k](t)}X.restore()}
 HFT=HFT.filter(f=>(f.l-=dt)>0);HFT.forEach(f=>{if(f.rip){let k=1-f.l,rs=(f.rs||1),r=(8+k*32)*rs;X.globalAlpha=Math.min(1,f.l*1.2)*.85;X.strokeStyle='rgba(255,255,255,'+(f.l*.9)+')';X.lineWidth=2;X.beginPath();X.ellipse(f.x,f.y,r,r*.32,0,0,7);X.stroke();X.strokeStyle='rgba(180,220,255,'+(f.l*.5)+')';X.beginPath();X.ellipse(f.x,f.y,r*.65,r*.2,0,0,7);X.stroke()}else if(f.dot){f.x+=f.vx*dt;f.y+=f.vy*dt;f.vy+=220*dt;X.globalAlpha=Math.min(1,f.l*2);dE(f.x,f.y,3,3,f.dot)}else{f.y-=30*dt;X.globalAlpha=Math.min(1,f.l);X.font='800 16px Nunito,sans-serif';X.textAlign='center';X.lineWidth=4;X.strokeStyle='#fff';X.strokeText(f.s,f.x,f.y);X.fillStyle='#7a5fe0';X.fillText(f.s,f.x,f.y)}X.globalAlpha=1});
 X.restore()})}
@@ -4126,7 +4126,7 @@ window.C9CROWN=function(a,x,y,s,t,Z,hy){let h=head(a.e),by;
  if(Z.m=='swim'){let bob=Math.sin(t*2+a.ph)*1.5,jump=Math.max(0,hy);by=y+10*s+bob-jump}else by=y-hy-6*s;
  let cx=x+(a.dir?-h.dx:h.dx)*s,cy=by+h.dy*s+1.5*s,w=6.5*s;if(h.ey!=null)cy=Math.min(cy,by+(h.ey-5)*s);X.save();X.translate(cx,cy);
  let gl=X.createRadialGradient(0,-w*.5,1,0,-w*.5,w*2.2);gl.addColorStop(0,'rgba(255,230,120,.45)');gl.addColorStop(1,'rgba(255,230,120,0)');X.fillStyle=gl;X.beginPath();X.arc(0,-w*.5,w*2.2,0,7);X.fill();
- crown(w);let k=(t*.6+a.ph)%1;if(k<.25){X.globalAlpha=1-k*4;X.fillStyle='#fff';X.font=Math.round(7*s)+'px sans-serif';X.textAlign='center';X.fillText('✦',w*1.3,-w*1.3)}X.restore()};
+ crown(w);let k=(t*.6+a.ph)%1;if(k<.25){X.globalAlpha=Math.sin(k*4*Math.PI)*.5;X.fillStyle='#fff6c8';X.font=Math.round(7*s)+'px sans-serif';X.textAlign='center';X.fillText('✦',w*1.3,-w*1.3)}X.restore()};
 window.C9.v433e={head};
 })();
 </script><script>/* v43.3f: Besucher & Bewohner (v21) leben auf ihrem Inselchen statt auf freiem Boden; keine doppelten Arten */
@@ -4345,7 +4345,7 @@ drawAnimal=function(e,x,y,sc,n,ph,flip){
  if(need){let w=Math.ceil((bx.r-bx.l)*ps)+2,h=Math.ceil((bx.b-bx.t)*ps)+2;if(w*h>1.2e6)return drawAnimal0.apply(this,arguments);BUD-=Math.floor(w*h/50000);
   if(!c){let cv=document.createElement('canvas');cv.__big=1;c={cv,x:cv.getContext('2d',MODE==2?{willReadFrequently:true}:undefined)};CACHE.set(key,c)}
   if(c.cv.width<w||c.cv.height<h||c.cv.width>w*2.2||c.cv.height>h*2.2){c.cv.width=w;c.cv.height=h}else{c.x.setTransform(1,0,0,1,0,0);c.x.clearRect(0,0,w+1,h+1)}
-  c.x.setTransform(ps,0,0,ps,-bx.l*ps+1,-bx.t*ps+1);c.x.globalAlpha=1;let o=X;X=c.x;try{drawAnimal0(e,0,0,1,n,ph,flip)}finally{X=o}
+  c.x.setTransform(ps,0,0,ps,-bx.l*ps+1,-bx.t*ps+1);c.x.globalAlpha=1;c.x.globalCompositeOperation='source-over';if(c.x.filter!=='none')c.x.filter='none';c.x.shadowBlur=0;let o=X;X=c.x;try{drawAnimal0(e,0,0,1,n,ph,flip)}finally{X=o}
   c.ps=ps;c.n=n;c.w=w;c.h=h;c.u=FR;C9SPR.stats.draw++}
  c.u=FR;C9SPR.stats.blit++;
  X.save();X.translate(x,y);X.scale(1/Math.hypot(m.a,m.b),1/Math.hypot(m.a,m.b));let kk=ps/c.ps;X.drawImage(c.cv,0,0,c.w,c.h,bx.l*ps-kk,bx.t*ps-kk,c.w*kk,c.h*kk);X.restore();X.globalAlpha=1};
@@ -4419,7 +4419,7 @@ function build0(l,m,bobPx,args){let w=HC.width,h=HC.height,MX=Math.round(w*.18),
  x.setTransform(m.a,0,0,m.d,m.e+MX,m.f+MY);let o=X;X=x;window.C9BM=l.bm;try{oB.apply(null,args)}finally{X=o;window.C9BM=15}
  l.m={a:m.a,e:m.e,f:m.f,MX,MY};builds++}
 function covers(l,m){let k=m.a/l.m.a,x=m.e-k*(l.m.e+l.m.MX),y=m.f-k*(l.m.f+l.m.MY);return x<=1&&y<=Math.ceil(12*HV.z*D)&&x+l.c.width*k>=HC.width-1&&y+l.c.height*k>=HC.height-Math.ceil(12*HV.z*D)}
-function blit(l,m,bobPx){let k=m.a/l.m.a,x=m.e-k*(l.m.e+l.m.MX),y=m.f-k*(l.m.f+l.m.MY);X.save();X.setTransform(1,0,0,1,0,0);
+function blit(l,m,bobPx){let k=m.a/l.m.a,x=m.e-k*(l.m.e+l.m.MX),y=m.f-k*(l.m.f+l.m.MY);X.save();X.setTransform(1,0,0,1,0,0);X.globalAlpha=1;X.globalCompositeOperation='source-over';if(X.filter!=='none')X.filter='none';X.shadowBlur=0;
  if(Math.abs(k-1)<1e-6){X.drawImage(l.c,Math.round(x),Math.round(y))}else{X.imageSmoothingEnabled=true;X.drawImage(l.c,x,y,l.c.width*k,l.c.height*k)}X.restore()}
 X2.base=function(g,t,th,bob){
  if(window.C9NOCACHE||!HC)return oB.apply(this,arguments);
@@ -4442,8 +4442,8 @@ window.C9BASEC={get builds(){return builds},get valid(){return L.every(l=>l.sk==
 </script>
 <script>/* v44.2f: adaptive Auflösung – auf DPR≥2-Handys nie unter 2 (scharfe Schrift); nur wenn es ohne Gesten dauerhaft sehr ruckelt (>40 ms, 6 s) eine Stufe runter (1,75), und wieder hoch, sobald es flüssig läuft */
 (function(){let ema=16.7,bad=0,good=0,last=0,drops=0;const D0=D,FLOOR=(devicePixelRatio||1)>=2?Math.min(D0,1.75):Math.min(D0,1.5);
-function setD(v){if(v===D)return;D=v;try{hRes()}catch(e){}try{C9BASEC&&C9BASEC.inval()}catch(e){}}
-const oHD=homeDraw;homeDraw=function(n,dt){let r=oHD.apply(this,arguments);let G=window.C9GEST&&C9GEST(600);if(last&&!document.hidden&&!G){let f=n-last;if(f>0&&f<250){ema=ema*.95+f*.05;
+let PEND=null;function apD(){if(PEND==null)return;let v=PEND;PEND=null;if(v===D)return;D=v;try{hRes()}catch(e){}try{C9BASEC&&C9BASEC.inval()}catch(e){}}function setD(v){if(v===D&&PEND==null)return;PEND=v}
+const oHD=homeDraw;homeDraw=function(n,dt){apD();let r=oHD.apply(this,arguments);let G=window.C9GEST&&C9GEST(600);if(last&&!document.hidden&&!G){let f=n-last;if(f>0&&f<250){ema=ema*.95+f*.05;
   if(ema>40)bad+=f;else bad=Math.max(0,bad-f*.5);if(ema<20)good+=f;else good=0;
   if(bad>6000&&D>FLOOR&&drops<1){setD(Math.max(FLOOR,D-.25));drops++;bad=0;good=0;ema=16.7}
   else if(good>8000&&D<D0){setD(Math.min(D0,D+.25));drops=Math.max(0,drops-1);good=0}}}last=n;return r};
@@ -4477,6 +4477,7 @@ const oT=hTap;hTap=function(p){
  if(vv&&a){let q=C9.VP&&C9.VP()[vv.e],g=hGeo(),B=abox(a,g),vd=q&&q.sx!=null?Math.hypot(q.sx-p.x,q.sy-17*(q.sc||1)-p.y):1e9,ad=B?Math.hypot(B.cx-p.x,B.cy-p.y):1e9;if(ad<vd)vv=null;else a=null}
  if(vv){LAST=null;let sv=HA;HA=[];try{return oT.apply(this,arguments)}finally{HA=sv}}// Besucher/Bewohner antippen
  let L=labelHit(p);if(L)return openHab(L.i);
+ if(a&&window.C9PLZA&&C9PLZA(a)){if(LAST&&LAST.a===a&&now-LAST.t<1500){LAST=null;HOUSE=null;return C9PLZTAP(a)}LAST={a,t:now};HOUSE=null;return oT.apply(this,arguments)}
  if(a){// zweites Tippen aufs selbe Tier → Lebensraum
   if(LAST&&LAST.a===a&&now-LAST.t<1500&&a.z>=0&&S.home.hab[a.z]&&S.home.hab[a.z].on)return openHab(a.z);
   LAST={a,t:now};let r=oT.apply(this,arguments);if(a.z>=0&&S.home.hab[a.z]&&S.home.hab[a.z].on)HOUSE={i:a.z,t:now};return r}
@@ -5762,6 +5763,33 @@ function DUNE(c){const {W,H,U,kid,fx,e,ss,fl,P}=c;const AX=W*.3,BASE=H*.66,GRV=U
  return S}
 V3.reg('kletter',{n:'Balancieren & Klettern',e:'🧗',get how(){return HOW[LASTE]||'Halten oder tippen!'},mus:MUS,make},TW);
 window.C9.v49={TW,MUS};
+})();
+</script>
+<script>/* v49.1: Dorfplatz – Frame-Schutz, Platz-Tipp, Fußzeile */
+(function(){
+const FG=window.C9FG={fix:0,err:0,last:''};
+// Jedes Item mit sauberem Grundzustand; ein Fehler kostet nur dieses Item, nicht den Rest des Frames
+window.C9ITEM=function(f){const x=X;let T=null;
+ if(x.globalAlpha!==1)x.globalAlpha=1;if(x.globalCompositeOperation!=='source-over')x.globalCompositeOperation='source-over';if(x.filter!=='none')x.filter='none';if(x.shadowBlur)x.shadowBlur=0;
+ try{T=x.getTransform();f()}catch(e){FG.err++;FG.last=String(e&&e.message||e).slice(0,120);try{if(T)x.setTransform(T)}catch(_){}FG.dirty=1}
+ if(x.globalAlpha!==1)x.globalAlpha=1;if(x.globalCompositeOperation!=='source-over')x.globalCompositeOperation='source-over'};
+// Frame-Anfang: offenen save()-Stapel oder verschobenen Zustand vom letzten Frame aufräumen
+function clean(){if(!HX)return;let m=HX.getTransform(),bad=FG.dirty||Math.abs(m.a-D)>1e-6||Math.abs(m.d-D)>1e-6||m.b||m.c||m.e||m.f||HX.globalAlpha!==1||HX.globalCompositeOperation!=='source-over'||HX.filter!=='none';
+ if(bad){for(let i=0;i<32;i++)HX.restore();HX.setTransform(D,0,0,D,0,0);HX.globalAlpha=1;HX.globalCompositeOperation='source-over';HX.filter='none';HX.shadowBlur=0;FG.fix++;FG.dirty=0}}
+const oHD=homeDraw;homeDraw=function(n,dt){clean();try{return oHD.apply(this,arguments)}catch(e){FG.err++;FG.last=String(e&&e.message||e).slice(0,120);FG.dirty=1;throw e}};
+// ---- Tiere auf dem Dorfplatz / beim Fest ----
+window.C9PLZA=function(a){return !!(a&&(a.fsw||a.ex&&a.ex.to=='@P'))};
+function fact(e){try{let F=(C9.v41&&C9.v41.F)||{};if(F[e])return Array.isArray(F[e])?F[e][0]:F[e];let G=C9.v43&&C9.v43.GAME,g=G&&G[e];if(g)return(g.tw&&g.tw.fact)||g.fact||''}catch(_){}return''}
+const WHAT={fruehstueck:'frühstückt',picknick:'macht Picknick',fangen:'spielt Fangen',feuer:'sitzt am Lagerfeuer',nacht:'ist auf dem Platz',fest:'feiert beim Tierfest'};
+window.C9PLZTAP=function(a){let an=(typeof anName=='function'&&anName(a.e))||((ANIMALS.find(x=>x[0]==a.e)||[])[1])||'';
+ a.hop=1;try{SND.animal(a.e)}catch(_){}try{vib&&vib(10)}catch(_){}
+ for(let i=0;i<4;i++)HFT.push({x:a.sx+(Math.random()-.5)*26,y:a.sy-26-i*7,s:'💜',l:.9+i*.12});
+ let E=a.ex,ph=a.fsw||(E&&E.fest)?'fest':(E&&E.act)||(C9.v44&&C9.v44.phase()),w=WHAT[ph]||'ist auf dem Dorfplatz',f=fact(a.e);
+ toast(a.e+' '+an+' '+w+' 💜'+(f?' · '+f:''),f?4200:2400);FG.plz=(FG.plz||0)+1;return true};
+// ---- Fußzeile (Hinweistext + Knopfleiste) ausblenden, solange ein Blatt offen ist ----
+const css=document.createElement('style');css.textContent='#homeScr.v491sh #hInfo,#homeScr.v491sh #hbot{visibility:hidden}#hSheet.hsheet{background:#fff;padding-bottom:calc(18px + env(safe-area-inset-bottom,0px))}';document.head.appendChild(css);
+const sh=$('hSheet'),scr=$('homeScr');function sync(){scr.classList.toggle('v491sh',!sh.classList.contains('hide'))}
+if(sh&&scr){new MutationObserver(sync).observe(sh,{attributes:true,attributeFilter:['class']});sync()}
 })();
 </script>
 </body></html>
