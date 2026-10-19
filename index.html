@@ -1818,7 +1818,10 @@ const canCook=k=>Object.entries(FOODS()[k].r).every(([i,n])=>(H.items[i]||0)>=n)
 function beds(){F.bedsUpd();return H.deco.filter(d=>d.k=='feld')}
 function todo(){let w=H.wish&&H.wish.d===today?H.wish.l.filter(w=>w.p>=w.n&&!w.c).length:0,b=beds().filter(d=>d.pl&&d.pl.g>=1).length,e=beds().filter(d=>!d.pl).length;return{w,b,e,any:w+b>0}}
 function dot(){let b=$('v2wb');if(!b)return;let i=b.querySelector('i');if(!i){i=document.createElement('i');b.appendChild(i)}let t=todo();i.textContent=t.any?'1':'';i.style.display=t.any?'':'none'}
-window.C9HEFT=t=>heft(t);function heft(tab){if(tab)TAB=tab;let t=todo(),tabs=[['tiere','🐾 Tiere',0],['wunsch','📜 Wünsche',t.w],['garten','🌱 Garten',t.b],['angeln','🎣 Angeln',0],['kueche','🍳 Küche',0]];
+window.C9HEFT=t=>heft(t);/* v48.2: Restzeit + Live-Aktualisierung des Garten-Tabs (jede Sekunde, nur wenn offen) */
+function v482eta(p,s){let nt=s.night&&F.dayK&&F.dayK().dk>.5,m=(1-p.g)*s.m/(nt?2:1);return m<1?'1 Min':m<60?Math.ceil(m)+' Min':(m/60).toFixed(1).replace('.',',')+' Std'}
+setInterval(()=>{try{if(TAB!='garten')return;let sh=$('hSheet');if(!sh||sh.classList.contains('hide'))return;let on=sh.querySelector('.v22tabs [data-tab=garten].on'),an=sh.querySelector('.anl');if(!on||!an)return;let h=body();if(an.innerHTML!==h&&an.__v482!==h){let sc=sh.scrollTop;an.innerHTML=h;an.__v482=h;wire(sh);sh.scrollTop=sc}}catch(e){}},1000);
+function heft(tab){if(tab)TAB=tab;let t=todo(),tabs=[['tiere','🐾 Tiere',0],['wunsch','📜 Wünsche',t.w],['garten','🌱 Garten',t.b],['angeln','🎣 Angeln',0],['kueche','🍳 Küche',0]];
  let h='<h3>📔 Inselheft</h3><div class="v22tabs">'+tabs.map(([k,n,d])=>`<button class="sec ${TAB==k?'on':''}" data-tab="${k}">${n}${d?'<em></em>':''}</button>`).join('')+'</div><div class="anl">'+body()+'</div>';
  hSheet(h);let sh=$('hSheet');sh.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{SND.sfx('tap');heft(b.dataset.tab)});wire(sh)}
 function body(){let V=fx();
@@ -1831,7 +1834,7 @@ function body(){let V=fx();
  if(TAB=='angeln')return window.C9FISH?C9FISH.heftBody():'';
  if(TAB=='garten'){let bs=beds();if(!bs.length)return'<div class="v22empty">Noch kein Beet – kauf eins im 🛍️ Laden.</div>';
   return'<small>Gießen: unten 🌧️ antippen und die Wolke übers Beet ziehen.</small>'+bs.map((d,i)=>{let p=d.pl;if(!p)return`<div class="v22row"><b style="font-size:26px">🌱</b><span>Beet ${i+1} ist frei</span><button class="sm" data-bed="${i}">Pflanzen</button></div>`;let s=SEEDS()[p.s],wt=(p.w||0)>Date.now();
-   return`<div class="v22row"><b style="font-size:26px">${s.e}</b><span>${s.n}<div class="v22bar"><i style="width:${p.g*100|0}%"></i></div><small>${p.g>=1?'Fertig!':Math.round(p.g*100)+'% · '+(wt?'💧 gegossen':'🏜️ braucht Wasser')}</small></span>${p.g>=1?`<button class="sm" data-bed="${i}">Ernten</button>`:wt?'':`<button class="sec sm" data-water="1">🌧️ Gießen</button>`}</div>`}).join('')}
+   return`<div class="v22row"><b style="font-size:26px">${s.e}</b><span>${s.n}<div class="v22bar"><i style="width:${p.g*100|0}%"></i></div><small>${p.g>=1?'Fertig!':Math.floor(p.g*100)+'% · '+(wt?'💧 gegossen · noch ca. '+v482eta(p,s):'🏜️ braucht Wasser')+(s.night?' · 🌙 nachts 2× schneller':'')}</small></span>${p.g>=1?`<button class="sm" data-bed="${i}">Ernten</button>`:wt?'':`<button class="sec sm" data-water="1">🌧️ Gießen</button>`}</div>`}).join('')}
  let ks=Object.keys(FOODS()).filter(canCook),inv=Object.entries(H.food||{}).filter(([k,n])=>n>0);
  return(inv.length?'<small>Im Vorrat: '+inv.map(([k,n])=>FOODS()[k].e+'×'+n).join(' ')+'</small>':'')+(ks.length?ks.map(k=>{let Fd=FOODS()[k],wl=ownedAn().filter(e=>FAV()[e]==k),who=wl.slice(0,5).join('')+(wl.length>5?' +'+(wl.length-5):'');return`<div class="v22row"><b style="font-size:26px">${Fd.e}</b><span>${Fd.n}<small>${Object.entries(Fd.r).map(([i,n])=>i+'×'+n).join(' + ')}${who?' · Liebling von '+who:''}</small></span><button class="sm" data-cook="${k}">Kochen</button></div>`}).join(''):'<div class="v22empty">Gerade fehlen Zutaten 🧺<br><small>Zutaten bekommst du aus Geschenken der Tiere, aus dem Garten und beim 🎣 Angeln.</small></div>')}
 function wire(sh){let V=fx();
@@ -3055,7 +3058,7 @@ Object.assign(HDB,{
 Object.assign(HDP,{
  teich:(q,t,lv)=>[[-.7,-.2],[.72,-.1],[-.6,.35]].slice(0,1+lv).map(([a,b])=>{let x=q.x+a*q.rx,y=q.y+b*q.ry;return[y,()=>{X.strokeStyle='#6a8a3a';X.lineWidth=1.6;for(let k=-1;k<=1;k++){X.beginPath();X.moveTo(x+k*3,y);X.lineTo(x+k*4,y-16-k*2);X.stroke()}hE(x+4,y-17,1.8,4,'#8a5a3a');hE(x-3,y-15,1.8,4,'#8a5a3a')}]}),
  berg:(q,t,lv)=>lv>1?[[q.y+q.ry*.2,()=>{let x=q.x-q.rx*.6,y=q.y+q.ry*.2;X.fillStyle='#8a5a3a';X.fillRect(x-1.5,y-6,3,6);[0,1,2].forEach(k=>{X.fillStyle=k%2?'#3a8a5a':'#4aa86a';X.beginPath();X.moveTo(x-8+k*2,y-5-k*6);X.lineTo(x,y-14-k*6);X.lineTo(x+8-k*2,y-5-k*6);X.fill()})}]]:[],
- sterne:(q,t,lv)=>[[q.y+q.ry*.3,()=>{let x=q.x+q.rx*.55,y=q.y+q.ry*.3;X.fillStyle='#b8a8e8';X.fillRect(x-1,y-16,2,16);X.fillStyle='#fff6c0';X.beginPath();X.arc(x,y-18,4,0,7);X.fill();X.fillStyle='#b8a8e8';X.beginPath();X.arc(x+1.6,y-19,3.2,0,7);X.fill();X.globalCompositeOperation='lighter';X.drawImage(glowSprite('#fff6c0'),x-10,y-28,20,20);X.globalCompositeOperation='source-over'}]],
+ sterne:(q,t,lv)=>[[q.y+q.ry*.3,()=>{let x=q.x+q.rx*.55,y=q.y+q.ry*.3;X.fillStyle='#b8a8e8';X.fillRect(x-1,y-16,2,16);X.fillStyle='#fff6c0';X.beginPath();X.arc(x,y-18,4,0,7);X.fill();X.fillStyle='#b8a8e8';X.beginPath();X.arc(x+1.6,y-19,3.2,0,7);X.fill();X.globalCompositeOperation='lighter';X.globalAlpha=.45;X.drawImage(glowSprite('#fff6c0'),x-8,y-26,16,16);X.globalAlpha=1;X.globalCompositeOperation='source-over'}]],
  hoehle:()=>[],riff:()=>[],dino:()=>[],
  suess:(q,t,lv)=>[[-.6,-.1,'#ff6a9a'],[.62,0,'#6ac8ff']].slice(0,lv>1?2:1).map(([a,b,c])=>{let x=q.x+a*q.rx,y=q.y+b*q.ry;return[y,()=>{X.fillStyle='#fff';X.fillRect(x-1,y-16,2,16);X.fillStyle=c;X.beginPath();X.arc(x,y-19,5.5,0,7);X.fill();X.strokeStyle='#fff';X.lineWidth=1.2;X.beginPath();for(let a2=0;a2<9;a2+=.4)X.lineTo(x+Math.cos(a2)*a2*.6,y-19+Math.sin(a2)*a2*.6);X.stroke()}]}),
  dschungel:(q,t,lv)=>[[-.55,-.3],[.55,-.35],[0,-.6]].slice(0,lv).map(([a,b])=>{let x=q.x+a*q.rx,y=q.y+b*q.ry;return[y,()=>{X.strokeStyle='#8a6a3a';X.lineWidth=3;X.beginPath();X.moveTo(x,y);X.quadraticCurveTo(x+3,y-12,x+1,y-22);X.stroke();for(let k=0;k<5;k++){let an=-Math.PI+k*.8;X.fillStyle=k%2?'#2a9a4a':'#4ab85a';X.beginPath();X.ellipse(x+1+Math.cos(an)*9,y-22+Math.sin(an)*4+4,10,2.6,an+Math.PI/2*0,0,7);X.fill()}}]})});
@@ -5365,5 +5368,21 @@ window.C9FISH={open,go:k=>{let s=$('hSheet');if(s)s.classList.add('hide');open(k
 '🦦':'fischfest','🐙':'fischfest',
 '🐠':'krill','🦩':'krill',
 '🐸':'krabbel','🐍':'krabbel','🐞':'krabbel','🦚':'krabbel'});C9V20.v481=1})();
+</script>
+<script>
+/* v48.2: Schlafplätze frei von Requisiten – Tiere stellen/legen sich nie direkt hinter Laterne, Bäume, Kakteen, Schilf … */
+(function(){
+const A={wald:lv=>[[-.55,-.45],[.5,-.5],[-.75,.15],[.72,.2],[0,-.7],[-.2,.55],[.35,.5]].slice(0,3+lv),wueste:lv=>[[-.6,-.4],[.62,-.2],[.1,-.62]].slice(0,1+lv),
+ eis:lv=>lv<2?[]:[[-.45,-.45]],vulkan:()=>[[.1,-.35,2]],nest:lv=>lv>=2?[[-.55,-.5]]:[],wiese:lv=>lv<2?[]:[[.5,-.55]],teich:lv=>[[-.7,-.2],[.72,-.1],[-.6,.35]].slice(0,1+lv),
+ berg:lv=>lv>1?[[-.6,.2]]:[],sterne:()=>[[.55,.3]],suess:lv=>[[-.6,-.1],[.62,0]].slice(0,lv>1?2:1),dschungel:lv=>[[-.55,-.3],[.55,-.35],[0,-.6]].slice(0,lv)};
+function hid(Z,u,v,g){let h=Z.h;if(!h||!A[h.k]||Z.m=='swim')return false;let q=habGeo(g,h),x=Z.x+u*Z.rx,y=Z.y+v*Z.ry;
+ return A[h.k](h.lv).some(([a,b,w])=>{let px=q.x+a*q.rx,py=q.y+b*q.ry,W=(w||1)*Math.max(13,q.rx*.24);return Math.abs(x-px)<W&&y<py+4&&y>py-34})}
+const oP=hPick;hPick=function(a,Z,g,init){let r;for(let k=0;k<10;k++){r=oP(a,Z,g,init);if(!hid(Z,a.tu,a.tv,g))return r}
+ if(Z.h){let best=null,bd=1e9,u0=a.u==null?0:a.u,v0=a.v==null?0:a.v;for(let u=-.85;u<=.86;u+=.17)for(let v=-.85;v<=.86;v+=.17){if(u*u+v*v>.78||hid(Z,u,v,g))continue;let d=(u-u0)**2+(v-v0)**2+R()*.05;if(d<bd){bd=d;best=[u,v]}}
+  if(best){a.tu=best[0];a.tv=best[1];if(init){a.u=best[0];a.v=best[1]}}}return r};
+window.C9V482={hid:(a)=>{let g=hGeo(),Z=hZone(g,a);return hid(Z,a.u,a.v,g)},A};
+const oS=hStep;hStep=function(list,g,dt){let r=oS(list,g,dt);try{if(list===HA&&C9.v20.dayK().sleep)list.forEach(a=>{if(a.fl||a.tk||a.u==null)return;let Z=hZone(g,a);if(Z.m=='swim'||!hid(Z,a.u,a.v,g))return;if(a.tu==null||hid(Z,a.tu,a.tv,g))hPick(a,Z,g,false);let k=Math.min(1,(dt>1?dt/1000:dt)*1.5);a.u+=(a.tu-a.u)*k;a.v+=(a.tv-a.v)*k})}catch(e){}return r};
+let done=0;const oHD=homeDraw;homeDraw=function(n,dt){if(!done&&typeof HA!='undefined'&&HA.length){done=1;try{let g=hGeo();HA.forEach(a=>{let Z=hZone(g,a);if(hid(Z,a.u,a.v,g)){hPick(a,Z,g,true);a.vx=a.vy=0}})}catch(e){}}return oHD.apply(this,arguments)};
+})();
 </script>
 </body></html>
