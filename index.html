@@ -365,21 +365,21 @@ const DBG={late:0,skip:0,drop:0,notes:0,maxLag:0,pumps:0};function pump(ahead){i
 const FADE=.5,LBARS=8;let CURP=null,GEN=0,BUFS=null,BUFC=new Map(),RQ=Promise.resolve(),REND=false,OUTN=null,RABORT=false;addEventListener('pagehide',()=>{RABORT=true});addEventListener('pageshow',()=>{RABORT=false});const MST={renders:0,ms:0,mainMs:0,hit:0,miss:0,fallback:0,bytes:0};
 function fadeP(p,t){if(p.killed)return;p.killed=1;p.rel=0;let end=t+FADE;[p.g,p.dg].forEach(g=>{try{g.gain.cancelScheduledValues(t);g.gain.setValueAtTime(Math.min(1,g.gain.value),t);g.gain.linearRampToValueAtTime(0,end)}catch(e){}});p.dead=t;for(const q of p.nodes){try{q[0].stop(end+.02)}catch(e){}}p.nodes=[];for(const v of VL)if(v[2]===p)v[1]=Math.min(v[1],end+.02)}
 function bufLv(e){return(e.n?.8:1)*(ST.mute?0:ST.m/Math.max(.01,e.m))}
-function bufStop(t){let B=BUFS;if(!B)return;BUFS=null;try{B.g.gain.cancelScheduledValues(t);B.g.gain.setValueAtTime(B.g.gain.value,t);B.g.gain.linearRampToValueAtTime(0,t+FADE);B.src.stop(t+FADE+.03)}catch(e){}setTimeout(()=>{try{B.g.disconnect()}catch(e){}},(FADE+.4)*1000)}
-const useBuf=k=>!window.C9NOBUF&&typeof OfflineAudioContext!='undefined'&&!/^b\d/.test(k);
-const bKey=(k,n)=>k+'|'+(n?1:0)+'|'+ST.style;
-function renderLoop(k,n){let th=T[k]||T.menu,sp=60/(th.bpm*(n?.86:1))/4,len=sp*16*LBARS,sr=Math.min(ctx.sampleRate,24000),TAIL=4,N=Math.ceil((.15+len+TAIL)*sr);
- let oac=new OfflineAudioContext(2,N,sr),t0=performance.now();
+function bufStop(t){let B=BUFS;if(!B)return;BUFS=null;try{B.g.gain.cancelScheduledValues(t);B.g.gain.setValueAtTime(B.g.gain.value,t);B.g.gain.linearRampToValueAtTime(0,t+FADE);B.src.stop(t+FADE+.03);if(B.src2)B.src2.stop(t+FADE+.03)}catch(e){}setTimeout(()=>{try{B.g.disconnect()}catch(e){}},(FADE+.4)*1000)}
+const STEM=k=>/^b\d/.test(k);const useBuf=k=>!window.C9NOBUF&&typeof OfflineAudioContext!='undefined'&&(!STEM(k)||!window.C9NOBUFB);
+const bKey=(k,n,I)=>k+'|'+(n?1:0)+'|'+ST.style+(I?'|i':'');
+function renderLoop(k,n,I){let th=T[k]||T.menu,sp=60/(th.bpm*(n?.86:1))/4,len=sp*16*LBARS,sr=Math.min(ctx.sampleRate,STEM(k)?22050:24000),TAIL=4,N=Math.ceil((.15+len+TAIL)*sr);
+ let oac=new OfflineAudioContext(2,N,sr),t0=performance.now(),IV=inten;
  const SV={ctx,offline,out,mus,musLP,duck,drm,sfx,amb,rev,dly,rain,rainG,patG,players,cur,night,NB,OUTN},mu=ST.mute;
- REND=true;try{ST.mute=false;build(oac);out.disconnect();out.connect(oac.destination);[[out,.55],[mus,ST.m*1.05],[drm,ST.m*1.05]].forEach(([g,v])=>{g.gain.cancelScheduledValues(0);g.gain.value=v});players=[];cur='';night=false;setScene(k,n);pump(.15+len-1e-4)}
- finally{REND=false;ST.mute=mu;({ctx,offline,out,mus,musLP,duck,drm,sfx,amb,rev,dly,rain,rainG,patG,players,cur,night,NB,OUTN}=SV)}
+ REND=true;try{ST.mute=false;build(oac);out.disconnect();out.connect(oac.destination);[[out,.55],[mus,ST.m*1.05],[drm,ST.m*1.05]].forEach(([g,v])=>{g.gain.cancelScheduledValues(0);g.gain.value=v});players=[];cur='';night=false;inten=I?1:0;setScene(k,n);pump(.15+len-1e-4)}
+ finally{REND=false;ST.mute=mu;inten=IV;({ctx,offline,out,mus,musLP,duck,drm,sfx,amb,rev,dly,rain,rainG,patG,players,cur,night,NB,OUTN}=SV)}
  let mainMs=performance.now()-t0;
  let rp=new Promise((res,rej)=>{for(let q=1;q<(N/sr)-.2;q+=1)oac.suspend(q).then(()=>{if(RABORT){rej(new Error('abort'));return}oac.resume()});oac.startRendering().then(res,rej)});
  return rp.then(B=>{let L=Math.round(len*sr),off=Math.round(.15*sr),buf=new AudioBuffer({numberOfChannels:2,length:L,sampleRate:sr});
   for(let c=0;c<2;c++){let s0=B.getChannelData(c),d=buf.getChannelData(c);for(let i=0;i<L;i++){let j=off+i,v=s0[j];if(j+L<N)v+=s0[j+L];d[i]=v}}
-  MST.renders++;MST.ms=Math.round(performance.now()-t0);MST.mainMs=Math.round(mainMs);let e={buf,n,m:ST.m,sp,th,k};return e})}
-function getLoop(k,n,gen){let ck=bKey(k,n),e=BUFC.get(ck);if(e){MST.hit++;BUFC.delete(ck);BUFC.set(ck,e);return Promise.resolve(e)}MST.miss++;
- let pr=RQ.then(()=>{if(gen!==GEN&&!BUFC.has(ck))return null;let e2=BUFC.get(ck);if(e2)return e2;return renderLoop(k,n).then(e3=>{BUFC.set(ck,e3);while(BUFC.size>4)BUFC.delete(BUFC.keys().next().value);let by=0;BUFC.forEach(v=>by+=v.buf.length*8);MST.bytes=by;return e3})});RQ=pr.catch(()=>{});return pr}
+  MST.renders++;MST.ms=Math.round(performance.now()-t0);MST.mainMs=Math.round(mainMs);(MST.rl=MST.rl||[]).push([k+(I?'i':''),MST.ms,MST.mainMs]);if(MST.rl.length>12)MST.rl.shift();let e={buf,n,m:ST.m,sp,th,k,I:I?1:0};return e})}
+function getLoop(k,n,gen,I){let ck=bKey(k,n,I),e=BUFC.get(ck);if(e){MST.hit++;BUFC.delete(ck);BUFC.set(ck,e);return Promise.resolve(e)}MST.miss++;
+ let pr=RQ.then(()=>{if(gen!==GEN&&!BUFC.has(ck))return null;let e2=BUFC.get(ck);if(e2)return e2;return renderLoop(k,n,I).then(e3=>{BUFC.set(ck,e3);const BY=()=>{let by=0;BUFC.forEach(v=>by+=v.buf.length*8);return by};while(BUFC.size>6||BUFC.size>2&&BY()>26e6)BUFC.delete(BUFC.keys().next().value);MST.bytes=BY();return e3})});RQ=pr.catch(()=>{});return pr}
 function startLive(key,n,at){let p=newPlayer(key,n,at),lv=n?.8:1;p.g.gain.setValueAtTime(0,p.t0);p.g.gain.linearRampToValueAtTime(lv,p.t0+.3);p.dg.gain.setValueAtTime(0,p.t0);p.dg.gain.linearRampToValueAtTime(1,p.t0+.3);players.push(p)}
 function setScene(key,n){if(!ctx)return;n=n===undefined?night:!!n;if(key===cur&&n===night)return;cur=key;night=n;
  if(offline){players.forEach(p=>{p.dead=0;p.g.gain.value=0});let p=newPlayer(key,n);p.g.gain.value=n?.8:1;p.dg.gain.value=1;players=[p];return}
@@ -392,10 +392,13 @@ function setScene(key,n){if(!ctx)return;n=n===undefined?night:!!n;if(key===cur&&
   let off=0;if(ip){let BL=e.sp*16,nb=Math.ceil((nw+.25-ip.t0)/BL),tb=ip.t0+nb*BL;off=(nb%LBARS)*BL;t1=tb;ip.sw=1;ip.dead=tb;ip.rel=tb+.4;for(const v of VL)if(v[2]===ip)v[1]=Math.min(v[1],tb+.03);for(const q of ip.nodes){if(q[1]>=tb-1e-3){try{q[0].stop(tb)}catch(_){}}}
    [ip.g,ip.dg].forEach(x=>{try{x.gain.cancelScheduledValues(tb);x.gain.setValueAtTime(x===ip.g?(n?.8:1):1,tb);x.gain.linearRampToValueAtTime(0,tb+.03)}catch(_){}});g.gain.setValueAtTime(lv,t1);MST.swap=(MST.swap||0)+1}
   else{g.gain.setValueAtTime(0,t1);g.gain.linearRampToValueAtTime(lv,t1+.3)}
-  src.connect(g).connect(OUTN);src.start(t1,off);BUFS={src,g,e,t0:t1-off,key,n}})
+  let ga=null,gb=null;if(STEM(key)){ga=ctx.createGain();gb=ctx.createGain();ga.gain.value=1;gb.gain.value=0;src.connect(ga).connect(g);gb.connect(g);g.connect(OUTN)}else src.connect(g).connect(OUTN);src.start(t1,off);let B=BUFS={src,src2:null,ga,gb,iv:-1,g,e,t0:t1-off,key,n};
+  if(ga){mixB();getLoop(key,n,gen,1).then(e2=>{if(!e2||BUFS!==B||!ctx)return;let L=e.buf.length/e.buf.sampleRate,w=Math.max(ctx.currentTime+.05,B.t0+off),o2=((w-B.t0)%L+L)%L,s2=ctx.createBufferSource();s2.buffer=e2.buf;s2.loop=true;s2.connect(gb);s2.start(w,o2);B.src2=s2;B.iv=-1;mixB();MST.stem2=(MST.stem2||0)+1}).catch(()=>{})}})
  .catch(err=>{MST.fallback++;if(gen===GEN&&ctx&&!players.some(q=>!q.killed))startLive(key,n,Math.max(at,ctx.currentTime+.05))})}
-function prewarm(l){l.forEach(([k,n])=>{if(useBuf(k)&&!BUFC.has(bKey(k,n)))getLoop(k,n,GEN).catch(()=>{})})}
-function active(){let o=players.map(p=>({k:p.key,v:+p.g.gain.value.toFixed(3),d:+p.dg.gain.value.toFixed(3),live:1}));if(BUFS)o.push({k:BUFS.key,v:+BUFS.g.gain.value.toFixed(3),buf:1});return o}
+function prewarm(l){l.forEach(([k,n])=>{if(!useBuf(k))return;if(!BUFC.has(bKey(k,n)))getLoop(k,n,GEN,0).catch(()=>{});if(STEM(k)&&!BUFC.has(bKey(k,n,1)))getLoop(k,n,GEN,1).catch(()=>{})})}
+function mixI(){return Math.max(0,Math.min(1,inten))}
+function mixB(){let B=BUFS;if(!B||!B.ga||!ctx||offline)return;let I=B.src2?mixI():0;if(Math.abs(I-B.iv)<.01)return;B.iv=I;let t=ctx.currentTime;B.ga.gain.setTargetAtTime(Math.cos(I*Math.PI/2),t,.18);B.gb.gain.setTargetAtTime(Math.sin(I*Math.PI/2),t,.18)}
+function active(){let o=players.map(p=>({k:p.key,v:+p.g.gain.value.toFixed(3),d:+p.dg.gain.value.toFixed(3),live:1}));if(BUFS)o.push({k:BUFS.key,v:+BUFS.g.gain.value.toFixed(3),buf:1,stems:BUFS.ga?[+BUFS.ga.gain.value.toFixed(3),+BUFS.gb.gain.value.toFixed(3)]:null});return o}
 // ---- Effekte ----
 function key(){if(BUFS&&ctx){let bl=BUFS.e.sp*16,bar=Math.floor(Math.max(0,ctx.currentTime-BUFS.t0)/bl)%LBARS;return chordAt({th:BUFS.e.th,bar})}let p=players[players.length-1];return p?chordAt(p):[60,M7]}
 function chime(i,t,v=1){let[r,ch]=key(),sc=[0,2,4,7,9,12,14,16,19,21,24],m=r+12+sc[Math.max(0,i)%sc.length];inst('kal',m,t,v,sfx)}
@@ -431,7 +434,7 @@ let tOff=0;function sfxPlay(k,a){if(!ensure())return;let t=ctx.currentTime+.01+t
 }}
 function ensure(){if(ctx&&offline)return true;if(!ctx){try{let AC=window.AudioContext||window.webkitAudioContext,c;try{c=new AC({latencyHint:'playback'})}catch(e){c=new AC()}build(c);timer=setInterval(()=>{if(!offline&&ctx.state=='running')pump(1.6)},40)}catch(e){return false}}if(ctx.state=='suspended'&&!document.hidden)ctx.resume().catch(()=>{});return true}
 document.addEventListener('visibilitychange',()=>{if(!ctx||offline)return;if(document.hidden)ctx.suspend();else ctx.resume()});
-return{dbg:()=>DBG,ensure,setScene,sfx:sfxPlay,animal,ST,vol:()=>{saveSt();vol()},set inten(v){inten=v},set rain(v){rainLv=v},set pat(v){patLv=v},get ctx(){return ctx},get offline(){return offline},get amb(){return amb},get drm(){return drm},get duck(){return duck},_build:build,set _at(v){tOff=v},_pump:pump,_T:T,
+return{dbg:()=>DBG,ensure,setScene,sfx:sfxPlay,animal,ST,vol:()=>{saveSt();vol()},set inten(v){inten=v;mixB()},set rain(v){rainLv=v},set pat(v){patLv=v},get ctx(){return ctx},get offline(){return offline},get amb(){return amb},get drm(){return drm},get duck(){return duck},_build:build,set _at(v){tOff=v},_pump:pump,_T:T,
  get players(){return players},get _cur(){return cur},active,prewarm,get mst(){return MST},get gen(){return GEN},_reset(){try{if(ctx&&!offline){bufStop(ctx.currentTime);players.forEach(p=>fadeP(p,ctx.currentTime))}}catch(e){}BUFC.clear();GEN++;players=[];cur='';night=false;inten=0;rainLv=0;patLv=0}};
 })();
 
@@ -5792,4 +5795,10 @@ const sh=$('hSheet'),scr=$('homeScr');function sync(){scr.classList.toggle('v491
 if(sh&&scr){new MutationObserver(sync).observe(sh,{attributes:true,attributeFilter:['class']});sync()}
 })();
 </script>
+<script>/* v49.2: Level-Musik schon auf dem Startbildschirm vorrendern */
+(function(){function nt(b){return DAYT=='night'||(WX&&WX.day===false)||(b==6&&DAYT!='day')}
+function pw(li){try{if(!SND.ctx||SND.offline||li==null||!LEVELS[li])return;let b=LEVELS[li][0];SND.prewarm([['b'+b,nt(b)]])}catch(e){}}
+const oP=preStart;preStart=function(mode,li){if(mode=='level')pw(li);return oP.apply(this,arguments)};C9.preStart=preStart;
+const oRM=renderMap;renderMap=function(){let r=oRM.apply(this,arguments);clearTimeout(window.__v492t);window.__v492t=setTimeout(()=>{try{let c=-1;LEVELS.forEach((L,i)=>{if(unlocked(i)&&c<0&&!(S.stars[i]>0))c=i});if(c<0)LEVELS.forEach((L,i)=>{if(unlocked(i))c=i});if(c>=0)pw(c)}catch(e){}},500);return r};
+window.C9.v492={pw};})();</script>
 </body></html>
