@@ -174,6 +174,49 @@ button.sm{padding:8px 12px;font-size:14px;margin:2px}.hbar b{font-size:16px;back
 <div id="cel" class="hide"><h2 id="celT"></h2><div id="celStars"></div><div id="celSkip">Tippen zum Überspringen</div></div>
 <div id="end" class="scr mid hide"><h2 id="endT"></h2><div id="stars"></div><div id="endS"></div><div id="lvtxt" style="font-size:13px;margin-top:6px"></div><div id="lvbar"><div id="lvfill"></div></div><div id="endR" class="cards"></div>
 <button id="bNext">Weiter ▶</button><button id="again">Nochmal</button><button class="sec" id="home">Menü</button></div>
+<script>/* v52.2: zentraler Canvas-Text-Helfer – jede fillText/strokeText-Zeile passt mit Rand in die Breite:
+   erst verschieben (wenn sie passt), sonst verkleinern (bis 80 %), dann umbrechen auf 2–3 Zeilen (bis 62 %), zuletzt maxWidth.
+   Konturen: lineJoin round + miterLimit 2 (keine Gehrungs-Spitzen/Splitter). */
+(function(){
+ const P=CanvasRenderingContext2D.prototype;if(P.__c9fit)return;P.__c9fit=1;
+ const oF=P.fillText,oS=P.strokeText,oM=P.measureText,PAD=10;
+ const off=/[?&]txtoff\b/.test(location.search);
+ const T=window.C9TXT={fixed:new Map(),bad:new Map(),calls:0,off};
+ const AF={left:0,start:0,center:.5,right:1,end:1};
+ function rec(m,t,c,info){let k=t.slice(0,60);if(!m.has(k))m.set(k,{n:0,cw:c.width,info});m.get(k).n++}
+ function wrap(x,words,avail){let L=[],cur='';for(const w of words){let n=cur?cur+' '+w:w;if(!cur||oM.call(x,n).width<=avail)cur=n;else{L.push(cur);cur=w}}if(cur)L.push(cur);return L}
+ function draw(fn,x,t,X0,Y0,mw){
+  T.calls++;
+  const c=x.canvas;
+  if(!c||!c.isConnected||t.length<3)return fn.call(x,t,X0,Y0,mw);
+  const m=x.getTransform(),sx=Math.hypot(m.a,m.b);
+  if(!(sx>0)||Math.abs(m.b)>.02*sx||Math.abs(m.c)>.02*sx)return fn.call(x,t,X0,Y0,mw);
+  const cw=c.width,dp=cw/(c.clientWidth||cw),pad=PAD*dp;
+  let w=oM.call(x,t).width;if(mw!=null&&mw<w)w=mw;
+  const f=AF[x.textAlign]??0,ax=m.a*X0+m.c*Y0+m.e,L0=ax-f*w*sx,R0=L0+w*sx;
+  if(L0>=pad-.5&&R0<=cw-pad+.5)return fn.call(x,t,X0,Y0,mw);
+  const vis=Math.max(0,Math.min(R0,cw)-Math.max(L0,0))/(w*sx||1);
+  if(vis<.5&&w*sx<cw*.6)return fn.call(x,t,X0,Y0,mw);           // fliegt gerade aus dem Bild (Weltobjekt) – nicht festhalten
+  const avail=(cw-2*pad)/sx;
+  if(off){rec(T.bad,t,c,[L0/dp|0,R0/dp|0,cw/dp|0]);return fn.call(x,t,X0,Y0,mw)}
+  const clampX=ww=>{let l=ax-f*ww*sx,r=l+ww*sx,s=0;if(ww*sx<=cw-2*pad){if(l<pad)s=pad-l;else if(r>cw-pad)s=cw-pad-r}else s=(cw/2)-(l+r)/2;return X0+s/sx};
+  if(w<=avail){rec(T.fixed,t,c,'shift');return fn.call(x,t,clampX(w),Y0,mw)}
+  const font=x.font,mm=/(\d*\.?\d+)px/.exec(font);
+  if(!mm){rec(T.fixed,t,c,'maxw');return fn.call(x,t,clampX(avail),Y0,avail)}
+  const fs=+mm[1],setF=k=>{x.font=font.replace(mm[0],(fs*k).toFixed(1)+'px')};
+  let lines=null,k=1,words=t.split(' ');
+  for(k=1;k>=.8;k-=.04){setF(k);if(oM.call(x,t).width<=avail){lines=[t];break}}
+  if(!lines&&words.length>1){for(let n=2;n<=3&&!lines;n++)for(k=n==2?1:.9;k>=.62;k-=.04){setF(k);let L=wrap(x,words,avail);if(L.length<=n&&L.every(s=>oM.call(x,s).width<=avail)){lines=L;break}}}
+  if(!lines){k=.62;setF(k);lines=words.length>1?wrap(x,words,avail).slice(0,3):[t]}
+  rec(T.fixed,t,c,lines.length>1?'wrap'+lines.length:'shrink');
+  const n=lines.length,lh=fs*k*1.15,bl=x.textBaseline;
+  const y0=bl=='top'||bl=='hanging'?Y0:bl=='bottom'||bl=='ideographic'?Y0-(n-1)*lh:Y0-(n-1)*lh/2;
+  try{lines.forEach((s,i)=>{let ww=Math.min(avail,oM.call(x,s).width);fn.call(x,s,clampX(ww),y0+i*lh,avail)})}finally{x.font=font}
+ }
+ P.fillText=function(t,X0,Y0,mw){return draw(oF,this,String(t),X0,Y0,mw)};
+ P.strokeText=function(t,X0,Y0,mw){if(off)return draw(oS,this,String(t),X0,Y0,mw);const j=this.lineJoin,ml=this.miterLimit;this.lineJoin='round';this.miterLimit=2;try{return draw(oS,this,String(t),X0,Y0,mw)}finally{this.lineJoin=j;this.miterLimit=ml}};
+})();
+</script>
 <script>
 /* v46.2: ZENTRALER SCHALTER Testphase – alle Minispiel-Limits aus. false = Limits (2×/Tier, 6/Tag, Taler-Quote) wieder an. Auch erreichbar als C9.MG_UNLIMITED */window.C9_MG_UNLIMITED=true;
 
@@ -6772,5 +6815,10 @@ window.C9.v52puz={TW,MUS,HOW};
 #v43mg .x:active,#v48f .x:active{transform:translateY(2px);box-shadow:0 1px 0 #5a40b8,0 2px 8px rgba(40,20,90,.4)!important}
 #v421 .sk{background:linear-gradient(#9a80f4,#7a5fe0)!important;color:#fff!important;border:3px solid #fff!important;box-shadow:0 3px 0 #5a40b8,0 4px 14px rgba(40,20,90,.4)!important}
 </style>
-<!-- cloud9 v521 -->
+<style>/* v52.2 – einheitlicher lila Schließen-Knopf in allen Vollbild-/Minispielen */
+#v43mg .x,#v48f .x,#v21mg .v21x,#v32px{width:44px!important;height:44px!important;min-width:0!important;border-radius:50%!important;padding:0!important;margin:0!important;background:linear-gradient(#9a80f4,#7a5fe0)!important;color:#fff!important;border:3px solid #fff!important;box-shadow:0 3px 0 #5a40b8,0 4px 14px rgba(40,20,90,.45)!important;font:900 19px/1 Nunito,system-ui,sans-serif!important;display:flex!important;align-items:center!important;justify-content:center!important;text-shadow:0 1px 0 rgba(40,20,90,.35)}
+#v43mg .x,#v48f .x,#v21mg .v21x{position:absolute!important;top:calc(10px + env(safe-area-inset-top))!important;right:10px!important;z-index:5}
+#v21mg .v21x:active,#v32px:active{transform:translateY(2px)}
+</style>
+<!-- cloud9 v522 -->
 </body></html>
