@@ -4128,42 +4128,14 @@ function ghost(x,y,t,sp){let b=Math.sin(t*2.2)*5;X.save();X.translate(x,y+b);X.r
  X.fillStyle='#3a2a5a';X.beginPath();X.ellipse(-5,-12,2.6,3.6,0,0,7);X.ellipse(5,-12,2.6,3.6,0,0,7);X.fill();X.fillStyle='#fff';X.beginPath();X.arc(-4.2,-13.4,1,0,7);X.arc(5.8,-13.4,1,0,7);X.fill();
  X.fillStyle='rgba(255,140,180,.6)';X.beginPath();X.ellipse(-9,-6,2.6,1.6,0,0,7);X.ellipse(9,-6,2.6,1.6,0,0,7);X.fill();X.strokeStyle='#3a2a5a';X.lineWidth=1.6;X.beginPath();X.arc(0,-6,3,.2,Math.PI-.2);X.stroke();
  X.fillStyle='#fbfbff';X.beginPath();X.ellipse(-16,-6+Math.sin(t*3)*3,4,6,-.6,0,7);X.ellipse(16,-6-Math.sin(t*3)*3,4,6,.6,0,7);X.fill();X.restore();X.globalAlpha=1}
-function skel(x,y,t,walk,dance,dir){X.save();X.translate(x,y);X.scale(dir,1);let sw=Math.sin(t*7)*walk,dn=dance>0?Math.sin(t*16)*.4:0;X.lineCap='round';X.lineJoin='round';
- const OC='rgba(90,70,120,.6)',BC='#fbf8f0';
+function skel(x,y,t,walk,dance,dir){X.save();X.translate(x,y);X.scale(dir,1);let sw=Math.sin(t*7)*walk,dn=dance>0?Math.sin(t*16)*.4:0;
  X.fillStyle='rgba(60,40,100,.18)';X.beginPath();X.ellipse(0,2,11,3.4,0,0,7);X.fill();
- const pth=(p,w,c)=>{X.strokeStyle=c;X.lineWidth=w;X.beginPath();X.moveTo(p[0],p[1]);for(let i=2;i<p.length;i+=(p[i]==='q'?5:2)){if(p[i]==='q'){X.quadraticCurveTo(p[i+1],p[i+2],p[i+3],p[i+4])}else X.lineTo(p[i],p[i+1])}X.stroke()};
- const bone=(p,w)=>{w=w||2.8;pth(p,w+1.9,OC);pth(p,w,BC)};
- const knob=(x0,y0,r0)=>{X.fillStyle=OC;X.beginPath();X.arc(x0,y0,r0+.9,0,7);X.fill();X.fillStyle=BC;X.beginPath();X.arc(x0,y0,r0,0,7);X.fill()};
- // Beine: Oberschenkel + Schienbein mit Knie, kleine Füße
- [-1,1].forEach(s=>{let f=s*sw;let kx=s*3.4+f*2,fx=s*4.4+f*4;bone([s*2.6,-14,kx,-7.5,fx,-1.6],2.6);knob(kx,-7.5,1.1);
-  X.fillStyle=OC;X.beginPath();X.ellipse(fx+s*1.4,-.9,3.3,1.9,0,0,7);X.fill();X.fillStyle=BC;X.beginPath();X.ellipse(fx+s*1.4,-1,2.5,1.2,0,0,7);X.fill()});
- // Becken
- X.fillStyle=OC;X.beginPath();X.ellipse(0,-14.6,5.6,3.2,0,0,7);X.fill();X.fillStyle=BC;X.beginPath();X.ellipse(0,-14.6,4.7,2.3,0,0,7);X.fill();
- X.fillStyle='rgba(90,70,120,.35)';X.beginPath();X.ellipse(-1.9,-14.3,1,.8,0,0,7);X.ellipse(1.9,-14.3,1,.8,0,0,7);X.fill();
- // Wirbelsäule
- bone([0,-29,0,-16],2.2);X.fillStyle='rgba(90,70,120,.32)';for(let i=0;i<3;i++){X.beginPath();X.ellipse(0,-18.4-i*3.4,1.3,.45,0,0,7);X.fill()}
- // Rippen: saubere, geschwungene Knochen links/rechts der Wirbelsäule
- for(let i=0;i<3;i++){let y0=-26.6+i*3.3,ww=5.8-i*.7;[-1,1].forEach(s=>bone([s*.4,y0,'q',s*(ww+.4),y0-.6,s*(ww-.6),y0+2.4],1.9))}
- // Arme: Oberarm + Unterarm mit Ellbogen, Hände wie bisher bei (±11, -20…)
- [-1,1].forEach(s=>{let hy=-20+(dance?-10-s*dn*14:-s*sw*3),hx=s*11,sx0=s*4.4,sy0=-27.4,ex=s*8.6,ey=(sy0+hy)/2+(dance?1:2.6);
-  bone([sx0,sy0,ex,ey,hx,hy],2.4);knob(sx0,sy0,1.3);knob(ex,ey,1);
-  X.fillStyle=OC;X.beginPath();X.arc(hx,hy,2.5,0,7);X.fill();X.fillStyle=BC;X.beginPath();X.arc(hx,hy,1.7,0,7);X.fill()});
- // Schädel: runder Kopf + kleiner Kiefer (Kontur zuerst, dann Füllung = saubere Silhouette)
- X.save();X.translate(0,-39.4);X.rotate(dn*.6);
- const skull=()=>{X.beginPath();X.arc(0,-.6,9,0,7);X.moveTo(-5.6,3.4);X.lineTo(5.6,3.4);X.quadraticCurveTo(5.6,8,3.2,8.4);X.lineTo(-3.2,8.4);X.quadraticCurveTo(-5.6,8,-5.6,3.4)};
- skull();X.strokeStyle=OC;X.lineWidth=3.4;X.stroke();skull();X.fillStyle=BC;X.fill();
- X.fillStyle='rgba(255,255,255,.75)';X.beginPath();X.ellipse(-3.4,-6.2,3,1.6,-.35,0,7);X.fill();
- X.fillStyle='rgba(120,100,160,.12)';X.beginPath();X.ellipse(0,5.8,4.4,2.6,0,0,7);X.fill();
- // große Kulleraugen mit Glanz
- X.fillStyle='#3a2a5a';X.beginPath();X.ellipse(-3.5,-1.2,2.6,3.1,0,0,7);X.ellipse(3.5,-1.2,2.6,3.1,0,0,7);X.fill();
- X.fillStyle='#fff';X.beginPath();X.arc(-4.3,-2.4,1,0,7);X.arc(2.7,-2.4,1,0,7);X.fill();X.beginPath();X.arc(-2.8,-.1,.45,0,7);X.arc(4.2,-.1,.45,0,7);X.fill();
- // Näschen (kleines Herz)
- X.fillStyle='#3a2a5a';X.beginPath();X.moveTo(0,4);X.quadraticCurveTo(-1.6,2.6,-.8,2);X.quadraticCurveTo(0,1.8,0,2.6);X.quadraticCurveTo(0,1.8,.8,2);X.quadraticCurveTo(1.6,2.6,0,4);X.fill();
- X.fillStyle='rgba(255,140,180,.55)';X.beginPath();X.ellipse(-6.2,3,1.9,1.1,0,0,7);X.ellipse(6.2,3,1.9,1.1,0,0,7);X.fill();
- // süßes Lächeln mit kleinen Zahnstrichen
- X.strokeStyle='#3a2a5a';X.lineWidth=1.05;X.beginPath();X.arc(0,4.4,3.2,.42,Math.PI-.42);X.stroke();
- X.lineWidth=.7;[-1.5,0,1.5].forEach(q=>{let yb=4.4+Math.sqrt(Math.max(0,3.2*3.2-q*q));X.beginPath();X.moveTo(q,yb-.8);X.lineTo(q,yb+.6);X.stroke()});
- X.restore();X.restore()}
+ X.strokeStyle='#f6f2ea';X.lineCap='round';X.lineWidth=3.2;const bone=(x1,y1,x2,y2)=>{X.strokeStyle='rgba(90,70,120,.55)';X.lineWidth=5;X.beginPath();X.moveTo(x1,y1);X.lineTo(x2,y2);X.stroke();X.strokeStyle='#fbf8f0';X.lineWidth=3;X.beginPath();X.moveTo(x1,y1);X.lineTo(x2,y2);X.stroke()};
+ bone(-3,-14,-5+sw*4,0);bone(3,-14,5-sw*4,0);// Beine
+ bone(0,-30,0,-14);for(let i=0;i<3;i++)bone(-5,-27+i*4,5,-27+i*4);// Rippen
+ bone(-5,-28,-11,-20+(dance?-10+dn*14:sw*3));bone(5,-28,11,-20+(dance?-10-dn*14:-sw*3));// Arme
+ X.save();X.translate(0,-38);X.rotate(dn*.6);X.fillStyle='#fbf8f0';X.strokeStyle='rgba(90,70,120,.55)';X.lineWidth=1.8;X.beginPath();X.arc(0,0,9,0,7);X.fill();X.stroke();
+ X.fillStyle='#3a2a5a';X.beginPath();X.ellipse(-3.4,-1,2.4,3,0,0,7);X.ellipse(3.4,-1,2.4,3,0,0,7);X.fill();X.beginPath();X.moveTo(0,2);X.lineTo(-1.2,4);X.lineTo(1.2,4);X.fill();X.fillStyle='rgba(255,140,180,.55)';X.beginPath();X.ellipse(-6,3,2,1.2,0,0,7);X.ellipse(6,3,2,1.2,0,0,7);X.fill();X.strokeStyle='#3a2a5a';X.lineCap='round';X.lineWidth=1.1;X.beginPath();X.arc(0,4,3.2,.18*Math.PI,.82*Math.PI);X.stroke();X.lineWidth=.7;X.beginPath();for(const q of[-1.8,-.6,.6,1.8]){const yb=4+Math.sqrt(10.24-q*q);X.moveTo(q,yb-.9);X.lineTo(q,yb+.7)}X.stroke();X.restore();X.restore()}
 function snd(k){try{let c=SND.ctx;if(!c||SND.ST.mute)return;let t=c.currentTime,g=c.createGain();g.connect(c.destination);let v=.12*(SND.ST.e??.7);
  if(k=='boo'){let o=c.createOscillator();o.type='sine';o.frequency.setValueAtTime(420,t);o.frequency.exponentialRampToValueAtTime(260,t+.5);g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(v,t+.05);g.gain.exponentialRampToValueAtTime(.001,t+.6);let l=c.createOscillator(),lg=c.createGain();l.frequency.value=7;lg.gain.value=18;l.connect(lg).connect(o.frequency);l.start(t);l.stop(t+.6);o.connect(g);o.start(t);o.stop(t+.65)}
  else{for(let i=0;i<5;i++){let o=c.createOscillator(),gg=c.createGain();o.type='square';o.frequency.value=900+Math.random()*700;gg.gain.setValueAtTime(v*.5,t+i*.07);gg.gain.exponentialRampToValueAtTime(.001,t+i*.07+.05);o.connect(gg).connect(c.destination);o.start(t+i*.07);o.stop(t+i*.07+.06)}}}catch(_){}}
@@ -6974,5 +6946,5 @@ try{['🐆','🐐','🦙','🐺','🐅'].forEach(e=>{if(typeof AIMG=='object')de
 window.C9V523={sprites:['💀','🐺','🐆','🐐','🦙','🐅']};
 })();
 </script>
-<!-- cloud9 v523 -->
+<!-- cloud9 v524 -->
 </body></html>
