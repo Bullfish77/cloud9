@@ -3523,7 +3523,49 @@ const nextMon=t=>{for(let k=1;k<=12;k++){let m=(MON-1+k)%12+1;if(t.m.includes(m)
 const OLc='rgba(90,60,140,.45)';const o=(x,w)=>{x.strokeStyle=OLc;x.lineWidth=w||2;x.stroke()};
 // ---- Zeichnungen ----
 function egg(x,c1,c2,pat){x.save();x.translate(0,-13);x.beginPath();x.ellipse(0,0,9,12,0,0,7);let g=x.createRadialGradient(-3,-5,1,0,0,13);g.addColorStop(0,'#fff');g.addColorStop(.3,c1);g.addColorStop(1,c1);x.fillStyle=g;x.fill();x.save();x.clip();x.strokeStyle=c2;x.lineWidth=2.5;if(pat){x.beginPath();for(let i=-9;i<=9;i+=3)x.lineTo(i,(i/3)%2?-1:2);x.stroke();x.fillStyle=c2;[[-4,-6],[3,-7],[0,6],[-5,5],[5,5]].forEach(([a,b])=>{x.beginPath();x.arc(a,b,1.6,0,7);x.fill()})}else{x.beginPath();x.moveTo(-10,-3);x.lineTo(10,-3);x.moveTo(-10,4);x.lineTo(10,4);x.stroke()}x.restore();x.beginPath();x.ellipse(0,0,9,12,0,0,7);o(x,1.6);x.restore()}
-function chick(x){x.save();x.translate(0,-11);x.fillStyle='#ffe14a';x.beginPath();x.arc(0,0,10,0,7);x.fill();o(x,1.6);x.fillStyle='#ff9a3a';x.beginPath();x.moveTo(-2,1);x.lineTo(6,2.5);x.lineTo(-2,4);x.fill();x.fillStyle='#3a2a5a';x.beginPath();x.arc(1,-3,1.6,0,7);x.fill();x.fillStyle='#fff';x.beginPath();x.moveTo(-11,3);[[-7,0],[-4,4],[0,1],[4,4],[7,0],[11,3]].forEach(([a,b])=>x.lineTo(a,b));x.lineTo(11,12);x.lineTo(-11,12);x.fill();x.beginPath();x.moveTo(-11,3);[[-7,0],[-4,4],[0,1],[4,4],[7,0],[11,3]].forEach(([a,b])=>x.lineTo(a,b));o(x,1.4);x.restore()}
+function chick(x){
+ x.save();x.translate(0,-12);x.lineJoin='round';x.lineCap='round';
+ // Weicher Schatten
+ x.fillStyle='rgba(60,90,40,.20)';x.beginPath();x.ellipse(0,12,12,3.6,0,0,7);x.fill();
+ // Kleine Flügelchen links & rechts
+ [[-9.5,-1,-.35],[9.5,-1,.35]].forEach(([wx,wy,rot])=>{
+  x.save();x.translate(wx,wy);x.rotate(rot);
+  x.fillStyle='#ffd22e';x.beginPath();x.ellipse(0,0,3.2,5.2,0,0,7);x.fill();o(x,1.3);
+  x.restore();
+ });
+ // Flauschiges goldenes Küken-Köpfchen & Körper
+ let cg=x.createRadialGradient(-2,-5,2,0,-1,12);
+ cg.addColorStop(0,'#fff688');cg.addColorStop(.65,'#ffe038');cg.addColorStop(1,'#f4b818');
+ x.fillStyle=cg;x.beginPath();x.ellipse(0,-1.5,10.5,10,0,0,7);x.fill();o(x,1.6);
+ // 3 süße Schopf-Federchen oben auf dem Kopf
+ [[-2.2,-12.2,-.3],[0,-13.2,0],[2.2,-12.2,.3]].forEach(([fx,fy,rot])=>{
+  x.save();x.translate(fx,fy);x.rotate(rot);
+  x.fillStyle='#ffe038';x.beginPath();x.ellipse(0,0,1.7,3.4,0,0,7);x.fill();o(x,1.2);
+  x.restore();
+ });
+ // Rosa Pausbäckchen
+ x.fillStyle='rgba(255,115,155,.6)';
+ x.beginPath();x.ellipse(-5.8,-.5,2.2,1.4,0,0,7);x.ellipse(5.8,-.5,2.2,1.4,0,0,7);x.fill();
+ // ZWEI große, glänzende Knopfaugen
+ [[-3.6,-3.2],[3.6,-3.2]].forEach(([ex,ey])=>{
+  x.fillStyle='#2b1d38';x.beginPath();x.ellipse(ex,ey,1.9,2.2,0,0,7);x.fill();
+  x.fillStyle='#fff';x.beginPath();x.arc(ex-.55,ey-.7,.75,0,7);x.fill();
+ });
+ // Kleiner orangefarbener Diamant-Schnabel in der Mitte
+ x.fillStyle='#ff8524';x.beginPath();
+ x.moveTo(-2.2,-1.2);x.lineTo(0,-2.8);x.lineTo(2.2,-1.2);x.lineTo(0,1.0);x.closePath();
+ x.fill();o(x,1.1);
+ // Gezackte weiße Eierschale unten mit sanfter Schattierung
+ let eg=x.createLinearGradient(-11,2,11,11);
+ eg.addColorStop(0,'#ffffff');eg.addColorStop(1,'#ece6f8');
+ x.fillStyle=eg;
+ x.beginPath();x.moveTo(-11,2.5);
+ [[-7,-.2],[-3.5,3.2],[0,-.4],[3.5,3.2],[7,-.2],[11,2.5]].forEach(([a,b])=>x.lineTo(a,b));
+ x.bezierCurveTo(11,9.5,6,11.5,0,11.5);
+ x.bezierCurveTo(-6,11.5,-11,9.5,-11,2.5);
+ x.closePath();x.fill();o(x,1.5);
+ x.restore();
+}
 function xtree(x,s){x.save();x.scale(s,s);x.fillStyle='#8a5a3a';x.fillRect(-3,-8,6,8);[[-30,18,'#3a9a5a'],[-21,14,'#46ac66'],[-12,10,'#52bc72']].forEach(([y,w,c],i)=>{x.fillStyle=c;x.beginPath();x.moveTo(0,y-14);x.lineTo(w,y+8+i);x.quadraticCurveTo(0,y+4,-w,y+8+i);x.closePath();x.fill();o(x,1.6)});
  [['#ff5a6a',-8,-8],['#ffd84a',6,-12],['#5ab4ff',-4,-22],['#ff8ae0',7,-26],['#ffd84a',-6,-34]].forEach(([c,a,b])=>{x.fillStyle=c;x.beginPath();x.arc(a,b,2.4,0,7);x.fill()});
  x.fillStyle='#ffd84a';x.beginPath();for(let i=0;i<10;i++){let a=-Math.PI/2+i*Math.PI/5,r=i%2?2.6:6;x.lineTo(Math.cos(a)*r,-46+Math.sin(a)*r)}x.closePath();x.fill();o(x,1.2);x.restore()}
@@ -3533,7 +3575,59 @@ function pk(x,s,face){x.save();x.scale(s,s);if(ART.pumpkin)ART.pumpkin(x,0,-11,1
 function gh(x){if(ART.ghost)ART.ghost(x,0,-14,12,0);else{x.fillStyle='#fff';x.beginPath();x.arc(0,-16,10,Math.PI,0);x.lineTo(10,0);x.lineTo(-10,0);x.fill();o(x)}}
 function rocket(x,c){x.save();x.translate(0,-4);x.strokeStyle='#c8a070';x.lineWidth=2;x.beginPath();x.moveTo(0,0);x.lineTo(0,-14);x.stroke();x.fillStyle=c;x.beginPath();x.rect(-4,-30,8,16);x.fill();o(x,1.4);x.fillStyle='#ffd84a';x.beginPath();x.moveTo(-5,-30);x.lineTo(0,-38);x.lineTo(5,-30);x.fill();o(x,1.2);x.fillStyle='#fff';x.fillRect(-4,-25,8,2.5);x.restore()}
 function clover(x){x.strokeStyle='#3a8a3a';x.lineWidth=2;x.beginPath();x.moveTo(0,0);x.quadraticCurveTo(2,-8,0,-14);x.stroke();for(let i=0;i<4;i++){x.save();x.translate(0,-16);x.rotate(i*Math.PI/2+.4);x.fillStyle='#5ac85a';x.beginPath();x.moveTo(0,0);x.bezierCurveTo(-7,-4,-5,-11,0,-7);x.bezierCurveTo(5,-11,7,-4,0,0);x.fill();o(x,1);x.restore()}}
-function pig(x){x.save();x.translate(0,-10);x.fillStyle='#ffb0c8';x.beginPath();x.ellipse(0,0,13,10,0,0,7);x.fill();o(x,1.6);x.beginPath();x.ellipse(9,1,4.5,3.5,0,0,7);x.fillStyle='#ff90b0';x.fill();o(x,1);x.fillStyle='#8a3a5a';[[8,1],[10.5,1]].forEach(([a,b])=>{x.beginPath();x.arc(a,b,.9,0,7);x.fill()});x.beginPath();x.arc(3,-4,1.4,0,7);x.fill();x.fillStyle='#ffb0c8';x.beginPath();x.moveTo(-2,-8);x.lineTo(1,-14);x.lineTo(4,-8);x.fill();x.fillRect(-9,7,4,5);x.fillRect(4,7,4,5);x.restore()}
+function pig(x){
+ x.save();x.translate(0,-13);x.lineJoin='round';x.lineCap='round';
+ // Weicher Bodenschatten
+ x.fillStyle='rgba(70,35,60,.20)';x.beginPath();x.ellipse(0,12.5,15,4.2,0,0,7);x.fill();
+ // Ringelschwänzchen links hinten
+ x.strokeStyle='#e57aa0';x.lineWidth=2.2;
+ x.beginPath();x.moveTo(-13,-1);x.bezierCurveTo(-19,-4,-18,-10,-14,-8);x.bezierCurveTo(-11,-6,-15,-2,-18,-5);x.stroke();
+ // 4 niedliche Beinchen mit dunklen Hufen
+ [[-8,7.5],[-3,8.8],[3,8.8],[8,7.5]].forEach(([lx,ly])=>{
+  x.fillStyle='#ff9ebb';x.beginPath();x.ellipse(lx,ly,2.6,4.2,0,0,7);x.fill();o(x,1.3);
+  x.fillStyle='#7a3250';x.beginPath();x.ellipse(lx,ly+3.1,2.5,1.5,0,0,7);x.fill();
+ });
+ // Pummeliger rosiger Körper
+ let bg=x.createRadialGradient(-3,-4,2,0,0,15);
+ bg.addColorStop(0,'#ffd6e5');bg.addColorStop(.6,'#ffaac8');bg.addColorStop(1,'#f282ab');
+ x.fillStyle=bg;x.beginPath();x.ellipse(0,0,14.5,11.2,0,0,7);x.fill();o(x,1.6);
+ // ZWEI süße Schweinchen-Ohren oben links & rechts!
+ [[-7.2,-9.5,-.42],[7.2,-9.5,.42]].forEach(([ex,ey,rot])=>{
+  x.save();x.translate(ex,ey);x.rotate(rot);
+  x.fillStyle='#ffaac8';x.beginPath();
+  x.moveTo(-4.2,2);x.quadraticCurveTo(-5,-6.5,0,-8.2);x.quadraticCurveTo(5,-6.5,4.2,2);x.closePath();
+  x.fill();o(x,1.4);
+  x.fillStyle='#eb6a98';x.beginPath();x.ellipse(0,-2.8,2.2,3.4,0,0,7);x.fill();
+  x.restore();
+ });
+ // Rundes Gesichtchen (leicht nach vorn gewandt, damit BEIDE Augen & Ohren strahlen)
+ x.fillStyle=bg;x.beginPath();x.ellipse(0,-2.2,11.5,9.6,0,0,7);x.fill();o(x,1.5);
+ // Rosa Pausbäckchen links & rechts
+ x.fillStyle='rgba(255,95,145,.55)';
+ x.beginPath();x.ellipse(-7.5,-1,2.6,1.6,0,0,7);x.ellipse(7.5,-1,2.6,1.6,0,0,7);x.fill();
+ // ZWEI große, funkelnde Knopfaugen mit weißen Glanzpunkten!
+ [[-4.4,-4.6],[4.4,-4.6]].forEach(([ex,ey])=>{
+  x.fillStyle='#2d1832';x.beginPath();x.ellipse(ex,ey,2.1,2.4,0,0,7);x.fill();
+  x.fillStyle='#fff';x.beginPath();x.arc(ex-.65,ey-.8,.85,0,7);x.fill();
+  x.beginPath();x.arc(ex+.6,ey+.7,.42,0,7);x.fill();
+ });
+ // Steckdosen-Schnäuzchen in der Mitte mit 2 Nasenlöchern
+ x.fillStyle='#ff82ad';x.beginPath();x.ellipse(0,.4,4.8,3.4,0,0,7);x.fill();o(x,1.3);
+ x.fillStyle='#7a2848';
+ x.beginPath();x.ellipse(-1.7,.4,1.05,1.45,0,0,7);x.ellipse(1.7,.4,1.05,1.45,0,0,7);x.fill();
+ // Fröhliches Lächeln unter der Schnauze
+ x.strokeStyle='#7a2848';x.lineWidth=1.4;
+ x.beginPath();x.arc(0,3.2,2.8,.15*Math.PI,.85*Math.PI);x.stroke();
+ // Kleines vierblättriges Glückskleeblatt am Köpfchen
+ x.save();x.translate(8.5,-9.5);
+ x.strokeStyle='#247a38';x.lineWidth=1.4;x.beginPath();x.moveTo(0,1);x.quadraticCurveTo(2,4,3,6);x.stroke();
+ for(let i=0;i<4;i++){
+  let a=i*Math.PI/2+.4;
+  x.fillStyle='#3cd058';x.beginPath();x.arc(Math.cos(a)*2.2,Math.sin(a)*2.2,2.1,0,7);x.fill();
+ }
+ x.restore();
+ x.restore();
+}
 function boat(x){x.fillStyle='#fff';x.beginPath();x.moveTo(-1,-8);x.lineTo(-1,-40);x.lineTo(-17,-10);x.closePath();x.fill();o(x,1.4);x.fillStyle='#ffd0e0';x.beginPath();x.moveTo(2,-12);x.lineTo(2,-36);x.lineTo(14,-12);x.closePath();x.fill();o(x,1.2);x.strokeStyle='#8a5a3a';x.lineWidth=2;x.beginPath();x.moveTo(0,-6);x.lineTo(0,-42);x.stroke();x.fillStyle='#ff6a6a';x.beginPath();x.moveTo(-18,-7);x.lineTo(18,-7);x.lineTo(12,0);x.lineTo(-12,0);x.closePath();x.fill();o(x,1.6)}
 function parasol(x){x.strokeStyle='#8a6a4a';x.lineWidth=2;x.beginPath();x.moveTo(0,0);x.lineTo(0,-30);x.stroke();['#ff7a7a','#fff','#ff7a7a','#fff','#ff7a7a','#fff'].forEach((c,i)=>{x.fillStyle=c;x.beginPath();x.moveTo(0,-34);x.arc(0,-26,16,Math.PI+i*Math.PI/6,Math.PI+(i+1)*Math.PI/6);x.closePath();x.fill()});x.beginPath();x.arc(0,-26,16,Math.PI,0);o(x,1.4)}
 function reed(x){x.strokeStyle='#6a9a4a';x.lineWidth=2;[-5,0,5].forEach((a,i)=>{x.beginPath();x.moveTo(a,0);x.quadraticCurveTo(a+2,-14,a+(i-1)*3,-26-i*3);x.stroke()});x.fillStyle='#8a5a3a';[[-7,-24],[5,-28]].forEach(([a,b])=>{x.beginPath();x.ellipse(a,b,2.2,5,0,0,7);x.fill()})}
@@ -3553,11 +3647,59 @@ const NEW={
   scn:['tr','g1','sm','tr2','g2','cane','tr','g1','tr2'],
   land:null,fx:{n:16,draw(p,t,W,H){let y=(p.y*H+t*22*p.v)%(H+10)-5,x=((p.x*W+Math.sin(t+p.ph)*14)%W+W)%W;X.fillStyle='rgba(255,255,255,.9)';X.beginPath();X.arc(x,y,1.3+p.v*1.4,0,7);X.fill()}},
   mus:{bpm:72,root:67,prog:[[0,[0,4,7,11]],[9,[0,3,7,10]],[2,[0,3,7,10]],[7,[0,4,7,10]]],lead:'bell',scale:[0,2,4,7,9],lp:3600,dens:.42,sw:.12,arp:4,ai:'cel',dr:.4}},
- 2:{sprites:{r1:S2('r1',20,46,10,44,x=>rocket(x,'#ff5a8a')),r2:S2('r2',20,46,10,44,x=>rocket(x,'#5ab4ff')),cl:S2('cl',30,34,15,32,clover),pig:S2('pig',34,28,15,24,pig)},
+ 2:{sprites:{r1:S2('r1',20,46,10,44,x=>rocket(x,'#ff5a8a')),r2:S2('r2',20,46,10,44,x=>rocket(x,'#5ab4ff')),cl:S2('cl',30,34,15,32,clover),pig:S2('pig',46,40,23,35,pig)},
   scn:['cl','r1','pig','r2','cl','pig','r1','cl'],
-  land:null,fx:{n:10,draw(p,t,W,H){let per=3+p.v*2,ph=((t+p.ph)%per)/per;if(ph>.55)return;let cx=W*(.1+((p.x*7.3+Math.floor((t+p.ph)/per)*.37)%1)*.8),cy=H*(.08+p.y*.22),r=8+ph*40,a=1-ph/.55,cs=['#ff8ae0','#ffd84a','#7ae0ff','#a8ff8a'];X.fillStyle=cs[p.i%4];X.globalAlpha*=a;for(let k=0;k<10;k++){let an=k*Math.PI/5;X.beginPath();X.arc(cx+Math.cos(an)*r,cy+Math.sin(an)*r+ph*8,1.8,0,7);X.fill()}}},
+  land:null,fx:{n:12,unclip:1,draw(p,t,W,H){
+ let per=2.6+p.v*1.4,ph=((t+p.ph)%per)/per;
+ // Sicherer Himmelsbereich mit großzügigem Rand -> niemals abgeschnitten!
+ let padX=Math.max(68,W*.14),padTop=Math.max(66,H*.10),maxY=H*.30;
+ let cx=padX+((p.x*7.3+Math.floor((t+p.ph)/per)*.37)%1)*(W-padX*2);
+ let cy=padTop+p.y*Math.max(50,maxY-padTop);
+ let cols=['#ff6aa8','#ffd84a','#6ae4ff','#c882ff','#72ff9e','#ff9a42'];
+ if(ph<.22){
+  let u=ph/.22,e=1-Math.pow(1-u,2);
+  let ry=cy+(1-e)*85;
+  X.save();
+  let tg=X.createLinearGradient(cx,ry,cx,ry+22);
+  tg.addColorStop(0,'#fff9c8');tg.addColorStop(.5,'#ffd84a');tg.addColorStop(1,'rgba(255,160,60,0)');
+  X.strokeStyle=tg;X.lineWidth=2.4;X.lineCap='round';
+  X.beginPath();X.moveTo(cx,ry);X.lineTo(cx,ry+20);X.stroke();
+  X.fillStyle='#fff';X.beginPath();X.arc(cx,ry,2.2,0,7);X.fill();
+  X.restore();
+ }else if(ph<.88){
+  let u=(ph-.22)/.66,ease=1-Math.pow(1-u,2.1);
+  let r=6+ease*48,fade=Math.max(0,1-Math.pow(u,1.45));
+  let mainCol=cols[p.i%cols.length],secCol=cols[(p.i+2)%cols.length];
+  X.save();
+  if(u<.42){
+   let gl=X.createRadialGradient(cx,cy,1,cx,cy,r*.7+8);
+   gl.addColorStop(0,'rgba(255,250,210,'+(fade*.5)+')');
+   gl.addColorStop(1,'rgba(255,250,210,0)');
+   X.fillStyle=gl;X.beginPath();X.arc(cx,cy,r*.7+8,0,7);X.fill();
+  }
+  X.globalAlpha*=fade;
+  X.lineCap='round';
+  for(let k=0;k<14;k++){
+   let a=k*(Math.PI*2/14)+p.v*.5;
+   let ca=Math.cos(a),sa=Math.sin(a),drop=u*u*9;
+   let x0=cx+ca*(r*.35),y0=cy+sa*(r*.35)+drop*.4;
+   let x1=cx+ca*r,y1=cy+sa*r+drop;
+   let col=k%2===0?mainCol:secCol;
+   X.strokeStyle=col;X.lineWidth=2.1*(1-u*.35);
+   X.beginPath();X.moveTo(x0,y0);X.lineTo(x1,y1);X.stroke();
+   X.fillStyle=col;X.beginPath();X.arc(x1,y1,3.1*(1-u*.35),0,7);X.fill();
+   X.fillStyle='#fff';X.beginPath();X.arc(x1,y1,1.6*(1-u*.4),0,7);X.fill();
+  }
+  for(let k=0;k<7;k++){
+   let a=k*(Math.PI*2/7)-p.v*.3,rIn=r*.52;
+   X.fillStyle='#ffe878';
+   X.beginPath();X.arc(cx+Math.cos(a)*rIn,cy+Math.sin(a)*rIn+u*u*4,2.0*(1-u*.35),0,7);X.fill();
+  }
+  X.restore();
+ }
+}},
   mus:{bpm:88,root:65,prog:[[0,[0,4,7,11,14]],[5,[0,4,7,11]],[9,[0,3,7,10]],[7,[0,5,7,10]]],lead:'pluck',scale:[0,2,4,7,9],lp:3200,dens:.55,sw:.2,arp:2,ai:'bell',dr:.8}},
- 3:{sprites:{e1:S2('e1',22,28,11,26,x=>egg(x,'#ff9ad0','#fff',1)),e2:S2('e2',22,28,11,26,x=>egg(x,'#8ad0ff','#ffe14a',0)),e3:S2('e3',22,28,11,26,x=>egg(x,'#c8f08a','#ff8ab0',1)),ch:S2('ch',26,26,13,24,chick),tA:reuse(0,'tulA'),tB:reuse(0,'tulB')},
+ 3:{sprites:{e1:S2('e1',22,28,11,26,x=>egg(x,'#ff9ad0','#fff',1)),e2:S2('e2',22,28,11,26,x=>egg(x,'#8ad0ff','#ffe14a',0)),e3:S2('e3',22,28,11,26,x=>egg(x,'#c8f08a','#ff8ab0',1)),ch:S2('ch',34,34,17,29,chick),tA:reuse(0,'tulA'),tB:reuse(0,'tulB')},
   scn:['e1','tA','ch','e2','tB','e3','ch','e1','tA'],
   land(x,W,H,y0){[['#c8ecbc',.2,.35],['#b6e4ac',.75,.4],['#d6f4cc',.5,.3]].forEach(([c,f,r])=>{x.fillStyle=c;x.beginPath();x.ellipse(W*f,y0+H*.13,W*r,H*.12,0,0,7);x.fill()})},
   fx:{n:5,draw(p,t,W,H){let x=p.x*W+Math.sin(t*.8+p.ph)*30,y=H*(.15+p.y*.5)+Math.cos(t*1.1+p.ph)*20,f=Math.abs(Math.sin(t*9+p.ph));X.fillStyle=['#ffb0d8','#ffe14a','#b0d8ff'][p.i%3];X.beginPath();X.ellipse(x-3*f,y,3*f+.5,4,0,0,7);X.ellipse(x+3*f,y,3*f+.5,4,0,0,7);X.fill()}},
@@ -3574,7 +3716,7 @@ const NEW={
   mus:{bpm:70,root:60,prog:[[0,[0,4,7,11,14]],[9,[0,3,7,10]],[5,[0,4,7,11]],[7,[0,5,7,10]]],lead:'ep',scale:[0,2,4,7,9],lp:2300,dens:.4,sw:.2,dr:.55}}
 };
 const ib=()=>C9.v29.iboxes();
-for(const k in NEW){let N=NEW[k],i=BASE+ +k,d=N.fx.draw;N.fx.draw=function(p,t,W,H){let sv=X.globalAlpha;X.save();X.beginPath();X.rect(0,0,W,H);ib().forEach(b=>X.rect(b.r,b.t,b.l-b.r,b.b-b.t));X.clip('evenodd');X.globalAlpha=sv*.6;try{d(p,t,W,H)}catch(e){}X.restore()};
+for(const k in NEW){let N=NEW[k],i=BASE+ +k,d=N.fx.draw,un=N.fx.unclip;N.fx.draw=function(p,t,W,H){let sv=X.globalAlpha;X.save();if(!un){X.beginPath();X.rect(0,0,W,H);ib().forEach(b=>X.rect(b.r,b.t,b.l-b.r,b.b-b.t));X.clip('evenodd');X.globalAlpha=sv*.6}else{X.globalAlpha=sv*.92}try{d(p,t,W,H)}catch(e){}X.restore()};
  TH[i]={sprites:N.sprites,fx:N.fx,rim:[],sky:null};if(X30){X30.SCN[i]=N.scn;if(N.land)X30.LAND[i]=N.land}SND._T['h'+i]=N.mus}
 // ---- Saison-Logik ----
 const H=S.home;if(H.lastReg==null||H.lastReg>=BASE)H.lastReg=(H.theme|0)<BASE?(H.theme|0):0;
@@ -7624,19 +7766,12 @@ function wsize(){let W=innerWidth,H=innerHeight,D2=Math.min(3,devicePixelRatio||
  x.strokeStyle='rgba(150,165,220,.45)';x.lineWidth=20;x.lineCap='round';x.lineJoin='round';drawSmoothPath();x.stroke();
  x.strokeStyle='rgba(255,255,255,.88)';x.lineWidth=14;drawSmoothPath();x.stroke();
  x.strokeStyle='rgba(228,48,68,.55)';x.lineWidth=3.2;x.setLineDash([5,10]);drawSmoothPath();x.stroke();x.setLineDash([]);
- // Zuckerstangen (Candy Canes) entlang des Weges & bei den Hütten
+ // Zuckerstangen (Candy Canes) dezent verteilt (4 Stück statt 11)
  [
-  [.10,.82,H*.046,1,-.12],
-  [.38,.80,H*.042,-1,.10],
-  [.92,.69,H*.045,-1,.14],
-  [.74,.62,H*.040,1,-.08],
-  [.12,.53,H*.045,1,-.14],
-  [.38,.47,H*.040,-1,.08],
-  [.92,.38,H*.045,-1,.12],
-  [.68,.32,H*.040,1,-.10],
-  [.10,.23,H*.044,1,-.12],
-  [.38,.17,H*.042,-1,.10],
-  [.72,.15,H*.044,-1,.12]
+  [.10,.82,H*.045,1,-.10],
+  [.91,.68,H*.044,-1,.12],
+  [.11,.52,H*.044,1,-.12],
+  [.90,.36,H*.043,-1,.10]
  ].forEach(([ax,ay,ch,dir,tilt])=>drawCandyCane(x,W*ax,H*ay,ch,dir,tilt));
  // Bunte Geschenkpäckchen unter den Weihnachtsbäumen
  [
@@ -8029,5 +8164,1238 @@ window.C9V532={
 };
 })();
 </script>
-<!-- cloud9 v53.2 -->
+<script>
+/* v54:
+   1. Weihnachtswelt (#v53w): weniger Zuckerstangen (4 dezent verteilte statt 11).
+   2. Silvester (Neujahr): Feuerwerk auf der Insel ohne Abschneiden + hübsches Glücksschweinchen mit 2 Augen & 2 Ohren.
+   3. Osterwelt:
+      - Neues, super niedliches Oster-Küken (2 Augen, Feder-Schopf, Flügelchen, rote Bäckchen).
+      - Eigene Osterwelt Extra-Welt (#v54o) wie bei Weihnachten (#v53w) mit 6 Frühlings-Leveln.
+      - 3 erspielbare & interaktive Oster-Preise auf der Insel:
+        1) Buntes Deko-Ei im Blumennest (wackelt & glitzert beim Antippen)
+        2) Kleines Küken (flattert beim Antippen piepsend über die Insel davon!)
+        3) Hoppel-Osterhase (hoppelt über die Insel & hüpft beim Antippen hoch in die Luft!)
+*/
+(function(){
+const S=C9.S,V43=C9.v43,V40=C9.v40;if(!S||!V43||!V40)return;
+const DAY=(location.search.match(/[?&]date=(\d{4}-\d\d-\d\d)/)||[])[1]||today;
+const MD=+DAY.slice(5,7)*100+ +DAY.slice(8,10);
+const INSEAS=MD>=315&&MD<=430;
+let OPRE=true;try{let v=localStorage.getItem('c9_v54_pre');if(v!==null)OPRE=v==='1'}catch(_){}
+if(/[?&]ostern=0/.test(location.search))OPRE=false;
+if(/[?&]ostern(=1|&|$)/.test(location.search))OPRE=true;
+const OPEN=INSEAS||OPRE,PREV=!INSEAS&&OPRE;
+
+const PRIZES=[
+ {id:'ei',n:'Buntes Deko-Ei',e:'🥚',lv:[0,1],desc:'Ein handbemaltes Pracht-Ei im Frühlingsnest – tipp es auf der Insel an!'},
+ {id:'ku',n:'Kleines Oster-Küken',e:'🐣',lv:[2,3],desc:'Ein flauschiges kleines Küken – wenn du es antippst, flattert es vergnügt davon!'},
+ {id:'ha',n:'Hoppel-Osterhase',e:'🐰',lv:[4,5],desc:'Hoppelt fröhlich über deine Insel – wenn du ihn antippst, hüpft er hoch in die Luft!'}
+];
+
+const LV=[
+ {f:'huepf',n:'Tulpen-Wiese',pIdx:0,d:'Hüpf über die Frühlingswiese und sammle bunte Ostereier für das Deko-Ei!',how:'Tippen = Hüpfen',pl:'🐰',tw:{sc:'meadow',mech:'mole',it:'🥚'},fact:'Ostereier wurden früher mit Zwiebelschalen, Spinat und Rote Bete bunt gefärbt.'},
+ {f:'fang',n:'Blüten-Regen',pIdx:0,d:'Fang die bunten Frühlingsblüten mit dem Osterkorb – damit schmücken wir das große Deko-Ei!',how:'Ziehen = Korb bewegen',pl:'🐞',tw:{mech:'clover'},fact:'Krokusse und Tulpen gehören zu den ersten Blumen, die im Frühling aus Zwiebeln wachsen.'},
+ {f:'takt',n:'Küken-Piepsen',pIdx:1,d:'Klopfe im Takt an die Eierschale – gleich schlüpft das kleine Oster-Küken!',how:'Tippe im Takt',pl:'🐦',tw:{mech:'sides',tim:'bell',bgx:'meadow'},fact:'Küken piepsen schon im Ei, kurz bevor sie schlüpfen – so antwortet ihnen die Henne!'},
+ {f:'flug',n:'Erster Flatterflug',pIdx:1,d:'Hilf dem kleinen Küken bei seinen ersten Flatter-Hüpfern über den Frühlingsgarten!',how:'Tippen = Flattern',pl:'🦋',tw:{ob:'flower',it:'🌼',mech:'pollen',soft:1,sky:['#9be2ff','#fff9dc'],far:'#b4e6a0',mid:'#7ecf72',sun:1},fact:'Junge Küken können schon am ersten Tag laufen und nach kleinen Körnern picken.'},
+ {f:'buddel',n:'Osternest-Suche',pIdx:2,d:'Stups die Kleeblätter beiseite und finde die versteckten Ostereier im hohen Gras!',how:'Wischen = Suchen',pl:'🦔',tw:{sc:'leaf',mech:'cover'},fact:'Feldhasen bauen keine Höhlen unter der Erde, sondern flache Mulden im Gras – die nennt man Sasse.'},
+ {f:'huepf',n:'Großer Hasen-Sprung',pIdx:2,d:'Hüpf mit dem Osterhasen im hohen Bogen über Bäche und Blumenbeete!',how:'Tippen = Hoch hüpfen',pl:'🐰',tw:{sc:'meadow',mech:'mole',it:'🥕'},fact:'Feldhasen können aus dem Stand fast zwei Meter hoch und drei Meter weit springen!'}
+];
+
+function SV(){
+ S.v54=S.v54||{};
+ let v=S.v54;
+ if(!Array.isArray(v.p))v.p=['ei','ku','ha'];
+ if(!v.st||typeof v.st!=='object')v.st={0:3,1:3,2:3,3:3,4:3,5:3};
+ return v;
+}
+
+// ---- Frühlingshafte Musik für die Osterwelt ----
+(function(){
+ const T=SND._T;if(!T)return;
+ const MJ=[0,4,7,12],M6=[0,4,7,9],D7=[0,4,7,10];
+ const R=null,mel=(bars)=>{let a=[];bars.forEach(b=>{let r=new Array(16).fill(R);for(const k in b)r[k]=b[k];a.push(...r)});return a};
+ const sp0=[{0:0,4:2,8:4,12:7},{0:9,4:7,8:4,12:2},{0:4,4:5,8:7,12:9},{0:7,8:4},{0:5,4:4,8:2,12:4},{0:0,4:2,8:4,12:7},{0:9,4:7,8:5,12:2},{0:0,8:0}];
+ T.ost0={bpm:104,root:65,prog:[[0,MJ],[5,MJ],[7,D7],[0,M6],[0,MJ],[5,MJ],[7,D7],[0,MJ]],lead:'flute',scale:[0,2,4,5,7,9],lp:3200,dens:.45,sw:.1,dr:.38,arp:4,ai:'pluck',mel:mel(sp0)};
+ T.ost1={bpm:122,root:65,prog:[[0,MJ],[0,M6],[5,MJ],[7,D7],[0,MJ],[5,MJ],[2,D7],[7,D7]],lead:'mar',scale:[0,2,4,5,7,9],lp:3600,dens:.55,sw:.12,dr:.75,arp:2,ai:'bell',mel:mel(sp0)};
+})();
+
+// ---- Synthetische Soundeffekte für Küken, Hase & Deko-Ei ----
+function sfxChick(){
+ try{
+  if(SND&&SND.ensure)SND.ensure();
+  let c=SND&&SND.ctx;if(!c||SND.offline)return;
+  let st=SND.ST||{},lv=(st.mute?0:(st.e==null?.7:st.e));if(!lv)return;
+  let t0=c.currentTime+.01;
+  [0,.14,.30].forEach((dt,i)=>{
+   let o=c.createOscillator(),g=c.createGain();
+   o.type='sine';
+   let f0=i===1?1680:1480,f1=i===1?2450:2220;
+   o.frequency.setValueAtTime(f0,t0+dt);
+   o.frequency.exponentialRampToValueAtTime(f1,t0+dt+.065);
+   o.frequency.exponentialRampToValueAtTime(f0*.92,t0+dt+.11);
+   g.gain.setValueAtTime(.0001,t0+dt);
+   g.gain.linearRampToValueAtTime(.16*lv,t0+dt+.018);
+   g.gain.exponentialRampToValueAtTime(.0005,t0+dt+.115);
+   o.connect(g).connect(c.destination);
+   o.start(t0+dt);o.stop(t0+dt+.125);
+  });
+ }catch(_){}
+}
+
+function sfxBunnyJump(){
+ try{
+  if(SND&&SND.ensure)SND.ensure();
+  let c=SND&&SND.ctx;if(!c||SND.offline)return;
+  let st=SND.ST||{},lv=(st.mute?0:(st.e==null?.7:st.e));if(!lv)return;
+  let t0=c.currentTime+.01;
+  let o=c.createOscillator(),g=c.createGain();
+  o.type='triangle';
+  o.frequency.setValueAtTime(260,t0);
+  o.frequency.exponentialRampToValueAtTime(780,t0+.18);
+  o.frequency.exponentialRampToValueAtTime(520,t0+.32);
+  g.gain.setValueAtTime(.0001,t0);
+  g.gain.linearRampToValueAtTime(.22*lv,t0+.025);
+  g.gain.exponentialRampToValueAtTime(.0005,t0+.34);
+  o.connect(g).connect(c.destination);
+  o.start(t0);o.stop(t0+.36);
+  [523.25,659.25,783.99,1046.5].forEach((f,i)=>{
+   let o2=c.createOscillator(),g2=c.createGain(),ti=t0+.06+i*.055;
+   o2.type='sine';o2.frequency.value=f;
+   g2.gain.setValueAtTime(.0001,ti);
+   g2.gain.linearRampToValueAtTime(.10*lv,ti+.012);
+   g2.gain.exponentialRampToValueAtTime(.0005,ti+.22);
+   o2.connect(g2).connect(c.destination);
+   o2.start(ti);o2.stop(ti+.24);
+  });
+ }catch(_){}
+}
+
+function sfxEggChime(){
+ try{
+  if(SND&&SND.ensure)SND.ensure();
+  let c=SND&&SND.ctx;if(!c||SND.offline)return;
+  let st=SND.ST||{},lv=(st.mute?0:(st.e==null?.7:st.e));if(!lv)return;
+  let t0=c.currentTime+.01;
+  [587.33,739.99,880,1174.66].forEach((f,i)=>{
+   let o=c.createOscillator(),g=c.createGain(),ti=t0+i*.06;
+   o.type='sine';o.frequency.value=f;
+   g.gain.setValueAtTime(.0001,ti);
+   g.gain.linearRampToValueAtTime(.13*lv,ti+.012);
+   g.gain.exponentialRampToValueAtTime(.0005,ti+.28);
+   o.connect(g).connect(c.destination);
+   o.start(ti);o.stop(ti+.30);
+  });
+ }catch(_){}
+}
+
+// ============================================================================
+// ZEICHENFUNKTIONEN FÜR DIE 3 OSTER-PREISE (Deko-Ei, Küken, Hoppel-Hase)
+// ============================================================================
+
+// 1. Buntes Deko-Ei im Blumennest
+function drawDekoEgg(x,cx,cy,sc,t,wobble){
+ x.save();
+ x.translate(cx,cy);
+ x.scale(sc,sc);
+ // Bodenschatten
+ x.fillStyle='rgba(55,95,45,.24)';
+ x.beginPath();x.ellipse(0,5,24,7.5,0,0,7);x.fill();
+ // Hinteres Grasbüschel
+ x.strokeStyle='#3d9e50';x.lineWidth=2.4;x.lineCap='round';
+ [[-19,2,-25,-12],[-14,3,-18,-15],[14,3,19,-14],[19,2,25,-11]].forEach(([x0,y0,x1,y1])=>{
+  x.beginPath();x.moveTo(x0,y0);x.quadraticCurveTo(x0+(x1-x0)*.6,y0-9,x1,y1);x.stroke();
+ });
+ // Geflochtenes Osternest (hinten)
+ x.fillStyle='#c98a42';
+ x.beginPath();x.ellipse(0,1,22,8.5,0,0,7);x.fill();
+ x.strokeStyle='#7a4818';x.lineWidth=1.8;x.stroke();
+ // Wackel-Animation für das Ei selbst
+ x.save();
+ let ang=wobble>0?Math.sin(t*22)*wobble*.24:Math.sin(t*2.1)*.03;
+ x.translate(0,-2);
+ x.rotate(ang);
+ // Ei-Grundform (oben schmaler, unten bauchig)
+ const eggPath=()=>{
+  x.beginPath();
+  x.moveTo(0,-38);
+  x.bezierCurveTo(16,-38,20,-17,18,-4);
+  x.bezierCurveTo(16,8,9,13,0,13);
+  x.bezierCurveTo(-9,13,-16,8,-18,-4);
+  x.bezierCurveTo(-20,-17,-16,-38,0,-38);
+  x.closePath();
+ };
+ let eg=x.createLinearGradient(-14,-36,14,12);
+ eg.addColorStop(0,'#fff6b8');
+ eg.addColorStop(.38,'#ff9ec8');
+ eg.addColorStop(.72,'#8ee6ff');
+ eg.addColorStop(1,'#b89cff');
+ x.fillStyle=eg;
+ eggPath();x.fill();
+
+ // Geclippte Musterbänder auf dem Ei
+ x.save();
+ eggPath();x.clip();
+ // Gold-gelbes Oberband
+ x.fillStyle='#ffe066';
+ x.fillRect(-22,-32,44,8);
+ // Wellenband Mitte
+ x.fillStyle='#fff';
+ x.beginPath();
+ x.moveTo(-22,-16);
+ for(let i=-22;i<=22;i+=4){
+  x.lineTo(i,-16+Math.sin(i*.45)*2.8);
+ }
+ for(let i=22;i>=-22;i-=4){
+  x.lineTo(i,-9+Math.sin(i*.45)*2.8);
+ }
+ x.closePath();x.fill();
+ // Türkis-grünes Zickzackband unten
+ x.strokeStyle='#5ce0a8';x.lineWidth=3.2;x.lineJoin='round';
+ x.beginPath();
+ for(let i=-20,k=0;i<=20;i+=5,k++){
+  let py=-2+(k%2?-3.2:3.2);
+  if(i===-20)x.moveTo(i,py);else x.lineTo(i,py);
+ }
+ x.stroke();
+ // Kleine bunte Punkte & Herz/Blüte in der Mitte
+ ['#ff5e9c','#ffd23f','#5ec8ff','#7ae068','#ff5e9c'].forEach((c,i)=>{
+  let px=-12+i*6;
+  x.fillStyle=c;
+  x.beginPath();x.arc(px,-23,2.1,0,7);x.fill();
+ });
+ // Kleine Blüte mitten auf dem Ei
+ let fx=0,fy=-12.5;
+ for(let i=0;i<5;i++){
+  let a=i*Math.PI*2/5;
+  x.fillStyle='#ff6fa8';
+  x.beginPath();x.arc(fx+Math.cos(a)*3.2,fy+Math.sin(a)*3.2,2.1,0,7);x.fill();
+ }
+ x.fillStyle='#ffe055';x.beginPath();x.arc(fx,fy,1.8,0,7);x.fill();
+ // Sanfter Glanzstreifen links oben
+ x.fillStyle='rgba(255,255,255,.52)';
+ x.beginPath();x.ellipse(-7,-24,3.4,8.5,.28,0,7);x.fill();
+ x.restore();
+
+ // Warmer Konturrand ums Ei
+ x.strokeStyle='#6a3068';x.lineWidth=2.1;
+ eggPath();x.stroke();
+
+ // Goldene Krone / Schleifchen oben auf dem Deko-Ei
+ x.fillStyle='#ff5e9c';
+ x.beginPath();x.ellipse(-5,-38,5,2.8,-.35,0,7);x.fill();x.stroke();
+ x.beginPath();x.ellipse(5,-38,5,2.8,.35,0,7);x.fill();x.stroke();
+ x.fillStyle='#ffd84a';
+ x.beginPath();x.arc(0,-38,2.6,0,7);x.fill();x.stroke();
+ x.restore(); // Ende Ei-Wackeln
+
+ // Vorderer Nestkranz mit Stroh und Frühlingsblumen
+ x.fillStyle='#e4a856';
+ x.beginPath();
+ x.moveTo(-21,0);
+ x.quadraticCurveTo(0,11,21,0);
+ x.quadraticCurveTo(0,16,-21,0);
+ x.fill();
+ x.strokeStyle='#8a5220';x.lineWidth=1.6;x.stroke();
+ // Blüten am Nestrand
+ [[-13,4,'#ff85b8'],[-4,7,'#fff'],[6,6,'#ffe055'],[14,3,'#b892ff']].forEach(([bx,by,col])=>{
+  for(let k=0;k<5;k++){
+   let a=k*1.256;
+   x.fillStyle=col;
+   x.beginPath();x.arc(bx+Math.cos(a)*2.3,by+Math.sin(a)*2.3,1.7,0,7);x.fill();
+  }
+  x.fillStyle='#ff9a2e';x.beginPath();x.arc(bx,by,1.3,0,7);x.fill();
+ });
+ x.restore();
+}
+
+// 2. Süßes kleines Oster-Küken (mit 2 funkelnden Augen, Feder-Schopf & flatternden Flügeln!)
+function drawCuteChick(x,cx,cy,sc,t,fluttering,flapPhase,face){
+ x.save();
+ x.translate(cx,cy);
+ x.scale(sc*(face||1),sc);
+ let flap=fluttering?Math.sin(flapPhase*38)*1.15:Math.sin(t*4.5)*.14;
+ let bob=fluttering?0:Math.abs(Math.sin(t*5.5))*1.8;
+
+ // Weicher Schatten am Boden (wird kleiner, wenn es hochflattert)
+ x.fillStyle='rgba(55,90,45,.22)';
+ x.beginPath();x.ellipse(0,2.5,12,4,0,0,7);x.fill();
+
+ x.translate(0,-bob);
+
+ // Beinchen & Füßchen (orange, beim Flattern lustig angewinkelt)
+ x.strokeStyle='#f07818';x.lineWidth=2.3;x.lineCap='round';x.lineJoin='round';
+ let legY=fluttering?-2:0;
+ [[-4.5,-1],[4.5,1]].forEach(([lx,dir])=>{
+  x.beginPath();
+  x.moveTo(lx,-6);
+  x.lineTo(lx+dir*(fluttering?2:0),legY);
+  x.moveTo(lx-2.6,legY+1);x.lineTo(lx+dir*(fluttering?2:0),legY);x.lineTo(lx+2.6,legY+1);
+  x.stroke();
+ });
+
+ // Kleiner Flügel links & rechts (stehen seitlich ab und schlagen beim Flattern kräftig!)
+ const wing=(side)=>{
+  x.save();
+  x.translate(side*10.5,-14.5);
+  x.rotate(side*(-.35-flap*.85));
+  x.fillStyle='#ffd22b';
+  x.strokeStyle='#7a4414';x.lineWidth=1.7;
+  x.beginPath();
+  x.ellipse(side*3.2,0,6.2,3.8,side*.25,0,7);
+  x.fill();x.stroke();
+  x.restore();
+ };
+ wing(-1);wing(1);
+
+ // Pummeliger, flauschiger Küken-Körper + Kopf (weiche Acht-/Birnenform)
+ let cg=x.createRadialGradient(-3,-20,2,0,-15,16);
+ cg.addColorStop(0,'#fff588');
+ cg.addColorStop(.55,'#ffe036');
+ cg.addColorStop(1,'#f6b818');
+ x.fillStyle=cg;
+ x.strokeStyle='#7a4414';x.lineWidth=1.9;
+ x.beginPath();
+ x.ellipse(0,-12.5,12.2,10.5,0,0,7);
+ x.fill();x.stroke();
+
+ // Köpfchen leicht überlappend für extra Kawaii-Proportion
+ x.fillStyle=cg;
+ x.beginPath();
+ x.arc(0,-22.5,9.8,0,7);
+ x.fill();x.stroke();
+ // Naht zwischen Kopf und Bauch mit Gelb überdecken
+ x.fillStyle='#ffe23b';
+ x.beginPath();x.ellipse(0,-16.5,8.6,4.5,0,0,7);x.fill();
+
+ // 3 flauschige Schopf-Federchen oben auf dem Kopf
+ x.fillStyle='#ffd82e';x.strokeStyle='#7a4414';x.lineWidth=1.6;
+ [[-.38,-2.2,6.2],[0,-2.8,7.6],[.38,-2.2,6.2]].forEach(([rot,dx,h])=>{
+  x.save();
+  x.translate(dx*.6,-31.5);
+  x.rotate(rot+Math.sin(t*6)*0.08);
+  x.beginPath();
+  x.ellipse(0,-h*.45,2.1,h*.55,0,0,7);
+  x.fill();x.stroke();
+  x.restore();
+ });
+
+ // Rosa Pausbäckchen links & rechts
+ x.fillStyle='rgba(255,120,155,.65)';
+ x.beginPath();
+ x.ellipse(-6.3,-20.5,2.6,1.6,0,0,7);
+ x.ellipse(6.3,-20.5,2.6,1.6,0,0,7);
+ x.fill();
+
+ // ZWEI große, glänzende Knopfaugen
+ [[-4.1,-23.2],[4.1,-23.2]].forEach(([ex,ey])=>{
+  x.fillStyle='#2b1d38';
+  x.beginPath();x.ellipse(ex,ey,2.2,2.5,0,0,7);x.fill();
+  x.fillStyle='#fff';
+  x.beginPath();x.arc(ex-.65,ey-.85,.9,0,7);x.fill();
+  x.beginPath();x.arc(ex+.7,ey+.75,.45,0,7);x.fill();
+ });
+
+ // Niedlicher kleiner orangefarbener Schnabel (offen piepsend beim Flattern!)
+ x.fillStyle='#ff8524';x.strokeStyle='#7a3810';x.lineWidth=1.3;
+ x.beginPath();
+ x.moveTo(-2.5,-21.2);
+ x.lineTo(0,-23.0);
+ x.lineTo(2.5,-21.2);
+ x.lineTo(0,fluttering?-18.2:-19.2);
+ x.closePath();
+ x.fill();x.stroke();
+ if(fluttering){
+  x.fillStyle='#e04858';
+  x.beginPath();x.arc(0,-20.2,1.1,0,7);x.fill();
+ }
+
+ // Kleines helles Bauchfell-Herzchen
+ x.fillStyle='rgba(255,252,210,.55)';
+ x.beginPath();x.ellipse(0,-11.5,6.5,5.2,0,0,7);x.fill();
+ x.restore();
+}
+
+// 3. Hoppel-Osterhase (mit 2 langen Ohren, 2 großen Augen, Stupsnase, Puschelschwänzchen & Sprung-Pose!)
+function drawEasterBunny(x,cx,cy,sc,t,hopY,jumping,face){
+ x.save();
+ x.translate(cx,cy);
+ // Bodenschatten auf der Wiese (bleibt am Boden, skaliert mit Höhe)
+ let shScale=Math.max(.38,1-hopY/140);
+ x.fillStyle=`rgba(50,85,45,${(.25*shScale).toFixed(2)})`;
+ x.beginPath();x.ellipse(0,3,17*sc*shScale,5.5*sc*shScale,0,0,7);x.fill();
+
+ // Jetzt um Sprunghöhe hopY nach oben versetzen!
+ x.translate(0,-hopY);
+ x.scale(sc*(face||1),sc);
+
+ let earSwing=jumping?-.22:Math.sin(t*8)*.10;
+ let stretchY=jumping?1.08:1;
+ x.scale(2-stretchY,stretchY);
+
+ // Flauschiges weißes Puschelschwänzchen hinten
+ x.fillStyle='#fff9f5';x.strokeStyle='#6e4e68';x.lineWidth=1.8;
+ x.beginPath();x.arc(-13,-12,5.2,0,7);x.fill();x.stroke();
+
+ // Hinterpfoten (beim hohen Sprung fröhlich nach unten gestreckt!)
+ x.fillStyle='#f7efe8';x.strokeStyle='#6e4e68';x.lineWidth=1.8;
+ let footAng=jumping?.45:.08;
+ x.save();x.translate(-6,-4);x.rotate(footAng);
+ x.beginPath();x.ellipse(0,0,6.5,3.3,0,0,7);x.fill();x.stroke();
+ x.restore();
+ x.save();x.translate(6,-4);x.rotate(-footAng*.7);
+ x.beginPath();x.ellipse(0,0,6.2,3.2,0,0,7);x.fill();x.stroke();
+ x.restore();
+
+ // Runder, weicher Hasenkörper
+ let bg=x.createRadialGradient(-2,-17,2,0,-14,16);
+ bg.addColorStop(0,'#fffdf9');
+ bg.addColorStop(.65,'#f5ebe2');
+ bg.addColorStop(1,'#e2d2c6');
+ x.fillStyle=bg;x.strokeStyle='#6e4e68';x.lineWidth=1.9;
+ x.beginPath();x.ellipse(0,-13.5,12.8,11.2,0,0,7);x.fill();x.stroke();
+
+ // Rosafarbener Bauchfleck
+ x.fillStyle='rgba(255,215,228,.65)';
+ x.beginPath();x.ellipse(1,-12.5,7.2,6.8,0,0,7);x.fill();
+
+ // Vorderpfötchen (beim Sprung jubelnd nach oben!)
+ [[-7,jumping?-21:-13,-.35],[7,jumping?-21:-13,.35]].forEach(([px,py,rot])=>{
+  x.save();x.translate(px,py);x.rotate(rot);
+  x.fillStyle='#fffaf6';x.strokeStyle='#6e4e68';x.lineWidth=1.6;
+  x.beginPath();x.ellipse(0,0,3.2,4.6,0,0,7);x.fill();x.stroke();
+  x.restore();
+ });
+
+ // Zwei lange Osterhasen-Ohren oben am Kopf (links & rechts)
+ [[-5.2,-.20+earSwing],[5.2,.20-earSwing]].forEach(([ex,erot])=>{
+  x.save();
+  x.translate(ex,-33);
+  x.rotate(erot);
+  x.fillStyle='#f8efe8';x.strokeStyle='#6e4e68';x.lineWidth=1.85;
+  x.beginPath();x.ellipse(0,-10.5,4.3,12.2,0,0,7);x.fill();x.stroke();
+  x.fillStyle='#ff9ebb';
+  x.beginPath();x.ellipse(0,-10,2.3,8.5,0,0,7);x.fill();
+  x.restore();
+ });
+
+ // Hasenkopf
+ x.fillStyle=bg;x.strokeStyle='#6e4e68';x.lineWidth=1.9;
+ x.beginPath();x.ellipse(0,-26,11.2,9.8,0,0,7);x.fill();x.stroke();
+
+ // Rosa Bäckchen
+ x.fillStyle='rgba(255,135,175,.58)';
+ x.beginPath();
+ x.ellipse(-7,-24,2.8,1.7,0,0,7);
+ x.ellipse(7,-24,2.8,1.7,0,0,7);
+ x.fill();
+
+ // ZWEI große, leuchtende Hasenaugen mit Glanzpunkten
+ [[-4.3,-27.2],[4.3,-27.2]].forEach(([ex,ey])=>{
+  x.fillStyle='#2c1d3b';
+  x.beginPath();x.ellipse(ex,ey,2.3,2.7,0,0,7);x.fill();
+  x.fillStyle='#fff';
+  x.beginPath();x.arc(ex-.7,ey-.95,.95,0,7);x.fill();
+  x.beginPath();x.arc(ex+.65,ey+.8,.45,0,7);x.fill();
+ });
+
+ // Niedliches rosa Schnupper-Näschen + Hasenlächeln + Schnurrhaare
+ x.fillStyle='#ff6b9d';
+ x.beginPath();
+ x.moveTo(-2.2,-24.6);x.lineTo(2.2,-24.6);x.lineTo(0,-22.4);x.closePath();
+ x.fill();
+ x.strokeStyle='#6e4e68';x.lineWidth=1.4;x.lineCap='round';
+ x.beginPath();
+ x.moveTo(0,-22.4);x.quadraticCurveTo(-2.2,-20.2,-3.8,-21.4);
+ x.moveTo(0,-22.4);x.quadraticCurveTo(2.2,-20.2,3.8,-21.4);
+ x.stroke();
+ // Kleines Halstuch / Frühlingsblume am Ohr
+ x.fillStyle='#ffe055';x.strokeStyle='#7a4818';x.lineWidth=1.1;
+ x.beginPath();x.arc(6.5,-33.5,2.4,0,7);x.fill();x.stroke();
+ x.restore();
+}
+
+// ============================================================================
+// INTERAKTIVE INSEL-LOGIK FÜR DEKO-EI, KÜKEN & HOPPEL-HASE
+// ============================================================================
+
+const OST_ST={
+ egg:{wx:-72,wy:48,sx:0,sy:0,wobble:0,taps:0},
+ chick:{wx:68,wy:54,sx:0,sy:0,tx:68,ty:54,fx0:68,fy0:54,fluttering:false,ft:0,dur:1.55,flapPhase:0,face:1,taps:0,peckT:0},
+ bunny:{wx:0,wy:64,sx:0,sy:0,wpIdx:0,hopPh:0,hopZ:0,jumping:false,jt:0,jdur:1.10,jumpZ:0,face:1,taps:0},
+ sparks:[],
+ bubbles:[],
+ lastT:performance.now()
+};
+
+// Wegpunkte für den über die Insel hoppelnden Osterhasen
+const BUNNY_WPS=[
+ [-110,42],[-45,76],[35,72],[112,38],[85,-22],[15,-48],[-75,-26]
+];
+
+function isEasterActiveOnIsland(){
+ let v=SV();
+ let ostTheme=(S.home&&S.home.theme===(V40.BASE+3));
+ return ostTheme||(v.p&&v.p.length>0)||!!window.C9_MG_UNLIMITED;
+}
+function hasPrize(id){
+ let v=SV();
+ if(window.C9_MG_UNLIMITED)return true;
+ if(S.home&&S.home.theme===(V40.BASE+3))return true;
+ return !!(v.p&&v.p.includes(id));
+}
+
+function addSparkles(wx,wy,cols,n){
+ for(let i=0;i<n;i++){
+  let a=Math.random()*Math.PI*2,sp=28+Math.random()*65;
+  OST_ST.sparks.push({
+   wx,wy:wy-14,
+   vx:Math.cos(a)*sp,
+   vy:Math.sin(a)*sp-35,
+   r:2.4+Math.random()*2.6,
+   c:cols[i%cols.length],
+   l:.85+Math.random()*.35
+  });
+ }
+}
+function addBubble(wx,wy,txt){
+ OST_ST.bubbles=OST_ST.bubbles.filter(b=>b.txt!==txt);
+ OST_ST.bubbles.push({wx,wy,txt,l:1.45});
+}
+
+function tapEgg(){
+ let E=OST_ST.egg;
+ E.wobble=1.35;
+ E.taps++;
+ sfxEggChime();
+ addSparkles(E.wx,E.wy,['#ff7eb8','#ffe055','#6ce6ff','#b892ff','#7ae868'],14);
+ addBubble(E.wx,E.wy-42,'Frohe Ostern! 🥚🌸');
+ return true;
+}
+
+function tapChick(){
+ let C=OST_ST.chick;
+ C.fluttering=true;
+ C.ft=0;
+ C.flutterZ=36;
+ C.dur=1.55;
+ C.fx0=C.wx;
+ C.fy0=C.wy;
+ // Neuen Zielpunkt auf einer anderen Seite der Insel wählen, damit es weit sichtbar wegflattert!
+ let spots=[[-95,58],[88,52],[-82,-18],[82,-16],[10,78],[-25,22]];
+ let best=spots[0],bestD=-1;
+ spots.forEach(([x,y])=>{
+  let d=Math.hypot(x-C.wx,y-C.wy)+(Math.random()*30);
+  if(d>bestD){bestD=d;best=[x,y]}
+ });
+ C.tx=best[0];
+ C.ty=best[1];
+ C.face=C.tx>=C.wx?1:-1;
+ C.taps++;
+ sfxChick();
+ addSparkles(C.wx,C.wy,['#ffe042','#fff6a8','#ff9a3c','#ff85b8'],16);
+ addBubble(C.wx,C.wy-36,'Piep, piep! 🐣✨');
+ return true;
+}
+
+function tapBunny(){
+ let B=OST_ST.bunny;
+ B.jumping=true;
+ B.jt=0;
+ B.jdur=1.12;
+ B.jumpZ=96; // Sofort sichtbarer Startimpuls + hohe Parabel bis 112px!
+ B.taps++;
+ sfxBunnyJump();
+ addSparkles(B.wx,B.wy-20,['#ff85b8','#ffe055','#7ae868','#80d8ff','#d298ff'],20);
+ addBubble(B.wx,B.wy-68,'Hüpf! 🐰🌸');
+ return true;
+}
+
+function stepEasterIsland(dt,g){
+ let rx=(g&&g.rx)||210,ry=(g&&g.ry)||122;
+ // 1. Deko-Ei Position (sonniger Platz vorne links auf der Wiese)
+ let E=OST_ST.egg;
+ E.wx=-rx*.36;
+ E.wy=ry*.32;
+ if(E.wobble>0)E.wobble=Math.max(0,E.wobble-dt*1.1);
+
+ // 2. Kleines Küken (flattert weg beim Antippen, sonst gemütliches Picken)
+ let C=OST_ST.chick;
+ if(!C.inited){C.inited=true;C.wx=rx*.32;C.wy=ry*.34;C.tx=C.wx;C.ty=C.wy}
+ if(C.fluttering){
+  C.ft+=dt;
+  C.flapPhase+=dt;
+  let u=Math.min(1,C.ft/C.dur);
+  // Sanfte Ease-Kurve von (fx0,fy0) nach (tx,ty)
+  let e=u<.5?2*u*u:1-Math.pow(-2*u+2,2)/2;
+  C.wx=C.fx0+(C.tx-C.fx0)*e;
+  C.wy=C.fy0+(C.ty-C.fy0)*e;
+  C.flutterZ=Math.sin(u*Math.PI)*56+Math.abs(Math.sin(u*Math.PI*5))*10;
+  if(Math.random()<dt*18){
+   OST_ST.sparks.push({
+    wx:C.wx+(Math.random()-.5)*12,
+    wy:C.wy-C.flutterZ-10,
+    vx:(Math.random()-.5)*22,
+    vy:10+Math.random()*18,
+    r:2.2,c:'#ffe45c',l:.55
+   });
+  }
+  if(u>=1){
+   C.fluttering=false;
+   C.flutterZ=0;
+  }
+ }else{
+  C.flutterZ=0;
+  C.peckT+=dt;
+  // Kleines gemütliches Watscheln rund um seinen Platz
+  C.wx+=Math.sin(C.peckT*1.3)*dt*4;
+  C.wy+=Math.cos(C.peckT*1.1)*dt*2.5;
+ }
+
+ // 3. Hoppel-Osterhase (hoppelt kontinuierlich über die ganze Insel; hüpft hoch beim Antippen!)
+ let B=OST_ST.bunny;
+ let wp=BUNNY_WPS[B.wpIdx%BUNNY_WPS.length];
+ let tx=wp[0]*(rx/210),ty=wp[1]*(ry/122);
+ let dx=tx-B.wx,dy=ty-B.wy,dist=Math.hypot(dx,dy);
+ if(dist<12){
+  B.wpIdx=(B.wpIdx+1)%BUNNY_WPS.length;
+ }else{
+  let spd=B.jumping?24:46;
+  B.wx+=(dx/dist)*spd*dt;
+  B.wy+=(dy/dist)*spd*dt;
+  if(Math.abs(dx)>1.5)B.face=dx>=0?1:-1;
+ }
+ B.hopPh+=dt*6.8;
+ B.hopZ=Math.abs(Math.sin(B.hopPh))*16;
+
+ if(B.jumping){
+  B.jt+=dt;
+  let u=Math.min(1,B.jt/B.jdur);
+  // Hoher Parabelsprung bis 112 Einheiten in die Luft!
+  B.jumpZ=Math.max(24*(1-u),Math.sin(u*Math.PI)*112);
+  if(u>=1){
+   B.jumping=false;
+   B.jumpZ=0;
+  }
+ }else{
+  B.jumpZ=0;
+ }
+
+ // Funken & Sprechblasen aktualisieren
+ OST_ST.sparks.forEach(s=>{
+  s.wx+=s.vx*dt;
+  s.wy+=s.vy*dt;
+  s.vy+=85*dt;
+  s.l-=dt;
+ });
+ OST_ST.sparks=OST_ST.sparks.filter(s=>s.l>0);
+ OST_ST.bubbles.forEach(b=>{
+  b.wy-=dt*14;
+  b.l-=dt;
+ });
+ OST_ST.bubbles=OST_ST.bubbles.filter(b=>b.l>0);
+}
+
+function drawEasterIslandPrizes(g,n){
+ if(!isEasterActiveOnIsland())return;
+ let now=performance.now(),dt=Math.min(.06,Math.max(.005,(now-OST_ST.lastT)/1000));
+ OST_ST.lastT=now;
+ let t=now/1000;
+ stepEasterIsland(dt,g);
+
+ let x=X,z=(typeof HV!=="undefined"&&HV.z)||1;
+ let bob=Math.sin(((n||now)/1000)*1.1)*3;
+ let cx=(typeof hOX==="function"?hOX():HW/2),cy=(typeof hOY==="function"?hOY()+bob*z:HH/2);
+ // Sortiere nach y für natürliche Tiefenstaffelung
+ let items=[];
+ if(hasPrize('ei')){
+  let E=OST_ST.egg;
+  E.sx=cx+E.wx*z;E.sy=cy+E.wy*z;
+  items.push({y:E.wy,draw:()=>{
+   drawDekoEgg(x,E.wx,E.wy,1.02,t,E.wobble);
+  }});
+ }
+ if(hasPrize('ku')){
+  let C=OST_ST.chick;
+  let fy=C.wy-(C.flutterZ||0);
+  C.sx=cx+C.wx*z;C.sy=cy+fy*z;
+  items.push({y:C.wy,draw:()=>{
+   x.save();
+   if(C.flutterZ>0){
+    // Bodenschatten bleibt auf der Wiese
+    x.fillStyle='rgba(50,85,45,.16)';
+    x.beginPath();x.ellipse(C.wx,C.wy+2,10,3.2,0,0,7);x.fill();
+   }
+   drawCuteChick(x,C.wx,fy,1.08,t,C.fluttering,C.flapPhase,C.face);
+   x.restore();
+  }});
+ }
+ if(hasPrize('ha')){
+  let B=OST_ST.bunny;
+  let totalHop=(B.jumping?B.jumpZ:B.hopZ);
+  B.sx=cx+B.wx*z;B.sy=cy+(B.wy-totalHop)*z;
+  items.push({y:B.wy,draw:()=>{
+   drawEasterBunny(x,B.wx,B.wy,1.06,t,totalHop,B.jumping,B.face);
+  }});
+ }
+ items.sort((a,b)=>a.y-b.y);
+ items.forEach(it=>it.draw());
+
+ // Glitzer-Partikel
+ OST_ST.sparks.forEach(s=>{
+  x.save();
+  x.globalAlpha=Math.min(1,s.l*1.4);
+  x.fillStyle=s.c;
+  x.beginPath();x.arc(s.wx,s.wy,s.r,0,7);x.fill();
+  x.restore();
+ });
+
+ // Sprechblasen ("Hüpf! 🐰🌸", "Piep, piep! 🐣✨", "Frohe Ostern! 🥚🌸")
+ OST_ST.bubbles.forEach(b=>{
+  x.save();
+  x.globalAlpha=Math.min(1,b.l*1.5);
+  x.font='900 13px Nunito,system-ui,sans-serif';
+  let tw=x.measureText(b.txt).width+18,bh=24;
+  x.fillStyle='rgba(255,255,255,.95)';
+  x.strokeStyle='#ff85b8';x.lineWidth=2;
+  x.beginPath();
+  x.roundRect?x.roundRect(b.wx-tw/2,b.wy-bh/2,tw,bh,12):x.rect(b.wx-tw/2,b.wy-bh/2,tw,bh);
+  x.fill();x.stroke();
+  x.fillStyle='#6a3068';
+  x.textAlign='center';x.textBaseline='middle';
+  x.fillText(b.txt,b.wx,b.wy+1);
+  x.restore();
+ });
+}
+
+// In homeDraw -> C9VDRAW einhängen, damit es in jedem Frame im Insel-Weltkoordinatensystem gezeichnet wird (nie von C9BASEC eingefroren!)
+const oHD_v54=homeDraw;
+homeDraw=function(n,dt){
+ try{
+  if(HOMEON&&isEasterActiveOnIsland()){
+   let g=typeof hGeo==="function"?hGeo():{rx:210,ry:122,cw:50};
+   (window.C9VDRAW=window.C9VDRAW||[]).push(function(){
+    try{drawEasterIslandPrizes(g,n)}catch(e){}
+   });
+  }
+ }catch(e){}
+ return oHD_v54.apply(this,arguments);
+};
+
+// Pointerdown auf #homeCv abfangen für Antippen von Hase, Küken & Deko-Ei
+(function bindIslandTap(){
+ let cv=$('homeCv');
+ if(!cv)return;
+ cv.addEventListener('pointerdown',function(ev){
+  try{
+   if(!isEasterActiveOnIsland())return;
+   if(OOPEN||(C9.v53&&C9.v53.isOpen&&C9.v53.isOpen()))return;
+   let r=cv.getBoundingClientRect();
+   let px=ev.clientX-r.left,py=ev.clientY-r.top;
+   // Prüfe Hase zuerst, dann Küken, dann Deko-Ei
+   if(hasPrize('ha')){
+    let B=OST_ST.bunny;
+    if(Math.hypot(px-B.sx,py-(B.sy-20))<48){
+     ev.stopImmediatePropagation();ev.preventDefault();
+     tapBunny();return;
+    }
+   }
+   if(hasPrize('ku')){
+    let C=OST_ST.chick;
+    if(Math.hypot(px-C.sx,py-(C.sy-16))<44){
+     ev.stopImmediatePropagation();ev.preventDefault();
+     tapChick();return;
+    }
+   }
+   if(hasPrize('ei')){
+    let E=OST_ST.egg;
+    if(Math.hypot(px-E.sx,py-(E.sy-18))<44){
+     ev.stopImmediatePropagation();ev.preventDefault();
+     tapEgg();return;
+    }
+   }
+  }catch(_){}
+ },true);
+})();
+
+// ============================================================================
+// EIGENE OSTERWELT EXTRA-WELT (#v54o) WIE BEI WEIHNACHTEN (#v53w)
+// ============================================================================
+
+const css=document.createElement('style');
+css.textContent=`
+#v54o{position:fixed;inset:0;z-index:8991;background:#8ce0ff;touch-action:none;user-select:none;-webkit-user-select:none}
+#v54o.hide{display:none}
+#v54o canvas{display:block;width:100%;height:100%}
+#v54o .hd{position:absolute;top:calc(12px + env(safe-area-inset-top));left:12px;right:64px;color:#5a2860;text-shadow:0 2px 0 rgba(255,255,255,.9),0 3px 8px rgba(255,255,255,.8);font-weight:900;font-size:20px;line-height:1.2}
+#v54o .hd small{display:block;font-size:14px;font-weight:800;color:#6a3a78}
+#v54o .pv{display:inline-block;background:#ffe055;color:#6a3a00;border-radius:10px;font-size:12px;padding:1px 7px;margin-left:6px;vertical-align:middle;text-shadow:none;box-shadow:0 2px 0 rgba(120,70,0,.2)}
+#v54o .x{position:absolute;top:calc(10px + env(safe-area-inset-top));right:10px;width:44px!important;height:44px!important;min-width:0!important;padding:0!important;margin:0!important;border-radius:50%!important;display:flex!important;align-items:center!important;justify-content:center!important;line-height:1!important;background:linear-gradient(#9a80f4,#7a5fe0);color:#fff;border:3px solid #fff;font:900 19px/1 Nunito,system-ui,sans-serif;box-shadow:0 3px 0 #5a40b8,0 4px 14px rgba(40,20,90,.45);text-shadow:0 1px 0 rgba(40,20,90,.35);z-index:5}
+#v54o .sb{position:absolute;right:10px;bottom:calc(14px + env(safe-area-inset-bottom));border:0;border-radius:16px;padding:9px 13px;font:inherit;font-weight:900;font-size:14px;background:linear-gradient(#fff,#fff5fa);color:#7a3878;border:2px solid #ffb8d8;box-shadow:0 3px 0 #e298bc,0 5px 12px rgba(100,40,90,.2);z-index:5}
+#v54btn{display:flex;align-items:center;justify-content:center;gap:6px;width:min(340px,92%);margin:4px auto 8px;border:0;border-radius:18px;padding:12px;font:inherit;font-size:18px;font-weight:900;color:#5a2458;background:linear-gradient(#ffe66d,#ff9ec8);box-shadow:0 4px 0 #d46a98,0 6px 14px rgba(180,70,120,.28)}
+#v54btn .pv{background:#fff;color:#7a3068;border-radius:10px;font-size:12px;padding:1px 7px}
+#v54btn small{font-size:13px;opacity:.92}
+`;
+document.head.appendChild(css);
+
+let OEL=null,OC=null,OX=null,OBG=null,OS={w:0,h:0},ORAF=0,OOPEN=false,OT0=0;
+// 6 großzügig verteilte Frühlings-Stationen auf einer geschwungenen S-Kurve (minDist > 130px!)
+const OXS=[.22,.76,.24,.76,.24,.64];
+const OYS=[.79,.68,.56,.44,.32,.19];
+function ostPos(i,W,H){return[OXS[i]*W,OYS[i]*H]}
+
+const PETALS=[];
+for(let i=0;i<36;i++){
+ PETALS.push({
+  x:Math.random(),y:Math.random(),
+  r:2.5+Math.random()*2.5,
+  s:.025+Math.random()*.04,
+  w:Math.random()*6.28,
+  c:['#ffb8d8','#ffd6e8','#fff6a8','#c8f4ff'][i%4]
+ });
+}
+
+function drawBlossomTree(x,cx,by,h){
+ x.save();
+ x.fillStyle='rgba(50,90,45,.18)';
+ x.beginPath();x.ellipse(cx,by+2,h*.28,h*.08,0,0,7);x.fill();
+ // Stamm
+ x.fillStyle='#7a4a2a';
+ x.beginPath();
+ x.moveTo(cx-h*.07,by);
+ x.quadraticCurveTo(cx-h*.04,by-h*.35,cx-h*.03,by-h*.55);
+ x.lineTo(cx+h*.03,by-h*.55);
+ x.quadraticCurveTo(cx+h*.04,by-h*.35,cx+h*.07,by);
+ x.closePath();x.fill();
+ // Rosa Kirschblüten-Krone
+ [[-.18,-.58,.24,'#ff9ec8'],[.18,-.56,.23,'#ffb2d4'],[0,-.74,.27,'#ffc4e0'],[-.08,-.64,.20,'#ffd8ec'],[.10,-.66,.19,'#ffe6f2']].forEach(([dx,dy,r,c])=>{
+  x.fillStyle=c;
+  x.beginPath();x.arc(cx+dx*h,by+dy*h,r*h,0,7);x.fill();
+ });
+ x.restore();
+}
+
+function drawTulip(x,cx,by,s,col){
+ x.save();
+ x.translate(cx,by);
+ x.strokeStyle='#3d9e50';x.lineWidth=Math.max(1.8,s*.14);x.lineCap='round';
+ x.beginPath();x.moveTo(0,0);x.lineTo(0,-s);x.stroke();
+ x.fillStyle='#4eb85e';
+ x.beginPath();x.ellipse(-s*.22,-s*.35,s*.24,s*.10,-.5,0,7);x.fill();
+ x.beginPath();x.ellipse(s*.22,-s*.32,s*.24,s*.10,.5,0,7);x.fill();
+ x.fillStyle=col;
+ x.beginPath();
+ x.arc(0,-s*1.05,s*.32,0,Math.PI,false);
+ x.lineTo(-s*.32,-s*1.32);
+ x.lineTo(-s*.10,-s*1.12);
+ x.lineTo(0,-s*1.36);
+ x.lineTo(s*.10,-s*1.12);
+ x.lineTo(s*.32,-s*1.32);
+ x.closePath();x.fill();
+ x.restore();
+}
+
+function drawEasterBasket(x,cx,by,s){
+ x.save();
+ x.translate(cx,by);
+ x.fillStyle='rgba(50,85,40,.2)';
+ x.beginPath();x.ellipse(0,2,s*.9,s*.28,0,0,7);x.fill();
+ // Bügel
+ x.strokeStyle='#9c6228';x.lineWidth=Math.max(2.2,s*.14);
+ x.beginPath();x.arc(0,-s*.55,s*.68,Math.PI,0,false);x.stroke();
+ // Eier im Korb
+ [[-s*.32,-s*.58,'#ff7eb8'],[0,-s*.65,'#ffe055'],[s*.32,-s*.58,'#6ce6ff']].forEach(([ex,ey,c])=>{
+  x.fillStyle=c;x.beginPath();x.ellipse(ex,ey,s*.24,s*.32,0,0,7);x.fill();
+  x.strokeStyle='#6a3858';x.lineWidth=1.1;x.stroke();
+ });
+ // Korb-Unterteil
+ x.fillStyle='#c9883e';x.strokeStyle='#7a4818';x.lineWidth=1.5;
+ x.beginPath();
+ x.moveTo(-s*.75,-s*.52);x.lineTo(s*.75,-s*.52);
+ x.lineTo(s*.56,0);x.lineTo(-s*.56,0);x.closePath();
+ x.fill();x.stroke();
+ x.restore();
+}
+
+function osize(){
+ if(!OC)return;
+ let W=innerWidth,H=innerHeight,D2=Math.min(2,devicePixelRatio||1);
+ OC.width=W*D2;OC.height=H*D2;
+ OX=OC.getContext('2d');
+ OS={w:W,h:H,d:D2};
+ OBG=document.createElement('canvas');OBG.width=W*D2;OBG.height=H*D2;
+ let x=OBG.getContext('2d');x.setTransform(D2,0,0,D2,0,0);
+
+ // 1. Frühlingshimmel
+ let sg=x.createLinearGradient(0,0,0,H*.58);
+ sg.addColorStop(0,'#6fd6ff');
+ sg.addColorStop(.55,'#b8f0ff');
+ sg.addColorStop(1,'#fff9d6');
+ x.fillStyle=sg;x.fillRect(0,0,W,H);
+
+ // 2. Sanfter Pastell-Regenbogen oben
+ let rx=W*.52,ry=H*.34,rr=Math.min(W,H)*.46;
+ ['rgba(255,130,170,.28)','rgba(255,210,110,.28)','rgba(130,235,160,.28)','rgba(130,205,255,.28)','rgba(195,150,255,.26)'].forEach((c,i)=>{
+  x.strokeStyle=c;x.lineWidth=6;
+  x.beginPath();x.arc(rx,ry,rr-i*6,Math.PI*1.08,Math.PI*1.92);x.stroke();
+ });
+
+ // 3. Strahlende Frühlingssonne oben rechts
+ let sx=W*.84,sy=H*.12,sunG=x.createRadialGradient(sx,sy,4,sx,sy,64);
+ sunG.addColorStop(0,'rgba(255,248,180,.95)');
+ sunG.addColorStop(.45,'rgba(255,235,130,.38)');
+ sunG.addColorStop(1,'rgba(255,235,130,0)');
+ x.fillStyle=sunG;x.beginPath();x.arc(sx,sy,64,0,7);x.fill();
+ x.fillStyle='#fff3a0';x.beginPath();x.arc(sx,sy,22,0,7);x.fill();
+
+ // 4. Weiche Frühlingswolken
+ [[.18,.12,1],[.52,.10,.85],[.32,.20,.72]].forEach(([ux,uy,sc])=>{
+  let cx=W*ux,cy=H*uy,r=18*sc;
+  x.fillStyle='rgba(255,255,255,.86)';
+  x.beginPath();
+  x.arc(cx,cy,r*1.2,0,7);
+  x.arc(cx+r*1.1,cy+r*.2,r*.9,0,7);
+  x.arc(cx-r*1.1,cy+r*.25,r*.85,0,7);
+  x.fill();
+ });
+
+ // 5. Geschwungene grüne Frühlingshügel (3 Ebenen)
+ [
+  [.26,'#a4e88c','#8ad874',0],
+  [.48,'#84dc6c','#6cc856',2],
+  [.72,'#68ca54','#52b440',4]
+ ].forEach(([y0,c1,c2,sd])=>{
+  let g=x.createLinearGradient(0,H*y0,0,H);
+  g.addColorStop(0,c1);g.addColorStop(1,c2);
+  x.fillStyle=g;
+  x.beginPath();x.moveTo(0,H);
+  for(let i=0;i<=28;i++){
+   let u=i/28;
+   x.lineTo(u*W,H*y0+Math.sin(u*5+sd)*H*.022+Math.cos(u*3-sd)*H*.012);
+  }
+  x.lineTo(W,H);x.closePath();x.fill();
+ });
+
+ // 6. Blühende Kirschbäume, Tulpen & Osterkörbchen entlang der Wiese
+ drawBlossomTree(x,W*.12,H*.31,H*.13);
+ drawBlossomTree(x,W*.88,H*.36,H*.14);
+ drawBlossomTree(x,W*.10,H*.64,H*.13);
+ drawBlossomTree(x,W*.90,H*.76,H*.13);
+
+ [
+  [.14,.84,'#ff6fa8'],[.36,.82,'#ffe042'],[.84,.84,'#ff8552'],
+  [.88,.58,'#ff6fa8'],[.12,.46,'#ffe042'],[.86,.26,'#c67aff'],
+  [.38,.25,'#ff6fa8'],[.62,.60,'#ffe042']
+ ].forEach(([tx,ty,c])=>drawTulip(x,W*tx,H*ty,H*.026,c));
+
+ drawEasterBasket(x,W*.86,H*.83,H*.026);
+ drawEasterBasket(x,W*.13,H*.50,H*.025);
+ drawEasterBasket(x,W*.87,H*.24,H*.025);
+
+ // 7. Geschwungener Frühlings-Wiesenpfad durch alle 6 Level-Stationen
+ const pathPts=OXS.map((_,i)=>ostPos(i,W,H));
+ const strokeSpringPath=(col,lw,dash)=>{
+  x.strokeStyle=col;x.lineWidth=lw;x.lineCap='round';x.lineJoin='round';
+  x.setLineDash(dash||[]);
+  x.beginPath();x.moveTo(pathPts[0][0],pathPts[0][1]);
+  for(let i=1;i<pathPts.length;i++){
+   let[x0,y0]=pathPts[i-1],[x1,y1]=pathPts[i];
+   x.quadraticCurveTo((x0+x1)/2+(i%2?26:-26),(y0+y1)/2,x1,y1);
+  }
+  x.stroke();x.setLineDash([]);
+ };
+ strokeSpringPath('rgba(70,130,50,.32)',30);
+ strokeSpringPath('#fff3c4',22);
+ strokeSpringPath('#ffd89a',14,[6,10]);
+}
+
+function drawStar(x,cx,cy,r,col){
+ x.save();x.fillStyle=col;x.beginPath();
+ for(let i=0;i<10;i++){
+  let a=i*Math.PI/5-Math.PI/2,rr=i%2?r*.45:r;
+  let px=cx+Math.cos(a)*rr,py=cy+Math.sin(a)*rr;
+  if(i===0)x.moveTo(px,py);else x.lineTo(px,py);
+ }
+ x.closePath();x.fill();x.restore();
+}
+
+// Zeichnet das Stations-Icon für Level i (0..5) auf der Osterwelt-Karte
+function drawNodeIcon(x,i,cx,cy,t){
+ x.save();x.translate(cx,cy);
+ if(i===0||i===1){
+  // Deko-Ei Icon
+  drawDekoEgg(x,0,12,.52,t,i===1?.3:0);
+ }else if(i===2||i===3){
+  // Kleines Küken Icon
+  drawCuteChick(x,0,12,.68,t,i===3,t,1);
+ }else{
+  // Hoppel-Osterhase Icon
+  drawEasterBunny(x,0,15,.60,t,i===5?4:0,i===5,1);
+ }
+ x.restore();
+}
+
+function odraw(now){
+ if(!OOPEN)return;
+ ORAF=requestAnimationFrame(odraw);
+ if(!WT0_O)WT0_O=now;
+ let t=(now-WT0_O)/1000;
+ if(OS.w!==innerWidth||OS.h!==innerHeight)osize();
+ let x=OX,W=OS.w,H=OS.h,D2=OS.d;
+ x.setTransform(1,0,0,1,0,0);
+ x.drawImage(OBG,0,0);
+ x.setTransform(D2,0,0,D2,0,0);
+
+ let v=SV();
+ x.textAlign='center';x.textBaseline='middle';
+ const R=Math.min(28,Math.max(22,Math.min(W,H)*.058));
+
+ // Alle 6 Level-Stationen zeichnen
+ for(let i=0;i<6;i++){
+  let[sx,sy]=ostPos(i,W,H);
+  let st=(v.st&&v.st[i])||0;
+  let done=st>0;
+  let pulse=1+Math.sin(t*4+i)*.05;
+  let rr=R*pulse;
+
+  // Äußerer Frühlings-Schein
+  let gl=x.createRadialGradient(sx,sy,4,sx,sy,rr*1.65);
+  gl.addColorStop(0,'rgba(255,245,160,.75)');
+  gl.addColorStop(1,'rgba(255,245,160,0)');
+  x.fillStyle=gl;x.beginPath();x.arc(sx,sy,rr*1.65,0,7);x.fill();
+
+  // Medaillon-Kreis
+  x.fillStyle=i%2===0?'#ff7eb8':'#5ec8ff';
+  if(i>=4)x.fillStyle='#a87aff';
+  x.beginPath();x.arc(sx,sy,rr,0,7);x.fill();
+  x.lineWidth=3.5;x.strokeStyle='#fff';x.stroke();
+
+  // Individuelles Vektor-Icon im Kreis
+  drawNodeIcon(x,i,sx,sy,t);
+
+  // Level-Nummer Badge oben links
+  x.fillStyle='#ffe055';
+  x.beginPath();x.arc(sx-rr*.72,sy-rr*.68,9.5,0,7);x.fill();
+  x.strokeStyle='#7a3868';x.lineWidth=1.8;x.stroke();
+  x.fillStyle='#5a2050';x.font='900 11px Nunito,sans-serif';
+  x.fillText(String(i+1),sx-rr*.72,sy-rr*.68+.5);
+
+  // 3 Sterne unterhalb + Level-Name Schildchen
+  for(let j=0;j<3;j++){
+   drawStar(x,sx-13+j*13,sy+rr+9,j<st?5.5:4,j<st?'#ffd23f':'rgba(255,255,255,.65)');
+  }
+  x.font='900 11.5px Nunito,sans-serif';
+  let lb=LV[i].n,tw=x.measureText(lb).width+14;
+  let lx=Math.max(tw/2+4,Math.min(W-tw/2-4,sx)),ly=sy+rr+24;
+  x.fillStyle='rgba(255,255,255,.92)';
+  x.beginPath();
+  x.roundRect?x.roundRect(lx-tw/2,ly-9,tw,18,9):x.rect(lx-tw/2,ly-9,tw,18);
+  x.fill();
+  x.fillStyle='#5a2860';
+  x.fillText(lb,lx,ly+.5);
+ }
+
+ // Schwebende Kirschblütenblätter
+ PETALS.forEach(p=>{
+  let py=((p.y+t*p.s)%1)*H;
+  let px=(p.x*W+Math.sin(t*1.1+p.w)*18+W)%W;
+  x.save();
+  x.translate(px,py);
+  x.rotate(t*1.4+p.w);
+  x.fillStyle=p.c;
+  x.globalAlpha=.78;
+  x.beginPath();x.ellipse(0,0,p.r*1.3,p.r*.75,0,0,7);x.fill();
+  x.restore();
+ });
+
+ // Unten links: Live-Vorschau der 3 erspielbaren Oster-Preise (Deko-Ei, Küken, Hoppel-Hase)
+ x.save();
+ let py=H*.945;
+ // Helles Podest-Banner unten links
+ x.fillStyle='rgba(255,255,255,.82)';
+ x.strokeStyle='#ffb8d8';x.lineWidth=2;
+ let pw=Math.min(210,W*.54),ph=54,px0=12,py0=py-44;
+ x.beginPath();
+ x.roundRect?x.roundRect(px0,py0,pw,ph,16):x.rect(px0,py0,pw,ph);
+ x.fill();x.stroke();
+
+ drawDekoEgg(x,px0+pw*.20,py-4,.72,t,Math.sin(t*2)*.2);
+ drawCuteChick(x,px0+pw*.50,py-3,.85,t,false,t,1);
+ drawEasterBunny(x,px0+pw*.80,py-3,.78,t,Math.abs(Math.sin(t*5))*8,false,-1);
+ x.restore();
+}
+let WT0_O=0;
+
+function ohd(){
+ if(!OEL)return;
+ let v=SV();
+ OEL.querySelector('.hd').innerHTML=`🐣 Osterwelt${PREV?'<span class="pv">Vorschau</span>':''}<small>Erspielbare Oster-Schätze: ${v.p.length}/3 auf deiner Insel</small>`;
+}
+
+function obuild(){
+ OEL=document.createElement('div');
+ OEL.id='v54o';
+ OEL.className='hide';
+ OEL.innerHTML=`<canvas></canvas><div class="hd"></div><button class="x" aria-label="Schließen">✕</button><button class="sb">🌸 Auf der Insel ansehen</button>`;
+ document.body.appendChild(OEL);
+ OC=OEL.querySelector('canvas');
+ OEL.querySelector('.x').onclick=closeOsterwelt;
+ OEL.querySelector('.sb').onclick=()=>{
+  closeOsterwelt();
+  try{
+   // Aktiviere Ostern-Thema auf der Insel, damit alles im Frühlingsglanz erstrahlt
+   if(S.home)S.home.theme=V40.BASE+3;
+   save();
+   if(typeof openHome==='function')openHome();
+   setTimeout(()=>{
+    tapBunny();
+    toast('🐣 Tipp den Osterhasen, das Küken oder das Deko-Ei auf der Insel an!',4200);
+   },250);
+  }catch(_){}
+ };
+ OC.addEventListener('pointerdown',e=>{
+  let r=OC.getBoundingClientRect(),px=e.clientX-r.left,py=e.clientY-r.top;
+  for(let i=0;i<6;i++){
+   let[sx,sy]=ostPos(i,OS.w,OS.h);
+   if(Math.hypot(px-sx,py-sy)<38){
+    try{SND.sfx('press')}catch(_){}
+    openOsterLevel(i);
+    return;
+   }
+  }
+ });
+ addEventListener('resize',()=>{if(OOPEN)osize()});
+ osize();
+}
+
+function openOsterwelt(){
+ if(!OEL)obuild();
+ ohd();
+ OEL.classList.remove('hide');
+ OOPEN=true;
+ cancelAnimationFrame(ORAF);
+ ORAF=requestAnimationFrame(odraw);
+ try{SND.setScene('ost0',false)}catch(_){}
+ try{SND.sfx('whoosh')}catch(_){}
+}
+
+function closeOsterwelt(){
+ if(!OEL)return;
+ OEL.classList.add('hide');
+ OOPEN=false;
+ cancelAnimationFrame(ORAF);
+ try{SND.sfx('tap')}catch(_){}
+ try{sndScene()}catch(_){}
+ try{if(!$('mapScr').classList.contains('hide'))renderMap()}catch(_){}
+}
+
+function prizeCanvas(pIdx,sz){
+ let c=document.createElement('canvas'),D2=Math.min(3,devicePixelRatio||1);
+ c.width=sz*D2;c.height=sz*D2;
+ c.style.cssText=`width:${sz}px;height:${sz}px;display:block;margin:4px auto`;
+ let x=c.getContext('2d');x.setTransform(D2,0,0,D2,0,0);
+ let g=x.createRadialGradient(sz/2,sz/2,4,sz/2,sz/2,sz/2);
+ g.addColorStop(0,'#fff8c8');g.addColorStop(1,'rgba(255,248,200,0)');
+ x.fillStyle=g;x.fillRect(0,0,sz,sz);
+ if(pIdx===0)drawDekoEgg(x,sz/2,sz*.78,sz/62,0,0);
+ else if(pIdx===1)drawCuteChick(x,sz/2,sz*.78,sz/48,0,false,0,1);
+ else drawEasterBunny(x,sz/2,sz*.82,sz/58,0,0,false,1);
+ return c;
+}
+
+function openOsterLevel(i){
+ let L=LV[i],pr=PRIZES[L.pIdx],v=SV(),got=v.p.includes(pr.id),pl=L.pl||'🐰';
+ let o={
+  e:pl,f:L.f,
+  tw:Object.assign({v:'gesammelt'},L.tw,{how:L.how,mk:'ost1',n:L.n,d:L.d,fact:L.fact}),
+  mus:'ost1',how:L.how,lv:i
+ };
+ o.card=()=>({
+  h:`<h2>🌸 ${i+1}. ${L.n}</h2>`,
+  e:null,
+  body:`<div class="pt"></div><p>${L.d}</p><p><small>${L.how}</small></p><p class="fct">${got?'✅ Freigespielt: <b>'+pr.n+'</b> ('+pr.desc+')':'🎁 Belohnung: <b>'+pr.n+'</b> – '+pr.desc}</p>`,
+  btns:[
+   ["▶ Los geht's!",()=>{V43.start(o.e,false,o)}],
+   ['🌸 Auf der Insel testen','sec',()=>{V43.close();OEL.querySelector('.sb').click()}],
+   ['Zurück','sec',()=>V43.close()]
+  ]
+ });
+ o.end=(st,sc,m)=>{
+  let v=SV();
+  v.st[i]=Math.max(v.st[i]|0,st);
+  let unlockedNow=false;
+  if(!v.p.includes(pr.id)){
+   v.p.push(pr.id);
+   unlockedNow=true;
+  }
+  save();
+  let starsHtml=`<div class="st">${[1,2,3].map(j=>`<i class="${j<=st?'':'off'}">⭐</i>`).join('')}</div>`;
+  let body=starsHtml+`<div class="pt"></div><p>Punkte: ${sc}</p><p class="fct">🎁 <b>${pr.n}:</b> ${pr.desc}</p><p class="fct"><b>Wusstest du?</b> ${L.fact}</p>`;
+  let btns=[
+   ['🏝️ Auf der Insel ansehen',()=>{V43.close();OEL.querySelector('.sb').click()}],
+   ['🔁 Nochmal','sec',()=>{V43.start(o.e,false,o)}],
+   ['Zur Osterwelt','sec',()=>V43.close()]
+  ];
+  return{
+   h:`<h2>${unlockedNow?'🐣 Neu erspielt!':st>=3?'🏆 Super!':'🎉 Toll gemacht!'}</h2>`,
+   e:null,body,btns,
+   post:cd=>{
+    let p=cd.querySelector('.pt');
+    if(p)p.appendChild(prizeCanvas(L.pIdx,90));
+   }
+  };
+ };
+ o.close=()=>{
+  if(OEL)ohd();
+  if(OOPEN){try{SND.setScene('ost0',false)}catch(_){}}
+ };
+ V43.xopen(o);
+ try{
+  let p=document.querySelector('#v43mg .cd .pt');
+  if(p&&!p.firstChild)p.appendChild(prizeCanvas(L.pIdx,86));
+ }catch(_){}
+}
+
+// ---- Knopf auf der Abenteuer-Karte (#mapScr) direkt unter #v53btn ----
+function ostMapBtn(){
+ let ms=$('mapScr'),ml=$('mapList');
+ if(!ms||!ml)return;
+ let b=$('v54btn');
+ if(!OPEN){if(b)b.remove();return}
+ if(!b){
+  b=document.createElement('button');
+  b.id='v54btn';
+  b.onclick=()=>{try{SND.sfx('press')}catch(_){}openOsterwelt()};
+  ml.parentNode.insertBefore(b,ml);
+ }
+ let n=SV().p.length;
+ b.innerHTML=`🐣 Osterwelt ${PREV?'<span class="pv">Vorschau</span>':''}<small>🐰🥚🐣 ${n}/3</small>`;
+}
+try{
+ const oRM=renderMap;
+ renderMap=function(){
+  let r=oRM.apply(this,arguments);
+  try{ostMapBtn()}catch(_){}
+  return r;
+ };
+}catch(_){}
+try{ostMapBtn()}catch(_){}
+
+// Exportiere saubere API für Tests & Interaktion
+window.C9.v54=window.C9_V54={
+ version:'54.0',
+ PRIZES,LV,SV,
+ openWorld:openOsterwelt,
+ openOsterwelt,
+ closeOsterwelt,
+ openOsterLevel,
+ isOpen:()=>OOPEN,
+ ostPos,OXS,OYS,
+ tapEgg,tapChick,tapBunny,
+ drawDekoEgg,drawCuteChick,drawEasterBunny,
+ get state(){return OST_ST}
+};
+})();
+
+</script>
+<!-- cloud9 v54.0 -->
 </body></html>
