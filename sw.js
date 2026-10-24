@@ -1,5 +1,5 @@
 // Cloud9 service worker: network-first for the page (updates arrive), cache-first for static assets; /vid/ videos network-only, posters runtime-cached.
-const C='cloud9-v535',M='cloud9-media',V534_PURGE=['/kamel.','/papagei.','/lama.','/polarwolf.','/narwal.'];const ASSETS=['./','./index.html','./manifest.webmanifest','./icon-192.png','./icon-512.png','./icon-maskable-512.png','./apple-touch-icon.png'];
+const C='cloud9-v536',M='cloud9-media',V534_PURGE=['/kamel.','/papagei.','/lama.','/polarwolf.','/narwal.'];const ASSETS=['./','./index.html','./manifest.webmanifest','./icon-192.png','./icon-512.png','./icon-maskable-512.png','./apple-touch-icon.png'];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(C).then(c=>c.addAll(ASSETS)).then(()=>self.skipWaiting()))});
 self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==C&&k!==M).map(k=>caches.delete(k)))).then(()=>caches.open(M).then(c=>c.keys().then(rs=>Promise.all(rs.filter(r=>V534_PURGE.some(p=>r.url.includes(p))&&!r.url.includes('v=534')&&!r.url.includes('v=533')).map(r=>c.delete(r)))))).then(()=>self.clients.claim()))});
 self.addEventListener('fetch',e=>{const r=e.request;if(r.method!=='GET')return;const u=new URL(r.url);if(u.origin!==location.origin)return;
