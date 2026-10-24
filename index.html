@@ -1127,7 +1127,7 @@ AN['🦘']=(t,r,ph)=>{let c='#d49a5c',h=Math.max(0,Math.sin(t*2.6))**3*r*.45;SH(
 })();
 
 function animalImg(e){if(AIMG[e])return AIMG[e];let c=document.createElement('canvas');c.width=c.height=96;let o=X;X=c.getContext('2d');X.scale(2,2);drawAnimal(e,24,40,1.25,0,0,false);X=o;return AIMG[e]=c.toDataURL()}
-const aim=e=>`<img src="${animalImg(e)}" style="width:48px;height:48px;display:block;margin:-4px auto 0" alt="${e}">`;
+const aim=e=>`<img src="${animalImg(e,48)}" style="width:48px;height:48px;display:block;margin:0 auto" alt="${e}">`;
 function biomeFx(n,dt,I){if(!G)return;let b=GC.bob||0;
  if(BI==4&&GC.crater){let cx=I.x+GC.crater[0],cy=I.y+GC.crater[1]+b;if(R()<dt*8&&parts.length<280)parts.push({x:cx+(R()-.5)*8,y:cy,vx:(R()-.5)*.5,vy:-.9-R()*.6,l:1.6,col:R()<.3?'#ffb080':'#d8c0d0'});if(R()<dt*1.5)parts.push({x:cx,y:cy,vx:(R()-.5)*2.5,vy:-3-R()*2,l:.8,col:'#ffd060'})}
  if(BI==5){while(LEAF.length<16)LEAF.push({x:R()*W,y:-10-R()*H,r:R()*6,h:[18,30,8,40][R()*4|0],s:.6+R()*.6});X.save();LEAF.forEach(l=>{l.x+=(WIND*1.6+10)*dt*l.s;l.y+=(28+Math.sin(n/500+l.r)*12)*dt*l.s;l.r+=dt*2.5;if(l.y>H+10||l.x>W+20){l.y=-10;l.x=R()*W-40}X.setTransform(D,0,0,D,0,0);X.translate(l.x,l.y);X.rotate(l.r);X.scale(1,Math.sin(l.r*1.3));X.fillStyle=`hsl(${l.h},85%,62%)`;X.beginPath();X.ellipse(0,0,6*l.s+2,3*l.s+1.5,0,0,7);X.fill();X.fillStyle='rgba(120,60,30,.4)';X.fillRect(-6*l.s-2,-.4,12*l.s+4,.8)});X.restore()}
@@ -1684,7 +1684,7 @@ function feedSheet(a){let e=a.e,f=fr(e),fav=FAV[e]||'beeren';
  let sh=$('hSheet');sh.querySelectorAll('[data-c]').forEach(b=>b.onclick=()=>{if(cook(b.dataset.c)){toast(FOODS[b.dataset.c].e+' '+FOODS[b.dataset.c].n+' gekocht!');feedSheet(a)}});
  sh.querySelectorAll('[data-f]').forEach(b=>b.onclick=()=>{let k=b.dataset.f;if(!(H.food[k]>0)||f.feed>=CAP.feed)return;H.food[k]--;f.feed++;setTimeout(()=>careChk(a),50);let fv=k==fav;addFp(e,fv?20:10);a.hop=1;HFT.push({x:a.sx,y:a.sy-40,s:'😋 '+FOODS[k].e+(fv?' ❤️❤️':' ❤️'),l:1.5});SND.sfx('gift');SND.animal(e);wishEv('feed',e);sh.classList.add('hide');toast(e+' '+anName(e)+(fv?' liebt '+FOODS[k].n+'! +2 ❤️':' mag '+FOODS[k].n+' +1 ❤️'))})}
 function anCard(e){let f=fr(e),hh=hearts(e),fav=FOODS[FAV[e]||'beeren'],tk=trickOf(e),gf=GIFTS[e];
- hSheet(`<div class="v2card"><img src="${animalImg(e)}"><h3>${anName(e)}</h3><div class="v2hearts">${[...Array(10)].map((_,i)=>i<hh?'❤️':'🤍').join('')}</div><div class="v2bar"><i style="width:${(f.p%10)*10}%"></i></div><small>${hh<10?'noch '+(10-f.p%10)+' Punkte bis zum nächsten Herz':'👑 Beste Freunde – 10 Herzen!'}</small>
+ hSheet(`<div class="v2card"><img src="${animalImg(e,84)}"><h3>${anName(e)}</h3><div class="v2hearts">${[...Array(10)].map((_,i)=>i<hh?'❤️':'🤍').join('')}</div><div class="v2bar"><i style="width:${(f.p%10)*10}%"></i></div><small>${hh<10?'noch '+(10-f.p%10)+' Punkte bis zum nächsten Herz':'👑 Beste Freunde – 10 Herzen!'}</small>
  <p>🍽️ Lieblingsessen: <b>${fav.e} ${fav.n}</b></p><p>🎁 Geschenk: ${gf[0]} ${gf[1]} · +${Math.round(hh*6)}% Taler${hh>=5?' · +1 Extra-'+gf[0]:''}${hh>=10?' · +⭐':''}</p>
  <p>✨ Tricks: ${hh>=3?'✅':'🔒 3❤️'} ${tk[1]} · ${hh>=6?'✅':'🔒 6❤️'} Tanz · ${hh>=10?'✅':'🔒 10❤️'} Krone</p><p><small>Heute: ✋ ${f.pet}/${CAP.pet} · 🍽️ ${f.feed}/${CAP.feed} · 🎾 ${f.play}/${CAP.play}</small></p></div>`)}
 // ---- wishes ----
@@ -1773,7 +1773,7 @@ const MG={fangen:{n:'Fangen',e:'🏃',d:'Tippe das Tier, bevor es weghüpft!'},f
 const MGMAX=6,DUR=25;
 function gameFor(a){let m=hZone(hGeo(),a).m;return m=='swim'||m=='slide'&&['🐧','🦭'].includes(a.e)?'fische':m=='perch'||m=='fly'||a.fl?'sterne':'fangen'}
 function play(a){let H=S.home,f=V.fr(a.e);if(H.mg.d!==today){H.mg={d:today,n:0}}if(M){mgClose()}if(!(window.C9&&C9.MG_UNLIMITED)&&f.play>=2)return hSheet(`<h3>😴 ${a.e} ist müde</h3><p>Jedes Tier spielt 2× pro Tag. Probier ein anderes Tier – oder morgen wieder!</p><p><small>noch ${Math.max(0,MGMAX-H.mg.n)} Spiele heute</small></p><button onclick="$('hSheet').classList.add('hide')">OK</button>`);if(!(window.C9&&C9.MG_UNLIMITED)&&H.mg.n>=MGMAX)return hSheet(`<h3>🎾 Heute genug gespielt</h3><p>Du hast heute schon ${MGMAX} Minispiele gespielt. Morgen gibt es neue Runden!</p><button onclick="$('hSheet').classList.add('hide')">OK</button>`);
- let k=gameFor(a),G2=MG[k];hSheet(`<h3>${G2.e} ${G2.n}</h3><img src="${animalImg(a.e)}" style="width:72px"><p>${G2.d}</p><p><small>${DUR} Sekunden · Belohnung: ❤️ für ${a.e} + 🪙 · noch ${MGMAX-H.mg.n} Spiele heute</small></p><button id="v21go">▶ Los geht's!</button>`);$('v21go').onclick=()=>{$('hSheet').classList.add('hide');startMG(k,a)}}
+ let k=gameFor(a),G2=MG[k];hSheet(`<h3>${G2.e} ${G2.n}</h3><img src="${animalImg(a.e,72)}"><p>${G2.d}</p><p><small>${DUR} Sekunden · Belohnung: ❤️ für ${a.e} + 🪙 · noch ${MGMAX-H.mg.n} Spiele heute</small></p><button id="v21go">▶ Los geht's!</button>`);$('v21go').onclick=()=>{$('hSheet').classList.add('hide');startMG(k,a)}}
 const FISHK={fish:['#ffb35a','#ff8a3a','#ffd9a8'],trop:['#7fd8ff','#3aa0e8','#ffe36a'],blue:['#c9a6ff','#8d6be8','#ffd0f0'],gold:['#ffe26a','#f5b82e','#fff6c8']};
 function drawFish(x,k,sc,t){let c=FISHK[k],w=Math.sin(t*14)*.18;x.save();x.scale(sc,sc);x.lineJoin='round';x.lineWidth=2.5;x.strokeStyle='rgba(70,50,120,.35)';
  x.fillStyle=c[1];x.beginPath();x.moveTo(-14,0);x.quadraticCurveTo(-26,-12+w*20,-30,-13);x.quadraticCurveTo(-25,0,-30,13);x.quadraticCurveTo(-26,12+w*20,-14,0);x.fill();x.stroke();
@@ -1825,7 +1825,7 @@ function mgTap(e){let m=M;if(!m||!m.run||m.cd>0)return;let b=e.target.getBoundin
  SND.sfx(m.k=='sterne'?'star':m.k=='fische'?'splash':'tap');vib(10);
  if(m.k=='fangen'){hit.nx=0;SND.animal(m.e)}else m.ob=m.ob.filter(o=>o!==hit)}
 function mgEnd(){let m=M,fp=Math.min(15,3+m.sc),coins=Math.min(60,m.sc*3);coinGain(coins);V.addFp(m.e,fp);V.wishEv('play');SND.sfx('celebrate');
- let r=$('v21mg').querySelector('.v21res');r.innerHTML=`<h2>${m.sc>=15?'🏆 Super!':m.sc>=8?'🎉 Toll!':'😊 Schön gespielt!'}</h2><img src="${animalImg(m.e)}" style="width:80px"><p><b>⭐ ${m.sc} Punkte</b></p><p>+${coins} 🪙 · +${fp} Freundschaft für ${m.e}</p><button id="v21ok">Zurück zur Insel</button>`;r.classList.remove('hide');$('v21ok').onclick=mgClose}
+ let r=$('v21mg').querySelector('.v21res');r.innerHTML=`<h2>${m.sc>=15?'🏆 Super!':m.sc>=8?'🎉 Toll!':'😊 Schön gespielt!'}</h2><img src="${animalImg(m.e,80)}"><p><b>⭐ ${m.sc} Punkte</b></p><p>+${coins} 🪙 · +${fp} Freundschaft für ${m.e}</p><button id="v21ok">Zurück zur Insel</button>`;r.classList.remove('hide');$('v21ok').onclick=mgClose}
 function mgClose(){if(M)M.run=false;M=null;$('v21mg').classList.add('hide');if(HXs){HX=HXs;HXs=null}hRes();hUi()}
 // ---------- Visitors & residents ----------
 const VIS={'🦚':{n:'Pfau',c:'eine 🌷 Blumenwiese und mindestens 3 Deko-Teile',ok:h=>h.hab.some(x=>x.on&&x.k=='wiese')&&h.deco.length>=3},
@@ -2485,7 +2485,7 @@ const oFin=finish;finish=function(){if(kid()&&G&&!G.done&&G.mode=='level'&&!goal
 // settings + first start
 const oSnd=sndPanel;sndPanel=function(){oSnd();if(!$('sKid')){$('sOk').insertAdjacentHTML('beforebegin','<label style="display:block;margin:10px 0"><input id="sKid" type="checkbox"> 🧒 Kinder-Modus <small style="display:block;opacity:.7;margin-left:22px">Große Knöpfe, Wolken werden automatisch ausgesucht, kein Verlieren, Bild-Ziele</small></label><label style="display:block;margin:6px 0" id="sSayL"><input id="sSay" type="checkbox"> 🔊 Ziele automatisch vorlesen</label>');
  $('sKid').onchange=()=>{S.kid=$('sKid').checked;save();applyKid()};$('sSay').onchange=()=>{S.v31.autoSay=$('sSay').checked?1:0;save()};if(!canSpeak)$('sSayL').style.display='none'}$('sKid').checked=kid();$('sSay').checked=S.v31.autoSay!==0}
-function askKid(){if(S.kid!==undefined||$('v31kid')||/[?&]noask/.test(location.search)||location.hash.startsWith('#isle=')||location.hash.startsWith('#g'))return;let o=document.createElement('div');o.id='v31kid';o.innerHTML=`<div class="panel"><img src="${animalImg('🐰')}" style="width:80px"><h2 style="margin:4px 0">Wer spielt heute?</h2><p style="font-size:14px">Im Kinder-Modus gibt es große Knöpfe, Bild-Ziele, Vorlesen – und man kann nicht verlieren.</p><button class="big" data-k="1">🧒 Kinder-Modus</button><button class="sec" data-k="0">🧑 Normal spielen</button><small style="opacity:.7">Später änderbar unter 🔊 Einstellungen</small></div>`;document.body.appendChild(o);
+function askKid(){if(S.kid!==undefined||$('v31kid')||/[?&]noask/.test(location.search)||location.hash.startsWith('#isle=')||location.hash.startsWith('#g'))return;let o=document.createElement('div');o.id='v31kid';o.innerHTML=`<div class="panel"><img src="${animalImg('🐰',80)}"><h2 style="margin:4px 0">Wer spielt heute?</h2><p style="font-size:14px">Im Kinder-Modus gibt es große Knöpfe, Bild-Ziele, Vorlesen – und man kann nicht verlieren.</p><button class="big" data-k="1">🧒 Kinder-Modus</button><button class="sec" data-k="0">🧑 Normal spielen</button><small style="opacity:.7">Später änderbar unter 🔊 Einstellungen</small></div>`;document.body.appendChild(o);
  o.querySelectorAll('button').forEach(b=>b.onclick=()=>{S.kid=b.dataset.k=='1';save();applyKid();o.remove();SND.sfx('tap');if(kid())setTimeout(()=>say('Hallo! Tippe auf Spielen, und los gehts!'),300)})}
 setTimeout(askKid,900);
 // ---------- Zaubertopf ----------
@@ -2619,7 +2619,7 @@ const oStep=hStep;hStep=function(list,g,dt){oStep(list,g,dt);if(list!==HA||!V.eg
 const oTap=hTap;hTap=function(p){let E=V.egg;if(E&&!window.C9VIS&&E.sx!=null&&Math.hypot(p.x-E.sx,p.y-(E.sy-12))<26){if(E.h)return;E.h=1;SND.sfx('card');vib(20);setTimeout(()=>{E.h=2},500);setTimeout(hatch,1300);return}return oTap(p)};
 function hatch(){let E=V.egg;if(!E)return;let notOwn=ANIMALS.filter(a=>!S.alb[a[0]]),pick=(notOwn.length?notOwn:ANIMALS)[Math.floor(R()*(notOwn.length||ANIMALS.length))],e=pick[0],neu=!S.alb[e];S.alb[e]=1;S.home.got[e]=S.home.got[e]||0;V.egg=null;if(!neu)coinGain(80);save();
  for(let i=0;i<16;i++)HFT.push({x:E.sx+(R()-.5)*30,y:E.sy-14,vx:(R()-.5)*160,vy:-60-R()*120,l:.8,dot:`hsl(${R()*360|0},90%,75%)`});SND.sfx('levelup');
- let o=ov(`<h2 style="margin:2px 0">🥚 Ein Ei ist geschlüpft!</h2><img src="${animalImg(e)}" style="width:110px;animation:v31pop .6s"><p><b>${e} ${pick[1]}</b>${neu?' ist neu auf deiner Insel! 🎉':' – schon da, dafür +80 🪙'}</p><p style="font-size:12px;opacity:.8">Als Baby ist es noch klein – kümmere dich darum, dann wächst es (${ADULT} ❤️).</p><button class="big" data-x>Hallo ${e}!</button>`);o.querySelector('[data-x]').onclick=()=>{o.remove();try{openHome()}catch(e2){}}}
+ let o=ov(`<h2 style="margin:2px 0">🥚 Ein Ei ist geschlüpft!</h2><img src="${animalImg(e,110)}" style="width:110px;animation:v31pop .6s"><p><b>${e} ${pick[1]}</b>${neu?' ist neu auf deiner Insel! 🎉':' – schon da, dafür +80 🪙'}</p><p style="font-size:12px;opacity:.8">Als Baby ist es noch klein – kümmere dich darum, dann wächst es (${ADULT} ❤️).</p><button class="big" data-x>Hallo ${e}!</button>`);o.querySelector('[data-x]').onclick=()=>{o.remove();try{openHome()}catch(e2){}}}
 const oOpen=openHome;openHome=function(){let r=oOpen.apply(this,arguments);eggDaily();if(V.egg&&!window.C9VIS)setTimeout(()=>toast('🥚 Auf deiner Insel liegt ein geheimnisvolles Ei – tipp es an!',3500),900);return r};
 // animal card: baby label
 // ---------- Fotomodus ----------
@@ -3594,7 +3594,7 @@ const FANTN=new Set(['🐋','🐙','🦚','🦈','🐌','🐻','🐭','🐹','�
 function habOf(e){return Object.values(HABS).filter(h=>h.a.includes(e)).map(h=>h.e+' '+h.n)}
 function page(e){let a=ANIMALS.find(x=>x[0]==e);if(!a)return;let own=!!S.alb[e],hs=habOf(e),fk=FANT[e];
  let txt=own?(fk?`✨ <b>Fantasie-Tier:</b> ${fk}`:`💡 <b>Wusstest du?</b> ${F[e]||''}${FANTN.has(e)?'<br><small>✨ Das '+a[1]+' auf Cloud9 ist eine Fantasie-Version – der Tipp gilt für das echte Tier.</small>':''}`):`🔒 <b>Noch nicht gefunden.</b><br>So bekommst du es: ${a[3]}`;
- let o=ov(`<img class="v41big ${own?'':'v41sil'}" src="${animalImg(e)}"><h3 style="margin:4px 0">${own?a[1]:'???'}</h3>${own?'<small>×'+S.alb[e]+' gesammelt</small>':''}
+ let o=ov(`<img class="v41big ${own?'':'v41sil'}" src="${animalImg(e,150)}"><h3 style="margin:4px 0">${own?a[1]:'???'}</h3>${own?'<small>×'+S.alb[e]+' gesammelt</small>':''}
  <div>${(own?hs:hs.map(()=>'❔ Lebensraum')).map(h=>`<span class="v41tag">${h}</span>`).join('')||'<span class="v41tag">🌍 Überall</span>'}</div><div class="v41f">${txt}</div>
  ${own&&GIFTS[e]?`<button id="v41buddy">${V.pet==e?'⭐ Ist dein Begleiter':'⭐ Als Begleiter wählen'}</button>`:''}`);
  let b=o.querySelector('#v41buddy');if(b)b.onclick=()=>{V.pet=e;save();SND.sfx('star');b.textContent='⭐ Ist dein Begleiter';toast(e+' '+a[1]+' begleitet dich jetzt in den Leveln 💜');petUpd()}}
@@ -3948,7 +3948,7 @@ const css=document.createElement('style');css.textContent=`#v43mg{position:fixed
 document.body.insertAdjacentHTML('beforeend','<div id="v43mg" class="hide"><canvas></canvas><button class="x" aria-label="Schließen">✕</button><div class="cd" style="display:none"></div></div>');
 const EL=document.getElementById('v43mg'),CV=EL.querySelector('canvas'),CD=EL.querySelector('.cd');
 let M=null;
-function portrait(e,size){let c=document.createElement('canvas'),d=Math.min(3,devicePixelRatio||1);c.width=c.height=size*d;let x=c.getContext('2d'),o=X;X=x;try{x.scale(d,d);drawAnimal(e,size/2,size*.8,size/46,performance.now(),0,false)}catch(_){}X=o;return c}
+function portrait(e,size){if(window.C9V531)return C9V531.animalCanvas(e,size,0);let c=document.createElement('canvas'),d=Math.min(3,devicePixelRatio||1);c.width=c.height=size*d;let x=c.getContext('2d'),o=X;X=x;try{x.scale(d,d);drawAnimal(e,size/2,size*.8,size/46,performance.now(),0,false)}catch(_){}X=o;return c}
 function nm(e){return(ANIMALS.find(a=>a[0]==e)||[e,e])[1]}
 function quota(e){let H=S.home;if(!H.mg||H.mg.d!==today)H.mg={d:today,n:0};let f=C9V20.fr(e);if(C9.MG_UNLIMITED)return{left:99,mine:99,f,H};return{left:Math.max(0,MAXR-H.mg.n),mine:Math.max(0,PERA-(f.play||0)),f,H}}
 function open(e){let g=GAME[e];if(!g)return false;let F=FAM[g.f],tw=g.tw,q=quota(e),rw=q.left>0&&q.mine>0;
@@ -4672,7 +4672,7 @@ function catchGame(list){if(GAME)return;list=list.slice(0,5);if(!list.length)ret
  <div id="v443f" style="position:absolute;inset:0"></div>
  <div id="v443msg" style="position:absolute;left:0;right:0;top:40%;text-align:center;font:900 26px Nunito,sans-serif;color:#fff;text-shadow:0 2px 8px rgba(0,0,0,.35);z-index:3">Fang die Tiere!<br><small style="font-size:16px">Tipp sie schnell an 👆</small></div></div>`;
  document.body.appendChild(o);let F=o.querySelector('#v443f'),box=F.getBoundingClientRect(),W=box.width,H=box.height,R=Math.random;
- let A=list.map((e,i)=>{let im=document.createElement('img');im.src=animalImg(e);im.alt='';im.draggable=false;im.style.cssText='position:absolute;left:0;top:0;width:76px;height:76px;will-change:transform;pointer-events:none';F.appendChild(im);
+ let A=list.map((e,i)=>{let im=document.createElement('img');im.src=animalImg(e,76);im.alt='';im.draggable=false;im.style.cssText='position:absolute;left:0;top:0;width:76px;height:76px;will-change:transform;pointer-events:none';F.appendChild(im);
   return{e,im,x:40+R()*(W-120),y:70+R()*(H-160),vx:(R()<.5?-1:1)*(60+R()*50),vy:(R()-.5)*120,cool:0,caught:0,turn:R()}});
  GAME={A,o,t:18,n:0,run:false,start:performance.now()+900,done:false,pops:[]};
  const hit=ev=>{if(!GAME||!GAME.run)return;ev.preventDefault();let b=F.getBoundingClientRect(),pt=ev.touches?ev.touches[0]:ev,px=pt.clientX-b.left,py=pt.clientY-b.top;
@@ -7271,4 +7271,132 @@ window.C9.v53={PARTS,LV,OPEN,INSEAS,PREV,XPRE,openWorld,closeWorld,openLevel,fly
 })();
 </script>
 <!-- cloud9 v53 -->
+<script>
+/* v53.1: Tier-Vorschaubilder & Detail-Ansicht: kein Abschneiden (Auto-Fit-Bounding-Box mit Sicherheitsrand) + gestochen scharf (DPR 3) */
+(function(){
+const D=()=>Math.min(3,Math.max(2,Math.ceil(window.devicePixelRatio||1)));
+const BB={}; // gemessene Bounding-Box je Tier bei sc=1 relativ zu (0,0)
+const IMG={}; // gecachte DataURLs nach key = e + '|' + px
+const CV={}; // gecachte Canvases nach key = e + '|' + px
+const U2E={}; // Rückwärtssuche DataURL -> Tier-Emoji e
+
+// Echte gemalte Bounding-Box (alpha > 1) eines Tieres auf großzügigem Test-Canvas messen
+function bounds(e){
+ if(BB[e])return BB[e];
+ const K=2,W=240,AX=120,AY=168;
+ let c=document.createElement('canvas');c.__big=1;c.width=c.height=W;
+ let x=c.getContext('2d',{willReadFrequently:true}),o=X;
+ try{
+  X=x;x.setTransform(K,0,0,K,AX,AY);
+  drawAnimal(e,0,0,1,0,0,false);
+  X=o;
+  let d=x.getImageData(0,0,W,W).data,x0=W,x1=-1,y0=W,y1=-1;
+  for(let y=0;y<W;y++)for(let i=0;i<W;i++)if(d[(y*W+i)*4+3]>1){if(i<x0)x0=i;if(i>x1)x1=i;if(y<y0)y0=y;if(y>y1)y1=y}
+  if(x1>=0){
+   let l=(x0-AX)/K,r=(x1+1-AX)/K,t=(y0-AY)/K,b=(y1+1-AY)/K;
+   return BB[e]={l,r,t,b,w:Math.max(1,r-l),h:Math.max(1,b-t),cx:(l+r)/2,cy:(t+b)/2};
+  }
+ }catch(_){X=o}
+ return BB[e]={l:-18,r:18,t:-30,b:4,w:36,h:34,cx:0,cy:-13};
+}
+
+// Zeichnet Tier e zentriert und mit Sicherheitsrand (pad ~ 10% auf allen 4 Seiten) auf Kontext ctx der logischen Größe sz×sz (bei DPR d)
+function drawFitted(ctx,e,sz,d,padFrac,t){
+ let b=bounds(e),pad=sz*(padFrac||0.10),avail=Math.max(4,sz-2*pad);
+ let sc=Math.min(avail/b.w,avail/b.h);
+ let ax=sz/2-b.cx*sc,ay=sz/2-b.cy*sc;
+ let o=X;X=ctx;
+ try{
+  ctx.save();
+  ctx.setTransform(d,0,0,d,0,0);
+  ctx.clearRect(0,0,sz,sz);
+  drawAnimal(e,ax,ay,sc,t||0,0,false);
+  ctx.restore();
+ }catch(_){}
+ X=o;
+}
+
+function getCanvas(e,cssPx){
+ let sz=Math.max(48,cssPx||56),d=D(),px=Math.round(sz*d),k=e+'|'+px;
+ if(CV[k])return CV[k];
+ let c=document.createElement('canvas');c.__big=1;c.width=c.height=px;
+ let x=c.getContext('2d');
+ drawFitted(x,e,sz,d,0.10,0);
+ return CV[k]=c;
+}
+
+// Hochauflösendes DataURL für CSS-Zielgröße cssPx (Standard 56 CSS px -> 168×168 bei DPR 3; Detail-Modal 150 CSS px -> 450×450 bei DPR 3)
+function animalImg531(e,cssPx){
+ let sz=Math.max(48,cssPx||56),d=D(),px=Math.round(sz*d),k=e+'|'+px;
+ if(IMG[k])return IMG[k];
+ let c=getCanvas(e,sz);
+ let u=c.toDataURL();
+ U2E[u]=e;
+ if(!cssPx||cssPx<=56)AIMG[e]=u;
+ return IMG[k]=u;
+}
+
+// Hochauflösendes Canvas für Minispiel-Porträt (z.B. 96 CSS px -> 288×288 bei DPR 3)
+function animalCanvas531(e,cssPx,t){
+ let sz=Math.max(48,cssPx||96),d=D(),px=Math.round(sz*d);
+ let c=document.createElement('canvas');c.__big=1;c.width=c.height=px;
+ c.style.width=sz+'px';c.style.height=sz+'px';
+ let x=c.getContext('2d');
+ drawFitted(x,e,sz,d,0.10,t||0);
+ return c;
+}
+
+// Alte Caches leeren (damit v52.3-Tiere und alle 59 Sprites frisch und ohne Rand-Abschnitt gerendert werden)
+try{for(let k in AIMG){U2E[AIMG[k]]=k;delete AIMG[k]}}catch(_){}
+try{if(typeof AHI==='object')for(let k in AHI)delete AHI[k]}catch(_){}
+try{if(window.C9SPR&&C9SPR.CACHE){C9SPR.CACHE.clear();const B0=C9SPR.box;for(const a of ANIMALS){delete B0[a[0]]}['🐨','🐼','🦘','💀'].forEach(e=>delete B0[e])}}catch(_){}
+
+animalImg=animalImg531;
+animalImgHi=function(e,k){
+ let sc=Math.max(D(),k||2),px=Math.round(48*sc),id=e+'|'+px;
+ if(AHI[id])return AHI[id];
+ let c=document.createElement('canvas');c.__big=1;c.width=c.height=px;
+ let x=c.getContext('2d');
+ drawFitted(x,e,48,sc,0.10,0);
+ return AHI[id]=c;
+};
+
+// CSS-Feinschliff: .aim-Bilder im Album sauber ohne negativen Rand-Abschnitt zentrieren
+const st=document.createElement('style');
+st.textContent=`#albGrid .card b img,#albGrid .card img.v41s{width:48px!important;height:48px!important;margin:0 auto!important;display:block;object-fit:contain}
+.v41big{width:150px;height:150px;display:block;margin:0 auto;object-fit:contain}
+.anr b img.v531an{width:36px;height:36px;display:block;margin:0 auto;object-fit:contain}`;
+document.head.appendChild(st);
+
+// Automatischer Hi-Res-Upgrade für alle großen Tier-Bilder im DOM + Tiere-Liste (.anr)
+function upgradeImgs(root){
+ if(!root||!root.querySelectorAll)return;
+ let list=root.tagName==='IMG'?[root]:[...root.querySelectorAll('img')];
+ list.forEach(im=>{
+  let alt=im.getAttribute('alt')||'',src=im.getAttribute('src')||'';
+  let e=(alt&&(AN[alt]||AD[alt]))?alt:U2E[src]||null;
+  if(!e){
+   let card=im.closest&&im.closest('[data-e]');if(card&&card.dataset.e&&(AN[card.dataset.e]||AD[card.dataset.e]))e=card.dataset.e;
+  }
+  if(!e)return;
+  let w=im.classList.contains('v41big')?150:im.closest&&im.closest('.v2card')?84:parseInt(im.style&&im.style.width)||Math.round(im.getBoundingClientRect().width)||0;
+  if(w>56&&im.dataset.v531w!=w){
+   im.dataset.v531w=w;
+   im.src=animalImg531(e,w);
+  }
+ });
+ let rows=root.classList&&root.classList.contains('anr')?[root]:root.querySelectorAll?[...root.querySelectorAll('.anr[data-e]')]:[];
+ rows.forEach(r=>{
+  let e=r.dataset.e,b=r.querySelector('b');
+  if(e&&b&&!b.querySelector('img')&&(AN[e]||AD[e])){
+   b.innerHTML=`<img class="v531an" src="${animalImg531(e,44)}" alt="">`;
+  }
+ });
+}
+new MutationObserver(ms=>{ms.forEach(m=>m.addedNodes.forEach(n=>{if(n.nodeType===1)upgradeImgs(n)}))}).observe(document.body,{childList:true,subtree:true});
+
+window.C9V531={bounds,drawFitted,getCanvas,animalImg:animalImg531,animalCanvas:animalCanvas531,D};
+})();
+</script>
+<!-- cloud9 v53.1 -->
 </body></html>
