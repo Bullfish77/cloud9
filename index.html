@@ -1350,7 +1350,7 @@ const CPK={grow:['🌱','Pflanzen wachsen 25% schneller'],time:['⏱️','+4 Sek
 const COMP={'🐰':'ani','🦋':'rare','🐝':'grow','🦔':'bolt','🦎':'time','🐪':'time','🦂':'bolt','🦅':'ani','🦭':'snow','🐧':'snow','🐻‍❄️':'snow','🦉':'time','🦜':'grow','🐒':'grow','🐢':'time','🦩':'rare','🦦':'ani','🦄':'rare','🐉':'bolt','🦇':'ani','🦊':'leaf','🐿️':'leaf','🪼':'bolt','🐋':'grow'};
 // recipes: a + b = result (TYPES index)
 const RECIPES=[[0,0,3],[1,2,7],[2,4,13],[0,13,15],[3,3,12],[0,6,10],[3,8,11],[4,13,14],[8,10,16],[9,10,20],[5,6,22],[6,10,23],[3,20,21],[7,16,17],[11,17,24],[14,15,18],[17,18,19]];
-const SECS=[[5,3,0,'Startinsel'],[6,4,250,'Blütenhang'],[7,5,600,'Regenbogenbucht'],[8,6,1200,'Himmelsplateau'],[9,7,2000,'Wolkenkontinent'],[10,8,3200,'Sternenreich']];
+const SECS=[[5,3,0,'Startinsel'],[6,4,250,'Blütenhang'],[7,5,600,'Regenbogenbucht'],[8,6,1200,'Himmelsplateau'],[9,7,2000,'Wolkenkontinent'],[10,8,3200,'Sternenreich'],[11,9,2200,'Sonnenarchipel'],[12,10,3200,'Kristallkosmos']];
 const THEMES=[{n:'Frühlingswiese',e:'🌼',top:'#a6e6b4',top2:'#d6f8cf',base:'#c9a8e8',sky:['#ffd3ea','#cfe6ff'],p:0},
 {n:'Kirschblüte',e:'🌸',top:'#ffc6dc',top2:'#ffe8f1',base:'#c79ad8',sky:['#ffe1ee','#f3dcff'],p:300},
 {n:'Winterzauber',e:'❄️',top:'#eef7ff',top2:'#ffffff',base:'#9fc4e8',sky:['#cfe3ff','#f2f8ff'],p:300},
@@ -1404,7 +1404,7 @@ const hOX=()=>HW/2+HV.px,hOY=()=>HH/2-(hGeo().ry*.25-28)*HV.z+HV.py;
 function hRes(){HC=$('hc');let sc=$('homeScr'),top=sc.querySelector('.hbar').offsetHeight||56,bot=['hbot','hInfo','hInv'].reduce((s,i)=>s+($(i).classList.contains('hide')?0:$(i).offsetHeight+4),0);HW=innerWidth;HH=Math.max(300,innerHeight-top-bot-6);HC.style.width=HW+'px';HC.style.height=HH+'px';if(HC.width!==(HW*D|0)||HC.height!==(HH*D|0)){HC.width=HW*D|0;HC.height=HH*D|0}HX=HC.getContext('2d');HX.setTransform(D,0,0,D,0,0);delete GC.hsky;hClampV()}
 function hDayReset(){if(S.home.gd!==today){S.home.gd=today;S.home.got={};save()}}
 const ownedAn=()=>Object.keys(S.alb).filter(e=>S.alb[e]&&GIFTS[e]);
-function habGeo(g,h){let[x1,y1]=cellXY(g,h.c,h.r),[x2,y2]=cellXY(g,h.c+1,h.r+1);return{x:(x1+x2)/2,y:(y1+y2)/2-g.ch*.15,rx:g.cw*1.02,ry:g.ch*.86}}
+function habGeo(g,h){let[x1,y1]=cellXY(g,h.c,h.r),[x2,y2]=cellXY(g,h.c+1,h.r+1),lv=(h&&h.lv)||0;if(!lv&&h&&S&&S.home&&S.home.hab){let o=S.home.hab.find(x=>x&&x.on&&(h.k?x.k===h.k:(Math.abs(x.c-h.c)<.08&&Math.abs(x.r-h.r)<.08)));if(o)lv=o.lv||1}lv=Math.max(1,Math.min(3,lv||1));let sc=1+(lv-1)*.13;return{x:(x1+x2)/2,y:(y1+y2)/2-g.ch*.15,rx:g.cw*1.02*sc,ry:g.ch*.86*sc,lv,sc}}
 const habCells=(c,r)=>[[c,r],[c+1,r],[c,r+1],[c+1,r+1]];
 function occ(skip){let m={};S.home.deco.forEach(d=>{if(d!==skip)m[d.c+','+d.r]=d});S.home.hab.forEach(h=>{if(h.on&&h!==skip)habCells(h.c,h.r).forEach(([c,r])=>m[c+','+r]=h)});return m}
 function cellFree(c,r,skip){return!occ(skip)[c+','+r]}
@@ -1467,16 +1467,16 @@ function burst2(x,y){for(let i=0;i<12;i++)HFT.push({x,y,vx:(R()-.5)*120,vy:-R()*
 function hSheet(html){let s=$('hSheet');s.querySelector('.hsIn').innerHTML=html+'<button class="sec sm" data-x="close">Schließen</button>';s.classList.remove('hide');s.querySelector('[data-x=close]').onclick=()=>s.classList.add('hide')}
 const anName=e=>{let a=ANIMALS.find(x=>x[0]==e);return a?a[1]:e};
 function habSheet(i){let h=S.home.hab[i],H=HABS[h.k],res=HA.filter(a=>a.z===i),cost=hUpCost(h),own=ownedAn();
-hSheet(`<h3>${H.e} ${H.n} <small>Lv ${h.lv}</small></h3><p>${H.d}</p><p>🏠 ${res.length}/${HCAP[h.lv-1]} Bewohner: ${res.map(a=>a.e).join(' ')||'–'}</p><p>Passt für: ${H.a.map(e=>own.includes(e)?e:'❔').join(' ')}</p><p>✨ Geschenke der Bewohner +${Math.round(HBON[h.lv-1]*100)}% Wolkentaler</p>`+(cost?`<button id="hUpg">⬆️ Ausbauen auf Lv ${h.lv+1} (${HCAP[h.lv]} Plätze, +${Math.round(HBON[h.lv]*100)}%) · 🪙 ${cost}</button>`:'<p>⭐ Maximal ausgebaut</p>'));
-let b=$('hUpg');if(b)b.onclick=()=>{if(!pay(cost))return;h.lv++;save();hAnimals();hUi();toast(H.e+' '+H.n+' ist jetzt Lv '+h.lv+' ⭐');habSheet(i)}}
+hSheet(`<h3>${H.e} ${H.n} <small>Lv ${h.lv}</small></h3><p>${H.d}</p><p>🏠 ${res.length}/${HCAP[h.lv-1]} Bewohner: ${res.map(a=>a.e).join(' ')||'–'}</p><p>📐 Lebensraum-Größe: <b>${[100,113,126][h.lv-1]}%</b>${h.lv<3?' → wächst beim Ausbauen auf '+[100,113,126][h.lv]+'%':''}</p><p>Passt für: ${H.a.map(e=>own.includes(e)?e:'❔').join(' ')}</p><p>✨ Geschenke der Bewohner +${Math.round(HBON[h.lv-1]*100)}% Wolkentaler</p>`+(cost?`<button id="hUpg">⬆️ Ausbauen auf Lv ${h.lv+1} (${HCAP[h.lv]} Plätze, +${Math.round(HBON[h.lv]*100)}%) · 🪙 ${cost}</button>`:'<p>⭐ Maximal ausgebaut</p>'));
+let b=$('hUpg');if(b)b.onclick=()=>{if(!pay(cost))return;h.lv++;try{if(window.C9BASEC&&C9BASEC.inval)C9BASEC.inval()}catch(_){}save();hAnimals();hUi();toast(H.e+' '+H.n+' ist jetzt Lv '+h.lv+' ⭐ – der Lebensraum ist gewachsen!');habSheet(i)}}
 function anSheet(){let own=ownedAn(),g=S.home.got,hid=own.filter(e=>S.home.hide[e]),hg=hid.filter(e=>!g[e]);
 hSheet(`<h3>🐾 Deine Tiere <small>${own.length-hid.length} auf der Insel · ${hid.length} verstaut</small></h3><div class="hsrow"><button class="sec sm" id="hsAll">👁 Alle zeigen</button><button class="sec sm" id="hsNone">📦 Alle verstauen</button>${hg.length?`<button class="sm" id="hsGift">🎁 ${hg.length} Geschenke abholen</button>`:''}</div><div class="anl">`+own.map(e=>{let a=HA.find(x=>x.e==e),h=a&&a.z>=0&&S.home.hab[a.z],loc=S.home.hide[e]?'📦 verstaut':h?HABS[h.k].e+' '+HABS[h.k].n:'🌿 frei';return`<div class="anr ${S.home.hide[e]?'off':''}" data-e="${e}"><b>${e}</b><span>${anName(e)}<small>${loc}</small></span><button class="sec sm">${S.home.hide[e]?'Zeigen':'Verstauen'}</button></div>`}).join('')+'</div><small>Tiere mit passendem Lebensraum ziehen automatisch dort ein.</small>');
 $('hSheet').querySelectorAll('.anr button').forEach(b=>b.onclick=()=>{let e=b.closest('.anr').dataset.e;if(S.home.hide[e])delete S.home.hide[e];else S.home.hide[e]=1;save();hAnimals();hUi();anSheet()});
 $('hsAll').onclick=()=>{S.home.hide={};save();hAnimals();hUi();anSheet()};$('hsNone').onclick=()=>{own.forEach(e=>S.home.hide[e]=1);save();hAnimals();hUi();anSheet()};
 let gb=$('hsGift');if(gb)gb.onclick=()=>{let s=0;hg.forEach(e=>{let gf=GIFTS[e];S.home.got[e]=1;S.home.items[gf[0]]=(S.home.items[gf[0]]||0)+1;s+=gf[2]});coinGain(s);SND.sfx('coin');toast('🎁 +'+s+' 🪙 von deinen verstauten Tieren');hUi();anSheet()}}
-function expSheet(){let nx=SECS[S.home.sec],cur=SECS[S.home.sec-1];if(!nx)return toast('Deine Insel hat schon die maximale Größe ✨');
-hSheet(`<h3>🏝️ Insel erweitern</h3><p>Stufe ${S.home.sec+1} von ${SECS.length}: <b>${nx[3]}</b></p><p>${cur[0]}×${cur[1]} → <b>${nx[0]}×${nx[1]} Felder</b> · mehr Platz für Tiere, Deko & Lebensräume</p><button id="hExpGo">Erweitern · 🪙 ${nx[2]}</button><small style="display:block">Du hast 🪙 ${S.home.coins}</small>`);
-$('hExpGo').onclick=()=>{if(!pay(nx[2]))return;S.home.sec++;S.home.paidSec=S.home.sec;if(window.C9GROW)C9GROW(S.home.sec-1);save();$('hSheet').classList.add('hide');hUi();hRes();hResetV();hAnimals();burst2(0,0);toast('🏝️ '+nx[3]+' freigeschaltet – deine Insel ist gewachsen!')}}
+function expSheet(){let nx=SECS[S.home.sec],cur=SECS[S.home.sec-1],bc=[0,4,5,6,7,8,10,12,14];if(!nx)return toast('Deine Insel hat schon die maximale Größe (Stufe '+SECS.length+') ✨');
+hSheet(`<h3>🏝️ Insel erweitern</h3><p>Stufe ${S.home.sec+1} von ${SECS.length}: <b>${nx[3]}</b></p><p>${cur[0]}×${cur[1]} → <b>${nx[0]}×${nx[1]} Felder</b> · 🌱 Gartenbeete: <b>${bc[S.home.sec]||4} → ${bc[S.home.sec+1]||14}</b></p><p><small>Mehr freie Felder auf der Insel & in der Gartenecke!</small></p><button id="hExpGo">Erweitern · 🪙 ${nx[2]}</button><small style="display:block">Du hast 🪙 ${S.home.coins}</small>`);
+$('hExpGo').onclick=()=>{if(!pay(nx[2]))return;S.home.sec++;S.home.paidSec=S.home.sec;if(window.C9GROW)C9GROW(S.home.sec-1);try{if(window.C9BASEC&&C9BASEC.inval)C9BASEC.inval()}catch(_){}save();$('hSheet').classList.add('hide');hUi();hRes();hResetV();hAnimals();burst2(0,0);toast('🏝️ '+nx[3]+' freigeschaltet – mehr Felder & Gartenbeete!')}}
 function hSky(){if(GC.hsky)return GC.hsky;let th=THEMES[S.home.theme]||THEMES[0],[c,x]=OC(HW,HH),g=x.createLinearGradient(0,0,0,HH);g.addColorStop(0,th.sky[0]);g.addColorStop(1,th.sky[1]);x.fillStyle=g;x.fillRect(0,0,HW,HH);
 if(th.night)for(let i=0;i<70;i++){x.fillStyle='rgba(255,255,255,'+(.3+R()*.7)+')';x.beginPath();x.arc(R()*HW,R()*HH*.7,R()*1.4+.3,0,7);x.fill()}
 return GC.hsky=c}
@@ -1553,13 +1553,13 @@ if(up){main=`<button class="buy ${c<uc?'poor':''}" data-up="${up[1]}">⬆️ Lv 
 else if(mine.length){sec=`<button class="buy sec2 sm ${c<H.p?'poor':''}">Noch einen · 🪙 ${H.p}</button>`}
 else{main=`<button class="buy ${c<H.p?'poor':''}">🪙 ${H.p}</button>`}
 return`<div class="card shc wide hab" data-hk="${k}"><b>${H.e}</b><div>${H.n}</div><small>${H.a.map(e=>own.includes(e)?e:'❔').join('')}</small><small class="st">🏠 ${HCAP[0]}→${HCAP[2]} Plätze · ✨ +${HBON[0]*100}%</small>${badge}${main}${sec}</div>`}).join('')}
-else if(SHT=='sec')h=SECS.map((s,i)=>i==0?'':`<div class="card shc wide ${i<S.home.sec?'own':''}" data-s="${i}"><b>🏝️</b><div>${s[3]}</div><small>${s[0]}×${s[1]} Felder</small>${i<S.home.sec?'<span class="ownb">✅ Freigeschaltet</span>':i==S.home.sec?`<button class="buy ${c<s[2]?'poor':''}">🪙 ${s[2]}</button>`:'<small>🔒 Erst Teil '+i+'</small>'}</div>`).join('');
+else if(SHT=='sec')h=SECS.map((s,i)=>i==0?'':`<div class="card shc wide ${i<S.home.sec?'own':''}" data-s="${i}"><b>🏝️</b><div>Stufe ${i+1}: ${s[3]}</div><small>${s[0]}×${s[1]} Felder · 🌱 ${[4,5,6,7,8,10,12,14][i]||14} Beete</small>${i<S.home.sec?'<span class="ownb">✅ Freigeschaltet</span>':i==S.home.sec?`<button class="buy ${c<s[2]?'poor':''}">🪙 ${s[2]}</button>`:'<small>🔒 Erst Stufe '+i+'</small>'}</div>`).join('');
 else h=THEMES.map((th,i)=>{let own=S.home.themes.includes(i);return`<div class="card shc wide" data-th="${i}" style="background:linear-gradient(160deg,${th.sky[0]},${th.top})"><b>${th.e}</b><div>${th.n}</div>${S.home.theme==i?'<span class="ownb">✅ Aktiv</span>':own?'<button class="buy sec2">Benutzen</button>':`<button class="buy ${c<th.p?'poor':''}">🪙 ${th.p}</button>`}</div>`}).join('');
 $('shGrid').innerHTML=h;$('shGrid').querySelectorAll('.buy').forEach(b=>b.onclick=()=>{let card=b.closest('.card');shopBuy(b.dataset.up!=null?{up:b.dataset.up}:card.dataset)})}
 function pay(p){if(S.home.coins<p){toast('Nicht genug Wolkentaler 🪙 – spiel Runden & sammle Geschenke');SND.sfx('nope');return false}S.home.coins-=p;SND.sfx('coin');vib(15);return true}
 function shopBuy(d){if(d.k){if(!pay(DECO[d.k][1]))return;S.home.inv[d.k]=(S.home.inv[d.k]||0)+1;toast(DECO[d.k][0]+' gekauft! Platziere es auf deiner Insel ✏️')}
 else if(d.hk){let H=HABS[d.hk];if(!pay(H.p))return;let h={k:d.hk,lv:1,c:0,r:0,on:false};S.home.hab.push(h);toast(hPlaceHab(h,true)?H.e+' '+H.n+' steht jetzt auf deiner Insel – passende Tiere ziehen ein!':H.e+' '+H.n+' gekauft – kein Platz für 2×2 Felder. Liegt im 📦 Lager – erweitere deine Insel 🏝️',4000)}
-else if(d.up!=null){let h=S.home.hab[+d.up];if(!h||h.lv>=3||!pay(hUpCost(h)))return;h.lv++;toast(HABS[h.k].e+' '+HABS[h.k].n+' ist jetzt Lv '+h.lv+' ⭐')}
+else if(d.up!=null){let h=S.home.hab[+d.up];if(!h||h.lv>=3||!pay(hUpCost(h)))return;h.lv++;try{if(window.C9BASEC&&C9BASEC.inval)C9BASEC.inval()}catch(_){}toast(HABS[h.k].e+' '+HABS[h.k].n+' ist jetzt Lv '+h.lv+' ⭐ – der Lebensraum ist gewachsen!')}
 else if(d.s){let i=+d.s;if(i!=S.home.sec||!pay(SECS[i][2]))return;S.home.sec=i+1;toast('🏝️ '+SECS[i][3]+' freigeschaltet – deine Insel ist gewachsen!')}
 else if(d.th){let i=+d.th;if(!S.home.themes.includes(i)){if(!pay(THEMES[i].p))return;S.home.themes.push(i)}S.home.theme=i;delete GC.hsky;toast(THEMES[i].e+' '+THEMES[i].n+' aktiv')}
 save();renderShop()}
@@ -3720,10 +3720,10 @@ const COL={wiese:'#b6eaa0',wald:'#86cf86',wueste:'#f6dfa4',eis:'#eef7ff',nest:'#
 const N=17,SPX=170,SPY=140,ROWS=[3,5,5,3],LAY=[[-255,-210],[-85,-210],[255,-210],[-340,-70],[-170,-70],[85,-210],[170,-70],[340,-70],[-340,70],[-170,70],[-85,210],[170,70],[340,70],[-255,210],[85,210],[255,210],[0,0]],PZ=16;// v44: Dorfplatz = Knoten 16
 const slotCR=i=>{let[x,y]=LAY[i];return[x/56+7.5,(y+46*.15)/46+7.5]};
 const BR=[[0,1],[1,5],[5,2],[13,10],[10,14],[14,15],[3,4],[6,7],[8,9],[11,12],[3,8],[7,12],[0,4],[2,6],[13,9],[15,11],[1,16],[5,16],[4,16],[6,16],[9,16],[11,16],[10,16],[14,16]];
-hGeo=function(){let cw=56,ch=46;return{cols:N,rows:N,cw,ch,cx:0,cy:-ch*.35,rx:cw*8.9,ry:ch*8.9}};
+hGeo=function(){let sec=Math.max(1,Math.min(SECS.length,(S&&S.home&&S.home.sec)||1)),sc=1+(sec-1)*.032,cw=56,ch=46;return{cols:N,rows:N,cw,ch,cx:0,cy:-ch*.35,rx:cw*8.9*sc,ry:ch*8.9*sc,sec,secScale:sc}};
 hFit=function(){let g=hGeo();return Math.min(1.9,(HW*.98)/(2*g.rx+8),(HH*.93)/(2*g.ry*1.3+30))};
 let SK='',SV=null;
-function slots(g){let k=V.order.join();if(k===SK)return SV;let m={},cells={};let g0=hGeo();V.order.forEach((h,i)=>{let[c,r]=slotCR(i);m[h]=[c,r];let q=habGeo(g0,{c,r});for(let a=0;a<N;a++)for(let b=0;b<N;b++){let[x,y]=cellXY(g0,a,b);if(((x-q.x)/(q.rx*1.3))**2+((y-q.y)/(q.ry*1.45))**2<1)cells[a+','+b]=h}});SK=k;return SV={m,cells}}
+function slots(g){let k=V.order.join()+'|'+S.home.hab.map(h=>h.on?h.k+h.lv:'').join(',');if(k===SK)return SV;let m={},cells={};let g0=hGeo();V.order.forEach((h,i)=>{let[c,r]=slotCR(i);m[h]=[c,r];let q=habGeo(g0,{c,r,lv:1});for(let a=0;a<N;a++)for(let b=0;b<N;b++){let[x,y]=cellXY(g0,a,b);if(((x-q.x)/(q.rx*1.3))**2+((y-q.y)/(q.ry*1.45))**2<1)cells[a+','+b]=h}});SK=k;return SV={m,cells}}
 const own=k=>S.home.hab.find(h=>h.on&&h.k==k);
 // ---------- Zonen: jedes Tier lebt in seinem Feld (auch wenn der Lebensraum noch nicht gekauft ist) ----------
 function homeZ(g,e){let k=AH[e];if(!k)return null;let s=slots().m[k];if(!s)return null;let q=habGeo(g,{c:s[0],r:s[1]});return{x:q.x,y:q.y,rx:q.rx*.7,ry:q.ry*.6,m:HABS[k].m,h:own(k)||null,k}}
@@ -3756,7 +3756,7 @@ function rr(x,X0,Y0,W,H,R){x.beginPath();x.moveTo(X0+R,Y0);x.arcTo(X0+W,Y0,X0+W,
 const hx=h=>[parseInt(h.slice(1,3),16),parseInt(h.slice(3,5),16),parseInt(h.slice(5,7),16)];const mx=(a,b,f)=>a.map((v,i)=>Math.round(v+(b[i]-v)*f));
 let GK='',GC2=null;
 function tileK(c,r){if(c%3==0||r%3==0)return null;return V.order[(r/3|0)*4+(c/3|0)]}
-function ground(g,th){let ow=V.order.map(k=>own(k)?1:0).join(''),key=[V.order.join(),ow,th.top,th.n].join('|');if(key===GK)return GC2;GK=key;
+function ground(g,th){let ow=V.order.map(k=>{let o=own(k);return o?o.lv:0}).join(''),key=[V.order.join(),ow,th.top,th.n,S.home.sec||1].join('|');if(key===GK)return GC2;GK=key;
  let W=g.rx*2,H=g.ry*2,q=Math.min(2.5,(devicePixelRatio||1)*1.25),c=document.createElement('canvas');c.width=W*q|0;c.height=H*q|0;let x=c.getContext('2d');x.scale(q,q);
  const tc=k=>{let b=hx(COL[k]);return own(k)?b:mx(b,hx(th.top),.5)};
  // 1) Farbfeld: jede Probe mischt die nahen Felder weich (Übergänge statt Zäune)
@@ -3844,7 +3844,8 @@ function islet(g,k,i,t,th){let[c,r]=slotCR(i),q=habGeo(g,{c,r}),o=!!own(k),col=C
    else if(d=='rock'){X.fillStyle=drk2(col,.2);X.beginPath();X.ellipse(px,py,3,2,0,0,7);X.fill()}else if(d=='star'){X.fillStyle='rgba(255,255,255,'+(.4+.4*Math.sin(t*2+n))+')';X.beginPath();X.arc(px,py,1.4,0,7);X.fill()}
    else if(d=='ember'){X.fillStyle='rgba(255,140,60,'+(.4+.3*Math.sin(t*3+n))+')';X.beginPath();X.arc(px,py,1.5,0,7);X.fill()}else if(d=='candy'){X.fillStyle=['#ff9ad0','#9ad8ff','#fff09a'][n%3];X.beginPath();X.arc(px,py,1.8,0,7);X.fill()}
    else if(d=='cloud'){X.fillStyle='rgba(255,255,255,.7)';X.beginPath();X.arc(px,py,3,0,7);X.fill()}}}
- // Lichtkante
+ // Lichtkante + Ausbau-Glanz (Lv 2 / Lv 3)
+ if(o&&q.lv>=2){X.strokeStyle=q.lv>=3?'rgba(255,215,70,.85)':'rgba(255,235,140,.65)';X.lineWidth=q.lv>=3?2.6:1.9;X.beginPath();X.ellipse(x0,y0,RX-1.5,RY-1.5,0,0,7);X.stroke()}
  X.strokeStyle='rgba(255,255,255,'+(o?.6:.8)+')';X.lineWidth=1.6;X.beginPath();X.ellipse(x0,y0,RX-2,RY-2,0,Math.PI*1.1,Math.PI*1.7);X.stroke();
  X.restore()}
 // ---------- Gestalten: Lebensraum auf ein anderes Feld ziehen = tauschen ----------
@@ -3862,7 +3863,7 @@ function mig(){if(V.mig)return;let H=S.home,ref=0,old=0;
  H.hab.forEach(h=>{let s=slots().m[h.k];if(s){h.c=s[0];h.r=s[1];h.on=true}});save();
  if(ref)setTimeout(()=>toast('🏝️ Deine Insel ist jetzt ein Quadrat mit 16 Lebensräumen! Erweiterungen werden nicht mehr gebraucht – du bekommst '+ref+' 🪙 zurück.',5500),900)}
 // keine Erweiterung mehr (Shop-Tab + Knopf ausblenden)
-const css=document.createElement('style');css.textContent='#hExp{display:none!important}#shTabs [data-t="sec"]{display:none!important}#shGrid .hab .sec2.sm{display:none!important}';document.head.appendChild(css);
+const css=document.createElement('style');css.textContent='#shGrid .hab .sec2.sm{display:none!important}';document.head.appendChild(css);
 if(V.mig&&V.n!==17){S.home.deco.forEach(d=>{d.c+=2;d.r+=2});V.n=17;save()}else V.n=17;S.home.hab.forEach(h=>{if(h.on){let s0=slots().m[h.k];if(s0){h.c=s0[0];h.r=s0[1]}}});
 window.C9V42={BR,LAY,isle,slots,cin:(c,r,g)=>{g=g||hGeo();if(c<0||r<0||c>=g.cols||r>=g.rows)return false;let[x,y]=cellXY(g,c,r);if((x/(g.rx*.9))**2+((y+6)/(g.ry*.86))**2>1)return false;if(isle(g,x,y+8,1.3))return false;if(window.C9PLBLK&&C9PLBLK(g,x,y))return false;return !BR.some(([a,b])=>{let A=habGeo(g,{c:slotCR(a)[0],r:slotCR(a)[1]}),B=habGeo(g,{c:slotCR(b)[0],r:slotCR(b)[1]}),dx=B.x-A.x,dy=B.y-A.y,f=Math.max(0,Math.min(1,((x-A.x)*dx+(y-A.y)*dy)/(dx*dx+dy*dy))),px=A.x+dx*f,py=A.y+dy*f;return Math.hypot(x-px,(y-py)*1.2)<26})},base,drop,migrate:null,MAP,AH,PZ,qOf,IX,route,rAt,path,onGraph,bridgePts,V:()=>V,ground,homeZ,nb,tileC,exPos,own,slotCR,WATER};
 SK='';mig();
@@ -4343,11 +4344,11 @@ const HR=()=>dayK().h;
 function phase(h){h=h==null?HR():h;if(h>=6.5&&h<10.5)return'fruehstueck';if(h>=10.5&&h<13.5)return'picknick';if(h>=13.5&&h<16.5)return'fangen';if(h>=16.5&&h<21.5)return'feuer';return'nacht'}
 const PH={fruehstueck:{n:'Frühstück',e:'🥐',min:3,max:4},picknick:{n:'Picknick',e:'🧺',min:3,max:5},fangen:{n:'Fangen spielen',e:'🏃',min:4,max:5},feuer:{n:'Lagerfeuer',e:'🔥',min:3,max:5},nacht:{n:'Nachtruhe',e:'🌙',min:0,max:1}};
 // ---------- Felder blockieren (Platz + Garten) ----------
-const GS=[[7,14],[8,14],[7,15],[8,15],[6,14],[9,14],[6,15],[9,15]];// v44.3: eine Reihe höher, ganz auf der Inseloberfläche
+const GS=[[7,14],[8,14],[7,15],[8,15],[6,14],[9,14],[6,15],[9,15],[5,14],[10,14],[5,15],[10,15],[4,14],[11,14]];// v54.4: bis zu 14 Beete bei größeren Inselstufen
 if(V4.g3!==1){V4.g3=1;V4.msig=''}
-const GOF=.45;{const oCXY=cellXY;cellXY=function(g,c,r){let p=oCXY(g,c,r);if((r===14||r===15)&&c>=6&&c<=9)p[1]+=g.ch*GOF;return p}}
-function cap(){let n=S.home.hab.filter(h=>h.on).length;return Math.min(GS.length,n>=11?8:n>=6?6:4)}
-const isG=(c,r,all)=>GS.slice(0,all?8:cap()).some(([a,b])=>a==c&&b==r);
+const GOF=.45;{const oCXY=cellXY;cellXY=function(g,c,r){let p=oCXY(g,c,r);if((r===14||r===15)&&c>=4&&c<=11)p[1]+=g.ch*GOF;return p}}
+function cap(){let n=S.home.hab.filter(h=>h.on).length,hb=n>=11?8:n>=6?6:4,sec=Math.max(1,Math.min(8,(S.home.sec|0)||1)),sb=[0,4,5,6,7,8,10,12,14][sec]||4;return Math.min(GS.length,Math.max(hb,sb))}
+const isG=(c,r,all)=>GS.slice(0,all?GS.length:cap()).some(([a,b])=>a==c&&b==r);
 const oCin=X2.cin;X2.cin=function(c,r,g){if(isG(c,r,1))return true;return oCin.apply(this,arguments)};
 window.C9PLBLK=function(g,x,y){let P=PR();if(((x-P.x)/(P.rx+30))**2+((y-P.y)/(P.ry+26))**2<1)return true;return false};
 // Garten: Beete nur in der Gartenecke, andere Deko nicht dort
@@ -4513,19 +4514,21 @@ let ALLOW=false,FT=0,wasFest=false,SW=[];
 // Tiere im Becken/Flug werden zu Hause nicht gezeichnet
 const oDA=hDrawAnimal;hDrawAnimal=function(a){if(a.fsw&&!ALLOW)return;return oDA.apply(this,arguments)};
 function pool(){let P=V44.PR();return{x:P.x,y:P.y+4,rx:P.rx*.42,ry:P.ry*.42}}
-function slotPos(i,k){let B=pool();if(k<=1)return[B.x-B.rx*.45,B.y+B.ry*.15];let a=i/k*TAU+.5;return[B.x+Math.cos(a)*B.rx*.62,B.y+Math.sin(a)*B.ry*.55+2]}
-const KV=6;// gleichzeitig sichtbar im Becken; die übrigen tauchen abwechselnd auf
-function start(){SW=HA.filter(a=>isSwim(a)&&!a.scared);SW.forEach((a,i)=>{a.fsw={ph:'wait',t:-(i*.35+R()*.4),i,x0:a.sx,y0:a.sy}})}
+function slotPos(i,k){let B=pool();if(k<=1)return[B.x-B.rx*.45,B.y+B.ry*.15];if(k<=8){let a=i/k*TAU+.5;return[B.x+Math.cos(a)*B.rx*.68,B.y+Math.sin(a)*B.ry*.60+2]}let inner=Math.min(6,Math.floor(k/2));if(i<inner){let a=i/inner*TAU+.25;return[B.x+Math.cos(a)*B.rx*.38,B.y+Math.sin(a)*B.ry*.35+1]}let rem=k-inner,j=i-inner,a=j/rem*TAU+.6;return[B.x+Math.cos(a)*B.rx*.78,B.y+Math.sin(a)*B.ry*.68+2]}
+const KV=24;// v54.4: alle Wassertiere gleichzeitig im Festbecken sichtbar, samt ihrer 🎁-Geschenkblasen
+const oHZ_fsw=hZone;
+function start(){let g=hGeo();SW=HA.filter(a=>isSwim(a)&&!a.scared);SW.forEach((a,i)=>{let Z0=oHZ_fsw(g,a),x0=Z0?Z0.x+a.u*Z0.rx:(a.sx||0),y0=Z0?Z0.y+a.v*Z0.ry:(a.sy||0);a.fsw={ph:'pool',t:0,i,x0,y0,vis:true,hop:1}})}
 function step(dt){FT+=dt;let F=V44.FEST,n=SW.length,pages=Math.max(1,Math.ceil(n/KV)),page=Math.floor(FT/3.2)%pages;
  SW.forEach(a=>{let f=a.fsw;if(!f)return;f.t+=dt;
-  if(f.ph=='wait'&&f.t>=0){f.ph='fly';f.t=0;f.x0=a.sx!=null?a.sx:f.x0;f.y0=a.sy!=null?a.sy:f.y0}
-  else if(f.ph=='fly'&&f.t>=1.5){f.ph='pool';f.t=0;f.hop=1}
+  if(f.ph=='wait'&&f.t>=0){f.ph='fly';f.t=0}
+  else if(f.ph=='fly'&&f.t>=1.5){f.ph='pool';f.t=0;f.hop=1;f.vis=true}
   else if(f.ph=='pool'){let vis=Math.floor(f.i/KV)==page;if(vis&&!f.vis)f.hop=1;f.vis=vis;if(f.hop>0)f.hop=Math.max(0,f.hop-dt*1.6);else if(vis&&R()<dt*.25)f.hop=1;
-   if(!F){f.ph='home';f.t=0;f.x1=a.sx;f.y1=a.sy}}
+   if(!F){let Z0=oHZ_fsw(hGeo(),a);f.ph='home';f.t=0;f.x1=Z0?Z0.x:f.x0;f.y1=Z0?Z0.y:f.y0}}
   else if(f.ph=='wait'&&!F){a.fsw=null}
   else if(f.ph=='home'&&f.t>=1.5){a.fsw=null;a.hop=1}});
  SW=SW.filter(a=>a.fsw)}
-function posOf(a){let f=a.fsw,k=Math.min(KV,SW.length),[px,py]=slotPos(f.i%KV,k);return[px,py]}
+function posOf(a){let f=a.fsw,k=Math.max(1,Math.min(KV,SW.length)),[px,py]=slotPos(f.i%KV,k);return[px,py]}
+hZone=function(g,a){if(!HED&&a&&a.fsw){let f=a.fsw,[px,py]=posOf(a);if(f.ph=='fly'||f.ph=='home'){let k=Math.min(1,f.t/1.5),e=k*k*(3-2*k),p0=f.ph=='fly'?[f.x0,f.y0]:[px,py],p1=f.ph=='fly'?[px,py]:[f.x1,f.y1];px=p0[0]+(p1[0]-p0[0])*e;py=p0[1]+(p1[1]-p0[1])*e-Math.sin(k*Math.PI)*(60+Math.hypot(p1[0]-p0[0],p1[1]-p0[1])*.25)}if(f.ph!='wait')return{x:px-(a.u||0),y:py-(a.v||0),rx:1,ry:1,m:'swim',fsw:1,plaza:1}}return oHZ_fsw(g,a)};
 // Becken im Platz (statt Lagerfeuer während des Festes)
 const oPL=window.C9PLAZA;window.C9PLAZA=function(g,t){oPL.apply(this,arguments);if(!((window.C9PLM||3)&2))return;if(!V44.FEST&&!SW.some(a=>a.fsw&&a.fsw.ph=='pool'))return;
  let B=pool();dE(B.x,B.y+5,B.rx+5,B.ry+4,'rgba(70,60,140,.18)');dE(B.x,B.y+2,B.rx+4,B.ry+3.5,'#c9bde3');dE(B.x,B.y,B.rx+4,B.ry+3.5,'#ece6f8');
@@ -4561,7 +4564,7 @@ V44.conf=()=>CF;V44.swim=()=>SW;V44.pool=pool;
 (function(){const X2=window.C9V42;if(!X2||!X2.base)return;
 const oB=X2.base;let builds=0,lastVK='',chg=0,stage=0,SK='';
 const L=[{c:null,m:null,sk:'',vk:'',bm:1},{c:null,m:null,sk:'',vk:'',bm:4}];
-function gkey(){try{return S.home.deco.filter(d=>d.k=='feld').map(d=>d.c+','+d.r).join(';')+'/'+(C9.v44?C9.v44.cap():0)}catch(e){return''}}
+function gkey(){try{return S.home.deco.filter(d=>d.k=='feld').map(d=>d.c+','+d.r).join(';')+'/'+(C9.v44?C9.v44.cap():0)+'/'+S.home.hab.map(h=>h.on?h.k+h.lv:'').join(',')+'/'+(S.home.sec||1)}catch(e){return''}}
 const skey=(g,th)=>[HW,HH,D,th.base,th.top,th.top2,g.rx,g.ry,(X2.V().order||[]).join(),gkey(),HED?1:0,S.home.theme].join('|');
 const vkey=()=>HV.z.toFixed(5)+'|'+HV.px.toFixed(2)+'|'+HV.py.toFixed(2);
 window.C9GEST=function(ms){return performance.now()-chg<(ms||250)};
@@ -4616,7 +4619,7 @@ function abox(a,g){let Z=hZone(g,a);if(!Z||a.sx==null)return null;let sc=g.cw/50
  if(Z.m=='swim'){let ay=y+10*s-Math.max(0,a.hop?Math.sin(a.hop*Math.PI)*42:0);top=ay+b.t*s;bot=y+4*s}else{let ay=y-hy-6*s;top=ay+b.t*s;bot=ay+b.b*s}
  if(!S.home.got[a.e]||a.ex&&a.ex.task)top-=40*s;// Geschenk-Blase gehört dazu
  return{x0:x+l*s-pad,x1:x+r*s+pad,y0:top-pad,y1:bot+pad,cx:x,cy:(top+bot)/2}}
-function animalHit(p){let g=hGeo(),best=null,bd=1e9;HA.forEach(a=>{if(a.sx==null||a.fsw)return;let B=abox(a,g);if(!B||p.x<B.x0||p.x>B.x1||p.y<B.y0||p.y>B.y1)return;let d=Math.hypot(p.x-B.cx,p.y-B.cy);if(d<bd){bd=d;best=a}});return best}
+function animalHit(p){let g=hGeo(),best=null,bd=1e9;HA.forEach(a=>{if(a.sx==null||(a.fsw&&a.fsw.ph!=='pool'))return;let B=abox(a,g);if(!B||p.x<B.x0||p.x>B.x1||p.y<B.y0||p.y>B.y1)return;let d=Math.hypot(p.x-B.cx,p.y-B.cy)-(S.home.got[a.e]?0:24);if(d<bd){bd=d;best=a}});return best}
 // Besucher/Bewohner nur bei Treffer auf die Figur (bzw. ihre ?-Blase)
 function visHit(p){let vv=window.C9.visTap&&C9.visTap(p);if(vv){let q=C9.VP&&C9.VP()[vv.e];if(q&&q.sx!=null){let sc=q.sc||hGeo().cw/50,pad=Math.min(6,2+1.5/Math.max(.2,HV.z));if(!(Math.abs(p.x-q.sx)<18*sc+pad&&p.y>q.sy-(vv.vis?66:40)*sc-pad&&p.y<q.sy+6*sc+pad))vv=null}}return vv}
 let LAST=null,HOUSE=null;// {a,t}  {i,t}
@@ -8024,8 +8027,7 @@ window.C9V532={
 })();
 </script>
 <!-- cloud9 v53.2 -->
-<script>
-/* v54.2: 9 Osterwelt-Level (je 3 = 1 Preis), verschiebbares Deko-Ei, laufendes Küken, Küken-Spielfigur, bemalte Eier, sauberes Hasen-Hüpfen.
+<script>/* v54.2: 9 Osterwelt-Level (je 3 = 1 Preis), verschiebbares Deko-Ei, laufendes Küken, Küken-Spielfigur, bemalte Eier, sauberes Hasen-Hüpfen.
    v54.1:
    1. Weihnachtswelt (#v53w): weniger Zuckerstangen (4 dezent verteilte statt 11).
    2. Silvester (Neujahr): Feuerwerk auf der Insel ohne Abschneiden + hübsches, interaktives Glücksschweinchen (nur beim Silvester-Thema sichtbar).
@@ -8529,8 +8531,8 @@ function keepOffHabitats(g,x,y,pad){
 function skelRingXY(g,a){
  let nx=Math.cos(a)*g.rx*.88,ny=Math.sin(a)*g.ry*.82+g.ch*.18;
  let p=keepOffHabitats(g,nx,ny,1.32);
- let rx=g.rx*.92,ry=g.ry*.89,d=Math.hypot(p[0]/rx,(p[1]-4)/ry);
- if(d>1){p[0]/=d;p[1]=(p[1]-4)/d+4}
+ let rx=g.rx*.94,ry=g.ry*.91,d=Math.hypot(p[0]/rx,(p[1]-4)/ry);
+ if(d>1){p[0]/=d;p[1]=(p[1]-4)/d+4;p=keepOffHabitats(g,p[0],p[1],1.32)}
  return p;
 }
 
@@ -9623,7 +9625,7 @@ function unlockAllForTest(){
 
 // Exportiere saubere API für Tests & Interaktion
 window.C9.v54=window.C9_V54={
- version:'54.3',ensureEggDeco,
+ version:'54.4',ensureEggDeco,
  PRIZES,LV,SV,
  hasPrize,
  isOsternThemeActive,
@@ -9644,4 +9646,230 @@ window.C9.v54=window.C9_V54={
 };
 })();
 
+/* v54.4:
+   1. Tierfest: Besucher-Tiere (v21 Visitors & Bewohner) feiern auf dem Dorfplatz mit (inkl. 🎁/❓ & Besuch-Schild)
+   2. Tierfest: Geschenke/Belohnungen der Wasserbewohner wandern mit zum Fest-Pool
+   3. Neue größere Inselstufen (Stufe 7 Sonnenarchipel, Stufe 8 Kristallkosmos) mit mehr Feldern & bis zu 14 Gartenbeeten
+   4. Lebensräume (Habitats) wachsen sichtbar auf Level 1 -> Level 2 -> Level 3
+*/
+(function(){
+'use strict';
+
+const STAGE_BEDS={1:4,2:5,3:6,4:7,5:8,6:10,7:12,8:14};
+function maxBedsForSec(sec){
+ return STAGE_BEDS[Math.max(1,Math.min(8,sec|0))]||4;
+}
+
+function getGS(){
+ return (window.C9&&C9.v44&&C9.v44.GS)||[[7,14],[8,14],[7,15],[8,15],[6,14],[9,14],[6,15],[9,15],[5,14],[10,14],[5,15],[10,15],[4,14],[11,14]];
+}
+
+function grantBedsForStage(){
+ if(!S||!S.home)return 0;
+ let sec=Math.max(1,(S.home.sec|0)||1);
+ let cap=(window.C9&&C9.v44&&C9.v44.cap)?C9.v44.cap():maxBedsForSec(sec);
+ let gs=getGS().slice(0,cap);
+ S.home.deco=S.home.deco||[];
+ S.home.inv=S.home.inv||{};
+ let placed=S.home.deco.filter(d=>d&&d.k==='feld').length;
+ let added=0;
+ while(placed<cap && placed<gs.length){
+  let used=new Set(S.home.deco.filter(d=>d&&d.k==='feld').map(d=>d.c+','+d.r));
+  let slot=gs.find(([c,r])=>!used.has(c+','+r));
+  if(!slot)break;
+  // Evict any non-feld deco sitting on this newly unlocked garden slot
+  S.home.deco.filter(d=>d&&d.k!=='feld'&&d.c===slot[0]&&d.r===slot[1]).forEach(d=>{
+   let g=hGeo(),moved=false;
+   for(let r=0;r<g.rows&&!moved;r++)for(let c=0;c<g.cols&&!moved;c++){
+    if(cellFree(c,r,d)){d.c=c;d.r=r;moved=true}
+   }
+   if(!moved){S.home.deco.splice(S.home.deco.indexOf(d),1);S.home.inv[d.k]=(S.home.inv[d.k]||0)+1}
+  });
+  if((S.home.inv.feld|0)>0)S.home.inv.feld--;
+  S.home.deco.push({k:'feld',c:slot[0],r:slot[1]});
+  placed++;added++;
+ }
+ if(added){
+  try{if(window.C9FIXBEDS)C9FIXBEDS()}catch(_){}
+  try{if(window.C9BASEC&&C9BASEC.inval)C9BASEC.inval()}catch(_){}
+  try{save()}catch(_){}
+ }
+ return added;
+}
+
+// Safe C9GROW override: do NOT shift v42 17x17 coordinates when buying an island stage;
+// instead, grant the new garden beds and invalidate the island cache so the larger island renders immediately.
+window.C9GROW=function(os){
+ let added=grantBedsForStage();
+ try{if(window.C9&&C9.v44&&C9.v44.migrate)C9.v44.migrate()}catch(_){}
+ try{if(window.C9BASEC&&C9BASEC.inval)C9BASEC.inval()}catch(_){}
+ try{syncExpBtn()}catch(_){}
+ return added;
+};
+
+function festActive(){
+ return !!(window.C9&&C9.v44&&C9.v44.FEST&&!window.HED);
+}
+
+function visFestSlot(v,g){
+ let key=(v&&(v.e||v.id))||'';
+ let list=(window.C9&&C9.visList)?C9.visList():[];
+ let idx=list.findIndex(x=>x&&(x.e||x.id)===key);
+ if(idx<0)idx=0;
+ let cnt=Math.max(1,list.length);
+ let P=(window.C9&&C9.v44&&C9.v44.PR)?C9.v44.PR():{x:0,y:16,rx:98,ry:68};
+ if(key==='🦢'&&window.C9&&C9.v44&&C9.v44.pool){
+  let B=C9.v44.pool();
+  return [B.x, B.y-B.ry*0.15];
+ }
+ // Place visitors on a cheerful inner festival ring on the Dorfplatz
+ let a=-Math.PI*0.75 + (idx/cnt)*Math.PI*2;
+ let rx=P.rx*0.64, ry=P.ry*0.58;
+ return [P.x+Math.cos(a)*rx, P.y+Math.sin(a)*ry];
+}
+
+// Patch v21/v43.3f visitor positioning so visitors join the Tierfest on the Dorfplatz!
+function patchVisitorFest(){
+ if(typeof window.C9VISSNAP!=='function'||typeof window.C9VISTGT!=='function')return;
+ if(window.C9VISSNAP._v544)return;
+ const origSnap=window.C9VISSNAP;
+ const origTgt=window.C9VISTGT;
+
+ window.C9VISSNAP=function(v,p,g){
+  if(festActive()&&v&&p){
+   let [fx,fy]=visFestSlot(v,g);
+   let P=(window.C9&&C9.v44&&C9.v44.PR)?C9.v44.PR():{x:0,y:16,rx:98,ry:68};
+   p.walk=null;
+   p.fest=1;
+   if(p.x==null||Math.hypot(p.x-fx,p.y-fy)>P.rx*0.9){
+    p.x=fx;p.y=fy;p.tx=fx;p.ty=fy;p.hop=1;
+   }
+   return;
+  }
+  if(p&&p.fest){
+   p.fest=0;p.walk=null;p.x=null;
+  }
+  return origSnap(v,p,g);
+ };
+ window.C9VISSNAP._v544=true;
+
+ window.C9VISTGT=function(v,p,g){
+  if(festActive()&&v&&p){
+   let [fx,fy]=visFestSlot(v,g);
+   let key=(v&&(v.e||v.id))||'🐾';
+   let seed=key.codePointAt(0)||1;
+   let t=performance.now()/1000;
+   p.walk=null;
+   let jx=Math.cos(t*2.4+seed)*5;
+   let jy=Math.sin(t*2.8+seed)*3.5;
+   p.tx=fx+jx;p.ty=fy+jy;
+   if(p.x==null||!p.fest){p.x=fx;p.y=fy;p.fest=1}
+   p.w=0.45+Math.random()*0.45;
+   if((p.hop||0)<=0.05)p.hop=0.85;
+   return true;
+  }
+  if(p&&p.fest){
+   p.fest=0;p.walk=null;p.x=null;
+   origSnap(v,p,g);
+   return true;
+  }
+  return origTgt(v,p,g);
+ };
+ window.C9VISTGT._v544=true;
+}
+
+// Wrap C9.v44.startFest so starting a Tierfest immediately pulls all active visitors onto the Dorfplatz
+function patchStartFest(){
+ if(!window.C9||!C9.v44||typeof C9.v44.startFest!=='function'||C9.v44.startFest._v544)return;
+ const origStartFest=C9.v44.startFest;
+ C9.v44.startFest=function(){
+  let r=origStartFest.apply(this,arguments);
+  try{
+   patchVisitorFest();
+   let g=hGeo(),vp=(C9.VP&&C9.VP())||(window.C9V521VP&&C9V521VP()),vl=C9.visList?C9.visList():[];
+   if(vp&&vl){
+    vl.forEach(v=>{
+     let k=v&&(v.e||v.id);
+     if(!k)return;
+     let p=vp[k]||(vp[k]={x:0,y:16,tx:0,ty:16,w:0.4,ph:Math.random()*6,dir:false});
+     let [fx,fy]=visFestSlot(v,g);
+     p.walk=null;p.fest=1;p.x=fx;p.y=fy;p.tx=fx;p.ty=fy;p.hop=1;p.w=0.4;
+    });
+   }
+  }catch(_){}
+  return r;
+ };
+ C9.v44.startFest._v544=true;
+}
+
+// Update #hExp button badge / tooltip to reflect the 8 island stages
+function syncExpBtn(){
+ try{
+  let b=document.getElementById('hExp');
+  if(!b||!S||!S.home||typeof SECS==='undefined')return;
+  let cur=Math.max(1,Math.min(SECS.length,(S.home.sec|0)||1));
+  let nx=SECS[cur];
+  b.style.display='';
+  if(nx){
+   b.innerHTML=`🏝️ Insel erweitern <small>🪙 ${nx[2]}</small>`;
+   b.classList.toggle('poor',(S.home.coins|0)<nx[2]);
+   b.title=`Stufe ${cur+1}/${SECS.length}: ${nx[3]} (${nx[0]}×${nx[1]} Felder · ${maxBedsForSec(cur+1)} Gartenbeete)`;
+  }else{
+   b.innerHTML=`🏝️ Stufe ${SECS.length}/${SECS.length}: ${SECS[SECS.length-1][3]} ✨`;
+   b.classList.remove('poor');
+   b.title='Maximale Inselstufe erreicht (Stufe 8 · 14 Gartenbeete)';
+  }
+ }catch(_){}
+}
+
+try{
+ const oHUi=hUi;
+ hUi=function(){
+  let r=oHUi.apply(this,arguments);
+  try{syncExpBtn()}catch(_){}
+  return r;
+ };
+}catch(_){}
+
+function initV544(){
+ patchVisitorFest();
+ patchStartFest();
+ grantBedsForStage();
+ syncExpBtn();
+}
+
+if(document.readyState==='loading'){
+ document.addEventListener('DOMContentLoaded',initV544);
+}else{
+ initV544();
+}
+setTimeout(initV544,120);
+
+// Extend C9.v54 with v54.4 helpers while keeping all v54.3 properties intact
+if(window.C9&&C9.v54){
+ Object.assign(C9.v54,{
+  version:'54.4',
+  maxBedsForSec,
+  grantBedsForStage,
+  patchVisitorFest,
+  visFestSlot,
+  syncExpBtn,
+  getPlaceableCellCount:(sec)=>{
+   let prev=S.home.sec;
+   if(sec!=null)S.home.sec=sec;
+   try{
+    let g=hGeo(),cnt=0;
+    for(let r=0;r<g.rows;r++)for(let c=0;c<g.cols;c++)if(C9V42.cin(c,r,g))cnt++;
+    return cnt;
+   }finally{
+    if(sec!=null)S.home.sec=prev;
+   }
+  },
+  getHabGeoForLevel:(k,lv)=>{
+   let sl=C9V42.slots().m[k]||[4,4];
+   return habGeo(hGeo(),{k,c:sl[0],r:sl[1],lv:lv||1});
+  }
+ });
+}
+})();
 </script></body></html>
