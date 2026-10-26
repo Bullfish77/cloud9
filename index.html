@@ -4146,7 +4146,7 @@ V3.reg('flug',{n:'Flatter-Flug',e:'🪽',how:'Tippe, um mit den Flügeln zu schl
 (function(){
 const S=C9.S;S.v43=S.v43||{};const V=S.v43;const DAYK=(location.search.match(/[?&]date=(\d{4}-\d\d-\d\d)/)||[])[1]||today;
 const EV=()=>Object.entries((S.v32||{}).ev||{}).filter(([k])=>k.startsWith('hw')).map(([,v])=>v);
-const isHalTheme=()=>!!(S.home&&S.home.theme===((C9.v40?C9.v40.BASE:5)+0));const hasG=()=>isHalTheme()&&(EV().some(e=>e.gd)||/[?&]ghost/.test(location.search)),hasS=()=>isHalTheme()&&(EV().some(e=>e.sk)||/[?&]ghost/.test(location.search));
+const isHalTheme=()=>!!(S.home&&S.home.theme===((C9.v40?C9.v40.BASE:5)+0));const hasG=()=>isHalTheme()&&((window.C9&&C9.v55&&C9.v55.hasHalPrize&&C9.v55.hasHalPrize('geist'))||EV().some(e=>e.gd)||/[?&]ghost/.test(location.search)),hasS=()=>isHalTheme()&&((window.C9&&C9.v55&&C9.v55.hasHalPrize&&C9.v55.hasHalPrize('skelett'))||EV().some(e=>e.sk)||/[?&]ghost/.test(location.search));
 const NM=e=>(ANIMALS.find(a=>a[0]==e)||[e,e])[1];
 const RO={g:{x:0,y:0,tx:null,ty:null,ph:0,spin:0,sx:null},s:{a:0,x:0,y:0,dance:0,sx:null,dir:1}};let tScare=90+Math.random()*60,last=performance.now();
 function ghost(x,y,t,sp){let b=Math.sin(t*2.2)*5;X.save();X.translate(x,y+b);X.rotate(Math.sin(t*1.3)*.08+sp*6.283);X.globalAlpha=.9;
@@ -4168,7 +4168,7 @@ function snd(k){try{let c=SND.ctx;if(!c||SND.ST.mute)return;let t=c.currentTime,
  else{for(let i=0;i<5;i++){let o=c.createOscillator(),gg=c.createGain();o.type='square';o.frequency.value=900+Math.random()*700;gg.gain.setValueAtTime(v*.5,t+i*.07);gg.gain.exponentialRampToValueAtTime(.001,t+i*.07+.05);o.connect(gg).connect(c.destination);o.start(t+i*.07);o.stop(t+i*.07+.06)}}}catch(_){}}
 const oS=hStep;hStep=function(list,g,dt){let r=oS.apply(this,arguments);if(list!==HA)return r;let t=performance.now()/1000,G=RO.g,K=RO.s;
  if(hasG()){if(G.tx!=null){let dx=G.tx-G.x,dy=G.ty-G.y,d=Math.hypot(dx,dy);if(d>3){G.x+=dx/d*Math.min(d,55*dt);G.y+=dy/d*Math.min(d,55*dt)}else{if(G.tgt)scare(G.tgt);G.tgt=null;G.tx=null}}else{let px=Math.sin(t*.09)*g.rx*.72,py=Math.sin(t*.13+1)*g.ry*.62;G.x+=(px-G.x)*Math.min(1,dt*.8);G.y+=(py-G.y)*Math.min(1,dt*.8)}G.spin=Math.max(0,G.spin-dt)}
- if(hasS()){if(K.dance>0)K.dance-=dt;else K.a+=dt*.035*K.dir;let nx=Math.cos(K.a)*g.rx*.86,ny=Math.sin(K.a)*g.ry*.8+g.ch*.2;K.face=nx<K.x?-1:1;K.walk=K.dance>0?0:1;K.x=nx;K.y=ny}
+ if(hasS()){if(K.dance>0)K.dance-=dt;else K.a+=dt*.035*K.dir;let pos=(window.C9&&C9.v54&&C9.v54.skelRingXY)?C9.v54.skelRingXY(g,K.a):[Math.cos(K.a)*g.rx*.86,Math.sin(K.a)*g.ry*.8+g.ch*.2],nx=pos[0],ny=pos[1];if(Math.abs(nx-K.x)>.02)K.face=nx<K.x?-1:1;K.walk=K.dance>0?0:1;K.x=nx;K.y=ny}
  // Erschrecken
  if((hasG()||hasS())&&!HED){tScare-=dt;if(tScare<=0){tScare=150+Math.random()*120;let c=HA.filter(a=>a.sx!=null&&!a.scared&&!(a.ex&&a.ex.task));if(c.length){let a=c[Math.random()*c.length|0];if(hasG()&&(!hasS()||Math.random()<.6)){G.tx=a.sx;G.ty=a.sy-30;G.tgt=a}else{scare(a,'s')}}}}
  HA.forEach(a=>{if(a.scared&&Date.now()-a.scared.t0>90000)a.scared=null});return r};
@@ -4988,7 +4988,7 @@ function make(x,W,H,e,tw,kid,fx){
    x.strokeStyle='rgba(120,90,80,.35)';x.lineWidth=U*.8;x.beginPath();x.moveTo(p.x,G-p.z-U*3.5);x.lineTo(p.x+U*2,G-p.z-U*9);x.stroke()});
   // Sammelsachen
   its.forEach(it=>{let yy=it.y+Math.sin(it.b*3)*U*.7,r=U*(it.big?4.8:3.8);let gl=x.createRadialGradient(it.x,yy,1,it.x,yy,r*1.4);gl.addColorStop(0,'rgba(255,255,255,.75)');gl.addColorStop(1,'rgba(255,255,255,0)');x.fillStyle=gl;x.beginPath();x.arc(it.x,yy,r*1.4,0,TAU);x.fill();
-   x.font=`${Math.round(r)}px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif`;x.textAlign='center';x.textBaseline='middle';if(!it.big&&tw.it=='bb')berry(x,it.x,yy,r*.5);else if(!it.big&&tw.it=='amber')amber(x,it.x,yy,r*.5);else if(!it.big&&tw.it=='🥚'&&window.C9_DRAW_PAINTED_EGG){if(it._ev==null)it._ev=Math.abs(Math.round(it.y*7+it.b*37))%6;window.C9_DRAW_PAINTED_EGG(x,it.x,yy,r*.56,it._ev)}else x.fillText(it.big?(m=='moon'?'🌟':'💎'):tw.it,it.x,yy)});
+   x.font=`${Math.round(r)}px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif`;x.textAlign='center';x.textBaseline='middle';if(!it.big&&tw.it=='bb')berry(x,it.x,yy,r*.5);else if(!it.big&&tw.it=='amber')amber(x,it.x,yy,r*.5);else if(!it.big&&tw.it=='🥚'&&window.C9_DRAW_PAINTED_EGG){if(it._ev==null)it._ev=Math.abs(Math.round(it.y*7+it.b*37))%6;window.C9_DRAW_PAINTED_EGG(x,it.x,yy,r*.56,it._ev)}else if(!it.big&&tw.it=='🎃'&&window.C9_DRAW_PUMPKIN){window.C9_DRAW_PUMPKIN(x,it.x,yy,r*.56)}else if(!it.big&&tw.it=='🍬'&&window.C9_DRAW_CANDY){window.C9_DRAW_CANDY(x,it.x,yy,r*.56)}else if(!it.big&&tw.it=='🍀'&&window.C9_DRAW_CLOVER){window.C9_DRAW_CLOVER(x,it.x,yy,r*.56)}else x.fillText(it.big?(m=='moon'?'🌟':'💎'):tw.it,it.x,yy)});
   // Schatten + Tier
   let base=A.plat?A.plat.y:G,hgt=Math.max(0,base-A.y),k=clamp(1-hgt/(U*40),.3,1);x.fillStyle=`rgba(40,30,80,${.18*k})`;x.beginPath();x.ellipse(A.x,base+U*.4,U*4*k,U*1.1*k,0,0,TAU);x.fill();
   if(howl>0){let gw=x.createRadialGradient(A.x,A.y-U*6,2,A.x,A.y-U*6,U*18);gw.addColorStop(0,`rgba(255,246,200,${.45*Math.min(1,howl)})`);gw.addColorStop(1,'rgba(255,246,200,0)');x.fillStyle=gw;x.beginPath();x.arc(A.x,A.y-U*6,U*18,0,TAU);x.fill()}
@@ -6579,6 +6579,7 @@ function make(x,W,H,e,tw,kid,fx){
    else if(it.k=='gold'){glow(x,px,py,r*2,'rgba(255,210,90,.6)');emo(x,'🍯',px,py,r*2.2)}
    else{let w=it.c==wish;if(w)glow(x,px,py,r*1.9,'rgba(255,255,255,.75)');berry(x,px,py,r*(w?1.08:.95),it.c,it.rot);if(w){x.strokeStyle='#fff';x.lineWidth=2;x.beginPath();x.arc(px,py,r*1.25,0,TAU);x.stroke()}}}
   else if(m=='clover'){if(it.k=='bad'){x.fillStyle='#6ab8ff';x.beginPath();x.moveTo(px,py-r*1.2);x.quadraticCurveTo(px+r*.95,py+r*.1,px,py+r*.8);x.quadraticCurveTo(px-r*.95,py+r*.1,px,py-r*1.2);x.fill();x.fillStyle='rgba(255,255,255,.6)';x.beginPath();x.arc(px-r*.25,py+r*.1,r*.2,0,TAU);x.fill()}
+   else if(tw.it=='🍬'&&window.C9_DRAW_CANDY){if(it.k=='gold')glow(x,px,py,r*2.2,'rgba(255,240,120,.7)');window.C9_DRAW_CANDY(x,px,py,r*(it.k=='gold'?1.12:.95))}
    else if(it.k=='gold'){glow(x,px,py,r*2.2,'rgba(255,240,120,.7)');leaf3(x,px,py,r*1.1,it.rot,4,'#3ac83a')}
    else leaf3(x,px,py,r*.95,it.rot,3,'#5ab84a')}
   else if(m=='shell'){if(it.k=='bad'){x.strokeStyle='#3a8a3a';x.lineWidth=U*.7;x.lineCap='round';for(let k=-1;k<=1;k++){x.beginPath();x.moveTo(px+k*r*.4,py+r);x.quadraticCurveTo(px+k*r*.4+Math.sin(T*4+k)*r*.6,py,px+k*r*.5,py-r);x.stroke()}x.lineCap='butt'}
@@ -8826,6 +8827,7 @@ function tapLuckyPig(){
 }
 
 function drawSilvesterIslandSpecials(g){
+ if(window.C9 && C9.v55)return [];
  if(!S.home || S.home.theme!==TH_SILVESTER){
   PIG_ST.sx=-9999;
   return [];
@@ -8878,7 +8880,7 @@ function triggerPrizeTap(which){
 }
 
 function checkEasterWorldTap(wx,wy){
- if(S.home && S.home.theme===TH_SILVESTER){
+ if(!(window.C9 && C9.v55) && S.home && S.home.theme===TH_SILVESTER){
   if(Math.hypot(wx-PIG_ST.wx,wy-PIG_ST.wy)<38)return triggerPrizeTap('pig');
  }
  if(!isOsternThemeActive())return false;
@@ -8908,7 +8910,7 @@ function checkEasterScreenTap(cx,cy){
  let sh=$('hSheet');
  if(sh&&!sh.classList.contains('hide'))return false;
 
- if(S.home && S.home.theme===TH_SILVESTER && PIG_ST.sx>-9000){
+ if(!(window.C9 && C9.v55) && S.home && S.home.theme===TH_SILVESTER && PIG_ST.sx>-9000){
   if(Math.hypot(cx-PIG_ST.sx,cy-PIG_ST.sy)<=PIG_ST.sr)return triggerPrizeTap('pig');
  }
  if(!isOsternThemeActive())return false;
@@ -9641,6 +9643,7 @@ window.C9.v54=window.C9_V54={
  tapEgg,tapChick,tapBunny,tapLuckyPig,
  checkEasterWorldTap,checkEasterScreenTap,
  drawDekoEgg,drawCuteChick,drawEasterBunny,
+ skelRingXY,keepOffHabitats,
  get state(){return OST_ST},
  get pigState(){return PIG_ST}
 };
@@ -9871,5 +9874,1857 @@ if(window.C9&&C9.v54){
   }
  });
 }
+})();
+</script>
+<script>/* v55.0:
+   1. Eigene Abenteuerkarte 🎃 Halloween-Welt (#v55h) nach dem exakten Vorbild der Weihnachts- & Osterwelt:
+      - 9 abwechslungsreiche Level (je 3 Level schalten 1 Halloween-Schatz für die Insel frei):
+        * Level 1–3 -> 🎃 Leucht-Kürbis (verschiebbare Insel-Deko DD.kuerbis, leuchtet & funkelt beim Antippen)
+        * Level 4–6 -> 👻 Kleiner Geist (als Geist spielen + spukt auf der Halloween-Insel & dreht Pirouetten beim Antippen)
+        * Level 7–9 -> 💀 Klapper-Skelett (als Skelett spielen + wandert außen um die Halloween-Insel & tanzt beim Antippen)
+   2. Eigene Abenteuerkarte 🎆 Silvester-Welt (#v55s) nach dem exakten Vorbild der Weihnachts- & Osterwelt:
+      - 9 abwechslungsreiche Level (je 3 Level schalten 1 Silvester-Schatz für die Insel frei):
+        * Level 1–3 -> 🍀 Glücks-Kleeblatt (verschiebbare Insel-Deko DD.glklee, funkelt beim Antippen)
+        * Level 4–6 -> 🎆 Feuerwerk-Batterie (verschiebbare Insel-Deko DD.silvrakete, zündet buntes Feuerwerk beim Antippen)
+        * Level 7–9 -> 🐷 Glücksschweinchen (als Schweinchen spielen + läuft außen um die Silvester-Insel & quiekt/hüpft beim Antippen)
+   3. Alle Themen-Schätze sind auf der Insel nur beim jeweiligen aktiven Thema sichtbar und erst, wenn sie erspielt wurden (Start bei 0/3).
+*/
+(function(){
+'use strict';
+const S=C9.S,V43=C9.v43,V40=C9.v40;
+if(!S||!V43||!V40)return;
+
+const DAY=(location.search.match(/[?&]date=(\d{4}-\d\d-\d\d)/)||[])[1]||today;
+const MD=+DAY.slice(5,7)*100+ +DAY.slice(8,10);
+
+// Themen-Indizes auf der Insel (V40.BASE = 5)
+const TH_HALLOWEEN=V40.BASE+0;
+const TH_XMAS=V40.BASE+1;
+const TH_SILVESTER=V40.BASE+2;
+const TH_OSTERN=V40.BASE+3;
+
+// Saison- & Vorschau-Flags für Halloween & Silvester
+const IN_HAL=(MD>=1001&&MD<=1105);
+let HPRE=true;try{let v=localStorage.getItem('c9_v55h_pre');if(v!==null)HPRE=v==='1'}catch(_){}
+if(/[?&]halloween=0/.test(location.search))HPRE=false;
+if(/[?&]halloween(=1|&|$)/.test(location.search))HPRE=true;
+const H_OPEN_AVAIL=IN_HAL||HPRE,H_PREV=!IN_HAL&&HPRE;
+
+const IN_SILV=(MD>=1227||MD<=106);
+let SPRE=true;try{let v=localStorage.getItem('c9_v55s_pre');if(v!==null)SPRE=v==='1'}catch(_){}
+if(/[?&]silvester=0/.test(location.search))SPRE=false;
+if(/[?&]silvester(=1|&|$)/.test(location.search))SPRE=true;
+const S_OPEN_AVAIL=IN_SILV||SPRE,S_PREV=!IN_SILV&&SPRE;
+
+// ============================================================================
+// 1. PREISE & 9 LEVEL DER HALLOWEEN-WELT (#v55h)
+// ============================================================================
+const PRIZES_H=[
+ {id:'kuerbis',n:'Leucht-Kürbis',e:'🎃',lv:[0,1,2],desc:'Eine geschnitzte Kürbis-Laterne für deine Insel – verschiebbar im ✎ Gestalten-Modus, antippen lässt sie warm aufleuchten!'},
+ {id:'geist',n:'Kleiner Geist',e:'👻',lv:[3,4,5],desc:'Schwebt fröhlich über deine Halloween-Insel – wenn du ihn antippst, dreht er eine lustige Spuk-Pirouette!'},
+ {id:'skelett',n:'Klapper-Skelett',e:'💀',lv:[6,7,8],desc:'Wandert außen um deine Halloween-Insel herum – wenn du es antippst, tanzt und klappert es für dich!'}
+];
+const UNLOCK_AT_H={2:'kuerbis',5:'geist',8:'skelett'};
+const LV_H=[
+ {f:'huepf',n:'Kürbis-Pfad',pIdx:0,step:1,d:'Hüpf durch den Abendwald und sammle leuchtende Kürbisse!',how:'Tippen = Hüpfen',pl:'🦊',tw:{sc:'forest',it:'🎃'},fact:'Kürbisse sind botanisch gesehen riesige Beeren und können über 500 Kilo schwer werden!'},
+ {f:'fang',n:'Bonbon-Regen',pIdx:0,step:2,d:'Fang die bunten Halloween-Bonbons auf!',how:'Ziehen = Fangen',pl:'🐻',tw:{mech:'clover',it:'🍬'},fact:'Der Brauch „Süßes oder Saures" kommt von alten Herbstfesten, bei denen Kinder von Haus zu Haus zogen.'},
+ {f:'flug',n:'Laternen-Flug',pIdx:0,step:3,d:'Flieg durch den Abendhimmel – danach gehört der Leucht-Kürbis dir!',how:'Tippen = Flattern',pl:'🦉',tw:{ob:'tree',it:'🎃',sky:['#1c1438','#4a2c68'],far:'#2e1c48',mid:'#211336',moon:1},fact:'Vor den Kürbissen schnitzte man in Irland früher Laternen aus großen Rüben!'},
+ {f:'huepf',n:'Geister-Hüpfen',pIdx:1,step:1,d:'Schwebe als kleiner Geist über die Mondschein-Wiese und sammle Bonbons!',how:'Tippen = Hüpfen',pl:'👻',tw:{sc:'night',it:'🍬'},fact:'Nebel im Herbst entsteht, wenn feuchte Luft am Abend über kühlen Wiesen abkühlt.'},
+ {f:'takt',n:'Spukschloss-Takt',pIdx:1,step:2,d:'Spuke im Takt zur fröhlichen Geister-Melodie!',how:'Tippe im Takt',pl:'👻',tw:{mech:'sides',tim:'bell',bgx:'spooky'},fact:'Alte Burgen knarzen nachts oft, weil sich das Holz in der kühlen Nachtluft zusammenzieht.'},
+ {f:'flug',n:'Mitternachts-Flug',pIdx:1,step:3,d:'Flieg als kleiner Geist durch die Sternennacht – dann zieht er auf deine Insel!',how:'Tippen = Schweben',pl:'👻',tw:{ob:'tree',it:'🎃',sky:['#161030','#3a245c'],far:'#281842',mid:'#1c1030',moon:1},fact:'Glühwürmchen leuchten im Dunkeln ganz ohne Wärme – das nennt man Biolumineszenz.'},
+ {f:'huepf',n:'Knochen-Sprung',pIdx:2,step:1,d:'Spring als lustiges Klapper-Skelett durch die Mondnacht!',how:'Tippen = Hüpfen',pl:'💀',tw:{sc:'night',it:'🎃'},fact:'Ein erwachsener Mensch hat 206 Knochen – der kleinste sitzt im Ohr und ist kleiner als ein Reiskorn!'},
+ {f:'fang',n:'Kürbis-Korb',pIdx:2,step:2,d:'Hilf dem Klapper-Skelett, alle Süßigkeiten einzufangen!',how:'Ziehen = Fangen',pl:'💀',tw:{mech:'clover',it:'🍬'},fact:'Unsere Knochen sind im Verhältnis zu ihrem Gewicht stabiler als Stahl.'},
+ {f:'takt',n:'Skelett-Tanz',pIdx:2,step:3,d:'Klapper im Takt – danach tanzt das Skelett auf deiner Insel!',how:'Tippe im Takt',pl:'💀',tw:{mech:'sides',tim:'bell',bgx:'spooky'},fact:'Beim Lachen und Tanzen bewegen wir Dutzende Muskeln und Knochen gleichzeitig!'}
+];
+
+function SV_H(){
+ S.v55h=S.v55h||{};
+ let v=S.v55h;
+ if(!Array.isArray(v.p))v.p=[];
+ if(!v.st||typeof v.st!=='object')v.st={};
+ v.lv=Object.keys(v.st).filter(k=>(v.st[k]|0)>0).length;
+ S.v43=S.v43||{};
+ S.v43.p=v.p.slice();
+ S.v43.lv=v.lv;
+ return v;
+}
+SV_H();
+
+// ============================================================================
+// 2. PREISE & 9 LEVEL DER SILVESTER-WELT (#v55s)
+// ============================================================================
+const PRIZES_S=[
+ {id:'klee',n:'Glücks-Kleeblatt',e:'🍀',lv:[0,1,2],desc:'Ein vierblättriges Glücks-Kleeblatt im Goldtopf – verschiebbar im ✎ Gestalten-Modus, antippen lässt es golden glitzern!'},
+ {id:'rakete',n:'Feuerwerk-Batterie',e:'🎆',lv:[3,4,5],desc:'Eine bunte Silvester-Feuerwerksbox für deine Insel – verschiebbar im ✎ Gestalten-Modus, antippen zündet Leuchtraketen!'},
+ {id:'schwein',n:'Glücksschweinchen',e:'🐷',lv:[6,7,8],desc:'Dein rosiges Glücksschweinchen läuft um die Silvester-Insel – wenn du es antippst, hüpft und quiekt es vergnügt!'}
+];
+const UNLOCK_AT_S={2:'klee',5:'rakete',8:'schwein'};
+const LV_S=[
+ {f:'huepf',n:'Kleeblatt-Wiese',pIdx:0,step:1,d:'Hüpf durch die Silvesternacht und sammle grüne Glücks-Kleeblätter!',how:'Tippen = Hüpfen',pl:'🐰',tw:{sc:'night',it:'🍀'},fact:'Auf rund 10.000 dreiblättrige Kleeblätter kommt in der Natur nur ein einziges vierblättriges!'},
+ {f:'fang',n:'Glücksklee-Regen',pIdx:0,step:2,d:'Fang die tanzenden Glückskleeblätter ein!',how:'Ziehen = Fangen',pl:'🐻',tw:{mech:'clover',it:'🍀'},fact:'Vierblättriger Klee gilt schon seit Jahrhunderten als Symbol für Glück auf Reisen.'},
+ {f:'takt',n:'Neujahrs-Glocken',pIdx:0,step:3,d:'Läute im Takt die Neujahrsglocken – dann gehört das Glücks-Kleeblatt dir!',how:'Tippe im Takt',pl:'🦊',tw:{mech:'sides',tim:'bell',bgx:'ny'},fact:'Um Mitternacht an Silvester läuten überall große Glocken das neue Jahr ein.'},
+ {f:'flug',n:'Sternenfunken-Flug',pIdx:1,step:1,d:'Flieg durch das glitzernde Sternenmeer der Neujahrsnacht!',how:'Tippen = Flattern',pl:'🦉',tw:{ob:'fence',it:'🍀',sky:['#12163a','#2c2868'],far:'#242058',mid:'#1a1642',moon:1},fact:'Die bunten Farben beim Feuerwerk entstehen durch verschiedene Mineralien wie Kupfer (blau) und Natrium (gelb).'},
+ {f:'fang',n:'Konfetti-Korb',pIdx:1,step:2,d:'Sammle Glücksklee und goldene Funken für das große Feuerwerk!',how:'Ziehen = Fangen',pl:'🐼',tw:{mech:'clover',it:'🍀'},fact:'Das erste Feuerwerk wurde vor über 1.000 Jahren in China erfunden – damals in Bambusröhren!'},
+ {f:'flug',n:'Raketen-Flug',pIdx:1,step:3,d:'Flieg hoch über die Festwiese – danach bekommst du deine Feuerwerk-Batterie!',how:'Tippen = Flattern',pl:'🦅',tw:{ob:'fence',it:'🍀',sky:['#101436','#282462'],far:'#221e52',mid:'#18143c',moon:1},fact:'Auf der Weihnachtsinsel im Pazifik beginnt das neue Jahr als Erstes auf der ganzen Welt!'},
+ {f:'huepf',n:'Schweinchen-Hüpfen',pIdx:2,step:1,d:'Hüpf als kleines Glücksschweinchen über die Festwiese!',how:'Tippen = Hüpfen',pl:'🐷',tw:{sc:'meadow',it:'🍀'},fact:'Schweine sind sehr kluge und reinliche Tiere – sie suhlen sich nur zur Abkühlung im Sommer.'},
+ {f:'takt',n:'Mitternachts-Takt',pIdx:2,step:2,d:'Tanze mit dem Glücksschweinchen im Countdown-Rhythmus!',how:'Tippe im Takt',pl:'🐷',tw:{mech:'sides',tim:'bell',bgx:'ny'},fact:'Ein Glücksschweinchen aus Marzipan schenkt man zu Silvester als Wunsch für ein gutes neues Jahr.'},
+ {f:'huepf',n:'Großer Glückssprung',pIdx:2,step:3,d:'Der große Neujahrssprung – danach zieht das Glücksschweinchen auf deine Insel!',how:'Tippen = Hüpfen',pl:'🐷',tw:{sc:'meadow',mech:'mole',it:'🍀'},fact:'In vielen Ländern springt man um Punkt Mitternacht von einem Stuhl ins neue Jahr!'}
+];
+
+function SV_S(){
+ S.v55s=S.v55s||{};
+ let v=S.v55s;
+ if(!Array.isArray(v.p))v.p=[];
+ if(!v.st||typeof v.st!=='object')v.st={};
+ v.lv=Object.keys(v.st).filter(k=>(v.st[k]|0)>0).length;
+ return v;
+}
+SV_S();
+
+function isHalloweenThemeActive(){return !!(S.home&&S.home.theme===TH_HALLOWEEN)}
+function isSilvesterThemeActive(){return !!(S.home&&S.home.theme===TH_SILVESTER)}
+function hasHalPrize(id){let v=SV_H();return !!(v.p&&v.p.includes(id))}
+function hasSilvPrize(id){let v=SV_S();return !!(v.p&&v.p.includes(id))}
+// ============================================================================
+// 3. MUSIK & SOUNDEFFEKTE FÜR HALLOWEEN-WELT & SILVESTER-WELT
+// ============================================================================
+(function(){
+ try{
+  const T=SND&&SND._T;if(!T)return;
+  const MN=[0,3,7,12],D7=[0,4,7,10],MJ=[0,4,7,12],M6=[0,4,7,9];
+  const R=null,mel=(bars)=>{let a=[];bars.forEach(b=>{let r=new Array(16).fill(R);for(const k in b)r[k]=b[k];a.push(...r)});return a};
+  const hMel=[{0:0,4:3,8:7,12:3},{0:5,4:3,8:2,12:0},{0:0,4:3,8:7,12:10},{0:7,8:3},{0:5,4:7,8:8,12:7},{0:3,4:2,8:0,12:3},{0:2,4:0,8:3,12:2},{0:0,8:0}];
+  const sMel=[{0:0,4:4,8:7,12:12},{0:9,4:7,8:4,12:7},{0:5,4:7,8:9,12:12},{0:7,8:4},{0:0,4:2,8:4,12:7},{0:9,4:12,8:9,12:7},{0:5,4:4,8:2,12:7},{0:0,8:12}];
+  T.hal0={bpm:102,root:57,prog:[[0,MN],[5,MN],[7,D7],[0,MN],[0,MN],[8,MJ],[7,D7],[0,MN]],lead:'cel',scale:[0,2,3,5,7,8],lp:2600,dens:.44,sw:.1,dr:.4,arp:3,ai:'pluck',mel:mel(hMel)};
+  T.hal1={bpm:118,root:57,prog:[[0,MN],[5,MN],[3,MJ],[7,D7],[0,MN],[5,MN],[7,D7],[0,MN]],lead:'mar',scale:[0,2,3,5,7,8],lp:3200,dens:.55,sw:.1,dr:.72,arp:2,ai:'bell',mel:mel(hMel)};
+  T.silv0={bpm:108,root:67,prog:[[0,MJ],[5,MJ],[7,D7],[0,M6],[0,MJ],[5,MJ],[7,D7],[0,MJ]],lead:'bell',scale:[0,2,4,5,7,9],lp:3500,dens:.48,sw:.1,dr:.45,arp:4,ai:'pluck',mel:mel(sMel)};
+  T.silv1={bpm:124,root:67,prog:[[0,MJ],[0,M6],[5,MJ],[7,D7],[0,MJ],[5,MJ],[2,D7],[7,D7]],lead:'mar',scale:[0,2,4,5,7,9],lp:3800,dens:.58,sw:.12,dr:.78,arp:2,ai:'bell',mel:mel(sMel)};
+ }catch(_){}
+})();
+
+function sfxSpookyChime(){
+ try{
+  if(SND&&SND.ensure)SND.ensure();
+  let c=SND&&SND.ctx;if(!c||SND.offline)return;
+  let st=SND.ST||{},lv=(st.mute?0:(st.e==null?.7:st.e));if(!lv)return;
+  let t0=c.currentTime+.01;
+  [440,523.25,659.25,587.33].forEach((f,i)=>{
+   let o=c.createOscillator(),g=c.createGain(),ti=t0+i*.065;
+   o.type='triangle';o.frequency.value=f;
+   g.gain.setValueAtTime(.0001,ti);
+   g.gain.linearRampToValueAtTime(.14*lv,ti+.015);
+   g.gain.exponentialRampToValueAtTime(.0005,ti+.28);
+   o.connect(g).connect(c.destination);
+   o.start(ti);o.stop(ti+.3);
+  });
+ }catch(_){}
+}
+
+function sfxFireworkPop(){
+ try{
+  if(SND&&SND.ensure)SND.ensure();
+  let c=SND&&SND.ctx;if(!c||SND.offline)return;
+  let st=SND.ST||{},lv=(st.mute?0:(st.e==null?.7:st.e));if(!lv)return;
+  let t0=c.currentTime+.01;
+  [523.25,659.25,783.99,1046.5,1318.5].forEach((f,i)=>{
+   let o=c.createOscillator(),g=c.createGain(),ti=t0+i*.05;
+   o.type='sine';o.frequency.value=f;
+   g.gain.setValueAtTime(.0001,ti);
+   g.gain.linearRampToValueAtTime(.13*lv,ti+.012);
+   g.gain.exponentialRampToValueAtTime(.0005,ti+.25);
+   o.connect(g).connect(c.destination);
+   o.start(ti);o.stop(ti+.27);
+  });
+ }catch(_){}
+}
+
+function sfxPigOink(){
+ try{
+  if(SND&&SND.ensure)SND.ensure();
+  let c=SND&&SND.ctx;if(!c||SND.offline)return;
+  let st=SND.ST||{},lv=(st.mute?0:(st.e==null?.7:st.e));if(!lv)return;
+  let t0=c.currentTime+.01;
+  [0,.15].forEach((dt,i)=>{
+   let o=c.createOscillator(),g=c.createGain();
+   o.type='sawtooth';
+   o.frequency.setValueAtTime(i?320:280,t0+dt);
+   o.frequency.exponentialRampToValueAtTime(i?520:440,t0+dt+.09);
+   g.gain.setValueAtTime(.0001,t0+dt);
+   g.gain.linearRampToValueAtTime(.12*lv,t0+dt+.018);
+   g.gain.exponentialRampToValueAtTime(.0005,t0+dt+.12);
+   o.connect(g).connect(c.destination);
+   o.start(t0+dt);o.stop(t0+dt+.13);
+  });
+ }catch(_){}
+}
+
+// ============================================================================
+// 4. ZEICHENFUNKTIONEN FÜR SCHÄTZE, SPIELFIGUREN & SAMMEL-ITEMS
+// ============================================================================
+
+// A) 🎃 Leucht-Kürbis (Jack-o'-Lantern)
+function drawDekoPumpkin(x,cx,cy,sc,t,glowAmt){
+ x.save();
+ x.translate(cx,cy);
+ x.scale(sc,sc);
+ x.fillStyle='rgba(30,15,45,.28)';
+ x.beginPath();x.ellipse(0,4,22,7,0,0,7);x.fill();
+ if(glowAmt>0){
+  let gg=x.createRadialGradient(0,-14,2,0,-14,36);
+  gg.addColorStop(0,`rgba(255,220,90,${0.65*Math.min(1,glowAmt)})`);
+  gg.addColorStop(1,'rgba(255,160,30,0)');
+  x.fillStyle=gg;x.beginPath();x.arc(0,-14,36,0,7);x.fill();
+ }
+ let wob=glowAmt>0?Math.sin(t*18)*glowAmt*.12:Math.sin(t*2)*.02;
+ x.translate(0,-2);x.rotate(wob);
+ // Grüner Stiel
+ x.fillStyle='#3d7a32';x.strokeStyle='#24481c';x.lineWidth=1.8;
+ x.beginPath();x.moveTo(-3,-28);x.quadraticCurveTo(-1,-36,4,-35);x.quadraticCurveTo(3,-30,3,-28);x.closePath();x.fill();x.stroke();
+ // Kürbis-Rippen
+ const rib=(ox,rx,ry,c1,c2)=>{
+  let g=x.createLinearGradient(ox,0,ox,ry);
+  g.addColorStop(0,c1);g.addColorStop(1,c2);
+  x.fillStyle=g;x.strokeStyle='#6e2c0c';x.lineWidth=1.6;
+  x.beginPath();x.ellipse(ox,-14,rx,ry,0,0,7);x.fill();x.stroke();
+ };
+ rib(-10,9,13.5,'#ff9428','#d8560c');
+ rib(10,9,13.5,'#ff9428','#d8560c');
+ rib(-5,9.5,14.8,'#ffaa38','#e66412');
+ rib(5,9.5,14.8,'#ffaa38','#e66412');
+ rib(0,9.8,15.5,'#ffc048','#f07418');
+ // Leuchtende Augen, Nase & Lächeln
+ let fc=glowAmt>0.05?'#fff6a0':'#ffe066';
+ x.fillStyle=fc;x.strokeStyle='#4a1c08';x.lineWidth=1.3;
+ [[-6.5,-17],[6.5,-17]].forEach(([ex,ey])=>{
+  x.beginPath();x.moveTo(ex-3.6,ey+2.2);x.lineTo(ex,ey-3.6);x.lineTo(ex+3.6,ey+2.2);x.closePath();x.fill();x.stroke();
+ });
+ x.beginPath();x.moveTo(-2.2,-12.5);x.lineTo(0,-15.2);x.lineTo(2.2,-12.5);x.closePath();x.fill();x.stroke();
+ x.beginPath();
+ x.moveTo(-10,-9);
+ x.quadraticCurveTo(-5,-4,0,-4.5);
+ x.quadraticCurveTo(5,-4,10,-9);
+ x.quadraticCurveTo(5,-2,0,-2);
+ x.quadraticCurveTo(-5,-2,-10,-9);
+ x.closePath();x.fill();x.stroke();
+ x.restore();
+}
+
+// B) 👻 Kleiner Geist (auch als Spielfigur in Minispielen!)
+function drawCuteGhost(x,cx,cy,sc,t,spin,face,noShadow){
+ x.save();
+ x.translate(cx,cy);
+ if(!noShadow){
+  x.fillStyle='rgba(40,25,75,.22)';
+  x.beginPath();x.ellipse(0,2,12*sc,3.8*sc,0,0,7);x.fill();
+ }
+ let bob=Math.sin(t*4.2)*2.8*sc;
+ x.translate(0,-12*sc+bob);
+ x.scale(sc*(face||1),sc);
+ if(spin)x.rotate(spin*6.283);
+ let gl=x.createRadialGradient(0,-8,2,0,-8,26);
+ gl.addColorStop(0,'rgba(220,235,255,.55)');
+ gl.addColorStop(1,'rgba(220,235,255,0)');
+ x.fillStyle=gl;x.beginPath();x.arc(0,-8,26,0,7);x.fill();
+ x.fillStyle='#fbfbff';x.strokeStyle='#6a54a8';x.lineWidth=2;
+ x.beginPath();
+ x.moveTo(-14,6);
+ x.bezierCurveTo(-16,-26,16,-26,14,6);
+ for(let i=0;i<4;i++){
+  let x0=14-i*7;
+  x.quadraticCurveTo(x0-3.5,11+Math.sin(t*6+i)*2.5,x0-7,6);
+ }
+ x.closePath();x.fill();x.stroke();
+ // Ärmchen
+ x.fillStyle='#fbfbff';x.strokeStyle='#6a54a8';x.lineWidth=1.7;
+ x.beginPath();x.ellipse(-14.5,-5+Math.sin(t*5)*2.5,3.8,5.4,-.55,0,7);x.fill();x.stroke();
+ x.beginPath();x.ellipse(14.5,-5-Math.sin(t*5)*2.5,3.8,5.4,.55,0,7);x.fill();x.stroke();
+ // Augen & Bäckchen
+ x.fillStyle='#32204e';
+ x.beginPath();x.ellipse(-4.6,-10.5,2.5,3.4,0,0,7);x.ellipse(4.6,-10.5,2.5,3.4,0,0,7);x.fill();
+ x.fillStyle='#fff';
+ x.beginPath();x.arc(-3.9,-11.8,1,0,7);x.arc(5.3,-11.8,1,0,7);x.fill();
+ x.fillStyle='rgba(255,140,185,.65)';
+ x.beginPath();x.ellipse(-8.5,-5.5,2.5,1.5,0,0,7);x.ellipse(8.5,-5.5,2.5,1.5,0,0,7);x.fill();
+ x.strokeStyle='#32204e';x.lineWidth=1.6;x.lineCap='round';
+ x.beginPath();x.arc(0,-5.5,2.8,.2,Math.PI-.2);x.stroke();
+ x.restore();
+}
+
+// C) 💀 Klapper-Skelett (auch als Spielfigur in Minispielen!)
+function drawCuteSkeleton(x,cx,cy,sc,t,walk,dance,face,noShadow){
+ x.save();
+ x.translate(cx,cy);
+ x.scale(sc*(face||1),sc);
+ let sw=Math.sin(t*8)*(walk||0),dn=dance>0?Math.sin(t*16)*.4:0;
+ if(!noShadow){
+  x.fillStyle='rgba(50,35,90,.20)';
+  x.beginPath();x.ellipse(0,2,11,3.4,0,0,7);x.fill();
+ }
+ x.lineCap='round';
+ const bone=(x1,y1,x2,y2)=>{
+  x.strokeStyle='rgba(80,60,115,.65)';x.lineWidth=4.8;
+  x.beginPath();x.moveTo(x1,y1);x.lineTo(x2,y2);x.stroke();
+  x.strokeStyle='#fbf8f0';x.lineWidth=2.9;
+  x.beginPath();x.moveTo(x1,y1);x.lineTo(x2,y2);x.stroke();
+ };
+ bone(-3,-13,-4.5+sw*3.8,0);
+ bone(3,-13,4.5-sw*3.8,0);
+ bone(0,-28,0,-13);
+ for(let i=0;i<3;i++)bone(-5,-25+i*3.8,5,-25+i*3.8);
+ bone(-5,-26,-10.5,-18+(dance?-9+dn*12:sw*2.8));
+ bone(5,-26,10.5,-18+(dance?-9-dn*12:-sw*2.8));
+ x.save();
+ x.translate(0,-35.5);
+ x.rotate(dn*.55);
+ x.fillStyle='#fbf8f0';x.strokeStyle='rgba(80,60,115,.65)';x.lineWidth=1.8;
+ x.beginPath();x.arc(0,0,8.8,0,7);x.fill();x.stroke();
+ x.fillStyle='#3a2a5a';
+ x.beginPath();x.ellipse(-3.3,-1,2.3,2.9,0,0,7);x.ellipse(3.3,-1,2.3,2.9,0,0,7);x.fill();
+ x.fillStyle='#fff';
+ x.beginPath();x.arc(-2.7,-1.9,.8,0,7);x.arc(3.9,-1.9,.8,0,7);x.fill();
+ x.fillStyle='#3a2a5a';
+ x.beginPath();x.moveTo(0,1.8);x.lineTo(-1.1,3.7);x.lineTo(1.1,3.7);x.closePath();x.fill();
+ x.fillStyle='rgba(255,140,180,.55)';
+ x.beginPath();x.ellipse(-5.8,2.8,1.9,1.1,0,0,7);x.ellipse(5.8,2.8,1.9,1.1,0,0,7);x.fill();
+ x.strokeStyle='#3a2a5a';x.lineWidth=1.1;
+ x.beginPath();x.arc(0,3.8,3.1,.18*Math.PI,.82*Math.PI);x.stroke();
+ x.restore();
+ x.restore();
+}
+
+// D) 🍀 Glücks-Kleeblatt im Goldtopf (Insel-Deko & Schatz-Icon)
+function drawDekoClover(x,cx,cy,sc,t,wobble){
+ x.save();
+ x.translate(cx,cy);
+ x.scale(sc,sc);
+ x.fillStyle='rgba(40,65,35,.24)';
+ x.beginPath();x.ellipse(0,4,21,6.8,0,0,7);x.fill();
+ // Goldener Glückstopf
+ let pg=x.createLinearGradient(-15,-14,15,4);
+ pg.addColorStop(0,'#ffe875');pg.addColorStop(.5,'#f4b828');pg.addColorStop(1,'#b87c10');
+ x.fillStyle=pg;x.strokeStyle='#6e4408';x.lineWidth=1.8;
+ x.beginPath();
+ x.moveTo(-14,-13);x.lineTo(14,-13);
+ x.quadraticCurveTo(16,2,10,4);x.lineTo(-10,4);
+ x.quadraticCurveTo(-16,2,-14,-13);x.closePath();
+ x.fill();x.stroke();
+ x.fillStyle='#ffd84a';
+ x.beginPath();x.ellipse(0,-13,15,4.2,0,0,7);x.fill();x.stroke();
+ // Vierblättriges Kleeblatt oben
+ x.save();
+ let ang=wobble>0?Math.sin(t*18)*wobble*.22:Math.sin(t*2.4)*.05;
+ x.translate(0,-15);x.rotate(ang);
+ x.strokeStyle='#237a38';x.lineWidth=2.6;x.lineCap='round';
+ x.beginPath();x.moveTo(0,2);x.quadraticCurveTo(2,-7,0,-15);x.stroke();
+ x.translate(0,-16);
+ for(let k=0;k<4;k++){
+  x.save();x.rotate(k*Math.PI/2+.35);
+  x.fillStyle=k%2?'#38d462':'#28b850';
+  x.strokeStyle='#186428';x.lineWidth=1.5;
+  x.beginPath();
+  x.moveTo(0,0);
+  x.bezierCurveTo(-7,-5,-8,-13,-3,-14);
+  x.bezierCurveTo(0,-14,0,-10,0,-9);
+  x.bezierCurveTo(0,-10,0,-14,3,-14);
+  x.bezierCurveTo(8,-13,7,-5,0,0);
+  x.closePath();x.fill();x.stroke();
+  x.restore();
+ }
+ x.fillStyle='#ffe866';x.beginPath();x.arc(0,0,2.5,0,7);x.fill();
+ x.restore();
+ x.restore();
+}
+
+// E) 🎆 Feuerwerk-Batterie (Insel-Deko & Schatz-Icon)
+function drawDekoFirework(x,cx,cy,sc,t,burstAmt){
+ x.save();
+ x.translate(cx,cy);
+ x.scale(sc,sc);
+ x.fillStyle='rgba(35,25,65,.26)';
+ x.beginPath();x.ellipse(0,4,22,7,0,0,7);x.fill();
+ let wob=burstAmt>0?Math.sin(t*24)*burstAmt*.12:0;
+ x.rotate(wob);
+ // 3 Raketen-Rohre in Festbox
+ [[-9,-22,'#ff5e9c','#ffd23f'],[0,-27,'#5ec8ff','#ffe055'],[9,-22,'#a87aff','#7ae068']].forEach(([rx,ry,c1,c2])=>{
+  x.fillStyle='#f8f4ff';x.strokeStyle='#4a2c68';x.lineWidth=1.6;
+  x.fillRect(rx-4.2,ry,8.4,-ry);x.strokeRect(rx-4.2,ry,8.4,-ry);
+  x.fillStyle=c1;x.fillRect(rx-4,ry+4,8,4.5);
+  x.fillStyle=c2;x.fillRect(rx-4,ry+11,8,4.5);
+  // Raketenspitze
+  x.fillStyle=c1;x.strokeStyle='#4a2c68';
+  x.beginPath();x.moveTo(rx-5.5,ry);x.lineTo(rx,ry-8.5);x.lineTo(rx+5.5,ry);x.closePath();x.fill();x.stroke();
+  // Funken oben
+  let sp=0.7+0.3*Math.sin(t*9+rx);
+  x.fillStyle='#ffe866';
+  x.beginPath();x.arc(rx,ry-10.5,2.4*sp,0,7);x.fill();
+ });
+ // Vordere Banderole
+ x.fillStyle='#ff4e78';x.strokeStyle='#4a2c68';x.lineWidth=1.7;
+ x.beginPath();x.rect(-15,-12,30,13);x.fill();x.stroke();
+ x.fillStyle='#ffe055';x.font='900 9px Nunito,sans-serif';x.textAlign='center';x.textBaseline='middle';
+ x.fillText('★ 2027 ★',0,-5.5);
+ x.restore();
+}
+
+// F) 🐷 Glücksschweinchen (Insel & Spielfigur in Minispielen!)
+function drawCutePig(x,cx,cy,sc,t,jumpY,walkPhase,face,noShadow){
+ x.save();
+ x.translate(cx,cy);
+ if(!noShadow){
+  let sh=Math.max(.4,1-(jumpY||0)/90);
+  x.fillStyle=`rgba(40,30,60,${(.22*sh).toFixed(2)})`;
+  x.beginPath();x.ellipse(0,2.5,14*sc*sh,4.5*sc*sh,0,0,7);x.fill();
+ }
+ let wp=walkPhase||0;
+ let bob=(jumpY||0)+(wp?Math.abs(Math.sin(wp))*2.2:Math.abs(Math.sin(t*4.5))*1.2);
+ x.translate(0,-bob);
+ x.scale(sc*(face||1),sc);
+ let st=wp?Math.sin(wp)*2.4:0;
+ x.fillStyle='#e882a0';x.strokeStyle='#7a3250';x.lineWidth=1.4;
+ [[-6.5,st*.6],[-2,-st*.6],[2.8,st*.6],[6.8,-st*.6]].forEach(([lx,ly])=>{
+  x.beginPath();x.ellipse(lx,-2+ly*.3,2.2,3.4,0,0,7);x.fill();x.stroke();
+ });
+ x.strokeStyle='#e882a0';x.lineWidth=2;x.lineCap='round';
+ x.beginPath();x.arc(-12.5,-11,3,0,Math.PI*1.65);x.stroke();
+ let pg=x.createRadialGradient(-3,-14,2,0,-12,15);
+ pg.addColorStop(0,'#ffd8e6');pg.addColorStop(.65,'#ffa8c5');pg.addColorStop(1,'#ec7ea4');
+ x.fillStyle=pg;x.strokeStyle='#7a3250';x.lineWidth=1.8;
+ x.beginPath();x.ellipse(0,-12,12,9.4,0,0,7);x.fill();x.stroke();
+ x.fillStyle=pg;
+ x.beginPath();x.ellipse(4,-19,8.8,7.8,0,0,7);x.fill();x.stroke();
+ [[-1,-25.5,-.4],[8.8,-25.5,.4]].forEach(([ex,ey,rot])=>{
+  x.save();x.translate(ex,ey);x.rotate(rot);
+  x.fillStyle='#ffa0c0';x.strokeStyle='#7a3250';x.lineWidth=1.5;
+  x.beginPath();x.ellipse(0,0,3.2,4.5,0,0,7);x.fill();x.stroke();
+  x.restore();
+ });
+ [[1.2,-20.5],[7.0,-20.5]].forEach(([ex,ey])=>{
+  x.fillStyle='#2a1830';x.beginPath();x.arc(ex,ey,1.75,0,7);x.fill();
+  x.fillStyle='#fff';x.beginPath();x.arc(ex-.5,ey-.6,.68,0,7);x.fill();
+ });
+ x.fillStyle='#ff7ca8';x.strokeStyle='#7a3250';x.lineWidth=1.4;
+ x.beginPath();x.ellipse(4.3,-16.6,4,2.7,0,0,7);x.fill();x.stroke();
+ x.fillStyle='#6a2240';
+ x.beginPath();x.arc(2.9,-16.6,.85,0,7);x.arc(5.7,-16.6,.85,0,7);x.fill();
+ x.save();x.translate(-2.8,-24.2);
+ x.fillStyle='#38d462';
+ [[-1.8,-1.8],[1.8,-1.8],[-1.8,1.8],[1.8,1.8]].forEach(([kx,ky])=>{
+  x.beginPath();x.arc(kx,ky,2,0,7);x.fill();
+ });
+ x.restore();
+ x.restore();
+}
+
+// G) Vektor-Sammel-Icons für Minispiele ('🎃', '🍬', '🍀')
+function drawMiniPumpkin(x,cx,cy,r){
+ x.save();x.translate(cx,cy);
+ x.fillStyle='#3d8a32';
+ x.fillRect(-r*.16,-r*1.08,r*.32,r*.34);
+ let g=x.createRadialGradient(-r*.2,-r*.2,r*.1,0,0,r);
+ g.addColorStop(0,'#ffd058');g.addColorStop(.55,'#ff8c24');g.addColorStop(1,'#c84608');
+ x.fillStyle=g;x.strokeStyle='#5a2006';x.lineWidth=Math.max(1.2,r*.1);
+ x.beginPath();x.ellipse(0,0,r*.98,r*.82,0,0,7);x.fill();x.stroke();
+ x.fillStyle='#fff498';
+ x.beginPath();
+ x.moveTo(-r*.45,-r*.1);x.lineTo(-r*.22,-r*.38);x.lineTo(-r*.05,-r*.1);x.closePath();
+ x.moveTo(r*.05,-r*.1);x.lineTo(r*.22,-r*.38);x.lineTo(r*.45,-r*.1);x.closePath();
+ x.fill();
+ x.strokeStyle='#fff498';x.lineWidth=Math.max(1.4,r*.14);x.lineCap='round';
+ x.beginPath();x.arc(0,r*.1,r*.42,.2*Math.PI,.8*Math.PI);x.stroke();
+ x.restore();
+}
+
+function drawMiniCandy(x,cx,cy,r,variant){
+ const cols=[['#ff5e9c','#ffd23f'],['#8c66ff','#5ef0c8'],['#ff8838','#fff498']][((variant|0)%3+3)%3];
+ x.save();x.translate(cx,cy);x.rotate(-.28);
+ x.fillStyle=cols[0];x.strokeStyle='#4a2050';x.lineWidth=Math.max(1.1,r*.09);
+ [[-1],[1]].forEach(([s])=>{
+  x.beginPath();
+  x.moveTo(s*r*.45,0);
+  x.lineTo(s*r*1.08,-r*.46);
+  x.lineTo(s*r*.96,0);
+  x.lineTo(s*r*1.08,r*.46);
+  x.closePath();x.fill();x.stroke();
+ });
+ x.fillStyle=cols[0];
+ x.beginPath();x.ellipse(0,0,r*.64,r*.5,0,0,7);x.fill();x.stroke();
+ x.strokeStyle=cols[1];x.lineWidth=Math.max(1.5,r*.18);
+ x.beginPath();x.moveTo(-r*.24,-r*.42);x.lineTo(-r*.08,r*.42);
+ x.moveTo(r*.12,-r*.42);x.lineTo(r*.28,r*.42);x.stroke();
+ x.restore();
+}
+
+function drawMiniClover(x,cx,cy,r){
+ x.save();x.translate(cx,cy);
+ x.strokeStyle='#1f7a34';x.lineWidth=Math.max(1.4,r*.14);x.lineCap='round';
+ x.beginPath();x.moveTo(0,r*.2);x.quadraticCurveTo(r*.25,r*.75,r*.08,r*1.05);x.stroke();
+ for(let k=0;k<4;k++){
+  x.save();x.rotate(k*Math.PI/2+.38);
+  x.fillStyle=k%2?'#42df6a':'#2bc052';
+  x.strokeStyle='#175e26';x.lineWidth=Math.max(1,r*.08);
+  x.beginPath();x.arc(-r*.22,-r*.48,r*.32,0,7);x.arc(r*.22,-r*.48,r*.32,0,7);x.fill();
+  x.beginPath();x.moveTo(-r*.48,-r*.4);x.lineTo(0,0);x.lineTo(r*.48,-r*.4);x.closePath();x.fill();
+  x.restore();
+ }
+ x.fillStyle='#ffe866';x.beginPath();x.arc(0,0,r*.18,0,7);x.fill();
+ x.restore();
+}
+
+window.C9_DRAW_PUMPKIN=drawMiniPumpkin;
+window.C9_DRAW_CANDY=drawMiniCandy;
+window.C9_DRAW_CLOVER=drawMiniClover;
+
+// Hook in Canvas fillText für '🎃', '🍬', '🍀' in #v43mg
+(function(){
+ const P=CanvasRenderingContext2D.prototype,oFT=P.fillText;
+ let cIdx=0,armed=false;
+ const reset=()=>{cIdx=0;armed=false};
+ P.fillText=function(txt,px,py){
+  if((txt==='🎃'||txt==='🍬'||txt==='🍀')&&this.canvas&&this.canvas.closest&&this.canvas.closest('#v43mg')){
+   if(!armed){armed=true;requestAnimationFrame(reset)}
+   let m=/(\d+(?:\.\d+)?)px/.exec(this.font||''),fs=m?+m[1]:24;
+   let bl=this.textBaseline,oy=bl==='middle'?0:bl==='top'||bl==='hanging'?fs*.5:-fs*.38;
+   try{
+    if(txt==='🎃')drawMiniPumpkin(this,px,py+oy,fs*.46);
+    else if(txt==='🍬')drawMiniCandy(this,px,py+oy,fs*.46,cIdx++);
+    else drawMiniClover(this,px,py+oy,fs*.46);
+    return;
+   }catch(_){}
+  }
+  return oFT.apply(this,arguments);
+ };
+})();
+
+// ============================================================================
+// 5. SPIELFIGUREN '👻', '💀', '🐷' IN DRAWANIMAL REGISTRIEREN
+// ============================================================================
+try{
+ if(typeof AN!=='undefined'&&AN){
+  AN['👻']=AN['👻']||function(){};
+  AN['💀']=AN['💀']||function(){};
+  AN['🐷']=AN['🐷']||function(){};
+ }
+ if(window.C9SPR){
+  if(C9SPR.CACHE&&C9SPR.CACHE.clear)C9SPR.CACHE.clear();
+  if(C9SPR.BOX){delete C9SPR.BOX['👻'];delete C9SPR.BOX['💀'];delete C9SPR.BOX['🐷']}
+ }
+}catch(_){}
+
+try{
+ const oDA55=drawAnimal;
+ drawAnimal=function(e,x0,y0,sc,n,ph,flip){
+  if(e==='👻'||e==='💀'||e==='🐷'){
+   let t=(n||performance.now())/1000;
+   let inMg=!!(X&&X.canvas&&(X.canvas.__big||(X.canvas.closest&&X.canvas.closest('#v43mg'))));
+   let isFlug=!!(window.C9&&C9.v43&&C9.v43.M&&C9.v43.M.run&&C9.v43.M.f==='flug');
+   let cy=isFlug?y0*0.55:y0-sc*0.4;
+   let csc=sc*(isFlug?1.22:1.12);
+   try{
+    if(e==='👻')drawCuteGhost(X,x0,cy,csc,t,0,flip?-1:1,inMg);
+    else if(e==='💀')drawCuteSkeleton(X,x0,cy,csc,t,1,0,flip?-1:1,inMg);
+    else drawCutePig(X,x0,cy,csc,t,0,t*9,flip?-1:1,inMg);
+   }catch(_){}
+   X.globalAlpha=1;return;
+  }
+  return oDA55.apply(this,arguments);
+ };
+}catch(_){}
+
+// ============================================================================
+// 6. HINTERGRÜNDE FÜR TAKT-LEVEL (spookyBg & silvesterBg)
+// ============================================================================
+function spookyBg(x,W,H){
+ let g=x.createLinearGradient(0,0,0,H);
+ g.addColorStop(0,'#140d2e');g.addColorStop(.52,'#36205c');g.addColorStop(1,'#1e1236');
+ x.fillStyle=g;x.fillRect(0,0,W,H);
+ let mx=W*.78,my=H*.15,mr=Math.min(W,H)*.08;
+ let mg=x.createRadialGradient(mx,my,4,mx,my,mr*2.2);
+ mg.addColorStop(0,'rgba(255,244,185,.9)');mg.addColorStop(1,'rgba(255,244,185,0)');
+ x.fillStyle=mg;x.beginPath();x.arc(mx,my,mr*2.2,0,7);x.fill();
+ x.fillStyle='#fff4be';x.beginPath();x.arc(mx,my,mr,0,7);x.fill();
+ x.fillStyle='#24143e';
+ x.beginPath();x.moveTo(0,H);
+ for(let i=0;i<=20;i++){let u=i/20;x.lineTo(u*W,H*.62+Math.sin(u*5)*H*.03)}
+ x.lineTo(W,H);x.closePath();x.fill();
+ [[.16,.78],[.84,.78]].forEach(([u,v])=>{
+  drawDekoPumpkin(x,W*u,H*v,0.9,0,0.4);
+ });
+}
+
+function silvesterBg(x,W,H){
+ let g=x.createLinearGradient(0,0,0,H);
+ g.addColorStop(0,'#0c1238');g.addColorStop(.55,'#262464');g.addColorStop(1,'#182848');
+ x.fillStyle=g;x.fillRect(0,0,W,H);
+ [['#ff6fa8',.22,.18],['#ffe055',.76,.16],['#6ce6ff',.5,.12]].forEach(([col,u,v])=>{
+  let cx=W*u,cy=H*v,r=Math.min(W,H)*.07;
+  for(let k=0;k<12;k++){
+   let a=k*Math.PI/6;
+   x.strokeStyle=col;x.lineWidth=2;
+   x.beginPath();x.moveTo(cx+Math.cos(a)*r*.25,cy+Math.sin(a)*r*.25);
+   x.lineTo(cx+Math.cos(a)*r,cy+Math.sin(a)*r);x.stroke();
+  }
+ });
+ x.fillStyle='#1f3a4d';
+ x.beginPath();x.moveTo(0,H);
+ for(let i=0;i<=20;i++){let u=i/20;x.lineTo(u*W,H*.64+Math.sin(u*5)*H*.025)}
+ x.lineTo(W,H);x.closePath();x.fill();
+}
+// ============================================================================
+// 7. INSEL-INTEGRATION FÜR HALLOWEEN & SILVESTER (DEKO + LAUFWEGE + ANTIPPEN)
+// ============================================================================
+const HAL_ST={
+ kuerbis:{glow:0,sparkles:[],wx:0,wy:0,sx:-9999,sy:-9999,sr:42}
+};
+
+const SILV_ST={
+ lastT:0,
+ klee:{wobble:0,sparkles:[],wx:0,wy:0,sx:-9999,sy:-9999,sr:42},
+ rakete:{burst:0,sparks:[],wx:0,wy:0,sx:-9999,sy:-9999,sr:44},
+ schwein:{
+  a:2.35,dir:1,walkPhase:0,face:1,
+  jumping:false,jumpProg:0,jumpZ:0,clovers:[],
+  wx:0,wy:0,sx:-9999,sy:-9999,sr:48
+ }
+};
+
+function recordScreenHit55(obj,wx,wy,localYOff,radWorld){
+ obj.hitWx=wx;obj.hitWy=wy+localYOff;
+ try{
+  let m=X.getTransform(),dpr=D||1,py=wy+localYOff;
+  obj.sx=(m.a*wx+m.c*py+m.e)/dpr;
+  obj.sy=(m.b*wx+m.d*py+m.f)/dpr;
+  let scale=Math.hypot(m.a,m.b)/dpr;
+  obj.sr=Math.max(38,radWorld*scale);
+ }catch(_){}
+}
+
+function ringXY55(g,a){
+ if(window.C9&&C9.v54&&C9.v54.skelRingXY)return C9.v54.skelRingXY(g,a);
+ return[Math.cos(a)*g.rx*.88,Math.sin(a)*g.ry*.82+g.ch*.18];
+}
+
+// ---- Tap-Aktionen für die 3 Halloween-Schätze ----
+function tapKuerbis(){
+ let kb=HAL_ST.kuerbis;
+ kb.glow=1.3;
+ for(let i=0;i<12;i++){
+  let a=i*Math.PI*2/12,sp=28+Math.random()*36;
+  kb.sparkles.push({x:0,y:-15,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp-16,life:0.85,max:0.85,col:['#ffe055','#ff9428','#c87aff','#fff'][i%4]});
+ }
+ sfxSpookyChime();
+ try{toast('🎃✨ Die Kürbis-Laterne leuchtet warm in der Nacht!',2200)}catch(_){}
+}
+
+function tapGeist(){
+ try{
+  if(window.C9&&C9.v431&&C9.v431.RO&&C9.v431.RO.g){
+   C9.v431.RO.g.spin=1.2;
+  }
+ }catch(_){}
+ sfxSpookyChime();
+ try{toast('👻 Buuuh! … hihi, war nur Spaß!',2000)}catch(_){}
+}
+
+function tapSkelett(){
+ try{
+  if(window.C9&&C9.v431&&C9.v431.RO&&C9.v431.RO.s){
+   C9.v431.RO.s.dance=2.0;
+  }
+ }catch(_){}
+ sfxSpookyChime();
+ try{toast('💀 Klapper-klapper! Das Skelett tanzt für dich.',2000)}catch(_){}
+}
+
+// ---- Tap-Aktionen für die 3 Silvester-Schätze ----
+function tapKlee(){
+ let kl=SILV_ST.klee;
+ kl.wobble=1.25;
+ for(let i=0;i<12;i++){
+  let a=i*Math.PI*2/12,sp=26+Math.random()*35;
+  kl.sparkles.push({x:0,y:-18,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp-18,life:0.85,max:0.85,col:['#38d462','#ffe055','#7ae068','#fff'][i%4]});
+ }
+ sfxFireworkPop();
+ try{toast('🍀✨ Viel Glück im neuen Jahr! Das Kleeblatt glitzert!',2200)}catch(_){}
+}
+
+function tapRakete(){
+ let rk=SILV_ST.rakete;
+ rk.burst=1.35;
+ for(let i=0;i<18;i++){
+  let a=i*Math.PI*2/18+Math.random()*.2,sp=36+Math.random()*48;
+  rk.sparks.push({x:0,y:-26,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp-28,life:0.95,max:0.95,col:['#ff5e9c','#ffe055','#5ec8ff','#a87aff','#7ae068'][i%5]});
+ }
+ sfxFireworkPop();
+ try{toast('🎆 Zisch, Bumm! Frohes neues Jahr!',2200)}catch(_){}
+}
+
+function tapSchwein(){
+ let sw=SILV_ST.schwein;
+ sw.jumping=true;sw.jumpProg=0;
+ try{if(window.C9&&C9.v54&&C9.v54.pigState)C9.v54.pigState.jump=1.0}catch(_){}
+ for(let i=0;i<12;i++){
+  let a=i*Math.PI*2/12,sp=28+Math.random()*38;
+  sw.clovers.push({x:0,y:-16,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp-22,life:0.9,max:0.9,col:i%2?'#38d462':'#ffe055'});
+ }
+ sfxPigOink();
+ try{toast('🐷🍀 Quiek! Das Silvester-Glücksschweinchen bringt dir Glück!',2200)}catch(_){}
+}
+
+// ---- Verschiebbare Insel-Dekos: DD.kuerbis, DD.glklee, DD.silvrakete ----
+try{
+ DECO.kuerbis=['🎃 Leucht-Kürbis',9999];
+ DECO.glklee=['🍀 Glücks-Kleeblatt',9999];
+ DECO.silvrakete=['🎆 Feuerwerk-Batterie',9999];
+ try{
+  if(C9.v433c&&C9.v433c.FW){
+   C9.v433c.FW.kuerbis=28;
+   C9.v433c.FW.glklee=28;
+   C9.v433c.FW.silvrakete=30;
+  }
+ }catch(_){}
+
+ DD.kuerbis=function(t,d){
+  if(!d){drawDekoPumpkin(X,0,0,0.95,t||0,0.4);return}
+  let kb=HAL_ST.kuerbis;
+  if(!isHalloweenThemeActive()||!hasHalPrize('kuerbis')){kb.sx=-9999;return}
+  recordScreenHit55(kb,0,0,-14,36);
+  try{let g=hGeo(),p=cellXY(g,d.c,d.r);kb.wx=p[0];kb.wy=p[1]-14}catch(_){kb.wx=kb.wy=99999}
+  let now=performance.now()/1000;
+  drawDekoPumpkin(X,0,0,1.12,now,kb.glow);
+  kb.sparkles.forEach(p=>{X.save();X.globalAlpha=Math.max(0,p.life/p.max);X.fillStyle=p.col;X.beginPath();X.arc(p.x,p.y,3.2,0,7);X.fill();X.restore()});
+  if(kb.glow>.3){X.save();X.font='900 11px Nunito,sans-serif';X.textAlign='center';X.fillStyle='#ffe066';X.strokeStyle='#3a1850';X.lineWidth=3;X.strokeText('Happy Halloween! 🎃',0,-48);X.fillText('Happy Halloween! 🎃',0,-48);X.restore()}
+ };
+
+ DD.glklee=function(t,d){
+  if(!d){drawDekoClover(X,0,0,0.95,t||0,0);return}
+  let kl=SILV_ST.klee;
+  if(!isSilvesterThemeActive()||!hasSilvPrize('klee')){kl.sx=-9999;return}
+  recordScreenHit55(kl,0,0,-14,36);
+  try{let g=hGeo(),p=cellXY(g,d.c,d.r);kl.wx=p[0];kl.wy=p[1]-14}catch(_){kl.wx=kl.wy=99999}
+  let now=performance.now()/1000;
+  drawDekoClover(X,0,0,1.12,now,kl.wobble);
+  kl.sparkles.forEach(p=>{X.save();X.globalAlpha=Math.max(0,p.life/p.max);X.fillStyle=p.col;X.beginPath();X.arc(p.x,p.y,3.2,0,7);X.fill();X.restore()});
+  if(kl.wobble>.3){X.save();X.font='900 11px Nunito,sans-serif';X.textAlign='center';X.fillStyle='#246830';X.strokeStyle='#fff';X.lineWidth=3;X.strokeText('Viel Glück! 🍀',0,-52);X.fillText('Viel Glück! 🍀',0,-52);X.restore()}
+ };
+
+ DD.silvrakete=function(t,d){
+  if(!d){drawDekoFirework(X,0,0,0.95,t||0,0);return}
+  let rk=SILV_ST.rakete;
+  if(!isSilvesterThemeActive()||!hasSilvPrize('rakete')){rk.sx=-9999;return}
+  recordScreenHit55(rk,0,0,-16,38);
+  try{let g=hGeo(),p=cellXY(g,d.c,d.r);rk.wx=p[0];rk.wy=p[1]-16}catch(_){rk.wx=rk.wy=99999}
+  let now=performance.now()/1000;
+  drawDekoFirework(X,0,0,1.12,now,rk.burst);
+  rk.sparks.forEach(p=>{X.save();X.globalAlpha=Math.max(0,p.life/p.max);X.fillStyle=p.col;X.beginPath();X.arc(p.x,p.y,3.4,0,7);X.fill();X.restore()});
+  if(rk.burst>.3){X.save();X.font='900 11px Nunito,sans-serif';X.textAlign='center';X.fillStyle='#ffe055';X.strokeStyle='#2a1850';X.lineWidth=3;X.strokeText('Frohes neues Jahr! 🎆',0,-54);X.fillText('Frohes neues Jahr! 🎆',0,-54);X.restore()}
+ };
+
+ try{
+  const oRS55=renderShop;
+  renderShop=function(){
+   let r=oRS55.apply(this,arguments);
+   try{
+    ['kuerbis','glklee','silvrakete'].forEach(k=>{
+     document.querySelectorAll(`#shGrid [data-k="${k}"]`).forEach(e=>e.remove());
+    });
+   }catch(_){}
+   return r;
+  };
+ }catch(_){}
+}catch(_){}
+
+function ensureSeasonalDeco(key,needed){
+ try{
+  if(!S.home||!needed)return;
+  S.home.deco=S.home.deco||[];S.home.inv=S.home.inv||{};
+  if(S.home.deco.some(d=>d&&d.k===key)||(S.home.inv[key]|0)>0)return;
+  S.home.inv[key]=(S.home.inv[key]|0)+1;
+  let st=toast;toast=function(){};try{hPlace(key)}catch(_){}finally{toast=st}
+  save();
+ }catch(_){}
+}
+function ensureKuerbisDeco(){ensureSeasonalDeco('kuerbis',hasHalPrize('kuerbis'))}
+function ensureKleeDeco(){ensureSeasonalDeco('glklee',hasSilvPrize('klee'))}
+function ensureRaketeDeco(){ensureSeasonalDeco('silvrakete',hasSilvPrize('rakete'))}
+try{ensureKuerbisDeco();ensureKleeDeco();ensureRaketeDeco()}catch(_){}
+
+// ---- Schritt- & Zeichenlogik auf der Insel für Halloween & Silvester ----
+function stepHalAndSilvOnIsland(dt,g){
+ let kb=HAL_ST.kuerbis;
+ if(kb.glow>0)kb.glow=Math.max(0,kb.glow-dt*1.0);
+ kb.sparkles.forEach(p=>{p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy+=42*dt;p.life-=dt});
+ kb.sparkles=kb.sparkles.filter(p=>p.life>0);
+
+ let kl=SILV_ST.klee;
+ if(kl.wobble>0)kl.wobble=Math.max(0,kl.wobble-dt*1.1);
+ kl.sparkles.forEach(p=>{p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy+=42*dt;p.life-=dt});
+ kl.sparkles=kl.sparkles.filter(p=>p.life>0);
+
+ let rk=SILV_ST.rakete;
+ if(rk.burst>0)rk.burst=Math.max(0,rk.burst-dt*1.0);
+ rk.sparks.forEach(p=>{p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy+=38*dt;p.life-=dt});
+ rk.sparks=rk.sparks.filter(p=>p.life>0);
+
+ if(isSilvesterThemeActive()&&hasSilvPrize('schwein')){
+  let sw=SILV_ST.schwein;
+  let prevX=sw.wx||0;
+  if(sw.jumping){
+   sw.jumpProg+=dt/0.78;
+   if(sw.jumpProg>=1){sw.jumpProg=0;sw.jumping=false;sw.jumpZ=0}
+   else sw.jumpZ=Math.sin(sw.jumpProg*Math.PI)*56;
+   sw.a+=dt*0.042*sw.dir;
+  }else{
+   sw.a+=dt*0.036*sw.dir;
+   sw.walkPhase+=dt*9.5;
+  }
+  let pos=ringXY55(g,sw.a);
+  sw.wx=pos[0];sw.wy=pos[1];
+  if(Math.abs(sw.wx-prevX)>0.02)sw.face=sw.wx<prevX?-1:1;
+  try{
+   if(window.C9&&C9.v54&&C9.v54.pigState){
+    C9.v54.pigState.wx=sw.wx;C9.v54.pigState.wy=sw.wy;
+   }
+  }catch(_){}
+  sw.clovers.forEach(p=>{p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy+=48*dt;p.life-=dt});
+  sw.clovers=sw.clovers.filter(p=>p.life>0);
+ }else{
+  SILV_ST.schwein.sx=-9999;
+ }
+}
+
+const prevHomeDrawV55=homeDraw;
+homeDraw=function(n,dt){
+ try{
+  let now=performance.now()/1000;
+  let d=SILV_ST.lastT?Math.min(0.08,Math.max(0.004,now-SILV_ST.lastT)):0.016;
+  SILV_ST.lastT=now;
+  let g=hGeo();
+  stepHalAndSilvOnIsland(d,g);
+  if(isSilvesterThemeActive()&&hasSilvPrize('schwein')){
+   let sw=SILV_ST.schwein;
+   let sc=Math.max(0.86,Math.min(1.2,g.cw/48));
+   let q=(window.C9VDRAW=window.C9VDRAW||[]);
+   q.push(()=>{
+    recordScreenHit55(sw,sw.wx,sw.wy,-sw.jumpZ*.5-14*sc,42*sc);
+    try{
+     if(window.C9&&C9.v54&&C9.v54.pigState){
+      C9.v54.pigState.sx=sw.sx;C9.v54.pigState.sy=sw.sy;C9.v54.pigState.sr=sw.sr;
+     }
+    }catch(_){}
+    drawCutePig(X,sw.wx,sw.wy,sc*1.05,now,sw.jumpZ,sw.walkPhase,sw.face,false);
+    if(sw.jumping&&sw.jumpZ>12){
+     X.save();
+     X.font=`900 ${Math.round(11*sc)}px Nunito,sans-serif`;
+     X.textAlign='center';
+     X.fillStyle='#7a2450';X.strokeStyle='#fff';X.lineWidth=3;
+     X.strokeText('Quiek! 🐷🍀',sw.wx,sw.wy-sw.jumpZ-38*sc);
+     X.fillText('Quiek! 🐷🍀',sw.wx,sw.wy-sw.jumpZ-38*sc);
+     X.restore();
+    }
+    sw.clovers.forEach(p=>{
+     X.save();
+     X.globalAlpha=Math.max(0,p.life/p.max);
+     X.fillStyle=p.col;
+     X.beginPath();X.arc(sw.wx+p.x,sw.wy+p.y,3.4,0,7);X.fill();
+     X.restore();
+    });
+   });
+  }
+ }catch(_){}
+ return prevHomeDrawV55.apply(this,arguments);
+};
+
+// Tap-Erkennung auf der Insel für Kürbis, Kleeblatt, Feuerwerk & Glücksschweinchen
+let lastV55TapMs=0;
+function checkV55WorldTap(wx,wy){
+ let now=performance.now();
+ if(now-lastV55TapMs<180)return false;
+ if(isHalloweenThemeActive()){
+  if(hasHalPrize('kuerbis')&&Math.hypot(wx-HAL_ST.kuerbis.wx,wy-HAL_ST.kuerbis.wy)<38){
+   lastV55TapMs=now;tapKuerbis();return true;
+  }
+ }
+ if(isSilvesterThemeActive()){
+  let hits=[];
+  if(hasSilvPrize('schwein')){
+   let d=Math.hypot(wx-SILV_ST.schwein.wx,wy-SILV_ST.schwein.wy);
+   if(d<44)hits.push([d,tapSchwein]);
+  }
+  if(hasSilvPrize('rakete')){
+   let d=Math.hypot(wx-SILV_ST.rakete.wx,wy-SILV_ST.rakete.wy);
+   if(d<38)hits.push([d,tapRakete]);
+  }
+  if(hasSilvPrize('klee')){
+   let d=Math.hypot(wx-SILV_ST.klee.wx,wy-SILV_ST.klee.wy);
+   if(d<38)hits.push([d,tapKlee]);
+  }
+  if(hits.length){
+   hits.sort((a,b)=>a[0]-b[0]);
+   lastV55TapMs=now;hits[0][1]();return true;
+  }
+ }
+ return false;
+}
+
+function checkV55ScreenTap(cx,cy){
+ if(typeof HOMEON!=='undefined'&&!HOMEON)return false;
+ if(typeof HED!=='undefined'&&HED)return false;
+ let sh=$('hSheet');
+ if(sh&&!sh.classList.contains('hide'))return false;
+ let now=performance.now();
+ if(now-lastV55TapMs<180)return false;
+ if(isHalloweenThemeActive()&&hasHalPrize('kuerbis')&&HAL_ST.kuerbis.sx>-9000){
+  if(Math.hypot(cx-HAL_ST.kuerbis.sx,cy-HAL_ST.kuerbis.sy)<=HAL_ST.kuerbis.sr){
+   lastV55TapMs=now;tapKuerbis();return true;
+  }
+ }
+ if(isSilvesterThemeActive()){
+  let hits=[];
+  if(hasSilvPrize('schwein')&&SILV_ST.schwein.sx>-9000){
+   let d=Math.hypot(cx-SILV_ST.schwein.sx,cy-SILV_ST.schwein.sy);
+   if(d<=SILV_ST.schwein.sr)hits.push([d,tapSchwein]);
+  }
+  if(hasSilvPrize('rakete')&&SILV_ST.rakete.sx>-9000){
+   let d=Math.hypot(cx-SILV_ST.rakete.sx,cy-SILV_ST.rakete.sy);
+   if(d<=SILV_ST.rakete.sr)hits.push([d,tapRakete]);
+  }
+  if(hasSilvPrize('klee')&&SILV_ST.klee.sx>-9000){
+   let d=Math.hypot(cx-SILV_ST.klee.sx,cy-SILV_ST.klee.sy);
+   if(d<=SILV_ST.klee.sr)hits.push([d,tapKlee]);
+  }
+  if(hits.length){
+   hits.sort((a,b)=>a[0]-b[0]);
+   lastV55TapMs=now;hits[0][1]();return true;
+  }
+ }
+ return false;
+}
+
+try{
+ const oHTap55=hTap;
+ hTap=function(p){
+  if(!HED&&p&&checkV55WorldTap(p.x,p.y))return;
+  return oHTap55.apply(this,arguments);
+ };
+}catch(_){}
+
+(function bindHcTap55(){
+ let cv=$('hc');if(!cv)return;
+ cv.addEventListener('pointerdown',function(e){
+  if(!e.isPrimary&&e.pointerType==='touch')return;
+  let r=cv.getBoundingClientRect(),cx=e.clientX-r.left,cy=e.clientY-r.top;
+  if(checkV55ScreenTap(cx,cy)){
+   e.stopPropagation();e.stopImmediatePropagation();e.preventDefault();
+  }
+ },true);
+})();
+// ============================================================================
+// 8. CSS & 9-STATIONEN-KARTEN FÜR HALLOWEEN-WELT (#v55h) & SILVESTER-WELT (#v55s)
+// ============================================================================
+const css55=document.createElement('style');
+css55.textContent=`
+#v55h,#v55s{position:fixed;inset:0;z-index:8991;touch-action:none;user-select:none;-webkit-user-select:none}
+#v55h{background:#181030}
+#v55s{background:#0e1438}
+#v55h.hide,#v55s.hide{display:none}
+#v55h canvas,#v55s canvas{display:block;width:100%;height:100%}
+#v55h .hd,#v55s .hd{position:absolute;top:calc(12px + env(safe-area-inset-top));left:12px;right:64px;color:#fff;text-shadow:0 2px 0 rgba(25,10,50,.85),0 3px 10px rgba(0,0,0,.6);font-weight:900;font-size:20px;line-height:1.2}
+#v55h .hd small,#v55s .hd small{display:block;font-size:14px;font-weight:800;color:#ffe699}
+#v55h .pv,#v55s .pv{display:inline-block;background:#ffe055;color:#5a2800;border-radius:10px;font-size:12px;padding:1px 7px;margin-left:6px;vertical-align:middle;text-shadow:none;box-shadow:0 2px 0 rgba(90,40,0,.25)}
+#v55h .x,#v55s .x{position:absolute;top:calc(10px + env(safe-area-inset-top));right:10px;width:44px!important;height:44px!important;min-width:0!important;padding:0!important;margin:0!important;border-radius:50%!important;display:flex!important;align-items:center!important;justify-content:center!important;line-height:1!important;background:linear-gradient(#9a80f4,#7a5fe0);color:#fff;border:3px solid #fff;font:900 19px/1 Nunito,system-ui,sans-serif;box-shadow:0 3px 0 #5a40b8,0 4px 14px rgba(40,20,90,.45);z-index:5}
+#v55h .sb{position:absolute;right:10px;bottom:calc(14px + env(safe-area-inset-bottom));border:0;border-radius:16px;padding:9px 13px;font:inherit;font-weight:900;font-size:14px;background:linear-gradient(#ff9e38,#e06410);color:#fff;border:2px solid #ffe08a;box-shadow:0 3px 0 #9a3c06,0 5px 12px rgba(40,15,65,.35);z-index:5}
+#v55s .sb{position:absolute;right:10px;bottom:calc(14px + env(safe-area-inset-bottom));border:0;border-radius:16px;padding:9px 13px;font:inherit;font-weight:900;font-size:14px;background:linear-gradient(#ffe66d,#ffb830);color:#4a2058;border:2px solid #fff;box-shadow:0 3px 0 #b87810,0 5px 12px rgba(20,15,65,.35);z-index:5}
+#v55hbtn{display:flex;align-items:center;justify-content:center;gap:6px;width:min(340px,92%);margin:4px auto 8px;border:0;border-radius:18px;padding:12px;font:inherit;font-size:18px;font-weight:900;color:#fff;background:linear-gradient(#ff8c24,#6e32b8);box-shadow:0 4px 0 #461a7a,0 6px 14px rgba(80,30,130,.32)}
+#v55hbtn .pv{background:#ffe055;color:#5a2400;border-radius:10px;font-size:12px;padding:1px 7px}
+#v55hbtn small{font-size:13px;opacity:.94}
+#v55sbtn{display:flex;align-items:center;justify-content:center;gap:6px;width:min(340px,92%);margin:4px auto 8px;border:0;border-radius:18px;padding:12px;font:inherit;font-size:18px;font-weight:900;color:#fff;background:linear-gradient(#3848b8,#9438c4);box-shadow:0 4px 0 #261a6e,0 6px 14px rgba(40,30,120,.32)}
+#v55sbtn .pv{background:#ffe055;color:#3a1860;border-radius:10px;font-size:12px;padding:1px 7px}
+#v55sbtn small{font-size:13px;opacity:.94}
+`;
+document.head.appendChild(css55);
+
+const HXS=[.22,.54,.80,.58,.22,.54,.80,.54,.24];
+const HYS=[.80,.73,.65,.56,.48,.40,.32,.24,.16];
+function halPos(i,W,H){return[HXS[i]*W,HYS[i]*H]}
+
+const SXS=[.22,.54,.80,.58,.22,.54,.80,.54,.24];
+const SYS=[.80,.73,.65,.56,.48,.40,.32,.24,.16];
+function silvPos(i,W,H){return[SXS[i]*W,SYS[i]*H]}
+
+function drawStar55(x,cx,cy,r,col){
+ x.save();x.fillStyle=col;x.beginPath();
+ for(let i=0;i<10;i++){
+  let a=i*Math.PI/5-Math.PI/2,rr=i%2?r*.45:r;
+  let px=cx+Math.cos(a)*rr,py=cy+Math.sin(a)*rr;
+  if(i===0)x.moveTo(px,py);else x.lineTo(px,py);
+ }
+ x.closePath();x.fill();x.restore();
+}
+
+// ============================================================================
+// 8A. HALLOWEEN-WELT KARTE (#v55h)
+// ============================================================================
+let HEL=null,HC_M=null,HX_M=null,HBG=null,HS={w:0,h:0},HRAF=0,HOPEN=false,WT0_H=0;
+const BATS=[];
+for(let i=0;i<24;i++){
+ BATS.push({x:Math.random(),y:Math.random(),r:2.2+Math.random()*2.2,s:.02+Math.random()*.03,w:Math.random()*6.28,c:['#ffd24a','#ff9428','#d896ff','#fff'][i%4]});
+}
+
+function drawSpookyTree(x,cx,by,h){
+ x.save();
+ x.fillStyle='rgba(15,8,28,.35)';
+ x.beginPath();x.ellipse(cx,by+2,h*.26,h*.07,0,0,7);x.fill();
+ x.strokeStyle='#241338';x.fillStyle='#241338';x.lineWidth=Math.max(2.5,h*.08);x.lineCap='round';
+ x.beginPath();
+ x.moveTo(cx-h*.07,by);
+ x.quadraticCurveTo(cx-h*.03,by-h*.4,cx,by-h*.72);
+ x.lineTo(cx+h*.05,by);x.closePath();x.fill();
+ [[-.26,-.56],[-.16,-.76],[.22,-.60],[.14,-.78]].forEach(([dx,dy])=>{
+  x.lineWidth=Math.max(1.8,h*.045);
+  x.beginPath();x.moveTo(cx,by-h*.46);x.quadraticCurveTo(cx+dx*h*.5,by+dy*h*.8,cx+dx*h,by+dy*h);x.stroke();
+ });
+ x.restore();
+}
+
+function drawHauntedCastle(x,cx,by,s){
+ x.save();x.translate(cx,by);
+ x.fillStyle='#1d1033';
+ x.fillRect(-s*.65,-s*1.05,s*1.3,s*1.05);
+ [[-s*.52,-s*1.45,s*.34,s*1.45],[0,-s*1.75,s*.42,s*1.75],[s*.52,-s*1.45,s*.34,s*1.45]].forEach(([tx,ty,tw,th])=>{
+  x.fillStyle='#24143e';
+  x.fillRect(tx-tw/2,ty,tw,th);
+  x.fillStyle='#140a26';
+  x.beginPath();x.moveTo(tx-tw*.62,ty);x.lineTo(tx,ty-s*.48);x.lineTo(tx+tw*.62,ty);x.closePath();x.fill();
+ });
+ x.fillStyle='#ffe066';
+ [[-s*.52,-s*1.12],[0,-s*1.38],[s*.52,-s*1.12],[0,-s*.88]].forEach(([wx,wy])=>{
+  x.beginPath();x.arc(wx,wy,s*.08,Math.PI,0);x.lineTo(wx+s*.08,wy+s*.14);x.lineTo(wx-s*.08,wy+s*.14);x.closePath();x.fill();
+ });
+ x.restore();
+}
+
+function hsize(){
+ if(!HC_M)return;
+ let W=innerWidth,H=innerHeight,D2=Math.min(2,devicePixelRatio||1);
+ HC_M.width=W*D2;HC_M.height=H*D2;
+ HX_M=HC_M.getContext('2d');
+ HS={w:W,h:H,d:D2};
+ HBG=document.createElement('canvas');HBG.width=W*D2;HBG.height=H*D2;
+ let x=HBG.getContext('2d');x.setTransform(D2,0,0,D2,0,0);
+
+ let sg=x.createLinearGradient(0,0,0,H*.65);
+ sg.addColorStop(0,'#140b29');sg.addColorStop(.52,'#341c5c');sg.addColorStop(1,'#6c3678');
+ x.fillStyle=sg;x.fillRect(0,0,W,H);
+
+ for(let i=0;i<42;i++){
+  let sx=((i*73)%100)/100*W,sy=((i*41)%55)/100*H;
+  x.fillStyle=i%3?'rgba(255,248,210,.75)':'rgba(255,215,120,.85)';
+  x.beginPath();x.arc(sx,sy,i%4===0?1.8:1.1,0,7);x.fill();
+ }
+
+ let mx=W*.80,my=H*.14,mg=x.createRadialGradient(mx,my,4,mx,my,68);
+ mg.addColorStop(0,'rgba(255,242,175,.95)');mg.addColorStop(.45,'rgba(255,200,110,.35)');mg.addColorStop(1,'rgba(255,180,90,0)');
+ x.fillStyle=mg;x.beginPath();x.arc(mx,my,68,0,7);x.fill();
+ x.fillStyle='#fff2b2';x.beginPath();x.arc(mx,my,25,0,7);x.fill();
+
+ drawHauntedCastle(x,W*.50,H*.28,H*.075);
+
+ [
+  [.26,'#3c225e','#2d1849',0],
+  [.48,'#311a4f','#24123c',2],
+  [.72,'#26133f','#1a0c2e',4]
+ ].forEach(([y0,c1,c2,sd])=>{
+  let g=x.createLinearGradient(0,H*y0,0,H);
+  g.addColorStop(0,c1);g.addColorStop(1,c2);
+  x.fillStyle=g;
+  x.beginPath();x.moveTo(0,H);
+  for(let i=0;i<=28;i++){
+   let u=i/28;
+   x.lineTo(u*W,H*y0+Math.sin(u*5+sd)*H*.022+Math.cos(u*3-sd)*H*.012);
+  }
+  x.lineTo(W,H);x.closePath();x.fill();
+ });
+
+ drawSpookyTree(x,W*.12,H*.32,H*.13);
+ drawSpookyTree(x,W*.88,H*.36,H*.14);
+ drawSpookyTree(x,W*.10,H*.64,H*.13);
+ drawSpookyTree(x,W*.90,H*.76,H*.13);
+
+ [[.14,.83],[.86,.82],[.13,.50],[.87,.56],[.86,.24]].forEach(([ux,uy])=>{
+  drawDekoPumpkin(x,W*ux,H*uy,0.68,0,0.45);
+ });
+
+ const pathPts=HXS.map((_,i)=>halPos(i,W,H));
+ const strokeHalPath=(col,lw,dash)=>{
+  x.strokeStyle=col;x.lineWidth=lw;x.lineCap='round';x.lineJoin='round';
+  x.setLineDash(dash||[]);
+  x.beginPath();x.moveTo(pathPts[0][0],pathPts[0][1]);
+  for(let i=1;i<pathPts.length;i++){
+   let[x0,y0]=pathPts[i-1],[x1,y1]=pathPts[i];
+   x.quadraticCurveTo((x0+x1)/2,(y0+y1)/2+(i%2?10:-10),x1,y1);
+  }
+  x.stroke();x.setLineDash([]);
+ };
+ strokeHalPath('rgba(15,6,28,.45)',32);
+ strokeHalPath('#6b4298',24);
+ strokeHalPath('#ffb048',14,[6,10]);
+}
+
+function drawHalNodeIcon(x,pi,cx,cy,t){
+ x.save();x.translate(cx,cy);
+ if(pi===0)drawDekoPumpkin(x,0,10,.56,t,.35);
+ else if(pi===1)drawCuteGhost(x,0,9,.64,t,0,1,true);
+ else drawCuteSkeleton(x,0,14,.58,t,0,0,1,true);
+ x.restore();
+}
+
+function hdraw(now){
+ if(!HOPEN)return;
+ HRAF=requestAnimationFrame(hdraw);
+ if(!WT0_H)WT0_H=now;
+ let t=(now-WT0_H)/1000;
+ if(HS.w!==innerWidth||HS.h!==innerHeight)hsize();
+ let x=HX_M,W=HS.w,H=HS.h,D2=HS.d;
+ x.setTransform(1,0,0,1,0,0);
+ x.drawImage(HBG,0,0);
+ x.setTransform(D2,0,0,D2,0,0);
+
+ let v=SV_H();
+ let cur=0;
+ while(cur<LV_H.length&&((v.st&&v.st[cur])|0)>0)cur++;
+
+ x.textAlign='center';x.textBaseline='middle';
+ const R=Math.min(28,Math.max(21,Math.min(W,H)*.055));
+
+ for(let i=0;i<LV_H.length;i++){
+  let[sx,sy]=halPos(i,W,H);
+  let st=(v.st&&v.st[i])|0;
+  let done=st>0,nowNode=(i===cur),lock=(i>cur),pi=LV_H[i].pIdx;
+  let pulse=nowNode?1+Math.sin(t*4)*.07:1,rr=R*pulse;
+
+  if(nowNode||done){
+   let gl=x.createRadialGradient(sx,sy,4,sx,sy,rr*(nowNode?1.75:1.45));
+   gl.addColorStop(0,nowNode?'rgba(255,205,90,.9)':'rgba(215,175,255,.45)');
+   gl.addColorStop(1,'rgba(255,180,80,0)');
+   x.fillStyle=gl;x.beginPath();x.arc(sx,sy,rr*(nowNode?1.75:1.45),0,7);x.fill();
+  }
+
+  x.fillStyle=lock?'#524368':done?'#8c58e8':nowNode?'#ff8c24':pi===0?'#ff8c24':pi===1?'#7c62e0':'#b064e8';
+  if(lock)x.globalAlpha=.68;
+  x.beginPath();x.arc(sx,sy,rr,0,7);x.fill();
+  x.lineWidth=3.5;x.strokeStyle='#fff';x.stroke();
+
+  drawHalNodeIcon(x,pi,sx,sy,t);
+  x.globalAlpha=1;
+
+  if(lock){
+   x.fillStyle='rgba(255,255,255,.92)';
+   x.beginPath();x.arc(sx+rr*.68,sy-rr*.68,9.5,0,7);x.fill();
+   x.font='11px sans-serif';
+   x.fillText('🔒',sx+rr*.68,sy-rr*.68+.5);
+  }else{
+   x.fillStyle='#ffe055';
+   x.beginPath();x.arc(sx-rr*.72,sy-rr*.68,10.5,0,7);x.fill();
+   x.strokeStyle='#4a2068';x.lineWidth=1.8;x.stroke();
+   x.fillStyle='#32104a';x.font='900 12px Nunito,sans-serif';
+   x.fillText(String(i+1),sx-rr*.72,sy-rr*.68+.5);
+  }
+
+  if(done){
+   for(let j=0;j<3;j++){
+    drawStar55(x,sx-13+j*13,sy+rr+10,j<st?5.8:4.0,j<st?'#ffd23f':'rgba(255,255,255,.55)');
+   }
+  }
+
+  if(nowNode){
+   let lb=LV_H[i].n;
+   x.font='900 12px Nunito,sans-serif';
+   let tw=x.measureText(lb).width+18;
+   let lx=Math.max(tw/2+6,Math.min(W-tw/2-6,sx)),ly=sy+rr+22;
+   x.fillStyle='rgba(255,248,230,.96)';
+   x.beginPath();
+   x.roundRect?x.roundRect(lx-tw/2,ly-10,tw,20,10):x.rect(lx-tw/2,ly-10,tw,20);
+   x.fill();
+   x.fillStyle='#3a1658';
+   x.fillText(lb,lx,ly+.5);
+  }
+ }
+
+ BATS.forEach(p=>{
+  let py=((p.y+t*p.s)%1)*H;
+  let px=(p.x*W+Math.sin(t*1.3+p.w)*18+W)%W;
+  x.save();x.translate(px,py);
+  x.fillStyle=p.c;x.globalAlpha=.75;
+  x.beginPath();x.arc(0,0,p.r,0,7);x.fill();
+  x.restore();
+ });
+
+ // Unten links: Fortschritts-Podest der 3 Halloween-Schätze
+ x.save();
+ let py=H*.945;
+ x.fillStyle='rgba(38,20,66,.88)';
+ x.strokeStyle='#ffb048';x.lineWidth=2;
+ let pw=Math.min(216,W*.55),ph=56,px0=12,py0=py-46;
+ x.beginPath();
+ x.roundRect?x.roundRect(px0,py0,pw,ph,16):x.rect(px0,py0,pw,ph);
+ x.fill();x.stroke();
+
+ const drawHSlot=(idx,cx,drawFn)=>{
+  let got=v.p.includes(PRIZES_H[idx].id);
+  x.save();
+  if(!got)x.globalAlpha=0.28;
+  drawFn(got);
+  x.restore();
+  if(!got){
+   x.fillStyle='#ffe08a';
+   x.font='900 13px Nunito,sans-serif';
+   x.fillText('🔒',cx,py-16);
+  }
+ };
+ drawHSlot(0,px0+pw*.20,got=>drawDekoPumpkin(x,px0+pw*.20,py-4,.74,t,got?.5:0));
+ drawHSlot(1,px0+pw*.50,got=>drawCuteGhost(x,px0+pw*.50,py-3,.82,t,0,1,true));
+ drawHSlot(2,px0+pw*.80,got=>drawCuteSkeleton(x,px0+pw*.80,py-2,.76,t,got?1:0,0,1,true));
+ x.restore();
+}
+
+function hhd(){
+ if(!HEL)return;
+ let v=SV_H();
+ HEL.querySelector('.hd').innerHTML=`🎃 Halloween-Welt${H_PREV?'<span class="pv">Vorschau</span>':''}<small>Halloween-Schätze: ${v.p.length}/3</small>`;
+ let sb=HEL.querySelector('.sb');
+ if(sb)sb.style.display=v.p.length>0?'':'none';
+}
+
+function goHalloweenIsland(){
+ closeHalloweenWorld();
+ try{
+  if(S.home){
+   S.home.theme=TH_HALLOWEEN;
+   if(typeof GC!=='undefined'&&GC)delete GC.hsky;
+  }
+  ensureKuerbisDeco();
+  save();
+  if(typeof openHome==='function')openHome();
+  setTimeout(()=>{
+   let n=SV_H().p.length;
+   if(n>0){
+    if(hasHalPrize('skelett'))tapSkelett();
+    else if(hasHalPrize('geist'))tapGeist();
+    else if(hasHalPrize('kuerbis'))tapKuerbis();
+    toast('🎃 Tipp deine erspielten Halloween-Schätze auf der Insel an!',3800);
+   }
+  },220);
+ }catch(_){}
+}
+
+function hbuild(){
+ HEL=document.createElement('div');
+ HEL.id='v55h';
+ HEL.className='hide';
+ HEL.innerHTML=`<canvas></canvas><div class="hd"></div><button class="x" aria-label="Schließen">✕</button><button class="sb">🎃 Auf der Insel ansehen</button>`;
+ document.body.appendChild(HEL);
+ HC_M=HEL.querySelector('canvas');
+ HEL.querySelector('.x').onclick=closeHalloweenWorld;
+ HEL.querySelector('.sb').onclick=goHalloweenIsland;
+ HC_M.addEventListener('pointerdown',e=>{
+  let r=HC_M.getBoundingClientRect(),px=e.clientX-r.left,py=e.clientY-r.top;
+  let v=SV_H();
+  for(let i=0;i<LV_H.length;i++){
+   let[sx,sy]=halPos(i,HS.w,HS.h);
+   if(Math.hypot(px-sx,py-sy)<34){
+    if(i>0&&!((v.st[i-1]|0)>0)){try{toast('🔒 Schaff zuerst Level '+i+'!',1800)}catch(_){}return}
+    try{SND.sfx('press')}catch(_){}
+    openHalloweenLevel(i);
+    return;
+   }
+  }
+ });
+ addEventListener('resize',()=>{if(HOPEN)hsize()});
+ hsize();
+}
+
+function openHalloweenWorld(){
+ if(!HEL)hbuild();
+ hhd();
+ HEL.classList.remove('hide');
+ HOPEN=true;
+ cancelAnimationFrame(HRAF);
+ HRAF=requestAnimationFrame(hdraw);
+ try{SND.setScene('hal0',false)}catch(_){}
+ try{SND.sfx('whoosh')}catch(_){}
+}
+
+function closeHalloweenWorld(){
+ if(!HEL)return;
+ HEL.classList.add('hide');
+ HOPEN=false;
+ cancelAnimationFrame(HRAF);
+ try{SND.sfx('tap')}catch(_){}
+ try{sndScene()}catch(_){}
+ try{if(!$('mapScr').classList.contains('hide'))renderMap()}catch(_){}
+}
+
+function halPrizeCanvas(pIdx,sz){
+ let c=document.createElement('canvas'),D2=Math.min(3,devicePixelRatio||1);
+ c.width=sz*D2;c.height=sz*D2;
+ c.style.cssText=`width:${sz}px;height:${sz}px;display:block;margin:4px auto`;
+ let x=c.getContext('2d');x.setTransform(D2,0,0,D2,0,0);
+ let g=x.createRadialGradient(sz/2,sz/2,4,sz/2,sz/2,sz/2);
+ g.addColorStop(0,'rgba(255,215,120,.65)');g.addColorStop(1,'rgba(255,200,120,0)');
+ x.fillStyle=g;x.fillRect(0,0,sz,sz);
+ if(pIdx===0)drawDekoPumpkin(x,sz/2,sz*.78,sz/56,0,0.45);
+ else if(pIdx===1)drawCuteGhost(x,sz/2,sz*.76,sz/48,0,0,1,true);
+ else drawCuteSkeleton(x,sz/2,sz*.84,sz/52,0,0,0,1,true);
+ return c;
+}
+
+function openHalloweenLevel(i){
+ let L=LV_H[i],pr=PRIZES_H[L.pIdx],v=SV_H(),got=v.p.includes(pr.id),pl=L.pl||'🦊';
+ let stepTxt=L.step===3?'🎁 Schritt 3/3: Schaltet <b>'+pr.n+'</b> frei!':'Schritt '+L.step+'/3 für <b>'+pr.n+'</b>';
+ let o={
+  e:pl,f:L.f,
+  tw:Object.assign({v:'gesammelt'},L.tw,{how:L.how,mk:'hal1',n:L.n,d:L.d,fact:L.fact},L.tw.bgx==='spooky'?{bgx:spookyBg}:{}),
+  mus:'hal1',how:L.how,lv:i
+ };
+ const seedFlugObsH=()=>{
+  if(o.f!=='flug')return;
+  try{
+   let M=C9.v43&&C9.v43.M,g=M&&M.g;
+   if(g&&Array.isArray(g.obs)&&g.obs.length===0){
+    let U=g.U||8.44,H=U*100,W=390;
+    try{let cv=document.querySelector('#v43mg canvas');if(cv&&cv.clientWidth)W=cv.clientWidth}catch(_){}
+    let o1={x:W*0.62,gy:H*0.48,gap:U*35,w:U*11,hp:0,pass:0,sd:7.2};
+    let o2={x:W*1.22,gy:H*0.54,gap:U*35,w:U*11,hp:0,pass:0,sd:19.4};
+    g.obs.push(o1,o2);
+    if(Array.isArray(g.its)){
+     g.its.push({x:o1.x+o1.w/2,y:o1.gy,e:'🎃',b:0,k:0});
+     g.its.push({x:o2.x+o2.w/2,y:o2.gy,e:'🎃',b:1.5,k:0});
+    }
+   }
+  }catch(_){}
+ };
+ o.card=()=>({
+  h:`<h2>🎃 ${i+1}. ${L.n}</h2>`,
+  e:null,
+  body:`<div class="pt"></div><p>${L.d}</p><p><small>${L.how}</small></p><p class="fct">${stepTxt}</p><p class="fct">${got?'✅ Erspielt: <b>'+pr.n+'</b>':'🎁 '+pr.desc}</p>`,
+  btns:[
+   ["▶ Los geht's!",()=>{(V43.start(o.e,false,o),seedFlugObsH())}],
+   ['Zurück','sec',()=>V43.close()]
+  ]
+ });
+ o.end=(st,sc,m)=>{
+  let v=SV_H();
+  let passed=!m||!m.quit||sc>=(m.g&&m.g.goal?m.g.goal[0]:1);
+  if(passed)st=Math.max(1,st|0);
+  let unlockedNow=false;
+  let uid=UNLOCK_AT_H[i];
+  if(passed){
+   v.st[i]=Math.max(v.st[i]|0,st);
+   if(uid&&!v.p.includes(uid)){v.p.push(uid);unlockedNow=true}
+  }
+  SV_H();
+  if(uid==='kuerbis'&&v.p.includes('kuerbis'))try{ensureKuerbisDeco()}catch(_){}
+  save();
+  try{v55MapBtns();if(HEL)hhd()}catch(_){}
+  let starsHtml=`<div class="st">${[1,2,3].map(j=>`<i class="${j<=st?'':'off'}">⭐</i>`).join('')}</div>`;
+  let body=starsHtml+`<div class="pt"></div><p>Punkte: ${sc}</p><p class="fct">${unlockedNow?'🎉 <b>Neu für deine Halloween-Insel erspielt: '+pr.n+'!</b> '+pr.desc:v.p.includes(pr.id)?'✅ <b>'+pr.n+'</b> erspielt':'Schritt '+L.step+'/3 geschafft – noch '+(3-L.step)+' Level bis <b>'+pr.n+'</b>!'}</p><p class="fct"><b>Wusstest du?</b> ${L.fact}</p>`;
+  let nx=(i<LV_H.length-1)&&((v.st[i]|0)>0);
+  let isLast=(i===LV_H.length-1)&&((v.st[i]|0)>0);
+  let btns=[];
+  if(isLast&&v.p.length>0){
+   btns.push(['🏝️ Auf der Insel ansehen',()=>{V43.close();goHalloweenIsland()}]);
+  }
+  if(nx){
+   btns.push(['▶ Nächstes Level',()=>{openHalloweenLevel(i+1)}]);
+   if(unlockedNow){
+    btns.push(['🏝️ Auf der Insel ansehen','sec',()=>{V43.close();goHalloweenIsland()}]);
+   }
+  }else if(!isLast&&unlockedNow){
+   btns.push(['🏝️ Auf der Insel ansehen',()=>{V43.close();goHalloweenIsland()}]);
+  }
+  btns.push(['🔁 Nochmal','sec',()=>{(V43.start(o.e,false,o),seedFlugObsH())}]);
+  btns.push(['Zur Halloween-Welt','sec',()=>V43.close()]);
+  return{
+   h:`<h2>${unlockedNow?'🎃 '+pr.n+' erspielt!':st>=3?'🏆 Super!':'🎉 Toll gemacht!'}</h2>`,
+   e:null,body,btns,
+   post:cd=>{
+    let p=cd.querySelector('.pt');
+    if(p)p.appendChild(halPrizeCanvas(L.pIdx,90));
+   }
+  };
+ };
+ o.close=()=>{
+  if(HEL)hhd();
+  if(HOPEN){try{SND.setScene('hal0',false)}catch(_){}}
+ };
+ V43.xopen(o);
+ seedFlugObsH();
+ setTimeout(seedFlugObsH,60);
+ try{
+  let p=document.querySelector('#v43mg .cd .pt');
+  if(p&&!p.firstChild)p.appendChild(halPrizeCanvas(L.pIdx,86));
+ }catch(_){}
+}
+// ============================================================================
+// 8B. SILVESTER-WELT KARTE (#v55s)
+// ============================================================================
+let SEL=null,SC_M=null,SX_M=null,SBG=null,SS={w:0,h:0},SRAF=0,SOPEN=false,WT0_S=0;
+const SPARKS_S=[];
+for(let i=0;i<32;i++){
+ SPARKS_S.push({x:Math.random(),y:Math.random(),r:2.0+Math.random()*2.5,s:.02+Math.random()*.035,w:Math.random()*6.28,c:['#ffe055','#ff6ea8','#5ec8ff','#7ae068','#d28cff'][i%5]});
+}
+
+function drawFireworkBurstBg(x,cx,cy,r,col1,col2){
+ x.save();
+ for(let i=0;i<14;i++){
+  let a=i*Math.PI*2/14;
+  x.strokeStyle=i%2?col1:col2;
+  x.lineWidth=2.0;x.lineCap='round';
+  x.beginPath();
+  x.moveTo(cx+Math.cos(a)*r*.22,cy+Math.sin(a)*r*.22);
+  x.lineTo(cx+Math.cos(a)*r,cy+Math.sin(a)*r);
+  x.stroke();
+  x.fillStyle=i%2?col2:col1;
+  x.beginPath();x.arc(cx+Math.cos(a)*r,cy+Math.sin(a)*r,2.5,0,7);x.fill();
+ }
+ x.restore();
+}
+
+function drawPartyTower(x,cx,by,s){
+ x.save();x.translate(cx,by);
+ x.fillStyle='#192252';
+ x.fillRect(-s*.42,-s*1.35,s*.84,s*1.35);
+ x.fillStyle='#24306e';
+ x.beginPath();x.moveTo(-s*.54,-s*1.35);x.lineTo(0,-s*1.88);x.lineTo(s*.54,-s*1.35);x.closePath();x.fill();
+ // Uhrblatt (Mitternacht 12 Uhr!)
+ x.fillStyle='#fff6d6';x.strokeStyle='#ffb830';x.lineWidth=2.5;
+ x.beginPath();x.arc(0,-s*.92,s*.26,0,7);x.fill();x.stroke();
+ x.strokeStyle='#241a45';x.lineWidth=2.2;x.lineCap='round';
+ x.beginPath();x.moveTo(0,-s*.92);x.lineTo(0,-s*1.10);x.stroke();
+ x.beginPath();x.moveTo(0,-s*.92);x.lineTo(s*.08,-s*1.04);x.stroke();
+ x.restore();
+}
+
+function ssize(){
+ if(!SC_M)return;
+ let W=innerWidth,H=innerHeight,D2=Math.min(2,devicePixelRatio||1);
+ SC_M.width=W*D2;SC_M.height=H*D2;
+ SX_M=SC_M.getContext('2d');
+ SS={w:W,h:H,d:D2};
+ SBG=document.createElement('canvas');SBG.width=W*D2;SBG.height=H*D2;
+ let x=SBG.getContext('2d');x.setTransform(D2,0,0,D2,0,0);
+
+ let sg=x.createLinearGradient(0,0,0,H*.68);
+ sg.addColorStop(0,'#090e2c');sg.addColorStop(.52,'#1e2868');sg.addColorStop(1,'#462d7a');
+ x.fillStyle=sg;x.fillRect(0,0,W,H);
+
+ for(let i=0;i<46;i++){
+  let sx=((i*67)%100)/100*W,sy=((i*43)%58)/100*H;
+  x.fillStyle=i%2?'rgba(255,244,195,.85)':'rgba(170,220,255,.85)';
+  x.beginPath();x.arc(sx,sy,i%4===0?2.0:1.2,0,7);x.fill();
+ }
+
+ drawFireworkBurstBg(x,W*.22,H*.12,32,'#ffe055','#ff6ea8');
+ drawFireworkBurstBg(x,W*.78,H*.15,36,'#5ec8ff','#ffe055');
+ drawFireworkBurstBg(x,W*.52,H*.09,28,'#7ae068','#d28cff');
+
+ drawPartyTower(x,W*.50,H*.30,H*.078);
+
+ [
+  [.28,'#263278','#1b245c',1],
+  [.50,'#1e2864','#151d4c',3],
+  [.73,'#172052','#10173d',5]
+ ].forEach(([y0,c1,c2,sd])=>{
+  let g=x.createLinearGradient(0,H*y0,0,H);
+  g.addColorStop(0,c1);g.addColorStop(1,c2);
+  x.fillStyle=g;
+  x.beginPath();x.moveTo(0,H);
+  for(let i=0;i<=28;i++){
+   let u=i/28;
+   x.lineTo(u*W,H*y0+Math.sin(u*5+sd)*H*.022+Math.cos(u*3-sd)*H*.012);
+  }
+  x.lineTo(W,H);x.closePath();x.fill();
+ });
+
+ [[.14,.83],[.86,.82],[.13,.50],[.87,.56],[.86,.25]].forEach(([ux,uy],idx)=>{
+  if(idx%2===0)drawDekoClover(x,W*ux,H*uy,0.68,0,0);
+  else drawDekoFirework(x,W*ux,H*uy,0.68,0,0.3);
+ });
+
+ const pathPts=SXS.map((_,i)=>silvPos(i,W,H));
+ const strokeSilvPath=(col,lw,dash)=>{
+  x.strokeStyle=col;x.lineWidth=lw;x.lineCap='round';x.lineJoin='round';
+  x.setLineDash(dash||[]);
+  x.beginPath();x.moveTo(pathPts[0][0],pathPts[0][1]);
+  for(let i=1;i<pathPts.length;i++){
+   let[x0,y0]=pathPts[i-1],[x1,y1]=pathPts[i];
+   x.quadraticCurveTo((x0+x1)/2,(y0+y1)/2+(i%2?10:-10),x1,y1);
+  }
+  x.stroke();x.setLineDash([]);
+ };
+ strokeSilvPath('rgba(8,10,32,.48)',32);
+ strokeSilvPath('#3e4eb8',24);
+ strokeSilvPath('#ffe066',14,[6,10]);
+}
+
+function drawSilvNodeIcon(x,pi,cx,cy,t){
+ x.save();x.translate(cx,cy);
+ if(pi===0)drawDekoClover(x,0,10,.56,t,0);
+ else if(pi===1)drawDekoFirework(x,0,11,.56,t,.25);
+ else drawCutePig(x,0,11,.60,t,0,0,1,true);
+ x.restore();
+}
+
+function sdraw(now){
+ if(!SOPEN)return;
+ SRAF=requestAnimationFrame(sdraw);
+ if(!WT0_S)WT0_S=now;
+ let t=(now-WT0_S)/1000;
+ if(SS.w!==innerWidth||SS.h!==innerHeight)ssize();
+ let x=SX_M,W=SS.w,H=SS.h,D2=SS.d;
+ x.setTransform(1,0,0,1,0,0);
+ x.drawImage(SBG,0,0);
+ x.setTransform(D2,0,0,D2,0,0);
+
+ let v=SV_S();
+ let cur=0;
+ while(cur<LV_S.length&&((v.st&&v.st[cur])|0)>0)cur++;
+
+ x.textAlign='center';x.textBaseline='middle';
+ const R=Math.min(28,Math.max(21,Math.min(W,H)*.055));
+
+ for(let i=0;i<LV_S.length;i++){
+  let[sx,sy]=silvPos(i,W,H);
+  let st=(v.st&&v.st[i])|0;
+  let done=st>0,nowNode=(i===cur),lock=(i>cur),pi=LV_S[i].pIdx;
+  let pulse=nowNode?1+Math.sin(t*4)*.07:1,rr=R*pulse;
+
+  if(nowNode||done){
+   let gl=x.createRadialGradient(sx,sy,4,sx,sy,rr*(nowNode?1.75:1.45));
+   gl.addColorStop(0,nowNode?'rgba(255,230,110,.92)':'rgba(165,210,255,.48)');
+   gl.addColorStop(1,'rgba(255,220,100,0)');
+   x.fillStyle=gl;x.beginPath();x.arc(sx,sy,rr*(nowNode?1.75:1.45),0,7);x.fill();
+  }
+
+  x.fillStyle=lock?'#3d4675':done?'#48b868':nowNode?'#ffb028':pi===0?'#38b858':pi===1?'#5274e8':'#e8649c';
+  if(lock)x.globalAlpha=.68;
+  x.beginPath();x.arc(sx,sy,rr,0,7);x.fill();
+  x.lineWidth=3.5;x.strokeStyle='#fff';x.stroke();
+
+  drawSilvNodeIcon(x,pi,sx,sy,t);
+  x.globalAlpha=1;
+
+  if(lock){
+   x.fillStyle='rgba(255,255,255,.92)';
+   x.beginPath();x.arc(sx+rr*.68,sy-rr*.68,9.5,0,7);x.fill();
+   x.font='11px sans-serif';
+   x.fillText('🔒',sx+rr*.68,sy-rr*.68+.5);
+  }else{
+   x.fillStyle='#ffe055';
+   x.beginPath();x.arc(sx-rr*.72,sy-rr*.68,10.5,0,7);x.fill();
+   x.strokeStyle='#24306e';x.lineWidth=1.8;x.stroke();
+   x.fillStyle='#18204c';x.font='900 12px Nunito,sans-serif';
+   x.fillText(String(i+1),sx-rr*.72,sy-rr*.68+.5);
+  }
+
+  if(done){
+   for(let j=0;j<3;j++){
+    drawStar55(x,sx-13+j*13,sy+rr+10,j<st?5.8:4.0,j<st?'#ffd23f':'rgba(255,255,255,.55)');
+   }
+  }
+
+  if(nowNode){
+   let lb=LV_S[i].n;
+   x.font='900 12px Nunito,sans-serif';
+   let tw=x.measureText(lb).width+18;
+   let lx=Math.max(tw/2+6,Math.min(W-tw/2-6,sx)),ly=sy+rr+22;
+   x.fillStyle='rgba(255,250,235,.96)';
+   x.beginPath();
+   x.roundRect?x.roundRect(lx-tw/2,ly-10,tw,20,10):x.rect(lx-tw/2,ly-10,tw,20);
+   x.fill();
+   x.fillStyle='#1e2660';
+   x.fillText(lb,lx,ly+.5);
+  }
+ }
+
+ SPARKS_S.forEach(p=>{
+  let py=((p.y+t*p.s)%1)*H;
+  let px=(p.x*W+Math.sin(t*1.5+p.w)*16+W)%W;
+  x.save();x.translate(px,py);
+  x.fillStyle=p.c;x.globalAlpha=.8;
+  x.beginPath();x.arc(0,0,p.r,0,7);x.fill();
+  x.restore();
+ });
+
+ // Unten links: Fortschritts-Podest der 3 Silvester-Schätze
+ x.save();
+ let py=H*.945;
+ x.fillStyle='rgba(22,30,78,.88)';
+ x.strokeStyle='#ffe066';x.lineWidth=2;
+ let pw=Math.min(216,W*.55),ph=56,px0=12,py0=py-46;
+ x.beginPath();
+ x.roundRect?x.roundRect(px0,py0,pw,ph,16):x.rect(px0,py0,pw,ph);
+ x.fill();x.stroke();
+
+ const drawSSlot=(idx,cx,drawFn)=>{
+  let got=v.p.includes(PRIZES_S[idx].id);
+  x.save();
+  if(!got)x.globalAlpha=0.28;
+  drawFn(got);
+  x.restore();
+  if(!got){
+   x.fillStyle='#ffe08a';
+   x.font='900 13px Nunito,sans-serif';
+   x.fillText('🔒',cx,py-16);
+  }
+ };
+ drawSSlot(0,px0+pw*.20,got=>drawDekoClover(x,px0+pw*.20,py-4,.72,t,0));
+ drawSSlot(1,px0+pw*.50,got=>drawDekoFirework(x,px0+pw*.50,py-4,.72,t,got?.4:0));
+ drawSSlot(2,px0+pw*.80,got=>drawCutePig(x,px0+pw*.80,py-3,.78,t,0,got?t*4:0,1,true));
+ x.restore();
+}
+
+function shd(){
+ if(!SEL)return;
+ let v=SV_S();
+ SEL.querySelector('.hd').innerHTML=`🎆 Silvester-Welt${S_PREV?'<span class="pv">Vorschau</span>':''}<small>Silvester-Schätze: ${v.p.length}/3</small>`;
+ let sb=SEL.querySelector('.sb');
+ if(sb)sb.style.display=v.p.length>0?'':'none';
+}
+
+function goSilvesterIsland(){
+ closeSilvesterWorld();
+ try{
+  if(S.home){
+   S.home.theme=TH_SILVESTER;
+   if(typeof GC!=='undefined'&&GC)delete GC.hsky;
+  }
+  ensureKleeDeco();ensureRaketeDeco();
+  save();
+  if(typeof openHome==='function')openHome();
+  setTimeout(()=>{
+   let n=SV_S().p.length;
+   if(n>0){
+    if(hasSilvPrize('schwein'))tapSchwein();
+    else if(hasSilvPrize('rakete'))tapRakete();
+    else if(hasSilvPrize('klee'))tapKlee();
+    toast('🎆 Tipp deine erspielten Silvester-Schätze auf der Insel an!',3800);
+   }
+  },220);
+ }catch(_){}
+}
+
+function sbuild(){
+ SEL=document.createElement('div');
+ SEL.id='v55s';
+ SEL.className='hide';
+ SEL.innerHTML=`<canvas></canvas><div class="hd"></div><button class="x" aria-label="Schließen">✕</button><button class="sb">🎆 Auf der Insel ansehen</button>`;
+ document.body.appendChild(SEL);
+ SC_M=SEL.querySelector('canvas');
+ SEL.querySelector('.x').onclick=closeSilvesterWorld;
+ SEL.querySelector('.sb').onclick=goSilvesterIsland;
+ SC_M.addEventListener('pointerdown',e=>{
+  let r=SC_M.getBoundingClientRect(),px=e.clientX-r.left,py=e.clientY-r.top;
+  let v=SV_S();
+  for(let i=0;i<LV_S.length;i++){
+   let[sx,sy]=silvPos(i,SS.w,SS.h);
+   if(Math.hypot(px-sx,py-sy)<34){
+    if(i>0&&!((v.st[i-1]|0)>0)){try{toast('🔒 Schaff zuerst Level '+i+'!',1800)}catch(_){}return}
+    try{SND.sfx('press')}catch(_){}
+    openSilvesterLevel(i);
+    return;
+   }
+  }
+ });
+ addEventListener('resize',()=>{if(SOPEN)ssize()});
+ ssize();
+}
+
+function openSilvesterWorld(){
+ if(!SEL)sbuild();
+ shd();
+ SEL.classList.remove('hide');
+ SOPEN=true;
+ cancelAnimationFrame(SRAF);
+ SRAF=requestAnimationFrame(sdraw);
+ try{SND.setScene('silv0',false)}catch(_){}
+ try{SND.sfx('whoosh')}catch(_){}
+}
+
+function closeSilvesterWorld(){
+ if(!SEL)return;
+ SEL.classList.add('hide');
+ SOPEN=false;
+ cancelAnimationFrame(SRAF);
+ try{SND.sfx('tap')}catch(_){}
+ try{sndScene()}catch(_){}
+ try{if(!$('mapScr').classList.contains('hide'))renderMap()}catch(_){}
+}
+
+function silvPrizeCanvas(pIdx,sz){
+ let c=document.createElement('canvas'),D2=Math.min(3,devicePixelRatio||1);
+ c.width=sz*D2;c.height=sz*D2;
+ c.style.cssText=`width:${sz}px;height:${sz}px;display:block;margin:4px auto`;
+ let x=c.getContext('2d');x.setTransform(D2,0,0,D2,0,0);
+ let g=x.createRadialGradient(sz/2,sz/2,4,sz/2,sz/2,sz/2);
+ g.addColorStop(0,'rgba(255,235,140,.65)');g.addColorStop(1,'rgba(255,220,130,0)');
+ x.fillStyle=g;x.fillRect(0,0,sz,sz);
+ if(pIdx===0)drawDekoClover(x,sz/2,sz*.78,sz/56,0,0);
+ else if(pIdx===1)drawDekoFirework(x,sz/2,sz*.78,sz/56,0,0.45);
+ else drawCutePig(x,sz/2,sz*.78,sz/48,0,0,0,1,true);
+ return c;
+}
+
+function openSilvesterLevel(i){
+ let L=LV_S[i],pr=PRIZES_S[L.pIdx],v=SV_S(),got=v.p.includes(pr.id),pl=L.pl||'🦊';
+ let stepTxt=L.step===3?'🎁 Schritt 3/3: Schaltet <b>'+pr.n+'</b> frei!':'Schritt '+L.step+'/3 für <b>'+pr.n+'</b>';
+ let o={
+  e:pl,f:L.f,
+  tw:Object.assign({v:'gesammelt'},L.tw,{how:L.how,mk:'silv1',n:L.n,d:L.d,fact:L.fact},L.tw.bgx==='ny'?{bgx:silvesterBg}:{}),
+  mus:'silv1',how:L.how,lv:i
+ };
+ const seedFlugObsS=()=>{
+  if(o.f!=='flug')return;
+  try{
+   let M=C9.v43&&C9.v43.M,g=M&&M.g;
+   if(g&&Array.isArray(g.obs)&&g.obs.length===0){
+    let U=g.U||8.44,H=U*100,W=390;
+    try{let cv=document.querySelector('#v43mg canvas');if(cv&&cv.clientWidth)W=cv.clientWidth}catch(_){}
+    let o1={x:W*0.62,gy:H*0.48,gap:U*35,w:U*11,hp:0,pass:0,sd:7.2};
+    let o2={x:W*1.22,gy:H*0.54,gap:U*35,w:U*11,hp:0,pass:0,sd:19.4};
+    g.obs.push(o1,o2);
+    if(Array.isArray(g.its)){
+     g.its.push({x:o1.x+o1.w/2,y:o1.gy,e:'🍀',b:0,k:0});
+     g.its.push({x:o2.x+o2.w/2,y:o2.gy,e:'🍀',b:1.5,k:0});
+    }
+   }
+  }catch(_){}
+ };
+ o.card=()=>({
+  h:`<h2>🎆 ${i+1}. ${L.n}</h2>`,
+  e:null,
+  body:`<div class="pt"></div><p>${L.d}</p><p><small>${L.how}</small></p><p class="fct">${stepTxt}</p><p class="fct">${got?'✅ Erspielt: <b>'+pr.n+'</b>':'🎁 '+pr.desc}</p>`,
+  btns:[
+   ["▶ Los geht's!",()=>{(V43.start(o.e,false,o),seedFlugObsS())}],
+   ['Zurück','sec',()=>V43.close()]
+  ]
+ });
+ o.end=(st,sc,m)=>{
+  let v=SV_S();
+  let passed=!m||!m.quit||sc>=(m.g&&m.g.goal?m.g.goal[0]:1);
+  if(passed)st=Math.max(1,st|0);
+  let unlockedNow=false;
+  let uid=UNLOCK_AT_S[i];
+  if(passed){
+   v.st[i]=Math.max(v.st[i]|0,st);
+   if(uid&&!v.p.includes(uid)){v.p.push(uid);unlockedNow=true}
+  }
+  SV_S();
+  if(uid==='klee'&&v.p.includes('klee'))try{ensureKleeDeco()}catch(_){}
+  if(uid==='rakete'&&v.p.includes('rakete'))try{ensureRaketeDeco()}catch(_){}
+  save();
+  try{v55MapBtns();if(SEL)shd()}catch(_){}
+  let starsHtml=`<div class="st">${[1,2,3].map(j=>`<i class="${j<=st?'':'off'}">⭐</i>`).join('')}</div>`;
+  let body=starsHtml+`<div class="pt"></div><p>Punkte: ${sc}</p><p class="fct">${unlockedNow?'🎉 <b>Neu für deine Silvester-Insel erspielt: '+pr.n+'!</b> '+pr.desc:v.p.includes(pr.id)?'✅ <b>'+pr.n+'</b> erspielt':'Schritt '+L.step+'/3 geschafft – noch '+(3-L.step)+' Level bis <b>'+pr.n+'</b>!'}</p><p class="fct"><b>Wusstest du?</b> ${L.fact}</p>`;
+  let nx=(i<LV_S.length-1)&&((v.st[i]|0)>0);
+  let isLast=(i===LV_S.length-1)&&((v.st[i]|0)>0);
+  let btns=[];
+  if(isLast&&v.p.length>0){
+   btns.push(['🏝️ Auf der Insel ansehen',()=>{V43.close();goSilvesterIsland()}]);
+  }
+  if(nx){
+   btns.push(['▶ Nächstes Level',()=>{openSilvesterLevel(i+1)}]);
+   if(unlockedNow){
+    btns.push(['🏝️ Auf der Insel ansehen','sec',()=>{V43.close();goSilvesterIsland()}]);
+   }
+  }else if(!isLast&&unlockedNow){
+   btns.push(['🏝️ Auf der Insel ansehen',()=>{V43.close();goSilvesterIsland()}]);
+  }
+  btns.push(['🔁 Nochmal','sec',()=>{(V43.start(o.e,false,o),seedFlugObsS())}]);
+  btns.push(['Zur Silvester-Welt','sec',()=>V43.close()]);
+  return{
+   h:`<h2>${unlockedNow?'🎆 '+pr.n+' erspielt!':st>=3?'🏆 Super!':'🎉 Toll gemacht!'}</h2>`,
+   e:null,body,btns,
+   post:cd=>{
+    let p=cd.querySelector('.pt');
+    if(p)p.appendChild(silvPrizeCanvas(L.pIdx,90));
+   }
+  };
+ };
+ o.close=()=>{
+  if(SEL)shd();
+  if(SOPEN){try{SND.setScene('silv0',false)}catch(_){}}
+ };
+ V43.xopen(o);
+ seedFlugObsS();
+ setTimeout(seedFlugObsS,60);
+ try{
+  let p=document.querySelector('#v43mg .cd .pt');
+  if(p&&!p.firstChild)p.appendChild(silvPrizeCanvas(L.pIdx,86));
+ }catch(_){}
+}
+
+// ============================================================================
+// 9. BUTTONS AUF DER ABENTEUER-KARTE (#mapScr) & EXPORTS
+// ============================================================================
+function v55MapBtns(){
+ let ml=$('mapList');if(!ml)return;
+ if(H_OPEN_AVAIL){
+  let hb=$('v55hbtn'),vh=SV_H();
+  if(!hb){
+   hb=document.createElement('button');hb.id='v55hbtn';
+   hb.onclick=openHalloweenWorld;
+   ml.parentNode.insertBefore(hb,ml);
+  }
+  hb.innerHTML=`🎃 Halloween-Welt ${H_PREV?'<span class="pv">Vorschau</span>':''}<small>🎃👻💀 ${vh.p.length}/3</small>`;
+ }
+ if(S_OPEN_AVAIL){
+  let sb=$('v55sbtn'),vs=SV_S();
+  if(!sb){
+   sb=document.createElement('button');sb.id='v55sbtn';
+   sb.onclick=openSilvesterWorld;
+   ml.parentNode.insertBefore(sb,ml);
+  }
+  sb.innerHTML=`🎆 Silvester-Welt ${S_PREV?'<span class="pv">Vorschau</span>':''}<small>🍀🎆🐷 ${vs.p.length}/3</small>`;
+ }
+}
+try{
+ const oRM55=renderMap;
+ renderMap=function(){oRM55.apply(this,arguments);v55MapBtns()};
+ v55MapBtns();
+}catch(_){}
+
+function unlockAllHalForTest(){
+ let v=SV_H();
+ v.st=[3,3,3,3,3,3,3,3,3];
+ v.p=['kuerbis','geist','skelett'];
+ SV_H();ensureKuerbisDeco();save();
+ try{v55MapBtns();if(HEL)hhd()}catch(_){}
+}
+
+function unlockAllSilvForTest(){
+ let v=SV_S();
+ v.st=[3,3,3,3,3,3,3,3,3];
+ v.p=['klee','rakete','schwein'];
+ SV_S();ensureKleeDeco();ensureRaketeDeco();save();
+ try{v55MapBtns();if(SEL)shd()}catch(_){}
+}
+
+window.C9=window.C9||{};
+window.C9.v55=window.C9_V55={
+ version:'55.0',
+ LV_H,PRIZES_H,UNLOCK_AT_H,SV_H,
+ LV_S,PRIZES_S,UNLOCK_AT_S,SV_S,
+ isHalloweenThemeActive,isSilvesterThemeActive,
+ hasHalPrize,hasSilvPrize,
+ openHalloweenWorld,closeHalloweenWorld,openHalloweenLevel,goHalloweenIsland,
+ openSilvesterWorld,closeSilvesterWorld,openSilvesterLevel,goSilvesterIsland,
+ drawDekoPumpkin,drawCuteGhost,drawCuteSkeleton,
+ drawDekoClover,drawDekoFirework,drawCutePig,
+ tapKuerbis,tapGeist,tapSkelett,
+ tapKlee,tapRakete,tapSchwein,
+ HAL_ST,SILV_ST,
+ unlockAllHalForTest,unlockAllSilvForTest
+};
 })();
 </script></body></html>
