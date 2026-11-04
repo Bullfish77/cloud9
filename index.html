@@ -379,7 +379,7 @@ function snare(t,v){noise(t,.14,'bandpass',1650,.55,.035*v,mus,.01);let g=voice(
 function hat(t,v){noise(t,.045,'bandpass',4200,.55,.009*v,mus,.006)}
 function shaker(t,v){noise(t,.07,'bandpass',3200,.4,.006*v,mus,.012)}
 // ---- Sequencer ----
-function newPlayer(key,n,at){let th=T[key]||T.menu,g=ctx.createGain();g.gain.value=0;g.connect(mus);let dg=ctx.createGain();dg.gain.value=0;dg.connect(drm);let t0=Math.max(ctx.currentTime+.15,at||0);return{key,th,night:n,g,dg,nodes:[],step:0,t0,next:t0,rng:mkRng(key.length*977+key.charCodeAt(key.length-1)*31),motif:null,bar:0}}
+function newPlayer(key,n,at){let th=T[key]||T.menu,g=ctx.createGain();g._k=key;g.gain.value=0;g.connect(mus);let dg=ctx.createGain();dg.gain.value=0;dg.connect(drm);let t0=Math.max(ctx.currentTime+.15,at||0);return((window.C9ALLP=window.C9ALLP||[]).push({g}),0)||{key,th,night:n,g,dg,nodes:[],step:0,t0,next:t0,rng:mkRng(key.length*977+key.charCodeAt(key.length-1)*31),motif:null,bar:0}}
 function chordAt(p){let c=p.th.prog[p.bar%p.th.prog.length];return[p.th.root+c[0],c[1]]}
 function schedStep(p,t){if(offline)return schedStep0(p,t);let oO=ctx.createOscillator,oB=ctx.createBufferSource,L=p.nodes;
  ctx.createOscillator=function(){let x=oO.call(ctx);L.push([x,t]);return x};ctx.createBufferSource=function(){let x=oB.call(ctx);L.push([x,t]);return x};
@@ -407,9 +407,9 @@ const DBG={late:0,skip:0,drop:0,notes:0,maxLag:0,pumps:0};function pump(ahead){i
  musLP.frequency.setTargetAtTime((night?.6:1)*(1+inten*.35)*((players[players.length-1]||{th:T.menu}).th.lp),ctx.currentTime,.8);
  rainG.gain.setTargetAtTime(ST.mute?0:rainLv*.2*ST.m,ctx.currentTime,1);patG.gain.setTargetAtTime(patLv*.55,ctx.currentTime,.15);try{if(!REND&&window.C9SEE&&C9SEE.tick)C9SEE.tick(ctx,amb,cur,night)}catch(e){}}
 const FADE=.5,LBARS=8;let CURP=null,GEN=0,BUFS=null,BUFC=new Map(),RQ=Promise.resolve(),REND=false,OUTN=null,RABORT=false;addEventListener('pagehide',()=>{RABORT=true});addEventListener('pageshow',()=>{RABORT=false});const MST={renders:0,ms:0,mainMs:0,hit:0,miss:0,fallback:0,bytes:0};
-function fadeP(p,t){if(p.killed)return;p.killed=1;p.rel=0;let end=t+FADE;[p.g,p.dg].forEach(g=>{try{g.gain.cancelScheduledValues(t);g.gain.setValueAtTime(Math.min(1,g.gain.value),t);g.gain.linearRampToValueAtTime(0,end)}catch(e){}});p.dead=t;for(const q of p.nodes){try{q[0].stop(end+.02)}catch(e){}}p.nodes=[];for(const v of VL)if(v[2]===p)v[1]=Math.min(v[1],end+.02)}
+let FEND=0;function fadeP(p,t){if(p.killed)return;p.killed=1;p.rel=0;let end=t+FADE;FEND=Math.max(FEND,end);[p.g,p.dg].forEach(g=>{try{g.gain.cancelScheduledValues(t);g.gain.setValueAtTime(Math.min(1,g.gain.value),t);g.gain.linearRampToValueAtTime(0,end)}catch(e){}});p.dead=t;for(const q of p.nodes){try{q[0].stop(end+.02)}catch(e){}}p.nodes=[];for(const v of VL)if(v[2]===p)v[1]=Math.min(v[1],end+.02)}
 function bufLv(e){return(e.n?.8:1)*(ST.mute?0:ST.m/Math.max(.01,e.m))}
-function bufStop(t){let B=BUFS;if(!B)return;BUFS=null;try{B.g.gain.cancelScheduledValues(t);B.g.gain.setValueAtTime(B.g.gain.value,t);B.g.gain.linearRampToValueAtTime(0,t+FADE);B.src.stop(t+FADE+.03);if(B.src2)B.src2.stop(t+FADE+.03)}catch(e){}setTimeout(()=>{try{B.g.disconnect()}catch(e){}},(FADE+.4)*1000)}
+function bufStop(t){let B=BUFS;if(!B)return;BUFS=null;FEND=Math.max(FEND,t+FADE);try{B.g.gain.cancelScheduledValues(t);B.g.gain.setValueAtTime(B.g.gain.value,t);B.g.gain.linearRampToValueAtTime(0,t+FADE);B.src.stop(t+FADE+.03);if(B.src2)B.src2.stop(t+FADE+.03)}catch(e){}setTimeout(()=>{try{B.g.disconnect()}catch(e){}},(FADE+.4)*1000)}
 const STEM=k=>/^b\d/.test(k);const useBuf=k=>!window.C9NOBUF&&typeof OfflineAudioContext!='undefined'&&(!STEM(k)||!window.C9NOBUFB);
 const bKey=(k,n,I)=>k+'|'+(n?1:0)+'|'+ST.style+(I?'|i':'');
 function hasMusic(){return!!(BUFS&&!BUFS._ended)||players.some(p=>!p.killed&&!p.sw&&!p.dead)}
@@ -428,7 +428,7 @@ function getLoop(k,n,gen,I){let ck=bKey(k,n,I),e=BUFC.get(ck);if(e){MST.hit++;BU
 function startLive(key,n,at){let p=newPlayer(key,n,at),lv=n?.8:1;p.g.gain.setValueAtTime(0,p.t0);p.g.gain.linearRampToValueAtTime(lv,p.t0+.3);p.dg.gain.setValueAtTime(0,p.t0);p.dg.gain.linearRampToValueAtTime(1,p.t0+.3);players.push(p)}
 function setScene(key,n){if(!ctx)return;if(!offline&&ctx.state=='suspended'&&!document.hidden)ctx.resume().catch(()=>{});n=n===undefined?night:!!n;if(key===cur&&n===night&&(offline||hasMusic()))return;cur=key;night=n;
  if(offline){players.forEach(p=>{p.dead=0;p.g.gain.value=0});let p=newPlayer(key,n);p.g.gain.value=n?.8:1;p.dg.gain.value=1;players=[p];return}
- let gen=++GEN,t=ctx.currentTime,busy=hasMusic(),at=busy?t+FADE+.02:t+.05;
+ let gen=++GEN,t=ctx.currentTime,busy=hasMusic(),at=busy?t+FADE+.02:t+.05;at=Math.max(at,FEND+.02);
  players.forEach(p=>fadeP(p,t));bufStop(t);
  if(!useBuf(key)){startLive(key,n,at);return}
  let cached=BUFC.has(bKey(key,n));if(!cached)startLive(key,n,at);
@@ -438,7 +438,7 @@ function setScene(key,n){if(!ctx)return;if(!offline&&ctx.state=='suspended'&&!do
    [ip.g,ip.dg].forEach(x=>{try{x.gain.cancelScheduledValues(tb);x.gain.setValueAtTime(x===ip.g?(n?.8:1):1,tb);x.gain.linearRampToValueAtTime(0,tb+.03)}catch(_){}});g.gain.setValueAtTime(lv,t1);MST.swap=(MST.swap||0)+1}
   else{g.gain.setValueAtTime(0,t1);g.gain.linearRampToValueAtTime(lv,t1+.3)}
   let ga=null,gb=null;if(STEM(key)){ga=ctx.createGain();gb=ctx.createGain();ga.gain.value=1;gb.gain.value=0;src.connect(ga).connect(g);gb.connect(g);g.connect(OUTN)}else src.connect(g).connect(OUTN);
-  let B={src,src2:null,ga,gb,iv:-1,g,e,t0:t1-off,key,n,_ended:false};
+  let B={src,src2:null,ga,gb,iv:-1,g,e,t0:t1-off,key,n,_ended:false};(window.C9ALLB=window.C9ALLB||[]).push(B);
   src.onended=()=>{B._ended=true;if(BUFS===B)BUFS=null;try{src.disconnect();g.disconnect()}catch(_){}};
   try{src.start(t1,off);BUFS=B}catch(err){MST.fallback++;if(!hasMusic())startLive(key,n,nw+.05);return}
   if(ga){mixB();getLoop(key,n,gen,1).then(e2=>{if(!e2||BUFS!==B||!ctx)return;let L=e.buf.length/e.buf.sampleRate,w=Math.max(ctx.currentTime+.05,B.t0+off),o2=((w-B.t0)%L+L)%L,s2=ctx.createBufferSource();s2.buffer=e2.buf;s2.loop=true;s2.connect(gb);s2.start(w,o2);B.src2=s2;B.iv=-1;mixB();MST.stem2=(MST.stem2||0)+1}).catch(()=>{})}})
@@ -11761,7 +11761,7 @@ function unlockAllSilvForTest(){
 
 window.C9=window.C9||{};
 window.C9.v55=window.C9_V55={
- version:'56.1',
+ version:'56.2',
  LV_H,PRIZES_H,UNLOCK_AT_H,SV_H,
  LV_S,PRIZES_S,UNLOCK_AT_S,SV_S,
  isHalloweenThemeActive,isSilvesterThemeActive,
@@ -11865,6 +11865,8 @@ function setComp(e,first){let had=!!C.e;// bisher erreichte Level merken, damit 
  if(had){for(let i=0;i<NB;i++)if(unlocked(i))C.un[i]=true}
  C.e=e;if(first&&!had){C.since=Date.now();C.legacy=(S.stars||[]).some(s=>s>0)?1:0}save();
  try{toast(e+' '+CP[e].n+' begleitet dich jetzt! 💜',2600)}catch(_){}}
+// v56.2: Auswahl erscheint auch, wenn die Karte über andere Wege (Tabs, Endkarte, …) geöffnet wird
+let mapAsk=0;setInterval(()=>{try{let ms=$('mapScr'),on=ms&&!ms.classList.contains('hide');if(!on){mapAsk=0;return}if(C.e||mapAsk||document.querySelector('#c9cs'))return;mapAsk=1;let old=(S.stars||[]).some(s=>s>0)||Object.keys(S.alb||{}).length>0;chooser({old},e=>{setComp(e,true);try{renderMap()}catch(_){}setTimeout(()=>lvSay(CP[e].say,3200),400)})}catch(e){}},500);
 window.C9COMP.choose=(e,old)=>{if(!CP[e])return;if(old)C.legacy=1;setComp(e,true)};
 // Beim Öffnen des Abenteuers: einmalig wählen
 const bm=$('bMap');if(bm){const oM=bm.onclick;bm.onclick=function(ev){if(C.e)return oM.call(this,ev);let old=(S.stars||[]).some(s=>s>0)||Object.keys(S.alb||{}).length>0;chooser({old},e=>{setComp(e,true);oM.call(bm,ev);setTimeout(()=>lvSay(CP[e].say,3200),400)})}}
@@ -11873,8 +11875,12 @@ const oRMc=renderMap;renderMap=function(){let r=oRMc.apply(this,arguments);try{i
  document.querySelectorAll('#mapList .biome').forEach(d=>{let e=d.dataset.e,bi=BIOMES.findIndex(b=>b.e==e);if(bi==c.b&&!d.querySelector('.c9start')){let h=d.querySelector('h3');if(h)h.insertAdjacentHTML('beforeend',`<span class="c9start">🐾 Start mit ${c.n}</span>`)}})}catch(e){}return r};
 // --- Begleiter im Level ---
 const lv=document.createElement('div');lv.id='c9lvc';lv.innerHTML='<img alt=""><span class="bb"></span>';document.body.appendChild(lv);let lvT=0;
-function lvSay(t,ms){if(!C.e)return;lv.querySelector('.bb').textContent=t;lv.classList.add('say');clearTimeout(lvT);lvT=setTimeout(()=>lv.classList.remove('say'),ms||2200)}
+function lvSay(t,ms){if(!C.e)return;lv.querySelector('.bb').textContent=t;lv.classList.add('say');lvAvoid();clearTimeout(lvT);lvT=setTimeout(()=>lv.classList.remove('say'),ms||2200)}
 window.C9COMP.say=lvSay;
+// v56.2: Begleiter-Blase darf Tutorial-/Coach-Boxen nie verdecken → darüber schieben, sonst ausblenden
+function lvAvoid(){try{lv.style.bottom='';if(lv.style.display=='none')return;let ov=(a,b)=>a.left<b.right&&b.left<a.right&&a.top<b.bottom&&b.top<a.bottom;let obs=[...document.querySelectorAll('#hint.on,[id*="coach"],[class*="coach"],[id*="tut"],[class*="tutor"]')].filter(e=>e.offsetParent!==null||getComputedStyle(e).position=='fixed').map(e=>e.getBoundingClientRect()).filter(r=>r.width>0&&r.height>0);if(!obs.length)return;let r=lv.getBoundingClientRect(),hit=obs.filter(o=>ov(r,o));if(!hit.length)return;let top=Math.min(...hit.map(o=>o.top));let nb=innerHeight-top+10;if(top-r.height>130){lv.style.bottom=nb+'px';let r2=lv.getBoundingClientRect();if(!obs.some(o=>ov(r2,o)))return}lv.style.bottom='';lv.classList.remove('say')}catch(e){}}
+setInterval(lvAvoid,150);
+
 setInterval(()=>{let hud=$('hud'),on=C.e&&hud&&!hud.classList.contains('hide')&&!0;lv.style.display=on?'flex':'none';if(on){let i=lv.querySelector('img');if(i.dataset.e!==C.e){i.dataset.e=C.e;i.src=im(C.e)}let s=.9+cLv()*.08;i.style.width=i.style.height=Math.round(46*s)+'px'}},400);
 const oSt=start;start=function(mode,li){try{let q=$('c9endc');if(q)q.remove()}catch(e){}let r=oSt.apply(this,arguments);try{if(C.e&&mode=='level'){let c=CP[C.e],L=LEVELS[li];setTimeout(()=>lvSay(L&&L[0]==c.b&&route()[0]==li?c.say:(Math.random()<.5?c.hint:['Los geht\'s, '+c.n+' ist dabei! 💪','Wir schaffen das zusammen!','Ich drück dir die Pfoten! 🐾'][li%3]),3000),900)}}catch(e){}return r};
 function gainXp(n,why){if(!C.e)return;let l0=cLv();C.xp=(C.xp||0)+n;save();let l1=cLv();if(l1>l0){sfx('levelup');try{toast('🎉 '+CP[C.e].n+' ist gewachsen! Begleiter-Stufe '+l1,2600)}catch(_){}}}
