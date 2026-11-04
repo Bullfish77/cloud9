@@ -11761,7 +11761,7 @@ function unlockAllSilvForTest(){
 
 window.C9=window.C9||{};
 window.C9.v55=window.C9_V55={
- version:'55.7',
+ version:'56.0',
  LV_H,PRIZES_H,UNLOCK_AT_H,SV_H,
  LV_S,PRIZES_S,UNLOCK_AT_S,SV_S,
  isHalloweenThemeActive,isSilvesterThemeActive,
@@ -11796,4 +11796,114 @@ window.C9.v55=window.C9_V55={
     if(B.some(b=>cx+RR>b.l&&cx-RR<b.r&&cy+RR>b.t&&cy-RR<b.b))continue;return[cx,cy,s]}}
   return null};
 })();
-</script><script>/* v55.7 */(function(){const o=hZone;hZone=function(g,a){let Z=o.apply(this,arguments);try{let O=window.C9DOFF;if(Z&&O&&O[2]===g.cols+'x'+g.rows&&Z.m=='free'&&!Z.cell&&Z.rx>g.rx*.4){Z=Object.assign({},Z,{x:Z.x+O[0],y:Z.y+O[1]})}}catch(e){}return Z}})();</script></body></html>
+</script><script>/* v55.7 */(function(){const o=hZone;hZone=function(g,a){let Z=o.apply(this,arguments);try{let O=window.C9DOFF;if(Z&&O&&O[2]===g.cols+'x'+g.rows&&Z.m=='free'&&!Z.cell&&Z.rx>g.rx*.4){Z=Object.assign({},Z,{x:Z.x+O[0],y:Z.y+O[1]})}}catch(e){}return Z}})();</script><script>/* v56.0: Begleiter – Startgefährte wählen, eigener Weg durchs Abenteuer, folgt dir auf der Insel */
+(function(){try{
+const CP={
+ '🐰':{n:'Hoppel',w:'Land',we:'🌿',b:0,col:'#8fd6a0',r:[0,1,2,3,4,5,6],say:'Hallo! Ich bin Hoppel. Zusammen lassen wir die Blumenwiese erblühen! 🌼',food:'Löwenzahn und Möhren',fact:'Hasen können fast so schnell rennen wie ein Auto in der Stadt!',hint:'Pflanzen locken Tiere an – lass es auf die Erde regnen!'},
+ '🐢':{n:'Tula',w:'Wasser',we:'💧',b:3,col:'#4fd1b8',r:[3,0,1,2,4,5,6],say:'Hallihallo! Ich bin Tula. Ich zeig dir zuerst die Tropeninsel! 🌺',food:'Seegras und süße Früchte',fact:'Meeresschildkröten schwimmen tausende Kilometer durchs Meer!',hint:'Viel Regen macht die Tropen grün – und ich liebe Regen!'},
+ '🦅':{n:'Flitz',w:'Luft',we:'🌬️',b:1,col:'#f5b867',r:[1,0,3,2,4,5,6],say:'Hui! Ich bin Flitz. Ich fliege mit dir zuerst zur Wüstenoase! 🏜️',food:'Fische aus der Oase',fact:'Adler sehen so scharf, dass sie eine Maus aus einem Kilometer Höhe entdecken!',hint:'Die Windwolke 🌬️ pustet alle Wolken weg – probier sie aus!'},
+ '🐧':{n:'Flocke',w:'Kälte',we:'❄️',b:2,col:'#8fc0f0',r:[2,0,1,3,4,5,6],say:'Hallo! Ich bin Flocke. Ab ins Schnee-Abenteuer auf der Polarinsel! 🧊',food:'Fische und Krill',fact:'Pinguine können nicht fliegen – aber unter Wasser sausen sie wie Raketen!',hint:'Schneewolken ❄️ lassen es schneien – sammle viele Flocken!'}};
+const KEYS=Object.keys(CP);
+S.c9c=S.c9c||{};const C=S.c9c;C.un=C.un||{};C.xp=C.xp||0;
+const N1=LEVELS.findIndex((L,i)=>i>0&&L[0]>6);const NB=N1>0?N1:24; // Kapitel 1 = Biome 0..6
+const lvOf=b=>LEVELS.map((L,i)=>i).filter(i=>i<NB&&LEVELS[i][0]===b);
+function route(e){let c=CP[e||C.e];if(!c)return null;let o=[];c.r.forEach(b=>o.push(...lvOf(b)));return o}
+const cLv=()=>Math.min(5,1+Math.floor(Math.sqrt((C.xp||0)/30)));
+const cXp=l=>(l-1)*(l-1)*30;
+window.C9COMP={CP,C,route,cLv,KEYS};
+// --- Weg / Freischalten (Fortschritt geht nie verloren) ---
+const oUn=unlocked;
+unlocked=function(i){if(!C.e||i>=NB)return oUn(i);if(C.un[i]||(S.stars[i]||0)>0)return true;if(C.legacy&&oUn(i))return C.un[i]=true;let r=route(),k=r.indexOf(i);let u=k==0||(k>0&&(S.stars[r[k-1]]||0)>=1);if(u){C.un[i]=true;save()}return u};
+function nextOf(li){if(!C.e||li>=NB)return li+1;let r=route(),k=r.indexOf(li);if(k<0||k>=r.length-1)return li+1;let n=r[k+1];return n}
+window.C9COMP.nextOf=nextOf;
+setTimeout(()=>{let b=$('bNext');if(!b)return;const oN=b.onclick;b.onclick=function(ev){if(!G||G.mode!='level'||G.li>=NB||!C.e)return oN&&oN.call(this,ev);let o=G.li,n=nextOf(o);G.li=n-1;try{oN&&oN.call(this,ev)}finally{if(G&&G.li===n-1)G.li=o}}},0);
+// --- Styles ---
+const st=document.createElement('style');st.textContent=`
+#c9cs{position:fixed;inset:0;z-index:9000;background:linear-gradient(180deg,#ffd3ea,#cfe6ff);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px;box-sizing:border-box;font-family:Nunito,sans-serif;color:#46337a;text-align:center;overflow:auto}
+#c9cs h2{margin:4px 0 2px;font-size:24px}#c9cs p{margin:4px 0 10px;font-size:14px;font-weight:700;max-width:360px}
+#c9cs .g{display:grid;grid-template-columns:1fr 1fr;gap:12px;width:100%;max-width:380px}
+#c9cs .k{background:#fff;border-radius:22px;padding:10px 6px 8px;box-shadow:0 6px 0 rgba(70,51,122,.15),0 8px 18px rgba(70,51,122,.12);border:3px solid transparent;cursor:pointer;transition:transform .15s;animation:c9pop .45s backwards}
+#c9cs .k:nth-child(2){animation-delay:.08s}#c9cs .k:nth-child(3){animation-delay:.16s}#c9cs .k:nth-child(4){animation-delay:.24s}
+#c9cs .k.on{border-color:#a87aff;transform:scale(1.04)}#c9cs .k img{width:76px;height:76px;animation:c9bob 1.4s ease-in-out infinite alternate}
+#c9cs .k b{display:block;font-size:17px}#c9cs .k small{display:block;font-size:12px;font-weight:700;opacity:.8}
+#c9cs .w{display:inline-block;margin-top:4px;padding:2px 9px;border-radius:10px;color:#fff;font-size:12px;font-weight:800}
+#c9cs .say{min-height:44px;margin:12px 0 8px;background:#fff;border-radius:16px;padding:8px 12px;font-weight:800;font-size:14px;max-width:360px;position:relative}
+#c9cs button{font:800 17px Nunito,sans-serif;border:0;border-radius:18px;padding:12px 28px;background:linear-gradient(135deg,#a87aff,#ff8ec4);color:#fff;box-shadow:0 5px 0 #7a4ad0}#c9cs button:disabled{opacity:.45}
+#c9cs .later{background:none;color:#46337a;box-shadow:none;font-size:13px;padding:6px;margin-top:4px}
+@keyframes c9pop{from{transform:scale(.5);opacity:0}}@keyframes c9bob{to{transform:translateY(-6px) rotate(-5deg)}}
+@keyframes c9hop{0%,100%{transform:translateY(0)}40%{transform:translateY(-14px) scale(1.08)}}
+#c9isl{position:fixed;z-index:6;pointer-events:auto;display:none;transform:translate(-50%,-100%);text-align:center;cursor:pointer;-webkit-tap-highlight-color:transparent}
+#c9isl img{display:block;margin:0 auto;filter:drop-shadow(0 3px 2px rgba(70,51,122,.25))}#c9isl.hop img{animation:c9hop .5s}
+#c9isl .t{display:inline-block;background:rgba(255,255,255,.92);border-radius:9px;padding:0 6px;font:800 10px Nunito,sans-serif;color:#46337a;white-space:nowrap;box-shadow:0 1px 3px rgba(70,51,122,.2)}
+#c9isl .bb{position:absolute;left:50%;bottom:100%;transform:translateX(-50%);background:#fff;border-radius:12px;padding:3px 8px;font:800 11px Nunito,sans-serif;color:#46337a;white-space:nowrap;opacity:0;transition:opacity .2s;box-shadow:0 2px 6px rgba(70,51,122,.2)}#c9isl.say .bb{opacity:1}
+.c9ht{position:fixed;z-index:7;pointer-events:none;font-size:18px;animation:c9ht 1s forwards}@keyframes c9ht{to{transform:translateY(-40px);opacity:0}}
+#c9lvc{position:fixed;left:8px;bottom:84px;z-index:40;display:none;pointer-events:none;align-items:flex-end;gap:4px}#c9lvc img{width:50px;height:50px;animation:c9bob 1.3s ease-in-out infinite alternate}
+#c9lvc .bb{background:#fff;border-radius:12px;padding:4px 9px;font:800 12px Nunito,sans-serif;color:#46337a;max-width:200px;opacity:0;transition:opacity .25s;box-shadow:0 2px 6px rgba(70,51,122,.2)}#c9lvc.say .bb{opacity:1}
+.c9card{display:flex;gap:10px;align-items:center;text-align:left}.c9card img{width:84px;height:84px}
+.c9bar{height:10px;border-radius:6px;background:#eee;overflow:hidden;margin:4px 0}.c9bar i{display:block;height:100%;background:linear-gradient(90deg,#a87aff,#ff8ec4)}
+.c9sb{font-size:13px;line-height:1.45;margin:8px 0}.c9btns{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+#c9mchip{display:inline-flex;align-items:center;gap:4px;margin-top:6px;padding:3px 10px 3px 4px;border-radius:14px;background:rgba(255,255,255,.85);font-weight:800;font-size:13px;border:0;color:#46337a;cursor:pointer}#c9mchip img{width:28px;height:28px}
+.c9route{font-size:12px;font-weight:800;margin:2px 0 6px}.biome .c9start{display:inline-block;margin-left:6px;font-size:11px;background:#fff;color:#46337a;border-radius:9px;padding:1px 7px;vertical-align:middle}`;
+document.head.appendChild(st);
+const im=e=>animalImg(e);
+const sfx=k=>{try{SND.sfx(k)}catch(e){}};
+// --- Auswahl-Bildschirm ---
+function chooser(opts,done){opts=opts||{};let el=document.createElement('div');el.id='c9cs';let sel=opts.cur||null;
+ el.innerHTML=`<h2>${opts.sw?'🔄 Begleiter wechseln':'🐾 Wähle deinen Begleiter!'}</h2><p>${opts.sw?'Dein neuer Begleiter zeigt dir den Weg durch die Welten, die du noch nicht besucht hast. Alles, was du schon geschafft hast, bleibt.':opts.old?'Neu! Ein Tierfreund begleitet dich ab jetzt. Keine Sorge: Alle deine Sterne, Tiere und Level bleiben erhalten! ⭐':'Jeder Begleiter startet in seiner Lieblingswelt – so wird dein Abenteuer ganz eigen.'}</p>
+ <div class="g">${KEYS.map(e=>{let c=CP[e];return`<div class="k ${e==sel?'on':''}" data-e="${e}"><img src="${im(e)}" alt=""><b>${c.n}</b><small>${ANIMALS.find(a=>a[0]==e)[1]}</small><span class="w" style="background:${c.col}">${c.we} ${c.w} · Start: ${BIOMES[c.b].e} ${BIOMES[c.b].n}</span></div>`}).join('')}</div>
+ <div class="say">${sel?CP[sel].say:'Tippe auf ein Tier! 👆'}</div><button id="c9go" ${sel?'':'disabled'}>${opts.sw?'✔ Wechseln':'▶ Los geht\'s!'}</button>${opts.sw?'<button class="later" id="c9x">Abbrechen</button>':''}`;
+ document.body.appendChild(el);
+ el.querySelectorAll('.k').forEach(k=>k.onclick=()=>{sel=k.dataset.e;el.querySelectorAll('.k').forEach(q=>q.classList.toggle('on',q==k));el.querySelector('.say').textContent=CP[sel].say;el.querySelector('#c9go').disabled=false;sfx('tap');let i=k.querySelector('img');i.style.animation='none';i.offsetWidth;i.style.animation='c9hop .5s'});
+ el.querySelector('#c9go').onclick=()=>{if(!sel)return;el.remove();sfx('star');done(sel)};
+ let x=el.querySelector('#c9x');if(x)x.onclick=()=>{el.remove();sfx('tap')};return el}
+function setComp(e,first){let had=!!C.e;// bisher erreichte Level merken, damit beim Wechsel nichts gesperrt wird
+ if(had){for(let i=0;i<NB;i++)if(unlocked(i))C.un[i]=true}
+ C.e=e;if(first&&!had){C.since=Date.now();C.legacy=(S.stars||[]).some(s=>s>0)?1:0}save();
+ try{toast(e+' '+CP[e].n+' begleitet dich jetzt! 💜',2600)}catch(_){}}
+window.C9COMP.choose=(e,old)=>{if(!CP[e])return;if(old)C.legacy=1;setComp(e,true)};
+// Beim Öffnen des Abenteuers: einmalig wählen
+const bm=$('bMap');if(bm){const oM=bm.onclick;bm.onclick=function(ev){if(C.e)return oM.call(this,ev);let old=(S.stars||[]).some(s=>s>0)||Object.keys(S.alb||{}).length>0;chooser({old},e=>{setComp(e,true);oM.call(bm,ev);setTimeout(()=>lvSay(CP[e].say,3200),400)})}}
+// --- Weltkarte: Weg anzeigen ---
+const oRMc=renderMap;renderMap=function(){let r=oRMc.apply(this,arguments);try{if(!C.e)return r;let c=CP[C.e],ms=$('mapStars');if(ms&&!$('c9route')){ms.insertAdjacentHTML('afterend',`<div class="c9route" id="c9route"><img src="${im(C.e)}" style="width:22px;height:22px;vertical-align:middle"> ${c.n}s Weg: ${c.r.map(b=>BIOMES[b].e).join(' → ')}</div>`)}
+ document.querySelectorAll('#mapList .biome').forEach(d=>{let e=d.dataset.e,bi=BIOMES.findIndex(b=>b.e==e);if(bi==c.b&&!d.querySelector('.c9start')){let h=d.querySelector('h3');if(h)h.insertAdjacentHTML('beforeend',`<span class="c9start">🐾 Start mit ${c.n}</span>`)}})}catch(e){}return r};
+// --- Begleiter im Level ---
+const lv=document.createElement('div');lv.id='c9lvc';lv.innerHTML='<img alt=""><span class="bb"></span>';document.body.appendChild(lv);let lvT=0;
+function lvSay(t,ms){if(!C.e)return;lv.querySelector('.bb').textContent=t;lv.classList.add('say');clearTimeout(lvT);lvT=setTimeout(()=>lv.classList.remove('say'),ms||2200)}
+window.C9COMP.say=lvSay;
+setInterval(()=>{let hud=$('hud'),on=C.e&&hud&&!hud.classList.contains('hide')&&!(window.S&&S.v41&&S.v41.pet==C.e);lv.style.display=on?'flex':'none';if(on){let i=lv.querySelector('img');if(i.dataset.e!==C.e){i.dataset.e=C.e;i.src=im(C.e)}let s=.9+cLv()*.08;i.style.width=i.style.height=Math.round(46*s)+'px'}},400);
+const oSt=start;start=function(mode,li){try{let q=$('c9endc');if(q)q.remove()}catch(e){}let r=oSt.apply(this,arguments);try{if(C.e&&mode=='level'){let c=CP[C.e],L=LEVELS[li];setTimeout(()=>lvSay(L&&L[0]==c.b&&route()[0]==li?c.say:(Math.random()<.5?c.hint:['Los geht\'s, '+c.n+' ist dabei! 💪','Wir schaffen das zusammen!','Ich drück dir die Pfoten! 🐾'][li%3]),3000),900)}}catch(e){}return r};
+function gainXp(n,why){if(!C.e)return;let l0=cLv();C.xp=(C.xp||0)+n;save();let l1=cLv();if(l1>l0){sfx('levelup');try{toast('🎉 '+CP[C.e].n+' ist gewachsen! Begleiter-Stufe '+l1,2600)}catch(_){}}}
+window.C9COMP.gainXp=gainXp;
+const oFi=finish;finish=function(){let was=G&&G.done,r=oFi.apply(this,arguments);try{if(!was&&G&&G.res&&G.mode=='level'&&C.e){let w=G.res.win,c=CP[C.e];gainXp(w?10:3);let er=$('bNext'),oc=$('c9endc');if(oc)oc.remove();if(er)er.insertAdjacentHTML('beforebegin',`<div id="c9endc" class="c9win" style="margin:8px auto;max-width:330px;background:rgba(255,255,255,.85);border-radius:16px;padding:6px 10px;font-size:13px;font-weight:700;display:flex;align-items:center;gap:8px;justify-content:center"><img src="${im(C.e)}" style="width:44px;height:44px;animation:c9hop .6s 1s 2"><span><b style="font-size:14px">${c.n}:</b> ${w?['Juhu, wir haben es geschafft! 🎉','Du bist super! ⭐','Hurra! Weiter geht\'s! 🌈'][G.li%3]:'Nicht schlimm, gleich nochmal! 💪'}<br><small>+${w?10:3} Begleiter-XP</small></span></div>`);if(w){let n=nextOf(G.li);if(G.li<NB&&LEVELS[n]&&LEVELS[n][0]!=LEVELS[G.li][0])setTimeout(()=>lvSay('Als Nächstes: '+BIOMES[LEVELS[n][0]].e+' '+BIOMES[LEVELS[n][0]].n+'!',2600),1500)}}}catch(e){}return r};
+// --- Begleiter auf der Insel ---
+const is=document.createElement('div');is.id='c9isl';is.innerHTML='<span class="bb"></span><img alt=""><span class="t"></span>';document.body.appendChild(is);let isT=0,pets=0;
+function islSay(t){is.querySelector('.bb').textContent=t;is.classList.add('say');clearTimeout(isT);isT=setTimeout(()=>is.classList.remove('say'),1800)}
+function petIt(x,y){if(!C.e)return;is.classList.remove('hop');is.offsetWidth;is.classList.add('hop');sfx('pop');let h=document.createElement('div');h.className='c9ht';h.textContent='💜';h.style.left=(x-9)+'px';h.style.top=(y-30)+'px';document.body.appendChild(h);setTimeout(()=>h.remove(),1000);pets++;C.pets=(C.pets||0)+1;if(C.pets%3==0)gainXp(2);else save();islSay(['Hihi, das kitzelt!','Danke! 💜','Noch mal! 😊','Du bist mein bester Freund!'][pets%4])}
+window.C9COMP.pet=()=>{let r=is.getBoundingClientRect();petIt(r.left+r.width/2,r.top+r.height/2)};
+is.addEventListener('pointerdown',ev=>{ev.stopPropagation();ev.preventDefault();petIt(ev.clientX,ev.clientY)});
+let wt=0,lastT=performance.now(),dir=1;
+function islLoop(t){requestAnimationFrame(islLoop);let dt=Math.min(.1,(t-lastT)/1000);lastT=t;let on=false;try{on=!!(C.e&&HOMEON&&!HED&&window.C9WM&&!$('homeScr').classList.contains('hide')&&!document.querySelector('#c9cs'))}catch(e){}
+ is.style.display=on?'block':'none';if(!on)return;let M=C9WM,hc=$('hc'),rc=hc.getBoundingClientRect(),dp=hc.width/rc.width||1,z=M.a/dp;
+ wt+=dt;let O=window.C9DOFF||[0,0],wx=Math.sin(wt*.35)*34,wy=O[1]*.0+52+Math.sin(wt*.7)*6;let nd=Math.cos(wt*.35)>=0?1:-1;
+ let sx=rc.left+(M.a*wx+M.c*wy+M.e)/dp,sy=rc.top+(M.b*wx+M.d*wy+M.f)/dp;is.style.left=sx+'px';is.style.top=sy+'px';
+ let i=is.querySelector('img'),sz=Math.max(26,Math.min(90,(30+cLv()*3)*Math.max(.8,z*1.1)));if(i.dataset.e!==C.e){i.dataset.e=C.e;i.src=im(C.e)}i.style.width=i.style.height=Math.round(sz)+'px';i.style.transform=`scaleX(${-nd}) translateY(${Math.abs(Math.sin(wt*5))*-3}px)`;
+ is.querySelector('.t').style.fontSize=Math.max(7,Math.min(12,26*z))+'px';is.querySelector('.t').textContent=CP[C.e].n+' · Stufe '+cLv()}
+requestAnimationFrame(islLoop);
+// --- Begleiter-Karte (Steckbrief) ---
+function card(){if(!C.e)return chooser({},e=>{setComp(e,true);card()});let c=CP[C.e],a=ANIMALS.find(x=>x[0]==C.e),l=cLv(),p=l>=5?100:Math.round((C.xp-cXp(l))/(cXp(l+1)-cXp(l))*100);
+ let el=document.createElement('div');el.id='c9cs';el.innerHTML=`<div style="background:#fff;border-radius:24px;padding:16px;max-width:360px;width:100%;box-shadow:0 8px 24px rgba(70,51,122,.2)" id="c9card"><h2 style="margin-top:0">🐾 Mein Begleiter</h2>
+ <div class="c9card"><img src="${im(C.e)}" style="animation:c9bob 1.4s ease-in-out infinite alternate"><div style="flex:1"><b style="font-size:20px">${c.n}</b><br><small style="font-weight:800">${a[1]} · ${c.we} ${c.w}</small><br><small style="font-weight:800">Stufe ${l}${l>=5?' (Maximum) 🌟':''}</small><div class="c9bar"><i style="width:${p}%"></i></div><small>${C.xp|0} XP · ${C.pets|0}× gestreichelt</small></div></div>
+ <div class="c9sb"><b>📋 Steckbrief</b><br>🏠 Lieblingswelt: ${BIOMES[c.b].e} ${BIOMES[c.b].n}<br>🍽️ Frisst gern: ${c.food}<br>💡 Wusstest du? ${c.fact}<br>🗺️ Unser Weg: ${c.r.map(b=>BIOMES[b].e).join(' → ')}</div>
+ <div class="c9btns"><button id="c9pet">✋ Streicheln</button><button id="c9sw" style="background:linear-gradient(135deg,#5ab4ff,#7ad86a);box-shadow:0 5px 0 #3a8ac8">🔄 Wechseln</button></div><button class="later" id="c9x">Schließen</button></div>`;
+ document.body.appendChild(el);
+ el.querySelector('#c9x').onclick=()=>{el.remove();sfx('tap')};
+ el.querySelector('#c9pet').onclick=ev=>{let i=el.querySelector('.c9card img');i.style.animation='none';i.offsetWidth;i.style.animation='c9hop .5s';sfx('pop');C.pets=(C.pets||0)+1;if(C.pets%3==0)gainXp(2);save();let h=document.createElement('div');h.className='c9ht';h.textContent='💜';h.style.left=(ev.clientX-9)+'px';h.style.top=(ev.clientY-30)+'px';document.body.appendChild(h);setTimeout(()=>h.remove(),1000)};
+ el.querySelector('#c9sw').onclick=()=>{el.remove();chooser({sw:1,cur:C.e},e=>{setComp(e);card();mchip()})}}
+window.C9COMP.card=card;window.C9COMP.chooser=chooser;
+function mchip(){let p=$('prof');if(!p)return;let b=$('c9mchip');if(!C.e){if(b)b.remove();return}if(!b){p.parentNode.insertBefore(Object.assign(document.createElement('button'),{id:'c9mchip'}),p.nextSibling);b=$('c9mchip');b.onclick=card}b.innerHTML=`<img src="${im(C.e)}">${CP[C.e].n} · Stufe ${cLv()}`}
+const oMenu=menu;menu=function(){let r=oMenu.apply(this,arguments);try{mchip()}catch(e){}return r};
+// Album: Begleiter-Karte oben
+const oRA=renderAlb;renderAlb=function(){let r=oRA.apply(this,arguments);try{let c=$('albCnt');if(c&&!$('c9albb')){c.insertAdjacentHTML('afterend',`<button id="c9albb" class="sec" style="margin:6px auto;display:flex;align-items:center;gap:6px">${C.e?`<img src="${im(C.e)}" style="width:30px;height:30px">`:'🐾'} Mein Begleiter${C.e?': '+CP[C.e].n:''}</button>`);$('c9albb').onclick=card}}catch(e){}return r};
+try{mchip()}catch(e){}
+}catch(err){console.error('v56 comp',err)}})();
+</script></body></html>
