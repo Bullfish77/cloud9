@@ -4424,7 +4424,7 @@ function garden(g,t){try{if(fixBeds())setTimeout(()=>{try{migrate()}catch(e){}},
  GS.slice(0,C).forEach(([c,r])=>{if(S.home.deco.some(d=>d.c==c&&d.r==r))return;let[x,y]=cellXY(g,c,r);X.save();X.setLineDash([4,4]);X.strokeStyle='rgba(140,100,60,.45)';X.lineWidth=1.5;X.beginPath();X.roundRect?X.roundRect(x-22,y-12,44,16,6):X.rect(x-22,y-12,44,16);X.stroke();X.restore()});
 }
 function gsign(g){let C=cap(),cells=GS.slice(0,C).map(([c,r])=>cellXY(g,c,r));let x0=Math.min(...cells.map(p=>p[0]))-34,x1=Math.max(...cells.map(p=>p[0]))+34,y1=Math.max(...cells.map(p=>p[1]))+16,mx=(x0+x1)/2;
- X.save();if(window.C9WM)X.setTransform(C9WM);X.globalAlpha=1;X.globalCompositeOperation='source-over';X.shadowBlur=0;X.font='800 9px Nunito,sans-serif';let lb='🌱 Gartenecke · '+S.home.deco.filter(d=>d.k=='feld').length+'/'+C,w=X.measureText(lb).width+12;X.fillStyle='#fff';X.strokeStyle='rgba(138,90,42,.35)';X.lineWidth=1;X.beginPath();X.roundRect?X.roundRect(mx-w/2,y1+3,w,15,7.5):X.rect(mx-w/2,y1+3,w,15);X.fill();X.stroke();X.fillStyle='#5a3414';X.textAlign='center';X.textBaseline='middle';X.fillText(lb,mx,y1+10.5);X.restore()}
+ try{if(typeof HC!='undefined'&&X.canvas!==HC)return}catch(e){}X.save();if(window.C9WM)X.setTransform(C9WM);X.globalAlpha=1;X.globalCompositeOperation='source-over';X.shadowBlur=0;X.font='800 9px Nunito,sans-serif';let lb='🌱 Gartenecke · '+S.home.deco.filter(d=>d.k=='feld').length+'/'+C,w=X.measureText(lb).width+12;X.fillStyle='#fff';X.strokeStyle='rgba(138,90,42,.35)';X.lineWidth=1;X.beginPath();X.roundRect?X.roundRect(mx-w/2,y1+3,w,15,7.5):X.rect(mx-w/2,y1+3,w,15);X.fill();X.stroke();X.fillStyle='#5a3414';X.textAlign='center';X.textBaseline='middle';X.fillText(lb,mx,y1+10.5);X.restore()}
 // ---------- Tiere auf dem Platz ----------
 function spot(a,E){let P=PR(),ph=E.fest?'fest':phase(),n=E.i||0;let r=ph=='fest'?(.52+(n%3)*.16):.62,a0=E.ang;return[P.x+Math.cos(a0)*P.rx*r,P.y+Math.sin(a0)*P.ry*r]}
 window.C9PLPOS=function(a,E,p){let sp=spot(a,E);if(E.ph=='go'||E.ph=='back'){let w=Math.max(0,Math.min(1,(E.s-.82)/.18));w=w*w*(3-2*w);return[p[0]+(sp[0]-p[0])*w,p[1]+(sp[1]-p[1])*w]}
@@ -7683,7 +7683,9 @@ function tapSt(i){let v=SV();if(i>v.p.length){try{SND.sfx('nope')}catch(_){}toas
 function stars(st){return`<div class="st">${[1,2,3].map(j=>`<i class="${j<=st?'':'off'}" style="animation-delay:${j*.15}s">⭐</i>`).join('')}</div>`}
 function partCanvas(id,sz){let c=document.createElement('canvas'),D2=Math.min(3,devicePixelRatio||1);c.width=sz*D2;c.height=sz*D2;c.style.cssText=`width:${sz}px;height:${sz}px;display:block;margin:0 auto`;let x=c.getContext('2d');x.setTransform(D2,0,0,D2,0,0);
  let g=x.createRadialGradient(sz/2,sz/2,4,sz/2,sz/2,sz/2);g.addColorStop(0,'#fff6c8');g.addColorStop(1,'rgba(255,246,200,0)');x.fillStyle=g;x.fillRect(0,0,sz,sz);
- {let k=id[0]=='r'?id+':0':id,s=sz/(id[0]=='r'?50:id=='wm'?32:id=='sa'?24:id=='ge'?26:36);A.blit(x,k,sz/2+(id[0]=='r'?2*s:0),sz*(id[0]=='r'?.95:.88),s)}
+ C9FIT(x,sz,x=>{
+{let k=id[0]=='r'?id+':0':id,s=sz/(id[0]=='r'?50:id=='wm'?32:id=='sa'?24:id=='ge'?26:36);A.blit(x,k,sz/2+(id[0]=='r'?2*s:0),sz*(id[0]=='r'?.95:.88),s)}
+});
  if(id=='ru'){let s=sz/50,nx=sz/2+2*s-18.4*s,ny=sz*.95-26*s,gg=x.createRadialGradient(nx,ny,0,nx,ny,sz*.18);gg.addColorStop(0,'rgba(255,70,60,.6)');gg.addColorStop(1,'rgba(255,70,60,0)');x.fillStyle=gg;x.fillRect(0,0,sz,sz)}return c}
 function openLevel(i){let L=LV[i],pt=PARTS[i],v=SV(),got=v.p.includes(pt.id),pl=L.pl||'🦌';
  let o={e:pl,f:L.f,tw:Object.assign({v:'gesammelt'},L.tw,{how:L.how,mk:'xmas1',n:L.n,d:L.d,fact:L.fact}),mus:'xmas1',how:L.how,over:over(L),lv:i};
@@ -9370,9 +9372,11 @@ function prizeCanvas(pIdx,sz){
  let g=x.createRadialGradient(sz/2,sz/2,4,sz/2,sz/2,sz/2);
  g.addColorStop(0,'#fff8c8');g.addColorStop(1,'rgba(255,248,200,0)');
  x.fillStyle=g;x.fillRect(0,0,sz,sz);
+C9FIT(x,sz,x=>{
  if(pIdx===0)drawDekoEgg(x,sz/2,sz*.78,sz/62,0,0);
  else if(pIdx===1)drawCuteChick(x,sz/2,sz*.80,sz/52,0,0,null,1);
  else drawEasterBunny(x,sz/2,sz*.88,sz/65,0,0,false,1);
+});
  return c;
 }
 
@@ -9879,6 +9883,7 @@ if(window.C9&&C9.v54){
 </script>
 <script>/* v55.2: Schwein-Beine beim Hüpfen sichtbar, Maulwurf grüßt die eigene Spielfigur. */
 /* v55.3: Beete exakt mittig, Halloween-Kulisse in Huepf- und Fang-Leveln. */
+/* v55.4: Preis-Icons (Skelett usw.) passen ganz in ihren Kasten. */
 /* v55.1: fang-Goldtext je Item, Feuerwerk/Wolken nie abgeschnitten.
    v55.0:
    1. Eigene Abenteuerkarte 🎃 Halloween-Welt (#v55h) nach dem exakten Vorbild der Weihnachts- & Osterwelt:
@@ -10495,6 +10500,20 @@ window.C9HW=function(x,W,H,G,T,dist){
   x.fillStyle='#e8761e';x.beginPath();x.ellipse(px,py,r*1.2,r,0,0,TAU);x.fill();x.strokeStyle='#b8520e';x.lineWidth=1.2;x.beginPath();x.ellipse(px,py,r*.45,r,0,0,TAU);x.stroke();x.fillStyle='#3a6a20';x.fillRect(px-U*.25,py-r-U*.8,U*.5,U*1);
   x.fillStyle=gl?'#ffe070':'#4a2008';[[-.45,-.15],[.45,-.15]].forEach(([a,b])=>{x.beginPath();x.moveTo(px+a*r-r*.2,py+b*r+r*.15);x.lineTo(px+a*r,py+b*r-r*.2);x.lineTo(px+a*r+r*.2,py+b*r+r*.15);x.fill()});x.beginPath();x.moveTo(px-r*.6,py+r*.25);x.quadraticCurveTo(px,py+r*.75,px+r*.6,py+r*.25);x.quadraticCurveTo(px,py+r*.45,px-r*.6,py+r*.25);x.fill()}
  x.fillStyle='rgba(200,190,230,.10)';for(let i=0;i<4;i++){let fx=wr(i*W*.4+T*U*2,W*1.6)-W*.3;x.beginPath();x.ellipse(fx,G+U*(1+i%2*3),W*.35,U*2.2,0,0,TAU);x.fill()}
+};
+// v55.4: Preis-/Figuren-Icons immer ganz im Kasten (mit Rand), sonst unverändert
+window.C9FIT=function(x,sz,fn){
+ let D=x.getTransform().a||1,N=Math.ceil(sz*3*D),t=document.createElement('canvas');t.width=t.height=N;
+ let y=t.getContext('2d');y.setTransform(D,0,0,D,sz*D,sz*D);fn(y);
+ let d=y.getImageData(0,0,N,N).data,x0=N,x1=-1,y0=N,y1=-1;
+ for(let j=0;j<N;j++)for(let i=0;i<N;i++)if(d[(j*N+i)*4+3]>60){if(i<x0)x0=i;if(i>x1)x1=i;if(j<y0)y0=j;if(j>y1)y1=j}
+ if(x1<0)return;
+ let bx0=x0/D-sz,bx1=(x1+1)/D-sz,by0=y0/D-sz,by1=(y1+1)/D-sz,p=sz*.06;
+ if(bx0>=p&&by0>=p&&bx1<=sz-p&&by1<=sz-p){x.drawImage(t,-sz,-sz,sz*3,sz*3);return}
+ let bw=bx1-bx0,bh=by1-by0,k=Math.min(1,(sz-2*p)/bw,(sz-2*p)/bh),dw=bw*k,dh=bh*k;
+ let dx=Math.min(Math.max(bx0,p),sz-p-dw);if(bw*k!==bw)dx=(sz-dw)/2;
+ let dy=Math.min(Math.max(by0,p),sz-p-dh);
+ x.drawImage(t,x0,y0,x1+1-x0,y1+1-y0,dx,dy,dw,dh);
 };
 // ============================================================================
 // 7. INSEL-INTEGRATION FÜR HALLOWEEN & SILVESTER (DEKO + LAUFWEGE + ANTIPPEN)
@@ -11199,9 +11218,11 @@ function halPrizeCanvas(pIdx,sz){
  let g=x.createRadialGradient(sz/2,sz/2,4,sz/2,sz/2,sz/2);
  g.addColorStop(0,'rgba(255,215,120,.65)');g.addColorStop(1,'rgba(255,200,120,0)');
  x.fillStyle=g;x.fillRect(0,0,sz,sz);
+C9FIT(x,sz,x=>{
  if(pIdx===0)drawDekoPumpkin(x,sz/2,sz*.78,sz/56,0,0.45);
  else if(pIdx===1)drawCuteGhost(x,sz/2,sz*.76,sz/48,0,0,1,true);
  else drawCuteSkeleton(x,sz/2,sz*.84,sz/52,0,0,0,1,true);
+});
  return c;
 }
 
@@ -11596,9 +11617,11 @@ function silvPrizeCanvas(pIdx,sz){
  let g=x.createRadialGradient(sz/2,sz/2,4,sz/2,sz/2,sz/2);
  g.addColorStop(0,'rgba(255,235,140,.65)');g.addColorStop(1,'rgba(255,220,130,0)');
  x.fillStyle=g;x.fillRect(0,0,sz,sz);
+C9FIT(x,sz,x=>{
  if(pIdx===0)drawDekoClover(x,sz/2,sz*.78,sz/56,0,0);
  else if(pIdx===1)drawDekoFirework(x,sz/2,sz*.78,sz/56,0,0.45);
  else drawCutePig(x,sz/2,sz*.78,sz/48,0,0,0,1,true);
+});
  return c;
 }
 
@@ -11739,7 +11762,7 @@ function unlockAllSilvForTest(){
 
 window.C9=window.C9||{};
 window.C9.v55=window.C9_V55={
- version:'55.3',
+ version:'55.4',
  LV_H,PRIZES_H,UNLOCK_AT_H,SV_H,
  LV_S,PRIZES_S,UNLOCK_AT_S,SV_S,
  isHalloweenThemeActive,isSilvesterThemeActive,
