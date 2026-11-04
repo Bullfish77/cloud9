@@ -299,8 +299,8 @@ const ANIMALS=[
 ["🐋","Mondwal",6,"6 Kristalle + ⚡4 oder Kristallwolke",g=>(g.plants>=6&&g.energy>=4)||g.seen[24]]];
 const inB=(a,b)=>Array.isArray(a[2])?a[2].includes(b):(a[2]===b||a[2]<0);
 const REWARDS=[[2,"+5 s Rundenzeit"],[3,"Seltene Wolken +30%"],[4,"Wolken wachsen schneller"],[5,"Start mit ⚡1"],[7,"Gewitter 25% schneller"],[10,"Glitzer-Insel ✨"]];
-let S=JSON.parse(localStorage.c9v2||'null');
-if(!S){let o=JSON.parse(localStorage.c9||'{"col":{},"streak":0,"last":"","best":0}'),m=[0,1,4,5,10,14,15,16,17],col={};for(let k in o.col)col[m[k]]=o.col[k];S={col,alb:{},stars:[],xp:0,streak:o.streak||0,last:o.last||"",best:o.best||0}}
+const c9J=(k,d)=>{try{let v=JSON.parse(localStorage[k]||'null');return v&&typeof v=='object'?v:d}catch(e){return d}};let S=c9J('c9v2',null);
+if(!S){let o=c9J('c9',{col:{},streak:0,last:"",best:0});o.col=o.col||{},m=[0,1,4,5,10,14,15,16,17],col={};for(let k in o.col)col[m[k]]=o.col[k];S={col,alb:{},stars:[],xp:0,streak:o.streak||0,last:o.last||"",best:o.best||0}}
 const save=()=>{try{localStorage.c9v2=JSON.stringify(S)}catch(e){}};
 const plv=xp=>Math.floor(Math.sqrt((xp||0)/120))+1,lvXp=l=>(l-1)*(l-1)*120,has=l=>plv(S.xp)>=l;
 const today=new Date().toISOString().slice(0,10);let seed=[...today].reduce((a,c)=>a*31+c.charCodeAt(0)|0,7);
@@ -1188,7 +1188,7 @@ if(CEL)celStep(dt,I,n);if(clouds.length>7)clouds.shift();requestAnimationFrame(l
 show('menu');requestAnimationFrame(loop);
 window.C9={get clouds(){return clouds},PT,mergeClouds,splitCloud,start,finish,get CEL(){return CEL},get animals(){return animals},get G(){return G},S,LEVELS,TYPES,ANIMALS,renderMap,renderCol,renderAlb,show,fps:()=>fpsA};
 /* ===== Echtes Wetter (v6) ===== */
-let WXS=JSON.parse(localStorage.c9wx||'{"on":null}'),WX=null;
+let WXS=c9J('c9wx',{on:null}),WX=null;
 const saveWX=()=>{try{localStorage.c9wx=JSON.stringify(WXS)}catch(e){}};
 function wxKind(c,wind){if([95,96,99].includes(c))return'storm';if([71,73,75,77,85,86].includes(c))return'snow';if((c>=51&&c<=67)||(c>=80&&c<=82))return'rain';if(wind>=25)return'wind';if(c<=1)return'clear';return'cloudy'}
 const WXI={storm:'⛈️',snow:'❄️',rain:'🌧️',wind:'🌬️',clear:'☀️',cloudy:'⛅'};
@@ -1466,7 +1466,7 @@ function burst2(x,y){for(let i=0;i<12;i++)HFT.push({x,y,vx:(R()-.5)*120,vy:-R()*
 // ---- sheets ----
 function hSheet(html){let s=$('hSheet');s.querySelector('.hsIn').innerHTML=html+'<button class="sec sm" data-x="close">Schließen</button>';s.classList.remove('hide');s.querySelector('[data-x=close]').onclick=()=>s.classList.add('hide')}
 const anName=e=>{let a=ANIMALS.find(x=>x[0]==e);return a?a[1]:e};
-function habSheet(i){let h=S.home.hab[i],H=HABS[h.k],res=HA.filter(a=>a.z===i),cost=hUpCost(h),own=ownedAn();
+function habSheet(i){if(!S.home.hab[i])return;let h=S.home.hab[i],H=HABS[h.k],res=HA.filter(a=>a.z===i),cost=hUpCost(h),own=ownedAn();
 hSheet(`<h3>${H.e} ${H.n} <small>Lv ${h.lv}</small></h3><p>${H.d}</p><p>🏠 ${res.length}/${HCAP[h.lv-1]} Bewohner: ${res.map(a=>a.e).join(' ')||'–'}</p><p>📐 Lebensraum-Größe: <b>${[100,113,126][h.lv-1]}%</b>${h.lv<3?' → wächst beim Ausbauen auf '+[100,113,126][h.lv]+'%':''}</p><p>Passt für: ${H.a.map(e=>own.includes(e)?e:'❔').join(' ')}</p><p>✨ Geschenke der Bewohner +${Math.round(HBON[h.lv-1]*100)}% Wolkentaler</p>`+(cost?`<button id="hUpg">⬆️ Ausbauen auf Lv ${h.lv+1} (${HCAP[h.lv]} Plätze, +${Math.round(HBON[h.lv]*100)}%) · 🪙 ${cost}</button>`:'<p>⭐ Maximal ausgebaut</p>'));
 let b=$('hUpg');if(b)b.onclick=()=>{if(!pay(cost))return;h.lv++;try{if(window.C9BASEC&&C9BASEC.inval)C9BASEC.inval()}catch(_){}save();hAnimals();hUi();toast(H.e+' '+H.n+' ist jetzt Lv '+h.lv+' ⭐ – der Lebensraum ist gewachsen!');habSheet(i)}}
 function anSheet(){let own=ownedAn(),g=S.home.got,hid=own.filter(e=>S.home.hide[e]),hg=hid.filter(e=>!g[e]);
@@ -1587,7 +1587,7 @@ $('ldGrid').innerHTML=TYPES.map((t,i)=>{if(!S.col[i]||t[3]>=4)return'';return`<d
 $('ldGrid').querySelectorAll('.cfc').forEach(c=>c.onclick=()=>{let t=+c.dataset.t,k=S.ld.c.indexOf(t);if(k>=0)S.ld.c.splice(k,1);else{if(S.ld.c.length>=3)return toast('Maximal 3 Wolken');S.ld.c.push(t);toast(TYPES[t][1]+' '+TYPES[t][0]+': '+TYPES[t][5])}save();SND.sfx('tap');renderLd()});
 let al=ANIMALS.filter(a=>S.alb[a[0]]&&COMP[a[0]]);$('ldA').innerHTML=`<div class="card cfa ${!S.ld.a?'sel':''}" data-e=""><b>🚫</b>Keiner</div>`+al.map(a=>`<div class="card cfa ${S.ld.a==a[0]?'sel':''}" data-e="${a[0]}"><img src="${animalImg(a[0])}">${a[1]}<br><small>${CPK[COMP[a[0]]][0]}</small></div>`).join('');
 $('ldA').querySelectorAll('.cfa').forEach(c=>c.onclick=()=>{S.ld.a=c.dataset.e||null;save();SND.sfx('tap');renderLd()});
-$('ldAd').textContent=S.ld.a?S.ld.a+' '+ANIMALS.find(a=>a[0]==S.ld.a)[1]+': '+CPK[COMP[S.ld.a]][1]:'Wähle ein Tier als Begleiter für einen kleinen Bonus'}
+$('ldAd').textContent=S.ld.a?S.ld.a+' '+ANIMALS.find(a=>a[0]==S.ld.a)[1]+': '+CPK[COMP[S.ld.a]][1]:'Wähle ein Tier für einen kleinen Bonus 🍀'}
 function ldApply(){G.cp=null;G.cpe=null;G.ld=[];let p=PEND;PEND=null;if(p){if(p.a&&S.alb[p.a]&&COMP[p.a]){G.cp=COMP[p.a];G.cpe=p.a}G.ld=(p.c||[]).filter(t=>S.col[t]&&TYPES[t][3]<4).slice(0,3).map(t=>({t,n:1}))}if(G.cp=='time')G.t+=4;ldBar()}
 function ldBar(){let b=$('ldBar');if(!G||(!G.ld.length&&!G.cp)){b.innerHTML='';return}
 b.innerHTML=(G.cpe?`<span class="cpc" title="${CPK[G.cp][1]}"><img src="${animalImg(G.cpe)}">${CPK[G.cp][0]}</span>`:'')+G.ld.map((l,i)=>`<button class="ldc ${l.n?'':'used'}" data-i="${i}" style="background:${TYPES[l.t][2]}">${TYPES[l.t][1]}<small>${l.n?'×'+l.n:'✓'}</small></button>`).join('');
@@ -2020,7 +2020,7 @@ const LD_STEPS=()=>[
  {el:'#v22rb',t:'⭐ Am einfachsten: <b>Empfohlen</b> antippen – dann suche ich die passenden Wolken für dieses Ziel aus.'},
  {el:'#ldGrid',t:'☁️ Oder selbst wählen: bis zu <b>3 Wolken</b>. Unter jeder steht, was sie macht.'},
  {el:'#ldBar',fallback:'#ldSel',t:'👆 Im Level erscheinen sie <b>unten als Knöpfe</b>. Antippen, und die Wolke kommt sofort – jede einmal pro Runde.'},
- {el:'#ldA',t:'🐾 Ein <b>Begleiter</b> gibt einen kleinen Bonus, z. B. die Biene: Pflanzen wachsen schneller.'},
+ {el:'#ldA',t:'🍀 Ein <b>Tier-Bonus</b> hilft dir ein bisschen, z. B. die Biene: Pflanzen wachsen schneller.'},
  {el:'#ldGo',t:'Fertig! Ausrüstung macht ein Level leichter – die 3 Sterne musst du aber selbst holen 😉'}];
 function qBtn(scr,fn){let h=document.querySelector('#'+scr+' h2');if(!h||h.parentNode.querySelector('.v22q'))return;let b=document.createElement('button');b.className='sec v22q';b.textContent='?';b.title='Anleitung';b.onclick=fn;let s=$(scr);s.style.position=s.style.position||'';h.parentNode.insertBefore(b,h)}
 const tutCf=()=>coach(CF_STEPS(),'tcf'),tutLd=()=>{let s=LD_STEPS();s[3].el=document.querySelector('#ldBar')&&document.querySelector('#ldBar').offsetParent?'#ldBar':'#ldSel';coach(s,'tld')};
@@ -11761,7 +11761,7 @@ function unlockAllSilvForTest(){
 
 window.C9=window.C9||{};
 window.C9.v55=window.C9_V55={
- version:'56.0',
+ version:'56.1',
  LV_H,PRIZES_H,UNLOCK_AT_H,SV_H,
  LV_S,PRIZES_S,UNLOCK_AT_S,SV_S,
  isHalloweenThemeActive,isSilvesterThemeActive,
@@ -11804,6 +11804,11 @@ const CP={
  '🦅':{n:'Flitz',w:'Luft',we:'🌬️',b:1,col:'#f5b867',r:[1,0,3,2,4,5,6],say:'Hui! Ich bin Flitz. Ich fliege mit dir zuerst zur Wüstenoase! 🏜️',food:'Fische aus der Oase',fact:'Adler sehen so scharf, dass sie eine Maus aus einem Kilometer Höhe entdecken!',hint:'Die Windwolke 🌬️ pustet alle Wolken weg – probier sie aus!'},
  '🐧':{n:'Flocke',w:'Kälte',we:'❄️',b:2,col:'#8fc0f0',r:[2,0,1,3,4,5,6],say:'Hallo! Ich bin Flocke. Ab ins Schnee-Abenteuer auf der Polarinsel! 🧊',food:'Fische und Krill',fact:'Pinguine können nicht fliegen – aber unter Wasser sausen sie wie Raketen!',hint:'Schneewolken ❄️ lassen es schneien – sammle viele Flocken!'}};
 const KEYS=Object.keys(CP);
+// v56.1: nur noch EIN Begleiter – alter Album-Begleiter (v41) wird nicht mehr gezeigt, Loadout-Tier nur noch als Bonus-Symbol
+const st0=document.createElement('style');st0.textContent='#v41pet,#v41buddy{display:none!important}#ldBar .cpc img{display:none!important}';document.head.appendChild(st0);
+const noOld=()=>{try{if(S.v41&&S.v41.pet){S.v41.pet=null;save()}}catch(e){}};noOld();setInterval(noOld,1000);
+try{let h=$('ldA');h=h&&h.parentNode.querySelector('b');if(h)h.textContent='🍀 Tier-Bonus';let d=$('ldAd');}catch(e){}
+
 S.c9c=S.c9c||{};const C=S.c9c;C.un=C.un||{};C.xp=C.xp||0;
 const N1=LEVELS.findIndex((L,i)=>i>0&&L[0]>6);const NB=N1>0?N1:24; // Kapitel 1 = Biome 0..6
 const lvOf=b=>LEVELS.map((L,i)=>i).filter(i=>i<NB&&LEVELS[i][0]===b);
@@ -11870,7 +11875,7 @@ const oRMc=renderMap;renderMap=function(){let r=oRMc.apply(this,arguments);try{i
 const lv=document.createElement('div');lv.id='c9lvc';lv.innerHTML='<img alt=""><span class="bb"></span>';document.body.appendChild(lv);let lvT=0;
 function lvSay(t,ms){if(!C.e)return;lv.querySelector('.bb').textContent=t;lv.classList.add('say');clearTimeout(lvT);lvT=setTimeout(()=>lv.classList.remove('say'),ms||2200)}
 window.C9COMP.say=lvSay;
-setInterval(()=>{let hud=$('hud'),on=C.e&&hud&&!hud.classList.contains('hide')&&!(window.S&&S.v41&&S.v41.pet==C.e);lv.style.display=on?'flex':'none';if(on){let i=lv.querySelector('img');if(i.dataset.e!==C.e){i.dataset.e=C.e;i.src=im(C.e)}let s=.9+cLv()*.08;i.style.width=i.style.height=Math.round(46*s)+'px'}},400);
+setInterval(()=>{let hud=$('hud'),on=C.e&&hud&&!hud.classList.contains('hide')&&!0;lv.style.display=on?'flex':'none';if(on){let i=lv.querySelector('img');if(i.dataset.e!==C.e){i.dataset.e=C.e;i.src=im(C.e)}let s=.9+cLv()*.08;i.style.width=i.style.height=Math.round(46*s)+'px'}},400);
 const oSt=start;start=function(mode,li){try{let q=$('c9endc');if(q)q.remove()}catch(e){}let r=oSt.apply(this,arguments);try{if(C.e&&mode=='level'){let c=CP[C.e],L=LEVELS[li];setTimeout(()=>lvSay(L&&L[0]==c.b&&route()[0]==li?c.say:(Math.random()<.5?c.hint:['Los geht\'s, '+c.n+' ist dabei! 💪','Wir schaffen das zusammen!','Ich drück dir die Pfoten! 🐾'][li%3]),3000),900)}}catch(e){}return r};
 function gainXp(n,why){if(!C.e)return;let l0=cLv();C.xp=(C.xp||0)+n;save();let l1=cLv();if(l1>l0){sfx('levelup');try{toast('🎉 '+CP[C.e].n+' ist gewachsen! Begleiter-Stufe '+l1,2600)}catch(_){}}}
 window.C9COMP.gainXp=gainXp;
