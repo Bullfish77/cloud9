@@ -5072,7 +5072,7 @@ function make(x,W,H,e,tw,kid,fx){
    if(ot>1.05&&!car){let tx=A.x+U*2,ty=G-U*12,sx=OX-U*2,sy=G-U*11;car={x:sx,y:sy,vx:(tx-sx)/TT,vy:(ty-sy-.5*GC*TT*TT)/TT,r:0,t:0};SFX.jump();fx.burst(OX,G-U*8,['#8a5a3a','#a8724a','#6a4a2a','#5aa848'],14,170,3.5);
     for(let i=0;i<9;i++)cl.push({x:OX+(R()-.5)*U*5,y:G-U*7,vx:-(U*8+R()*U*38),vy:-U*(35+R()*45),r:U*(.6+R()*.7),l:1.4})}
    if(car&&!caught){car.t+=dt;car.x+=car.vx*dt;car.vy+=GC*dt;car.y+=car.vy*dt;car.r+=dt*9;
-    if(car.t>=TT){caught=1;SFX.peak();fx.burst(A.x,A.y-U*10,['#ff8ac0','#ffe066','#8ad8ff','#a8f08a','#ffffff','#ff9a3a'],40,260,4.5);fx.text(A.x+U*8,A.y-U*22,'🥕 Danke, Maulwurf!','#fff6c0');if(A.on){A.vy=-JV*.62;A.on=0;A.sq=-.3}}}
+    if(car.t>=TT){caught=1;SFX.peak();fx.burst(A.x,A.y-U*10,['#ff8ac0','#ffe066','#8ad8ff','#a8f08a','#ffffff','#ff9a3a'],40,260,4.5);fx.text(A.x+U*8,A.y-U*22,(e=='🐷'?'🍀':'🥕')+' Danke, Maulwurf!','#fff6c0');if(A.on){A.vy=-JV*.62;A.on=0;A.sq=-.3}}}
    cl.forEach(c=>{c.vy+=U*160*dt;c.x+=c.vx*dt;c.y+=c.vy*dt;c.l-=dt;if(c.y>G){c.y=G;c.vy*=-.3;c.vx*=.5}});cl=cl.filter(c=>c.l>0)};
   const oD=g.draw;g.draw=function(x,tt){oD.call(g,x,tt);if(ot<0)return;let T=performance.now()/1000;
    // Maulwurf (hinter dem Hügel-Vorderteil)
@@ -5092,8 +5092,8 @@ function make(x,W,H,e,tw,kid,fx){
    cl.forEach(c=>{x.globalAlpha=clamp(c.l*1.5,0,1);x.fillStyle='#7a4e30';x.beginPath();x.arc(c.x,c.y,c.r,0,TAU);x.fill()});x.globalAlpha=1;
    // Möhre im Flug / in den Pfoten des Hasen
    let em=`"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif`;
-   if(car&&!caught){x.save();x.translate(car.x,car.y);x.rotate(car.r);x.font=`${Math.round(U*5.5)}px ${em}`;x.textAlign='center';x.textBaseline='middle';x.fillText('🥕',0,0);x.restore()}
-   else if(caught){x.save();x.translate(A.x+U*3.2,A.y-U*7.5);x.rotate(-.5+Math.sin(T*6)*.15);x.font=`${Math.round(U*5)}px ${em}`;x.textAlign='center';x.textBaseline='middle';x.fillText('🥕',0,0);x.restore()}}
+   if(car&&!caught){x.save();x.translate(car.x,car.y);x.rotate(car.r);x.font=`${Math.round(U*5.5)}px ${em}`;x.textAlign='center';x.textBaseline='middle';x.fillText(e=='🐷'?'🍀':'🥕',0,0);x.restore()}
+   else if(caught){x.save();x.translate(A.x+U*3.2,A.y-U*7.5);x.rotate(-.5+Math.sin(T*6)*.15);x.font=`${Math.round(U*5)}px ${em}`;x.textAlign='center';x.textBaseline='middle';x.fillText(e=='🐷'?'🍀':'🥕',0,0);x.restore()}}
  }
  return g}
 V3.reg('huepf',{n:'Hüpf-Läufer',e:'🥕',how:'Tippen = hüpfen! In der Luft nochmal tippen = Doppelsprung.',mus:MUS,make},TW);
@@ -11762,7 +11762,7 @@ function unlockAllSilvForTest(){
 
 window.C9=window.C9||{};
 window.C9.v55=window.C9_V55={
- version:'55.5',
+ version:'55.6',
  LV_H,PRIZES_H,UNLOCK_AT_H,SV_H,
  LV_S,PRIZES_S,UNLOCK_AT_S,SV_S,
  isHalloweenThemeActive,isSilvesterThemeActive,
