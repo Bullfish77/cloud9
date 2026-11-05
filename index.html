@@ -11761,7 +11761,7 @@ function unlockAllSilvForTest(){
 
 window.C9=window.C9||{};
 window.C9.v55=window.C9_V55={
- version:'56.9',
+ version:'56.10',
  LV_H,PRIZES_H,UNLOCK_AT_H,SV_H,
  LV_S,PRIZES_S,UNLOCK_AT_S,SV_S,
  isHalloweenThemeActive,isSilvesterThemeActive,
@@ -12276,5 +12276,78 @@ try{
 
 window.C9NS={askFresh,askRestore,doFresh,doRestore,hasKeep,mode,KEEP,TRY};
 }catch(e){try{console.error('v569save',e)}catch(_){}}
+})();
+</script><script>/* v56.10: „Wer spielt heute?“ – Hase klein + Panel scrollbar
+   Ursache: v53.1 upgradeImgs sah das ungestylte <img> (~240 CSS-px) und
+   ersetzte die Quelle durch animalImg531(e,240) → 720×720 ohne CSS-Breite.
+   Panel hatte kein max-height/overflow → Knöpfe abgeschnitten, body overflow:hidden. */
+(function(){
+  try{
+    const st=document.createElement('style');
+    st.id='v5610kid';
+    st.textContent=`
+#v31kid{overflow-y:auto;-webkit-overflow-scrolling:touch;touch-action:pan-y;align-items:flex-start;padding:max(10px,env(safe-area-inset-top)) 0 max(14px,env(safe-area-inset-bottom));box-sizing:border-box}
+#v31kid .panel{max-height:min(92dvh,920px);overflow-y:auto;-webkit-overflow-scrolling:touch;margin:auto;box-sizing:border-box;width:min(330px,88%);padding:14px 16px}
+#v31kid .panel>img,#v31kid img.v31bunny{width:72px!important;height:72px!important;max-width:28vw;max-height:18vh;object-fit:contain;display:block;margin:6px auto 2px}
+`;
+    document.head.appendChild(st);
+  }catch(e){}
+
+  function buildPanel(){
+    let src='';
+    try{src=animalImg('🐰',72)}catch(e){try{src=animalImg('🐰')}catch(_){}}
+    return `<div class="panel"><img class="v31bunny" src="${src}" alt="" style="width:72px;height:72px;object-fit:contain"><h2 style="margin:4px 0">Wer spielt heute?</h2><p style="font-size:14px">Im Kinder-Modus gibt es große Knöpfe, Bild-Ziele, Vorlesen – und man kann nicht verlieren.</p><button class="big" data-k="1">🧒 Kinder-Modus</button><button class="sec" data-k="0">🧑 Normal spielen</button><small style="opacity:.7">Später änderbar unter 🔊 Einstellungen</small></div>`;
+  }
+
+  function wire(o){
+    o.querySelectorAll('button').forEach(b=>b.onclick=()=>{
+      S.kid=b.dataset.k=='1';save();applyKid();o.remove();
+      try{SND.sfx('tap')}catch(_){}
+      if(S.kid)setTimeout(()=>{try{say('Hallo! Tippe auf Spielen, und los gehts!')}catch(_){}},300);
+    });
+  }
+
+  // Ersetze askKid, gleiche Gates wie v31
+  window.askKid=function askKid(){
+    if(S.kid!==undefined||$('v31kid')||/[?&]noask/.test(location.search)||location.hash.startsWith('#isle=')||location.hash.startsWith('#g'))return;
+    let o=document.createElement('div');o.id='v31kid';
+    o.innerHTML=buildPanel();
+    document.body.appendChild(o);
+    wire(o);
+  };
+
+  // Falls Overlay schon (vom alten askKid) offen ist: Hase + Scroll nachziehen
+  try{
+    let o=$('v31kid');
+    if(o){
+      let img=o.querySelector('img');
+      if(img){
+        img.classList.add('v31bunny');
+        img.style.width='72px';img.style.height='72px';img.style.objectFit='contain';
+        try{img.src=animalImg('🐰',72)}catch(_){}
+        img.dataset.v531w='72';
+      }
+    }
+  }catch(e){}
+
+  // upgradeImgs: #v31kid-Bilder nicht auf Display-Breite hochskalieren
+  try{
+    if(window.C9V531&&typeof MutationObserver!=='undefined'){
+      const skip=im=>!!(im&&im.closest&&im.closest('#v31kid'));
+      // Hook via capturing observer: after upgrades, re-clamp kid bunny
+      new MutationObserver(ms=>{
+        let kid=$('v31kid');if(!kid)return;
+        let img=kid.querySelector('img');if(!img)return;
+        if(img.classList.contains('v31bunny')||img.style.width){
+          if(img.clientWidth>90||(img.naturalWidth|0)>216){
+            try{img.src=animalImg('🐰',72)}catch(_){}
+            img.style.width='72px';img.style.height='72px';
+            img.dataset.v531w='72';
+            img.classList.add('v31bunny');
+          }
+        }
+      }).observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['src','style']});
+    }
+  }catch(e){}
 })();
 </script></body></html>
