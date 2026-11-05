@@ -13116,8 +13116,8 @@ enhance();
 setTimeout(enhance,0);
 console.info('v56.13 ok');
 })();
-</script><script>/* v56.14: Fang-Steckbrief größer + Hintergrund stärker abdunkeln
-   Super!-Knopf bleibt erreichbar (safe-area, sticky, scroll). */
+</script><script>/* v56.14: Fang-Steckbrief größer + Hintergrund abdunkeln;
+   Coach-Lautsprecher nicht über Rucksack/Titel. */
 (function(){
 'use strict';
 const st=document.createElement('style'); st.id='v5614fang';
@@ -13168,6 +13168,24 @@ st.textContent=`
 }
 #v50sb.c9fang .fangtag{font-size:13px!important; padding:5px 12px!important}
 #v50sb.c9fang .more{flex:0 0 auto}
+
+/* Speaker clear of backpack (title 🎒 and tip 🎒) */
+#v22co .v31spk,
+#v22co[data-v5612] .v31spk,
+#v22co[data-v5613] .v31spk{
+  left:auto!important; right:14px!important; top:10px!important;
+  width:36px!important; height:36px!important; min-width:36px!important;
+  z-index:5!important;
+}
+#v22co .tip,
+#v22co[data-v5612] .tip,
+#v22co[data-v5613] .tip{
+  padding-top:48px!important; /* room for in-tip speaker */
+}
+#v22co #v31buddy,
+#v22co[data-v5612] #v31buddy{
+  right:8px!important; top:-38px!important; /* above tip, not over speaker */
+}
 `;
 document.head.appendChild(st);
 
@@ -13179,6 +13197,16 @@ try{
     if(sheet){sheet.style.width=''; sheet.style.maxWidth='';}
   }
 }catch(_){}
-console.info('v56.14 fang size ok');
+function placeSpk(){
+  try{
+    const tip=document.querySelector('#v22co .tip'); if(!tip)return;
+    const sp=tip.querySelector('.v31spk'); if(!sp)return;
+    sp.style.left='auto'; sp.style.right='14px'; sp.style.top='10px';
+    sp.textContent='🔊';
+  }catch(_){}
+}
+placeSpk();
+setInterval(placeSpk,600);
+console.info('v56.14 fang+spk ok');
 })();
 </script></body></html>
