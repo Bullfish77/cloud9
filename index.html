@@ -11761,7 +11761,7 @@ function unlockAllSilvForTest(){
 
 window.C9=window.C9||{};
 window.C9.v55=window.C9_V55={
- version:'56.12',
+ version:'56.13',
  LV_H,PRIZES_H,UNLOCK_AT_H,SV_H,
  LV_S,PRIZES_S,UNLOCK_AT_S,SV_S,
  isHalloweenThemeActive,isSilvesterThemeActive,
@@ -12912,5 +12912,208 @@ body.v5612co #v31hand{display:none!important}
 })();
 
 console.info('v56.12 ok');
+})();
+</script><script>/* v56.13: Langes Ziel im Ausrüsten-Tutorial nicht abschneiden
+   Spotlight wächst mit mehrzeiligem #ldG; Finger unter die Box (deckt keinen Text). */
+(function(){
+'use strict';
+const $=id=>document.getElementById(id);
+
+const st=document.createElement('style'); st.id='v5613ziel';
+st.textContent=`
+#ldScr #ldG{display:block;max-width:100%;overflow:visible;white-space:normal;line-height:1.35;padding:2px 4px;box-sizing:border-box}
+body.v5612co #v31hand,
+body:has(#v22co[data-v5613]) #v31hand{display:none!important}
+#v22co[data-v5613] .hole{overflow:visible}
+#v22co[data-v5613] .ptr{font-size:26px!important}
+`;
+document.head.appendChild(st);
+
+function measureEl(el){
+  if(!el)return{left:innerWidth/2-60,top:120,width:120,height:36,bottom:156,right:innerWidth/2+60};
+  /* force layout after images/rich() */
+  void el.offsetHeight;
+  const r=el.getBoundingClientRect();
+  let top=r.top, bottom=r.bottom, left=r.left, right=r.right;
+  try{
+    const range=document.createRange(); range.selectNodeContents(el);
+    [...range.getClientRects()].forEach(x=>{
+      if(!x.width&&!x.height)return;
+      top=Math.min(top,x.top); bottom=Math.max(bottom,x.bottom);
+      left=Math.min(left,x.left); right=Math.max(right,x.right);
+    });
+  }catch(_){}
+  /* include replaced animal imgs */
+  try{el.querySelectorAll('img').forEach(im=>{const x=im.getBoundingClientRect();top=Math.min(top,x.top);bottom=Math.max(bottom,x.bottom);left=Math.min(left,x.left);right=Math.max(right,x.right)})}catch(_){}
+  const width=Math.max(24,right-left), height=Math.max(20,bottom-top);
+  return{left,top,width,height,bottom,right,scrollH:el.scrollHeight||height};
+}
+
+/* Patch existing v56.12 coach by wrapping C9V5612.coach */
+function enhance(){
+  const base=(window.C9V5612&&C9V5612.coach)||(window.C9V5611&&C9V5611.coach);
+  if(!base||base._v5613)return;
+
+  function coachFixed(steps,key,done){
+    /* Run base, then fix hole/ptr on each step via observer + after place */
+    const wrapSteps=steps.map((st,idx)=>({...st,_i:idx}));
+    const oBase=base;
+    /* Re-implement place override: call base then correct geometry */
+    const prev=oBase;
+    /* Simpler: call base coach, then continuously fix geometry while open */
+    prev(wrapSteps,key,done);
+    const co=$('v22co'); if(!co)return;
+    co.dataset.v5613='1';
+    document.body.classList.add('v5612co');
+
+    const fix=()=>{
+      const co=$('v22co'); if(!co||!co.dataset.v5612&&!co.dataset.v5613)return;
+      co.dataset.v5613='1'; document.body.classList.add('v5612co');
+      const tip=co.querySelector('.tip'), hole=co.querySelector('.hole'), ptr=co.querySelector('.ptr');
+      if(!tip||!hole)return;
+      const stepTxt=(co.querySelector('small')||{}).textContent||'';
+      const m=stepTxt.match(/(\d+)\s*\/\s*(\d+)/);
+      const si=m?(+m[1]-1):0;
+      const st=steps[si]; if(!st)return;
+
+      /* resolve target like v5612 */
+      let el=null;
+      try{
+        if(st.pickTip){
+          const badge=document.querySelector('#ldGrid .cfc .v22rec, #ldGrid .v22rec');
+          el=badge&&badge.closest('.cfc')||document.querySelector('#ldGrid .cfc[data-t="8"]');
+        }
+        if(!el){
+          let sel=st.el;
+          if(st.fallback&&!(typeof sel==='string'&&document.querySelector(sel)))sel=st.fallback;
+          el=typeof sel==='string'?document.querySelector(sel):sel;
+        }
+      }catch(_){}
+      if(!el)return;
+
+      const r=measureEl(el);
+      const pad=10;
+      let hl=Math.min(Math.max(r.width+pad*2, 64), innerWidth-16);
+      let ht=Math.min(Math.max(r.height+pad*2, 36), Math.min(innerHeight*.46, 340));
+      /* multi-line / #ldG: always cover full text + padding */
+      const multi=(el.id==='ldG') || r.height>28 || (r.scrollH&&r.scrollH>r.height+2);
+      if(multi){ht=Math.min(Math.max(r.height+pad*2+4, 44), Math.min(innerHeight*.46, 340))}
+      let hLeft=Math.max(8, Math.min(innerWidth-hl-8, r.left+r.width/2-hl/2));
+      let hTop=Math.max(8, r.top-pad);
+      /* keep bottom of text inside hole */
+      if(hTop+ht < r.bottom+pad){ht=Math.min(Math.max(r.bottom+pad-hTop, ht), Math.min(innerHeight*.5, 360))}
+
+      hole.style.left=hLeft+'px'; hole.style.top=hTop+'px';
+      hole.style.width=hl+'px'; hole.style.height=ht+'px';
+
+      const hBot=hTop+ht;
+      const th=Math.min(tip.offsetHeight||150, innerHeight*.38), M=10;
+      /* Finger ALWAYS below hole when tip is below — never cover Ziel text */
+      let gap=multi?48:44;
+      let ty, ptrTop, ptrLeft=hLeft+hl/2;
+      if(ptr){
+        ptr.style.transform='translate(-50%,-55%)';
+        if(hBot+gap+th+M<=innerHeight){
+          ptrTop=hBot;
+          ty=hBot+gap;
+        }else if(hTop-gap-th-M>=0){
+          ty=hTop-gap-th;
+          ptrTop=hTop;
+          ptr.style.transform='translate(-50%,-40%) rotate(180deg)';
+        }else{
+          ty=Math.max(M, innerHeight-th-M);
+          const newH=Math.max(r.height+pad*2, ty-gap-hTop);
+          hole.style.height=newH+'px';
+          ptrTop=hTop+newH;
+          ty=Math.max(ty, hTop+newH+gap);
+          if(ty+th>innerHeight-M) ty=Math.max(M, innerHeight-th-M);
+        }
+        tip.style.top=Math.max(M,ty)+'px';
+        ptr.style.left=ptrLeft+'px';
+        ptr.style.top=ptrTop+'px';
+        ptr.style.display='block';
+      }
+      try{const h=$('v31hand'); if(h)h.style.display='none'}catch(_){}
+    };
+
+    /* after base places, fix — images/layout may settle */
+    setTimeout(fix, 180);
+    setTimeout(fix, 400);
+    setTimeout(fix, 700);
+    const btn=$('v22coNext');
+    if(btn && !btn._v5613){
+      btn._v5613=1;
+      btn.addEventListener('click',()=>{setTimeout(fix,200); setTimeout(fix,450)}, true);
+    }
+    const mo=new MutationObserver(()=>{if(!$('v22co')){mo.disconnect();return} setTimeout(fix,50)});
+    mo.observe(co,{childList:true,subtree:true,characterData:true,attributes:true,attributeFilter:['style']});
+  }
+  coachFixed._v5613=1;
+  window.C9V5612=window.C9V5612||{};
+  C9V5612.coach=coachFixed;
+  if(window.C9V5611)C9V5611.coach=coachFixed;
+
+  /* Re-hook show to use enhanced coach */
+  const LD_STEPS=()=>[
+    {el:'#ldG',t:'🎒 Vor jedem Level kannst du dich <b>ausrüsten</b>. Hier steht das Ziel des Levels.'},
+    {el:'#v22rb',t:'⭐ Am einfachsten: <b>Empfohlen</b> antippen – dann suche ich die passenden Wolken für dieses Ziel aus.'},
+    {el:'#ldGrid',pickTip:1,t:'☁️ Oder selbst wählen: bis zu <b>3 Wolken</b>. Unter jeder steht, was sie macht.'},
+    {el:'#ldBar',fallback:'#ldSel',t:'👆 Im Level erscheinen sie <b>unten als Knöpfe</b>. Antippen, und die Wolke kommt sofort – jede einmal pro Runde.'},
+    {el:'#ldA',t:'🍀 Ein <b>Tier-Bonus</b> hilft dir ein bisschen, z. B. die Biene: Pflanzen wachsen schneller.'},
+    {el:'#ldGo',t:'Fertig! Ausrüstung macht ein Level leichter – die 3 Sterne musst du aber selbst holen 😉'}
+  ];
+  const CF_STEPS=()=>[
+    {el:'#craftScr h2',t:'⚗️ <b>Kombinieren</b> macht aus doppelten Wolken eine neue, <b>seltenere</b> Wolke. Seltene Wolken sind stärker – z. B. doppelte Punkte oder mehr Tiere.'},
+    {el:'#cfGrid',t:'1️⃣ Tippe hier <b>zwei Wolken</b> an, von denen du Doppelte hast (steht unter der Wolke). Eine bleibt immer in deiner Sammlung.'},
+    {el:'.cfbox',t:'2️⃣ Hier siehst du deine Mischung. Ist das Rezept bekannt, steht darunter, <b>was die neue Wolke kann</b>.'},
+    {el:'#cfGo',t:'3️⃣ Dann auf <b>Kombinieren</b> tippen. Klappt es nicht, mögen sich die Wolken nicht – einfach andere probieren.'},
+    {el:'#v22now',t:'💡 <b>Jetzt möglich</b> zeigt dir Rezepte, die du gerade mischen kannst – mit einem Tipp.'},
+    {el:'#cfBook',t:'📖 Im Rezeptbuch sammelst du alle Entdeckungen. Neue Wolken nimmst du dann beim <b>🎒 Ausrüsten</b> mit ins Level.'}
+  ];
+
+  const oShow=show;
+  show=function(id){
+    let r=oShow.apply(this,arguments);
+    try{
+      if(id==='ldScr'&&S.v22&&!S.v22.tld){
+        setTimeout(()=>{
+          if(S.v22&&S.v22.tld)return;
+          const cur=$('v22co'); if(cur)cur.remove();
+          let s=LD_STEPS();
+          s[3].el=document.querySelector('#ldBar')&&document.querySelector('#ldBar').offsetParent?'#ldBar':'#ldSel';
+          coachFixed(s,'tld');
+        },500);
+      }
+      if(id==='craftScr'&&S.v22&&!S.v22.tcf){
+        setTimeout(()=>{
+          if(S.v22&&S.v22.tcf)return;
+          const cur=$('v22co'); if(cur)cur.remove();
+          coachFixed(CF_STEPS(),'tcf');
+        },500);
+      }
+    }catch(e){console.warn('v5613',e)}
+    return r;
+  };
+  try{C9.show=show}catch(_){}
+
+  const boot=()=>{
+    try{
+      if(!($('ldScr')&&!$('ldScr').classList.contains('hide')))return;
+      if(S.v22&&S.v22.tld)return;
+      const co=$('v22co');
+      if(co&&co.dataset.v5613&&co.querySelector('.ptr'))return;
+      if(co)co.remove();
+      let s=LD_STEPS();
+      s[3].el=document.querySelector('#ldBar')&&document.querySelector('#ldBar').offsetParent?'#ldBar':'#ldSel';
+      coachFixed(s,'tld');
+    }catch(e){}
+  };
+  setTimeout(boot,900);
+  setTimeout(boot,1200);
+  window.C9V5613={coach:coachFixed,measureEl};
+}
+enhance();
+setTimeout(enhance,0);
+console.info('v56.13 ok');
 })();
 </script></body></html>
