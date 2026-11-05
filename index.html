@@ -11761,7 +11761,7 @@ function unlockAllSilvForTest(){
 
 window.C9=window.C9||{};
 window.C9.v55=window.C9_V55={
- version:'56.10',
+ version:'56.11',
  LV_H,PRIZES_H,UNLOCK_AT_H,SV_H,
  LV_S,PRIZES_S,UNLOCK_AT_S,SV_S,
  isHalloweenThemeActive,isSilvesterThemeActive,
@@ -12349,5 +12349,266 @@ window.C9NS={askFresh,askRestore,doFresh,doRestore,hasKeep,mode,KEEP,TRY};
       }).observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['src','style']});
     }
   }catch(e){}
+})();
+</script><script>/* v56.11: Hang nach 1. Level, Ansagen-Warteschlange, Ausrüsten-Tutorial Weiter/Spotlight */
+(function(){
+'use strict';
+const $=id=>document.getElementById(id);
+
+/* ===== 1) Speech: streng nacheinander ===== */
+(function(){
+  const SS=window.speechSynthesis; if(!SS)return;
+  let q=[], busy=0;
+  function pump(){
+    if(busy||!q.length)return;
+    const job=q.shift(); busy=1;
+    try{
+      SS.cancel();
+      const parts=job.parts||[];
+      if(!parts.length){busy=0;return pump()}
+      let left=parts.length;
+      const fin=()=>{if(--left<=0){busy=0;try{job.done&&job.done()}catch(_){}setTimeout(pump,60)}};
+      parts.forEach(s=>{
+        const u=new SpeechSynthesisUtterance(s);
+        u.lang=job.lang||'de-DE'; if(job.voice)u.voice=job.voice;
+        u.rate=job.rate||.92; u.pitch=job.pitch||1.07;
+        u.onend=fin; u.onerror=fin;
+        try{SS.speak(u)}catch(e){fin()}
+      });
+    }catch(e){busy=0;setTimeout(pump,60)}
+  }
+  function enqueue(text,opt){
+    opt=opt||{};
+    let t=String(text||'').replace(/<[^>]+>/g,' ').replace(/[\u{1F000}-\u{1FFFF}\u2600-\u27BF\uFE0F\u200D]/gu,' ').replace(/\s+/g,' ').trim();
+    if(!t)return;
+    let parts=t.match(/[^.!?]+[.!?]+|[^.!?]+$/g)||[t];
+    parts=parts.map(s=>s.trim()).filter(Boolean);
+    if(opt.flush){q=[];busy=0;try{SS.cancel()}catch(_){}}
+    q.push({parts,voice:opt.voice,rate:opt.rate,pitch:opt.pitch,done:opt.done});
+    pump();
+  }
+  window.C9SAYQ={enqueue,clear(){q=[];busy=0;try{SS.cancel()}catch(_){}},busy:()=>!!(busy||SS.speaking)};
+  function pickVoice(){try{return SS.getVoices().find(v=>/^de/i.test(v.lang))||null}catch(_){return null}}
+  function install(){
+    window.C9SAY=function(t){enqueue(t,{voice:pickVoice()})};
+    try{if(C9.v31)C9.v31.say=window.C9SAY}catch(_){}
+  }
+  install(); setTimeout(install,0); setTimeout(install,400);
+})();
+
+/* ===== 2) Hang: Fang statt altem v50-Steckbrief; Karte immer erreichbar ===== */
+(function(){
+  function wipeOld(){try{document.querySelectorAll('#v50sb').forEach(el=>{if(!el.classList.contains('c9fang'))el.remove()})}catch(_){}}
+  function hookShow(){
+    if(!(window.C9FANG&&C9FANG.show))return;
+    const api=window.C9SB||(window.C9SB={});
+    api.show=function(list,opt){wipeOld();return C9FANG.show(list,opt)};
+  }
+  hookShow(); setTimeout(hookShow,0); setTimeout(hookShow,400);
+
+  if(!window._c9v5611fin){
+    window._c9v5611fin=1;
+    const oF=finish;
+    finish=function(){
+      let mode=G&&G.mode, nw=(G&&G.newAL)?G.newAL.slice():[];
+      let r=oF.apply(this,arguments);
+      if(mode==='level'&&nw.length){
+        setTimeout(()=>{
+          try{document.querySelectorAll('#v421').forEach(n=>n.remove())}catch(_){}
+          wipeOld();
+          const cur=$('v50sb');
+          if(cur&&cur.classList.contains('c9fang'))return;
+          try{(C9FANG||C9SB).show(nw,{neu:1,say:1})}catch(_){}
+        },1000);
+      }
+      return r;
+    };
+    try{C9.finish=finish}catch(_){}
+  }
+  const st=document.createElement('style'); st.id='v5611fang';
+  st.textContent=`
+#v50sb:not(.c9fang){align-items:flex-end!important;overflow-y:auto!important;-webkit-overflow-scrolling:touch;
+  padding:12px 12px max(28px,env(safe-area-inset-bottom))!important;box-sizing:border-box}
+#v50sb:not(.c9fang) .bt{position:sticky;bottom:0;background:linear-gradient(#fff0,#fff 30%);padding:10px 0 6px;z-index:2}
+#v50sb:not(.c9fang) .bt button{min-width:170px}
+#v50sb.c9fang{overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:max(14px,env(safe-area-inset-bottom))}
+#v50sb.c9fang .sheet{max-height:min(88dvh,720px);overflow-y:auto}`;
+  document.head.appendChild(st);
+})();
+
+/* ===== 3) Coach neu: Weiter sichtbar, Spotlight sauber ===== */
+(function(){
+  const st=document.createElement('style'); st.id='v5611coach';
+  st.textContent=`
+#v22co{z-index:140}
+#v22co .hole{box-sizing:border-box;max-width:calc(100vw - 20px);max-height:min(42vh,320px);
+  border-radius:18px;border:3px solid #ffe36a;
+  box-shadow:0 0 0 9999px rgba(40,25,90,.62), inset 0 0 0 1px rgba(255,255,255,.35);pointer-events:none;z-index:141}
+#v22co .tip{z-index:142;left:12px;right:12px;padding:20px 14px 12px;max-height:min(44dvh,360px);
+  overflow:hidden;display:flex;flex-direction:column;gap:4px;box-sizing:border-box}
+#v22co .tip .tx{overflow:auto;flex:1 1 auto;-webkit-overflow-scrolling:touch}
+#v22co .tip .nv{flex:0 0 auto;display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:8px}
+#v22co .tip .nv small{opacity:.65;font-weight:800}
+#v22co #v22coNext{
+  margin:0!important;padding:10px 18px!important;min-width:112px!important;
+  font:800 15px Nunito,sans-serif!important;color:#fff!important;
+  background:linear-gradient(180deg,#a996ff,#8167ec)!important;
+  border-radius:18px!important;box-shadow:0 4px 0 #6a50d0!important;white-space:nowrap}
+#v22co #v31buddy{width:48px!important;height:48px!important;max-width:48px!important;right:4px;top:-34px;object-fit:contain}
+#v22co .v31spk{
+  position:absolute!important;left:10px;top:-14px;width:36px!important;height:36px!important;min-width:36px!important;
+  padding:0!important;margin:0!important;border-radius:50%!important;font-size:16px!important;
+  line-height:36px!important;overflow:hidden!important;z-index:3;
+  background:rgba(255,255,255,.95)!important;color:#7a5fe0!important;box-shadow:0 3px 0 #d4caf7!important}
+#v22co .tip .ar{z-index:143;pointer-events:none}`;
+  document.head.appendChild(st);
+
+  const CF_STEPS=()=>[
+    {el:'#craftScr h2',t:'⚗️ <b>Kombinieren</b> macht aus doppelten Wolken eine neue, <b>seltenere</b> Wolke. Seltene Wolken sind stärker – z. B. doppelte Punkte oder mehr Tiere.'},
+    {el:'#cfGrid',t:'1️⃣ Tippe hier <b>zwei Wolken</b> an, von denen du Doppelte hast (steht unter der Wolke). Eine bleibt immer in deiner Sammlung.'},
+    {el:'.cfbox',t:'2️⃣ Hier siehst du deine Mischung. Ist das Rezept bekannt, steht darunter, <b>was die neue Wolke kann</b>.'},
+    {el:'#cfGo',t:'3️⃣ Dann auf <b>Kombinieren</b> tippen. Klappt es nicht, mögen sich die Wolken nicht – einfach andere probieren.'},
+    {el:'#v22now',t:'💡 <b>Jetzt möglich</b> zeigt dir Rezepte, die du gerade mischen kannst – mit einem Tipp.'},
+    {el:'#cfBook',t:'📖 Im Rezeptbuch sammelst du alle Entdeckungen. Neue Wolken nimmst du dann beim <b>🎒 Ausrüsten</b> mit ins Level.'}
+  ];
+  const LD_STEPS=()=>[
+    {el:'#ldG',t:'🎒 Vor jedem Level kannst du dich <b>ausrüsten</b>. Hier steht das Ziel des Levels.'},
+    {el:'#v22rb',t:'⭐ Am einfachsten: <b>Empfohlen</b> antippen – dann suche ich die passenden Wolken für dieses Ziel aus.'},
+    {el:'#ldGrid',t:'☁️ Oder selbst wählen: bis zu <b>3 Wolken</b>. Unter jeder steht, was sie macht.'},
+    {el:'#ldBar',fallback:'#ldSel',t:'👆 Im Level erscheinen sie <b>unten als Knöpfe</b>. Antippen, und die Wolke kommt sofort – jede einmal pro Runde.'},
+    {el:'#ldA',t:'🍀 Ein <b>Tier-Bonus</b> hilft dir ein bisschen, z. B. die Biene: Pflanzen wachsen schneller.'},
+    {el:'#ldGo',t:'Fertig! Ausrüstung macht ein Level leichter – die 3 Sterne musst du aber selbst holen 😉'}
+  ];
+
+  function coachFixed(steps,key,done){
+    try{let o=$('v22co');if(o)o.remove()}catch(_){}
+    let i=0;
+    const o=document.createElement('div'); o.id='v22co';
+    o.innerHTML='<div class="hole"></div><div class="tip"><div class="tx"></div><div class="nv"><small></small><button type="button" id="v22coNext" class="v22next">Weiter</button></div><span class="ar"></span></div>';
+    document.body.appendChild(o);
+    const nextBtn=()=>o.querySelector('#v22coNext');
+    const place=()=>{
+      let st=steps[i];
+      let sel=st.el; if(st.fallback&&!(typeof sel==='string'&&document.querySelector(sel)))sel=st.fallback;
+      let el=typeof sel==='string'?document.querySelector(sel):sel;
+      if(el&&el.scrollIntoView)el.scrollIntoView({block:el.getBoundingClientRect().height>innerHeight*.5?'start':'center', inline:'nearest'});
+      setTimeout(()=>{
+        let r=el?el.getBoundingClientRect():{left:innerWidth/2,top:innerHeight*.35,width:120,height:40};
+        // sensible minimum spotlight
+        if(r.width<48){r={left:Math.max(8,r.left+r.width/2-60), top:Math.max(8,r.top-8), width:120, height:Math.max(36,r.height)}}
+        if(r.height<28){r.height=36}
+        const hole=o.querySelector('.hole'), tip=o.querySelector('.tip'), ar=o.querySelector('.ar');
+        const maxH=Math.min(innerHeight*.42,320);
+        let hl=Math.min(r.width+12, innerWidth-20), ht=Math.min(r.height+12, maxH);
+        let hLeft=Math.max(8, Math.min(innerWidth-hl-8, r.left-6));
+        let hTop=Math.max(8, r.top-6);
+        hole.style.left=hLeft+'px'; hole.style.top=hTop+'px';
+        hole.style.width=hl+'px'; hole.style.height=ht+'px';
+
+        o.querySelector('.tx').innerHTML=st.t;
+        o.querySelector('small').textContent=(i+1)+' / '+steps.length;
+        const last=i>=steps.length-1;
+        nextBtn().textContent=last?'Fertig ✓':'Weiter';
+
+        // place tip below or above hole without covering it badly
+        tip.style.bottom=''; tip.style.top='0px';
+        const th=tip.offsetHeight||140, M=12;
+        const holeBot=hTop+ht, holeTop=hTop;
+        let ty, arr;
+        if(holeBot+28+th+M<=innerHeight){ty=holeBot+28;arr='up'}
+        else if(holeTop-28-th-M>=0){ty=holeTop-28-th;arr='down'}
+        else{
+          ty=Math.max(M, innerHeight-th-M);
+          // shrink hole so it ends above tip
+          const newH=Math.max(32, ty-16-hTop);
+          hole.style.height=newH+'px';
+          arr='';
+        }
+        tip.style.top=Math.max(M,ty)+'px';
+        ar.style.display=arr?'':'none';
+        ar.textContent=arr==='up'?'⬆️':'⬇️';
+        ar.style.top=arr==='up'?'-34px':''; ar.style.bottom=arr==='down'?'-34px':'';
+        ar.style.left=Math.max(30,Math.min(innerWidth-54, r.left+r.width/2-12))+'px';
+
+        // buddy + speaker (🔊 only) — after tip exists
+        if(!tip.querySelector('#v31buddy')){
+          const can=typeof speechSynthesis!=='undefined';
+          tip.insertAdjacentHTML('afterbegin',`<img id="v31buddy" alt="" src="${(window.animalImg&&animalImg('🐰',48))||''}">`+(can?'<button type="button" class="sec v31spk" aria-label="Vorlesen">🔊</button>':''));
+          const sp=tip.querySelector('.v31spk');
+          if(sp)sp.onclick=e=>{e.stopPropagation();try{(window.C9SAY||(()=>{}))(tip.querySelector('.tx').innerText)}catch(_){}};
+        }else{
+          const sp=tip.querySelector('.v31spk'); if(sp)sp.textContent='🔊';
+        }
+      },140);
+    };
+    nextBtn().onclick=()=>{
+      try{SND.sfx('tap')}catch(_){}
+      i++;
+      if(i>=steps.length){o.remove();try{S.v22[key]=1;save()}catch(_){}done&&done()}
+      else place();
+    };
+    place();
+  }
+
+  // Replace auto-tutorial triggers by wrapping show()
+  const oShow=show;
+  show=function(id){
+    let r=oShow.apply(this,arguments);
+    try{
+      if(id==='ldScr'&&S.v22&&!S.v22.tld){
+        setTimeout(()=>{
+          if(S.v22&&S.v22.tld)return;
+          const cur=$('v22co');
+          if(cur&&cur.querySelector('#v22coNext'))return; // already fixed
+          if(cur)cur.remove();
+          let s=LD_STEPS();
+          s[3].el=document.querySelector('#ldBar')&&document.querySelector('#ldBar').offsetParent?'#ldBar':'#ldSel';
+          coachFixed(s,'tld');
+        },420);
+      }
+      if(id==='craftScr'&&S.v22&&!S.v22.tcf){
+        setTimeout(()=>{
+          if(S.v22&&S.v22.tcf)return;
+          const cur=$('v22co');
+          if(cur&&cur.querySelector('#v22coNext'))return;
+          if(cur)cur.remove();
+          coachFixed(CF_STEPS(),'tcf');
+        },420);
+      }
+    }catch(e){console.warn('v5611 show tut',e)}
+    return r;
+  };
+  try{C9.show=show}catch(_){}
+
+  // If old coach already open (race), replace it once
+  setTimeout(()=>{
+    const co=$('v22co'); if(!co||co.dataset.v5611)return;
+    // detect ausrüsten by ldScr visible
+    try{
+      if($('ldScr')&&!$('ldScr').classList.contains('hide')&&S.v22&&!S.v22.tld){
+        co.remove();
+        let s=LD_STEPS();
+        s[3].el=document.querySelector('#ldBar')&&document.querySelector('#ldBar').offsetParent?'#ldBar':'#ldSel';
+        coachFixed(s,'tld');
+      }
+    }catch(_){}
+  },700);
+
+  // Keep speaker emoji-only if old coach still somehow runs
+  setInterval(()=>{
+    const sp=document.querySelector('#v22co .v31spk');
+    if(sp&&sp.textContent.trim()!=='🔊')sp.textContent='🔊';
+    const nb=$('v22coNext');
+    if(nb&&!nb.textContent.trim()){
+      const sm=document.querySelector('#v22co .nv small');
+      const m=(sm&&sm.textContent||'').match(/(\d+)\s*\/\s*(\d+)/);
+      nb.textContent=(m&&+m[1]>=+m[2])?'Fertig ✓':'Weiter';
+    }
+  },500);
+
+  window.C9V5611={coach:coachFixed};
+})();
+
+console.info('v56.11 ok');
 })();
 </script></body></html>
