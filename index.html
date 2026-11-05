@@ -494,7 +494,7 @@ function sndScene(){if(!SND.ctx||SND.offline)return;if(window.C9SCN&&window.C9SC
  let nt=DAYT=='night'||(WX&&WX.day===false)||(k=='b6'&&DAYT!='day');SND.setScene(k,nt);
  let storm=WX&&WX.k=='storm',wet=WX&&(WX.k=='rain'||storm);SND.rain=wet?(storm?.8:.6):0;
  let play=!vis&&G&&G.goals&&!G.done;SND.inten=(play&&G.t<15?.7:0)+(storm?.3:0);SND.pat=play&&ptr&&ptr.c&&ptr.c.dark>.5?Math.min(1,ptr.c.dark):0}
-setInterval(sndScene,250);
+setInterval(()=>{if(!document.hidden)sndScene()},250);
 document.addEventListener('pointerdown',e=>{audio();if(e.target.closest&&e.target.closest('button,.card,.cfa'))SND.sfx('tap')},{capture:true});
 function sndPanel(){let o=$('sndP');if(!o){o=document.createElement('div');o.id='sndP';o.style.cssText='position:fixed;inset:0;background:rgba(40,30,80,.45);display:flex;align-items:center;justify-content:center;z-index:99';
  o.innerHTML=`<div class="panel" style="min-width:260px;max-width:90vw;background:#fff;border-radius:22px;padding:18px;text-align:left"><h3 style="margin:0 0 10px">🔊 Musik & Sound</h3>
@@ -1763,7 +1763,7 @@ const oHD=homeDraw;homeDraw=function(n,dt){if(n-lastU>1000){lastU=n;DK_=dayK();b
 (()=>{let c=$('hc');c.addEventListener('pointerdown',e=>{if(!WM)return;e.stopImmediatePropagation();try{c.setPointerCapture(e.pointerId)}catch(_){}WC=Object.assign(s2w(cvPt(e)),{acc:0,id:e.pointerId,bed:null,lt:performance.now()})},true);
  c.addEventListener('pointermove',e=>{if(!WM||!WC)return;e.stopImmediatePropagation();Object.assign(WC,s2w(cvPt(e)))},true);
  ['pointerup','pointercancel'].forEach(k=>c.addEventListener(k,e=>{if(!WM)return;e.stopImmediatePropagation();WC=null},true));
- setInterval(()=>{if(!WC||!HOMEON)return;let now=performance.now(),dt=(now-WC.lt)/1000;WC.lt=now;let g=hGeo(),bed=null;H.deco.forEach(d=>{if(d.k!='feld')return;let[x,y]=cellXY(g,d.c,d.r);if(Math.hypot(x-WC.x,y-8-WC.y)<g.cw*.6)bed=d});if(bed!==WC.bed){WC.bed=bed;WC.acc=0}if(!bed)return;WC.acc+=dt;if(WC.acc>=.6&&!WC.done2){let p=bed.pl,nw=Date.now();if(p){bedUpd(bed,nw);let was=(p.w||0)>nw+36e5*1.5;p.w=nw+2*36e5;save();if(!was){wishEv('water');let[x,y]=cellXY(g,bed.c,bed.r);HFT.push({x,y:y-40,s:'💧 gegossen!',l:1.2});SND.sfx('splash');vib(10)}}else{toast('Erst etwas pflanzen – tippe aufs Beet 🌱')}WC.acc=-99}},100)})();
+ setInterval(()=>{if(document.hidden||!WC||!HOMEON)return;let now=performance.now(),dt=(now-WC.lt)/1000;WC.lt=now;let g=hGeo(),bed=null;H.deco.forEach(d=>{if(d.k!='feld')return;let[x,y]=cellXY(g,d.c,d.r);if(Math.hypot(x-WC.x,y-8-WC.y)<g.cw*.6)bed=d});if(bed!==WC.bed){WC.bed=bed;WC.acc=0}if(!bed)return;WC.acc+=dt;if(WC.acc>=.6&&!WC.done2){let p=bed.pl,nw=Date.now();if(p){bedUpd(bed,nw);let was=(p.w||0)>nw+36e5*1.5;p.w=nw+2*36e5;save();if(!was){wishEv('water');let[x,y]=cellXY(g,bed.c,bed.r);HFT.push({x,y:y-40,s:'💧 gegossen!',l:1.2});SND.sfx('splash');vib(10)}}else{toast('Erst etwas pflanzen – tippe aufs Beet 🌱')}WC.acc=-99}},100)})();
 // ---- UI ----
 const css=document.createElement('style');css.textContent=`#v2rad{position:fixed;inset:0;z-index:6;pointer-events:none}#v2rad.hide{display:none}.v2rc{position:fixed;width:0;height:0;pointer-events:none}.v2rc button{position:absolute;left:0;top:0;width:48px;height:48px;border-radius:50%;padding:0;margin:0;pointer-events:auto;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#fff;color:#5a46c0;box-shadow:0 3px 10px rgba(90,70,170,.35);animation:v2pop .18s ease-out}.v2rc button b{font-size:20px;line-height:1}.v2rc button small{font-size:8.5px;font-weight:800;line-height:1;margin-top:1px;white-space:nowrap;max-width:60px;overflow:hidden}.v2rc button.dim{opacity:.55}.v2rh{position:absolute;transform:translate(-50%,14px);white-space:nowrap;font-size:10px;background:rgba(255,255,255,.9);border-radius:10px;padding:1px 6px;pointer-events:none}@keyframes v2pop{from{opacity:0;scale:.4}}.v2grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:8px 0}.v2c{display:flex;flex-direction:column;align-items:center;padding:8px 4px;margin:0;font-size:13px}.v2c b{font-size:26px}.v2c small{font-size:10.5px;opacity:.85}.v2c.poor{opacity:.55}.v2bar{height:8px;border-radius:5px;background:#eee;overflow:hidden;margin:4px 0}.v2bar i{display:block;height:100%;background:linear-gradient(90deg,#9ee08a,#5fc070);border-radius:5px}.v2fr{display:flex;align-items:center;gap:6px;padding:5px 0;border-bottom:1px solid #eee}.v2fr>b{font-size:24px;width:32px;text-align:center}.v2fr>span{flex:1;font-weight:800;font-size:13px;min-width:0}.v2fr small{display:block;font-weight:600;opacity:.7;font-size:11px}.v2fr em{color:#e0508a;font-style:normal;font-size:11px}.v2fr.fav{background:#fff4fa;border-radius:10px}.v2fr.done{opacity:.6}.v2fr button{margin:0;padding:6px 8px;font-size:12px}.v2fr button:disabled{opacity:.4}.v2card img{width:84px;height:84px}.v2card h3{margin:0}.v2hearts{font-size:15px;letter-spacing:-1px}#hbot .v2b{position:relative;min-width:40px;padding-left:8px;padding-right:8px}#hbot .v2b i{position:absolute;top:-5px;right:-5px;background:#ff5a8a;color:#fff;border-radius:9px;font-size:11px;font-style:normal;padding:0 5px;line-height:17px}#v2w.on{background:#5fa8f0;color:#fff}#v2w.pulse{animation:v2pl .5s 3}@keyframes v2pl{50%{transform:scale(1.18)}}`;document.head.appendChild(css);
 let rad=document.createElement('div');rad.id='v2rad';rad.className='hide';document.body.appendChild(rad);
@@ -3625,7 +3625,7 @@ const oRA=renderAlb;renderAlb=function(){oRA();let cs=$('albGrid').querySelector
 // ---------- 2. Begleiter ----------
 const pet=document.createElement('div');pet.id='v41pet';pet.className='hide';pet.innerHTML='<img alt=""><span class="bub"></span>';document.body.appendChild(pet);
 function petUpd(){let on=V.pet&&S.alb[V.pet]&&!$('hud').classList.contains('hide');pet.classList.toggle('hide',!on);if(on){let im=pet.querySelector('img');if(im.dataset.e!==V.pet){im.dataset.e=V.pet;im.src=animalImg(V.pet)}}}
-setInterval(petUpd,500);let sayT=0;
+setInterval(()=>{if(!document.hidden)petUpd()},500);let sayT=0;
 function cheer(t){if(pet.classList.contains('hide'))return;pet.querySelector('.bub').textContent=t;pet.classList.add('say','jump');setTimeout(()=>pet.classList.remove('jump'),260);clearTimeout(sayT);sayT=setTimeout(()=>pet.classList.remove('say'),1600)}
 const oBl=v17Bloom;v17Bloom=function(x,I){let r=oBl.apply(this,arguments);try{if(G&&G.cb>=3&&G.cb%2==1)cheer(['Super!','Toll!','Weiter so!','Wow!'][G.cb%4]+' ×'+G.cb)}catch(e){}return r};
 // ---------- 3. Wochen-Aufgaben ----------
@@ -8016,7 +8016,7 @@ function sweepAudio(){
   }
  }catch(_){}
 }
-setInterval(sweepAudio,300);
+setInterval(()=>{if(!document.hidden)sweepAudio()},300);
 ['pointerdown','touchstart','click','pageshow','visibilitychange'].forEach(ev=>{
  addEventListener(ev,()=>{if(!document.hidden)setTimeout(sweepAudio,40)},{passive:true});
 });
@@ -11761,7 +11761,7 @@ function unlockAllSilvForTest(){
 
 window.C9=window.C9||{};
 window.C9.v55=window.C9_V55={
- version:'56.2',
+ version:'56.3',
  LV_H,PRIZES_H,UNLOCK_AT_H,SV_H,
  LV_S,PRIZES_S,UNLOCK_AT_S,SV_S,
  isHalloweenThemeActive,isSilvesterThemeActive,
@@ -11806,7 +11806,7 @@ const CP={
 const KEYS=Object.keys(CP);
 // v56.1: nur noch EIN Begleiter – alter Album-Begleiter (v41) wird nicht mehr gezeigt, Loadout-Tier nur noch als Bonus-Symbol
 const st0=document.createElement('style');st0.textContent='#v41pet,#v41buddy{display:none!important}#ldBar .cpc img{display:none!important}';document.head.appendChild(st0);
-const noOld=()=>{try{if(S.v41&&S.v41.pet){S.v41.pet=null;save()}}catch(e){}};noOld();setInterval(noOld,1000);
+const noOld=()=>{try{if(S.v41&&S.v41.pet){S.v41.pet=null;save()}}catch(e){}};noOld();setInterval(()=>{if(!document.hidden)noOld()},4000);
 try{let h=$('ldA');h=h&&h.parentNode.querySelector('b');if(h)h.textContent='🍀 Tier-Bonus';let d=$('ldAd');}catch(e){}
 
 S.c9c=S.c9c||{};const C=S.c9c;C.un=C.un||{};C.xp=C.xp||0;
@@ -11853,7 +11853,7 @@ document.head.appendChild(st);
 const im=e=>animalImg(e);
 const sfx=k=>{try{SND.sfx(k)}catch(e){}};
 // --- Auswahl-Bildschirm ---
-function chooser(opts,done){opts=opts||{};let el=document.createElement('div');el.id='c9cs';let sel=opts.cur||null;
+function chooser(opts,done){opts=opts||{};try{let o=document.querySelector('#c9cs');if(o)o.remove()}catch(e){}let el=document.createElement('div');el.id='c9cs';let sel=opts.cur||null;
  el.innerHTML=`<h2>${opts.sw?'🔄 Begleiter wechseln':'🐾 Wähle deinen Begleiter!'}</h2><p>${opts.sw?'Dein neuer Begleiter zeigt dir den Weg durch die Welten, die du noch nicht besucht hast. Alles, was du schon geschafft hast, bleibt.':opts.old?'Neu! Ein Tierfreund begleitet dich ab jetzt. Keine Sorge: Alle deine Sterne, Tiere und Level bleiben erhalten! ⭐':'Jeder Begleiter startet in seiner Lieblingswelt – so wird dein Abenteuer ganz eigen.'}</p>
  <div class="g">${KEYS.map(e=>{let c=CP[e];return`<div class="k ${e==sel?'on':''}" data-e="${e}"><img src="${im(e)}" alt=""><b>${c.n}</b><small>${ANIMALS.find(a=>a[0]==e)[1]}</small><span class="w" style="background:${c.col}">${c.we} ${c.w} · Start: ${BIOMES[c.b].e} ${BIOMES[c.b].n}</span></div>`}).join('')}</div>
  <div class="say">${sel?CP[sel].say:'Tippe auf ein Tier! 👆'}</div><button id="c9go" ${sel?'':'disabled'}>${opts.sw?'✔ Wechseln':'▶ Los geht\'s!'}</button>${opts.sw?'<button class="later" id="c9x">Abbrechen</button>':''}`;
@@ -11866,7 +11866,7 @@ function setComp(e,first){let had=!!C.e;// bisher erreichte Level merken, damit 
  C.e=e;if(first&&!had){C.since=Date.now();C.legacy=(S.stars||[]).some(s=>s>0)?1:0}save();
  try{toast(e+' '+CP[e].n+' begleitet dich jetzt! 💜',2600)}catch(_){}}
 // v56.2: Auswahl erscheint auch, wenn die Karte über andere Wege (Tabs, Endkarte, …) geöffnet wird
-let mapAsk=0;setInterval(()=>{try{let ms=$('mapScr'),on=ms&&!ms.classList.contains('hide');if(!on){mapAsk=0;return}if(C.e||mapAsk||document.querySelector('#c9cs'))return;mapAsk=1;let old=(S.stars||[]).some(s=>s>0)||Object.keys(S.alb||{}).length>0;chooser({old},e=>{setComp(e,true);try{renderMap()}catch(_){}setTimeout(()=>lvSay(CP[e].say,3200),400)})}catch(e){}},500);
+let mapAsk=0;setInterval(()=>{if(document.hidden)return;try{let ms=$('mapScr'),on=ms&&!ms.classList.contains('hide');if(!on){mapAsk=0;return}if(C.e||mapAsk||document.querySelector('#c9cs'))return;mapAsk=1;let old=(S.stars||[]).some(s=>s>0)||Object.keys(S.alb||{}).length>0;chooser({old},e=>{setComp(e,true);try{renderMap()}catch(_){}setTimeout(()=>lvSay(CP[e].say,3200),400)})}catch(e){}},500);
 window.C9COMP.choose=(e,old)=>{if(!CP[e])return;if(old)C.legacy=1;setComp(e,true)};
 // Beim Öffnen des Abenteuers: einmalig wählen
 const bm=$('bMap');if(bm){const oM=bm.onclick;bm.onclick=function(ev){if(C.e)return oM.call(this,ev);let old=(S.stars||[]).some(s=>s>0)||Object.keys(S.alb||{}).length>0;chooser({old},e=>{setComp(e,true);oM.call(bm,ev);setTimeout(()=>lvSay(CP[e].say,3200),400)})}}
@@ -11879,9 +11879,9 @@ function lvSay(t,ms){if(!C.e)return;lv.querySelector('.bb').textContent=t;lv.cla
 window.C9COMP.say=lvSay;
 // v56.2: Begleiter-Blase darf Tutorial-/Coach-Boxen nie verdecken → darüber schieben, sonst ausblenden
 function lvAvoid(){try{lv.style.bottom='';if(lv.style.display=='none')return;let ov=(a,b)=>a.left<b.right&&b.left<a.right&&a.top<b.bottom&&b.top<a.bottom;let obs=[...document.querySelectorAll('#hint.on,[id*="coach"],[class*="coach"],[id*="tut"],[class*="tutor"]')].filter(e=>e.offsetParent!==null||getComputedStyle(e).position=='fixed').map(e=>e.getBoundingClientRect()).filter(r=>r.width>0&&r.height>0);if(!obs.length)return;let r=lv.getBoundingClientRect(),hit=obs.filter(o=>ov(r,o));if(!hit.length)return;let top=Math.min(...hit.map(o=>o.top));let nb=innerHeight-top+10;if(top-r.height>130){lv.style.bottom=nb+'px';let r2=lv.getBoundingClientRect();if(!obs.some(o=>ov(r2,o)))return}lv.style.bottom='';lv.classList.remove('say')}catch(e){}}
-setInterval(lvAvoid,150);
+setInterval(()=>{if(!document.hidden)lvAvoid()},400);
 
-setInterval(()=>{let hud=$('hud'),on=C.e&&hud&&!hud.classList.contains('hide')&&!0;lv.style.display=on?'flex':'none';if(on){let i=lv.querySelector('img');if(i.dataset.e!==C.e){i.dataset.e=C.e;i.src=im(C.e)}let s=.9+cLv()*.08;i.style.width=i.style.height=Math.round(46*s)+'px'}},400);
+setInterval(()=>{if(document.hidden)return;let hud=$('hud'),on=C.e&&hud&&!hud.classList.contains('hide')&&!0;lv.style.display=on?'flex':'none';if(on){let i=lv.querySelector('img');if(i.dataset.e!==C.e){i.dataset.e=C.e;i.src=im(C.e)}let s=.9+cLv()*.08;i.style.width=i.style.height=Math.round(46*s)+'px'}},400);
 const oSt=start;start=function(mode,li){try{let q=$('c9endc');if(q)q.remove()}catch(e){}let r=oSt.apply(this,arguments);try{if(C.e&&mode=='level'){let c=CP[C.e],L=LEVELS[li];setTimeout(()=>lvSay(L&&L[0]==c.b&&route()[0]==li?c.say:(Math.random()<.5?c.hint:['Los geht\'s, '+c.n+' ist dabei! 💪','Wir schaffen das zusammen!','Ich drück dir die Pfoten! 🐾'][li%3]),3000),900)}}catch(e){}return r};
 function gainXp(n,why){if(!C.e)return;let l0=cLv();C.xp=(C.xp||0)+n;save();let l1=cLv();if(l1>l0){sfx('levelup');try{toast('🎉 '+CP[C.e].n+' ist gewachsen! Begleiter-Stufe '+l1,2600)}catch(_){}}}
 window.C9COMP.gainXp=gainXp;
@@ -11892,16 +11892,17 @@ function islSay(t){is.querySelector('.bb').textContent=t;is.classList.add('say')
 function petIt(x,y){if(!C.e)return;is.classList.remove('hop');is.offsetWidth;is.classList.add('hop');sfx('pop');let h=document.createElement('div');h.className='c9ht';h.textContent='💜';h.style.left=(x-9)+'px';h.style.top=(y-30)+'px';document.body.appendChild(h);setTimeout(()=>h.remove(),1000);pets++;C.pets=(C.pets||0)+1;if(C.pets%3==0)gainXp(2);else save();islSay(['Hihi, das kitzelt!','Danke! 💜','Noch mal! 😊','Du bist mein bester Freund!'][pets%4])}
 window.C9COMP.pet=()=>{let r=is.getBoundingClientRect();petIt(r.left+r.width/2,r.top+r.height/2)};
 is.addEventListener('pointerdown',ev=>{ev.stopPropagation();ev.preventDefault();petIt(ev.clientX,ev.clientY)});
-let wt=0,lastT=performance.now(),dir=1;
-function islLoop(t){requestAnimationFrame(islLoop);let dt=Math.min(.1,(t-lastT)/1000);lastT=t;let on=false;try{on=!!(C.e&&HOMEON&&!HED&&window.C9WM&&!$('homeScr').classList.contains('hide')&&!document.querySelector('#c9cs'))}catch(e){}
+let wt=0,lastT=performance.now(),dir=1,islRAF=0;
+function islLoop(t){islRAF=0;if(document.hidden){is.style.display='none';return}islRAF=requestAnimationFrame(islLoop);let dt=Math.min(.1,(t-lastT)/1000);lastT=t;let on=false;try{on=!!(C.e&&HOMEON&&!HED&&window.C9WM&&!$('homeScr').classList.contains('hide')&&!document.querySelector('#c9cs'))}catch(e){}
  is.style.display=on?'block':'none';if(!on)return;let M=C9WM,hc=$('hc'),rc=hc.getBoundingClientRect(),dp=hc.width/rc.width||1,z=M.a/dp;
  wt+=dt;let O=window.C9DOFF||[0,0],wx=Math.sin(wt*.35)*34,wy=O[1]*.0+52+Math.sin(wt*.7)*6;let nd=Math.cos(wt*.35)>=0?1:-1;
  let sx=rc.left+(M.a*wx+M.c*wy+M.e)/dp,sy=rc.top+(M.b*wx+M.d*wy+M.f)/dp;is.style.left=sx+'px';is.style.top=sy+'px';
  let i=is.querySelector('img'),sz=Math.max(26,Math.min(90,(30+cLv()*3)*Math.max(.8,z*1.1)));if(i.dataset.e!==C.e){i.dataset.e=C.e;i.src=im(C.e)}i.style.width=i.style.height=Math.round(sz)+'px';i.style.transform=`scaleX(${-nd}) translateY(${Math.abs(Math.sin(wt*5))*-3}px)`;
  is.querySelector('.t').style.fontSize=Math.max(7,Math.min(12,26*z))+'px';is.querySelector('.t').textContent=CP[C.e].n+' · Stufe '+cLv()}
-requestAnimationFrame(islLoop);
+islRAF=requestAnimationFrame(islLoop);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&!islRAF){lastT=performance.now();islRAF=requestAnimationFrame(islLoop)}});
 // --- Begleiter-Karte (Steckbrief) ---
-function card(){if(!C.e)return chooser({},e=>{setComp(e,true);card()});let c=CP[C.e],a=ANIMALS.find(x=>x[0]==C.e),l=cLv(),p=l>=5?100:Math.round((C.xp-cXp(l))/(cXp(l+1)-cXp(l))*100);
+function card(){if(!C.e)return chooser({},e=>{setComp(e,true);card()});try{let o=document.querySelector('#c9cs');if(o)o.remove()}catch(e){}let c=CP[C.e],a=ANIMALS.find(x=>x[0]==C.e),l=cLv(),p=l>=5?100:Math.round((C.xp-cXp(l))/(cXp(l+1)-cXp(l))*100);
  let el=document.createElement('div');el.id='c9cs';el.innerHTML=`<div style="background:#fff;border-radius:24px;padding:16px;max-width:360px;width:100%;box-shadow:0 8px 24px rgba(70,51,122,.2)" id="c9card"><h2 style="margin-top:0">🐾 Mein Begleiter</h2>
  <div class="c9card"><img src="${im(C.e)}" style="animation:c9bob 1.4s ease-in-out infinite alternate"><div style="flex:1"><b style="font-size:20px">${c.n}</b><br><small style="font-weight:800">${a[1]} · ${c.we} ${c.w}</small><br><small style="font-weight:800">Stufe ${l}${l>=5?' (Maximum) 🌟':''}</small><div class="c9bar"><i style="width:${p}%"></i></div><small>${C.xp|0} XP · ${C.pets|0}× gestreichelt</small></div></div>
  <div class="c9sb"><b>📋 Steckbrief</b><br>🏠 Lieblingswelt: ${BIOMES[c.b].e} ${BIOMES[c.b].n}<br>🍽️ Frisst gern: ${c.food}<br>💡 Wusstest du? ${c.fact}<br>🗺️ Unser Weg: ${c.r.map(b=>BIOMES[b].e).join(' → ')}</div>
