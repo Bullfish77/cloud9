@@ -11761,7 +11761,7 @@ function unlockAllSilvForTest(){
 
 window.C9=window.C9||{};
 window.C9.v55=window.C9_V55={
- version:'56.8',
+ version:'56.9',
  LV_H,PRIZES_H,UNLOCK_AT_H,SV_H,
  LV_S,PRIZES_S,UNLOCK_AT_S,SV_S,
  isHalloweenThemeActive,isSilvesterThemeActive,
@@ -12160,5 +12160,121 @@ function install(){
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install);
 else install();
+})();
+</script><script>/* v56.9: Neuer Spielstand zum Ausprobieren – sichert den echten Stand (c9v2_keep),
+   startet frisch, und lässt zum alten zurückwechseln. Nie still überschreiben. */
+(function(){
+try{
+const KEEP='c9v2_keep', TRY='c9v2_try', MODE='c9v2_mode';
+const freshObj=()=>({col:{},alb:{},stars:[],xp:0,streak:0,last:"",best:0});
+function parse(j){try{let o=JSON.parse(j||'null');return o&&typeof o=='object'?o:null}catch(e){return null}}
+function hasKeep(){return !!parse(localStorage.getItem(KEEP))}
+function hasTry(){return !!parse(localStorage.getItem(TRY))}
+function mode(){return localStorage.getItem(MODE)==='try'?'try':'main'}
+function labelOf(j){let o=parse(j);if(!o)return 'gesicherter Spielstand';
+  let c=(o.home&&o.home.coins)|0, n=o.alb?Object.keys(o.alb).length:0, xp=o.xp|0;
+  let bits=[];if(c)bits.push('🪙 '+c);if(n)bits.push('🐾 '+n);if(xp)bits.push(xp+' XP');
+  return bits.length?bits.join(' · '):'dein alter Spielstand'}
+function curJson(){try{if(typeof save==='function')save()}catch(e){}return localStorage.c9v2||JSON.stringify(window.S||freshObj())}
+function dlg(html){
+  try{let old=document.getElementById('c9ns');if(old)old.remove()}catch(e){}
+  let o=document.createElement('div');o.id='c9ns';o.className='v32ov';
+  o.innerHTML=`<div class="panel" style="text-align:left;max-width:340px">${html}</div>`;
+  document.body.appendChild(o);
+  o.addEventListener('click',e=>{if(e.target===o)o.remove()});
+  return o;
+}
+function closeSnd(){try{let p=$('sndP');if(p)p.style.display='none'}catch(e){}}
+
+function doFresh(){
+  let cur=curJson();
+  if(!hasKeep()){
+    try{localStorage.setItem(KEEP,cur)}catch(e){toast('⚠️ Speicher voll – alter Stand konnte nicht gesichert werden');return}
+  }else{
+    // echten Backup nicht anfassen; aktuellen Versuch optional ablegen
+    try{localStorage.setItem(TRY,cur)}catch(_){}
+  }
+  try{
+    localStorage.setItem(MODE,'try');
+    localStorage.c9v2=JSON.stringify(freshObj());
+  }catch(e){toast('⚠️ Konnte neuen Spielstand nicht speichern');return}
+  toast('✨ Neuer Spielstand – viel Spaß!');
+  setTimeout(()=>location.reload(),550);
+}
+function doRestore(){
+  let k=localStorage.getItem(KEEP);if(!parse(k)){toast('Kein alter Spielstand gefunden');return}
+  let cur=curJson();
+  try{if(mode()==='try')localStorage.setItem(TRY,cur)}catch(_){}
+  try{localStorage.c9v2=k;localStorage.setItem(MODE,'main')}catch(e){toast('⚠️ Wiederherstellen fehlgeschlagen');return}
+  toast('↩️ Alter Spielstand ist wieder da!');
+  setTimeout(()=>location.reload(),550);
+}
+function doResumeTry(){
+  let t=localStorage.getItem(TRY);if(!parse(t)){askFresh();return}
+  // vor Wechsel aktuellen (echten) Stand schützen, falls keep fehlt
+  if(!hasKeep()){try{localStorage.setItem(KEEP,curJson())}catch(e){toast('⚠️ Sicherung fehlgeschlagen');return}}
+  try{localStorage.c9v2=t;localStorage.setItem(MODE,'try')}catch(e){toast('⚠️ Laden fehlgeschlagen');return}
+  toast('🧪 Probiermodus weiter');
+  setTimeout(()=>location.reload(),550);
+}
+function askFresh(){
+  closeSnd();
+  let keep=hasKeep();
+  let tip=keep
+    ? `<p style="font-size:14px;font-weight:700;margin:6px 0">Dein <b>gesicherter</b> alter Spielstand bleibt erhalten (${labelOf(localStorage.getItem(KEEP))}). Der jetzige Versuch wird nur als Probiermodus ersetzt.</p>`
+    : `<p style="font-size:14px;font-weight:700;margin:6px 0">Dein jetziger Spielstand wird <b>sicher aufbewahrt</b>. Du kannst ihn später jederzeit wieder laden.</p>
+       <p style="font-size:13px;opacity:.85;margin:4px 0">Jetzt: ${labelOf(curJson())}</p>`;
+  let o=dlg(`<h3 style="margin:0 0 6px">✨ Neuer Spielstand?</h3>
+    ${tip}
+    <p style="font-size:13px;margin:8px 0">Du startest wie beim ersten Mal: leere Insel, Begleiter wählen, Tutorials.</p>
+    <button class="big" id="c9nsGo" style="width:100%;margin-top:6px">✨ Ja, neu ausprobieren</button>
+    <button class="sec" id="c9nsNo" style="width:100%;margin-top:6px">Lieber nicht</button>`);
+  o.querySelector('#c9nsGo').onclick=()=>{o.remove();doFresh()};
+  o.querySelector('#c9nsNo').onclick=()=>o.remove();
+}
+function askRestore(){
+  closeSnd();
+  let o=dlg(`<h3 style="margin:0 0 6px">↩️ Alter Spielstand</h3>
+    <p style="font-size:14px;font-weight:700;margin:6px 0">Zurück zu: <b>${labelOf(localStorage.getItem(KEEP))}</b></p>
+    <p style="font-size:13px;margin:4px 0">Dein Probiermodus wird gemerkt, falls du ihn später fortsetzen willst.</p>
+    <button class="big" id="c9nsGo" style="width:100%;margin-top:6px">↩️ Ja, alten Stand laden</button>
+    <button class="sec" id="c9nsNo" style="width:100%;margin-top:6px">Abbrechen</button>`);
+  o.querySelector('#c9nsGo').onclick=()=>{o.remove();doRestore()};
+  o.querySelector('#c9nsNo').onclick=()=>o.remove();
+}
+
+function paintBtns(){
+  let host=$('v32cb');if(!host||$('c9nsNew'))return;
+  let box=document.createElement('div');box.id='c9nsBox';box.style.cssText='margin:4px 0';
+  let html=`<button class="sec" id="c9nsNew" style="width:100%;margin:4px 0">✨ Neuer Spielstand zum Ausprobieren</button>`;
+  if(hasKeep()){
+    html+=`<button class="big" id="c9nsBack" style="width:100%;margin:4px 0">↩️ Mein alter Spielstand</button>
+      <small style="display:block;opacity:.75;margin:2px 4px 6px;font-weight:700">${labelOf(localStorage.getItem(KEEP))}${mode()==='try'?' · du bist im Probiermodus':''}</small>`;
+  }
+  if(mode()==='main'&&hasTry()){
+    html+=`<button class="sec" id="c9nsTry" style="width:100%;margin:4px 0">🧪 Probiermodus weiter</button>`;
+  }
+  box.innerHTML=html;
+  host.parentNode.insertBefore(box,host.nextSibling);
+  $('c9nsNew').onclick=askFresh;
+  let b=$('c9nsBack');if(b)b.onclick=askRestore;
+  let t=$('c9nsTry');if(t)t.onclick=()=>{closeSnd();doResumeTry()};
+}
+
+const oSnd=sndPanel;sndPanel=function(){
+  oSnd();
+  try{paintBtns()}catch(e){}
+};
+
+// Hinweis einmalig beim Laden im Probiermodus
+try{
+  if(mode()==='try'&&hasKeep()&&!sessionStorage.c9nsTip){
+    sessionStorage.c9nsTip='1';
+    setTimeout(()=>{try{toast('🧪 Probiermodus · Alten Stand: 🔊 Sound → Spielstand',3200)}catch(e){}},1400);
+  }
+}catch(e){}
+
+window.C9NS={askFresh,askRestore,doFresh,doRestore,hasKeep,mode,KEEP,TRY};
+}catch(e){try{console.error('v569save',e)}catch(_){}}
 })();
 </script></body></html>
