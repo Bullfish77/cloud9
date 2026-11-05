@@ -11761,7 +11761,7 @@ function unlockAllSilvForTest(){
 
 window.C9=window.C9||{};
 window.C9.v55=window.C9_V55={
- version:'56.13',
+ version:'56.14',
  LV_H,PRIZES_H,UNLOCK_AT_H,SV_H,
  LV_S,PRIZES_S,UNLOCK_AT_S,SV_S,
  isHalloweenThemeActive,isSilvesterThemeActive,
@@ -13115,5 +13115,70 @@ function enhance(){
 enhance();
 setTimeout(enhance,0);
 console.info('v56.13 ok');
+})();
+</script><script>/* v56.14: Fang-Steckbrief größer + Hintergrund stärker abdunkeln
+   Super!-Knopf bleibt erreichbar (safe-area, sticky, scroll). */
+(function(){
+'use strict';
+const st=document.createElement('style'); st.id='v5614fang';
+st.textContent=`
+#v50sb.c9fang,#c9fang{
+  align-items:center!important; justify-content:center!important;
+  background:rgba(30,20,55,.72)!important;
+  padding:max(10px,env(safe-area-inset-top)) 10px max(16px,env(safe-area-inset-bottom))!important;
+  box-sizing:border-box; overflow-y:auto!important; -webkit-overflow-scrolling:touch;
+}
+#v50sb.c9fang .sheet{
+  width:min(440px,94vw)!important;
+  max-width:94vw!important;
+  max-height:min(90dvh,760px)!important;
+  padding:16px 16px 14px!important;
+  border-radius:26px!important;
+  box-sizing:border-box;
+  display:flex; flex-direction:column;
+  overflow:hidden!important;
+  box-shadow:0 12px 40px rgba(40,25,80,.45)!important;
+}
+#v50sb.c9fang .stage{
+  height:min(48vw,260px)!important;
+  min-height:190px!important;
+  max-height:280px;
+  flex:0 0 auto;
+  border-radius:20px!important;
+}
+#v50sb.c9fang h2{
+  font-size:22px!important; margin:12px 0 4px!important; flex:0 0 auto;
+}
+#v50sb.c9fang h2 .em{font-size:32px!important}
+#v50sb.c9fang .c9sb{
+  font-size:14px!important; line-height:1.5!important;
+  flex:1 1 auto; overflow-y:auto; -webkit-overflow-scrolling:touch;
+  min-height:0; margin:8px 0 10px!important;
+}
+#v50sb.c9fang .c9btns{
+  flex:0 0 auto; margin-top:4px!important; padding-top:4px;
+  position:sticky; bottom:0; background:#fff;
+}
+#v50sb.c9fang .c9btns button,
+#v50sb.c9fang #c9fok{
+  min-width:min(260px,80vw)!important;
+  padding:14px 28px!important;
+  font-size:17px!important;
+  border-radius:20px!important;
+}
+#v50sb.c9fang .fangtag{font-size:13px!important; padding:5px 12px!important}
+#v50sb.c9fang .more{flex:0 0 auto}
+`;
+document.head.appendChild(st);
+
+/* If fang already open when this loads, nudge layout */
+try{
+  const el=document.getElementById('v50sb');
+  if(el&&el.classList.contains('c9fang')){
+    const sheet=el.querySelector('.sheet');
+    if(sheet){sheet.style.width=''; sheet.style.maxWidth='';}
+  }
+}catch(_){}
+console.info('v56.14 fang size ok');
 })();
 </script></body></html>
