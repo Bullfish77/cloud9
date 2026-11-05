@@ -11761,7 +11761,7 @@ function unlockAllSilvForTest(){
 
 window.C9=window.C9||{};
 window.C9.v55=window.C9_V55={
- version:'56.11',
+ version:'56.12',
  LV_H,PRIZES_H,UNLOCK_AT_H,SV_H,
  LV_S,PRIZES_S,UNLOCK_AT_S,SV_S,
  isHalloweenThemeActive,isSilvesterThemeActive,
@@ -12610,5 +12610,307 @@ const $=id=>document.getElementById(id);
 })();
 
 console.info('v56.11 ok');
+})();
+</script><script>/* v56.12: Ausrüsten-Coach Pfeil/Spotlight sauber + keine Emojis in TTS */
+(function(){
+'use strict';
+const $=id=>document.getElementById(id);
+
+/* ---------- TTS: Emojis nie vorlesen ---------- */
+function stripSpeak(t){
+  return String(t||'')
+    .replace(/<[^>]+>/g,' ')
+    /* emoji & pictographs */
+    .replace(/[\u{1F000}-\u{1FFFF}]/gu,'')
+    /* misc symbols ☀…➿ incl. ❄️⚽ */
+    .replace(/[\u2600-\u27BF]/gu,'')
+    /* ⭐ etc. */
+    .replace(/[\u2B00-\u2BFF]/gu,'')
+    .replace(/[\u2300-\u23FF]/gu,'')
+    .replace(/[\u2190-\u21FF]/gu,'')
+    .replace(/[\uFE0F\u200D\u20E3]/gu,'')
+    /* dingbats leftover */
+    .replace(/[\u2700-\u27BF]/gu,'')
+    .replace(/[★☆✦✧✪⭐️❄️]/g,'')
+    .replace(/\s*[·•]\s*/g,' · ')
+    .replace(/\s{2,}/g,' ')
+    .replace(/\s+([.,!?;:])/g,'$1')
+    .trim();
+}
+window.C9STRIP=stripSpeak;
+
+(function(){
+  const SS=window.speechSynthesis; if(!SS)return;
+  let q=[], busy=0;
+  function pump(){
+    if(busy||!q.length)return;
+    const job=q.shift(); busy=1;
+    try{
+      SS.cancel();
+      const parts=(job.parts||[]).map(stripSpeak).filter(Boolean);
+      if(!parts.length){busy=0;return pump()}
+      let left=parts.length;
+      const fin=()=>{if(--left<=0){busy=0;try{job.done&&job.done()}catch(_){}setTimeout(pump,50)}};
+      parts.forEach(s=>{
+        const u=new SpeechSynthesisUtterance(s);
+        u.lang=job.lang||'de-DE'; if(job.voice)u.voice=job.voice;
+        u.rate=job.rate||.92; u.pitch=job.pitch||1.07;
+        u.onend=fin; u.onerror=fin;
+        try{SS.speak(u)}catch(e){fin()}
+      });
+    }catch(e){busy=0;setTimeout(pump,50)}
+  }
+  function enqueue(text,opt){
+    opt=opt||{};
+    let t=stripSpeak(text);
+    if(!t)return;
+    let parts=t.match(/[^.!?]+[.!?]+|[^.!?]+$/g)||[t];
+    parts=parts.map(s=>s.trim()).filter(Boolean);
+    if(opt.flush){q=[];busy=0;try{SS.cancel()}catch(_){}}
+    q.push({parts,voice:opt.voice,rate:opt.rate,pitch:opt.pitch,done:opt.done});
+    pump();
+  }
+  function pickVoice(){try{return SS.getVoices().find(v=>/^de/i.test(v.lang))||null}catch(_){return null}}
+  window.C9SAYQ={enqueue,clear(){q=[];busy=0;try{SS.cancel()}catch(_){}},busy:()=>!!(busy||SS.speaking),strip:stripSpeak};
+  function install(){
+    window.C9SAY=function(t){enqueue(t,{voice:pickVoice()})};
+    try{if(window.C9&&C9.v31)C9.v31.say=window.C9SAY}catch(_){}
+    /* also wrap raw say() if still distinct */
+    try{
+      if(typeof say==='function'&&!say._v5612){
+        const o=say; say=function(t){return window.C9SAY(t)}; say._v5612=1;
+      }
+    }catch(_){}
+  }
+  install(); setTimeout(install,0); setTimeout(install,500);
+  /* belt: cancel emoji-only utterances that sneak in */
+  const oSpeak=SS.speak.bind(SS);
+  SS.speak=function(u){
+    try{
+      if(u&&typeof u.text==='string'){
+        const c=stripSpeak(u.text);
+        if(!c){try{u.onend&&u.onend()}catch(_){}return}
+        if(c!==u.text)u.text=c;
+      }
+    }catch(_){}
+    return oSpeak(u);
+  };
+})();
+
+/* ---------- Coach: Spotlight + ein Pfeil, Hand aus ---------- */
+(function(){
+  const st=document.createElement('style'); st.id='v5612coach';
+  st.textContent=`
+body.v5612co #v31hand{display:none!important}
+#v22co[data-v5612]{z-index:140}
+#v22co[data-v5612] .hole{
+  box-sizing:border-box; border-radius:16px; border:3px solid #ffe36a;
+  box-shadow:0 0 0 9999px rgba(40,25,90,.58), 0 0 0 5px rgba(255,227,106,.4);
+  pointer-events:none; z-index:141; max-width:calc(100vw - 16px); max-height:min(46vh,340px);
+  transition:left .25s,top .25s,width .25s,height .25s}
+#v22co[data-v5612] .ptr{
+  position:fixed; z-index:143; pointer-events:none; font-size:28px; line-height:1;
+  filter:drop-shadow(0 2px 2px rgba(0,0,0,.35));
+  transform:translate(-50%,-55%); animation:v5612bob .85s ease-in-out infinite alternate}
+@keyframes v5612bob{to{transform:translate(-50%,calc(-55% + 5px))}}
+#v22co[data-v5612] .tip{
+  z-index:142; left:12px; right:12px; padding:18px 14px 12px; box-sizing:border-box;
+  max-height:min(40dvh,340px); overflow:hidden; display:flex; flex-direction:column; gap:4px}
+#v22co[data-v5612] .tip .tx{overflow:auto; flex:1 1 auto; -webkit-overflow-scrolling:touch}
+#v22co[data-v5612] .tip .nv{flex:0 0 auto; display:flex; justify-content:space-between; align-items:center; gap:8px; margin-top:8px}
+#v22co[data-v5612] #v22coNext{
+  margin:0!important; padding:10px 18px!important; min-width:112px!important;
+  font:800 15px Nunito,sans-serif!important; color:#fff!important;
+  background:linear-gradient(180deg,#a996ff,#8167ec)!important;
+  border-radius:18px!important; box-shadow:0 4px 0 #6a50d0!important; white-space:nowrap}
+#v22co[data-v5612] #v31buddy{width:48px!important;height:48px!important;right:4px;top:-34px;object-fit:contain}
+#v22co[data-v5612] .v31spk{
+  position:absolute!important; left:10px; top:-14px; width:36px!important; height:36px!important;
+  min-width:36px!important; padding:0!important; margin:0!important; border-radius:50%!important;
+  font-size:16px!important; line-height:36px!important; overflow:hidden!important; z-index:3;
+  background:rgba(255,255,255,.95)!important; color:#7a5fe0!important; box-shadow:0 3px 0 #d4caf7!important}
+#v22co[data-v5612] .ar{display:none!important}
+`;
+  document.head.appendChild(st);
+
+  const CF_STEPS=()=>[
+    {el:'#craftScr h2',t:'⚗️ <b>Kombinieren</b> macht aus doppelten Wolken eine neue, <b>seltenere</b> Wolke. Seltene Wolken sind stärker – z. B. doppelte Punkte oder mehr Tiere.'},
+    {el:'#cfGrid',t:'1️⃣ Tippe hier <b>zwei Wolken</b> an, von denen du Doppelte hast (steht unter der Wolke). Eine bleibt immer in deiner Sammlung.'},
+    {el:'.cfbox',t:'2️⃣ Hier siehst du deine Mischung. Ist das Rezept bekannt, steht darunter, <b>was die neue Wolke kann</b>.'},
+    {el:'#cfGo',t:'3️⃣ Dann auf <b>Kombinieren</b> tippen. Klappt es nicht, mögen sich die Wolken nicht – einfach andere probieren.'},
+    {el:'#v22now',t:'💡 <b>Jetzt möglich</b> zeigt dir Rezepte, die du gerade mischen kannst – mit einem Tipp.'},
+    {el:'#cfBook',t:'📖 Im Rezeptbuch sammelst du alle Entdeckungen. Neue Wolken nimmst du dann beim <b>🎒 Ausrüsten</b> mit ins Level.'}
+  ];
+  const LD_STEPS=()=>[
+    {el:'#ldG',t:'🎒 Vor jedem Level kannst du dich <b>ausrüsten</b>. Hier steht das Ziel des Levels.'},
+    {el:'#v22rb',t:'⭐ Am einfachsten: <b>Empfohlen</b> antippen – dann suche ich die passenden Wolken für dieses Ziel aus.'},
+    {el:'#ldGrid',pickTip:1,t:'☁️ Oder selbst wählen: bis zu <b>3 Wolken</b>. Unter jeder steht, was sie macht.'},
+    {el:'#ldBar',fallback:'#ldSel',t:'👆 Im Level erscheinen sie <b>unten als Knöpfe</b>. Antippen, und die Wolke kommt sofort – jede einmal pro Runde.'},
+    {el:'#ldA',t:'🍀 Ein <b>Tier-Bonus</b> hilft dir ein bisschen, z. B. die Biene: Pflanzen wachsen schneller.'},
+    {el:'#ldGo',t:'Fertig! Ausrüstung macht ein Level leichter – die 3 Sterne musst du aber selbst holen 😉'}
+  ];
+
+  function resolveEl(st){
+    if(st.pickTip){
+      const badge=document.querySelector('#ldGrid .cfc .v22rec, #ldGrid .v22rec');
+      if(badge){const c=badge.closest('.cfc'); if(c)return c}
+      /* Schneewolke / snow cloud by data-t=8 if present */
+      const snow=document.querySelector('#ldGrid .cfc[data-t="8"]');
+      if(snow)return snow;
+    }
+    if(st.pick){
+      const p=document.querySelector(st.pick);
+      if(p)return p.closest? (p.closest('.cfc')||p):p;
+    }
+    let sel=st.el;
+    if(st.fallback&&!(typeof sel==='string'&&document.querySelector(sel)))sel=st.fallback;
+    return typeof sel==='string'?document.querySelector(sel):sel;
+  }
+
+  function coachFixed(steps,key,done){
+    try{let o=$('v22co');if(o)o.remove()}catch(_){}
+    document.body.classList.add('v5612co');
+    let i=0;
+    const o=document.createElement('div'); o.id='v22co'; o.dataset.v5612='1'; o.dataset.v5611='1'; /* block v56.11 late-replace */
+    o.innerHTML='<div class="hole"></div><div class="ptr" aria-hidden="true">👆</div><div class="tip"><div class="tx"></div><div class="nv"><small></small><button type="button" id="v22coNext">Weiter</button></div></div>';
+    document.body.appendChild(o);
+    const cleanup=()=>{document.body.classList.remove('v5612co'); try{const h=$('v31hand');if(h)h.style.display='none'}catch(_){}};
+    const nextBtn=()=>o.querySelector('#v22coNext');
+
+    const place=()=>{
+      const st=steps[i];
+      const el=resolveEl(st);
+      /* keep target in view but don't scroll tip off */
+      try{
+        if(el&&el.scrollIntoView){
+          const scr=el.closest('.scr');
+          if(scr){const r=el.getBoundingClientRect(), mid=innerHeight*.32;
+            if(r.top<60||r.bottom>innerHeight*.55)scr.scrollTop+=r.top-mid;
+          }else el.scrollIntoView({block:'center',inline:'nearest'});
+        }
+      }catch(_){}
+      setTimeout(()=>{
+        let r=el?el.getBoundingClientRect():{left:innerWidth/2-60,top:120,width:120,height:36};
+        /* pad tightly around real control */
+        const pad=8;
+        let hl=Math.max(r.width+pad*2, 56), ht=Math.max(r.height+pad*2, 34);
+        hl=Math.min(hl, innerWidth-16);
+        ht=Math.min(ht, Math.min(innerHeight*.42, 300));
+        let hLeft=Math.max(8, Math.min(innerWidth-hl-8, r.left+r.width/2-hl/2));
+        let hTop=Math.max(8, r.top+r.height/2-ht/2);
+        /* prefer aligning to element top for short bars (Ziel) */
+        if(r.height<=40){hTop=Math.max(8, r.top-pad); ht=Math.max(r.height+pad*2, 34)}
+
+        const hole=o.querySelector('.hole'), tip=o.querySelector('.tip'), ptr=o.querySelector('.ptr');
+        hole.style.left=hLeft+'px'; hole.style.top=hTop+'px';
+        hole.style.width=hl+'px'; hole.style.height=ht+'px';
+
+        o.querySelector('.tx').innerHTML=st.t;
+        o.querySelector('small').textContent=(i+1)+' / '+steps.length;
+        nextBtn().textContent=(i>=steps.length-1)?'Fertig ✓':'Weiter';
+
+        /* tip below hole with room for pointer; else above */
+        tip.style.bottom=''; tip.style.top='0px';
+        const th=Math.min(tip.offsetHeight||150, innerHeight*.38), M=10; let gap=52;
+        let hBot=hTop+(parseFloat(hole.style.height)||ht);
+        let ty, ptrTop, ptrLeft=hLeft+hl/2;
+        const short=ht<=44;
+        if(short){
+          /* Finger IN der Spotlight-Box, zeigt auf die Mitte der Ziel-Leiste */
+          ptrTop=hTop+ht*0.7;
+          ptr.style.transform='translate(-50%,-50%)';
+          gap=36;
+        }else{
+          ptr.style.transform='translate(-50%,-60%)';
+        }
+        if(hBot+gap+th+M<=innerHeight){
+          if(!short)ptrTop=hBot;
+          ty=hBot+gap;
+        }else if(hTop-gap-th-M>=0){
+          ty=hTop-gap-th;
+          if(short){ptrTop=hTop+ht*0.35; ptr.style.transform='translate(-50%,-50%)'}
+          else{ptrTop=hTop; ptr.style.transform='translate(-50%,-40%) rotate(180deg)'}
+        }else{
+          ty=Math.max(M, innerHeight-th-M);
+          const newH=Math.max(30, ty-gap-hTop);
+          hole.style.height=newH+'px'; hBot=hTop+newH;
+          ptrTop=short?hTop+newH*0.65:hBot;
+          if(short)ptr.style.transform='translate(-50%,-50%)';
+        }
+        tip.style.top=Math.max(M,ty)+'px';
+        ptr.style.left=ptrLeft+'px';
+        ptr.style.top=ptrTop+'px';
+        ptr.style.display='block';
+
+        /* buddy + speaker */
+        if(!tip.querySelector('#v31buddy')){
+          const can=typeof speechSynthesis!=='undefined';
+          tip.insertAdjacentHTML('afterbegin',`<img id="v31buddy" alt="" src="${(window.animalImg&&animalImg('🐰',48))||''}">`+(can?'<button type="button" class="sec v31spk" aria-label="Vorlesen">🔊</button>':''));
+          const sp=tip.querySelector('.v31spk');
+          if(sp)sp.onclick=e=>{e.stopPropagation();try{window.C9SAY(tip.querySelector('.tx').innerText)}catch(_){}};
+        }else{
+          const sp=tip.querySelector('.v31spk'); if(sp)sp.textContent='🔊';
+        }
+        try{const h=$('v31hand'); if(h)h.style.display='none'}catch(_){}
+      },160);
+    };
+
+    nextBtn().onclick=()=>{
+      try{SND.sfx('tap')}catch(_){}
+      i++;
+      if(i>=steps.length){cleanup(); o.remove(); try{S.v22[key]=1;save()}catch(_){} done&&done()}
+      else place();
+    };
+    /* if overlay removed externally */
+    const mo=new MutationObserver(()=>{if(!document.body.contains(o)){cleanup();mo.disconnect()}});
+    mo.observe(document.body,{childList:true});
+    place();
+  }
+
+  /* Take over tutorials from v56.11 */
+  const oShow=show;
+  show=function(id){
+    let r=oShow.apply(this,arguments);
+    try{
+      if(id==='ldScr'&&S.v22&&!S.v22.tld){
+        setTimeout(()=>{
+          if(S.v22&&S.v22.tld)return;
+          const cur=$('v22co'); if(cur)cur.remove();
+          let s=LD_STEPS();
+          s[3].el=document.querySelector('#ldBar')&&document.querySelector('#ldBar').offsetParent?'#ldBar':'#ldSel';
+          coachFixed(s,'tld');
+        },450);
+      }
+      if(id==='craftScr'&&S.v22&&!S.v22.tcf){
+        setTimeout(()=>{
+          if(S.v22&&S.v22.tcf)return;
+          const cur=$('v22co'); if(cur)cur.remove();
+          coachFixed(CF_STEPS(),'tcf');
+        },450);
+      }
+    }catch(e){console.warn('v5612 tut',e)}
+    return r;
+  };
+  try{C9.show=show}catch(_){}
+  window.C9V5612={coach:coachFixed,strip:stripSpeak};
+  if(window.C9V5611)C9V5611.coach=coachFixed;
+  /* Win over v56.11 700ms replace */
+  const boot=()=>{
+    try{
+      if(!($('ldScr')&&!$('ldScr').classList.contains('hide')))return;
+      if(S.v22&&S.v22.tld)return;
+      const co=$('v22co');
+      if(co&&co.dataset.v5612&&co.querySelector('.ptr'))return;
+      if(co)co.remove();
+      let s=LD_STEPS();
+      s[3].el=document.querySelector('#ldBar')&&document.querySelector('#ldBar').offsetParent?'#ldBar':'#ldSel';
+      coachFixed(s,'tld');
+    }catch(e){console.warn('v5612 boot',e)}
+  };
+  setTimeout(boot,800);
+  setTimeout(boot,1100);
+})();
+
+console.info('v56.12 ok');
 })();
 </script></body></html>
