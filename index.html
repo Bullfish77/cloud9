@@ -11761,7 +11761,7 @@ function unlockAllSilvForTest(){
 
 window.C9=window.C9||{};
 window.C9.v55=window.C9_V55={
- version:'56.6',
+ version:'56.7',
  LV_H,PRIZES_H,UNLOCK_AT_H,SV_H,
  LV_S,PRIZES_S,UNLOCK_AT_S,SV_S,
  isHalloweenThemeActive,isSilvesterThemeActive,
@@ -11918,4 +11918,247 @@ const oMenu=menu;menu=function(){let r=oMenu.apply(this,arguments);try{mchip()}c
 const oRA=renderAlb;renderAlb=function(){let r=oRA.apply(this,arguments);try{let c=$('albCnt');if(c&&!$('c9albb')){c.insertAdjacentHTML('afterend',`<button id="c9albb" class="sec" style="margin:6px auto;display:flex;align-items:center;gap:6px">${C.e?`<img src="${im(C.e)}" style="width:30px;height:30px">`:'🐾'} Mein Begleiter${C.e?': '+CP[C.e].n:''}</button>`);$('c9albb').onclick=card}}catch(e){}return r};
 try{mchip()}catch(e){}
 }catch(err){console.error('v56 comp',err)}})();
+</script><script>/* v56.7 Fang-Animation + Steckbrief
+   Nach dem Fangen: kurze Habitat-Bühne (Video oder Canvas-Tier) + Begleiter-Stil-Steckbrief.
+   Nutzt C9SBD-Fakten, matcht .c9card/.c9sb, kein zweites Kartendesign. */
+(function(){
+'use strict';
+const $=id=>document.getElementById(id);
+const SB=()=>window.C9SBD||[];
+const BY=(()=>{const m={};try{SB().forEach(d=>m[d.emoji]=d)}catch(e){}return m})();
+function refreshBY(){try{SB().forEach(d=>BY[d.emoji]=d)}catch(e){}}
+
+/* Habitat-Backdrop je Biome (MAP-Key / AH) */
+const HABBG={
+ wiese:['#7ec8ff','#b8f08a','🌷'],wald:['#5aa0d8','#3d7a45','🌲'],wueste:['#ffc86a','#e8b878','🏜️'],
+ eis:['#b8d8ff','#eef6ff','🧊'],see:['#4ab8e8','#7ad0c8','🌊'],teich:['#5ac0d0','#8ad888','🐸'],
+ riff:['#3a90c8','#40c8b0','🐠'],meer:['#2a70b8','#4aa0d8','🐋'],berg:['#8ab0d0','#c8d0c0','⛰️'],
+ sterne:['#3a2a6a','#6a4aaa','✨'],hoehle:['#4a3a3a','#7a5a4a','🦇'],vulkan:['#5a2a2a','#ff6a3a','🌋'],
+ dino:['#6a8a4a','#c8b070','🦴'],suess:['#ff9ac8','#ffd27a','🍬'],dschungel:['#2a8a4a','#6ad070','🌴'],
+ nest:['#8ad0ff','#e8f4ff','☁️'],_:[ '#8ad0ff','#e8fff0','☁️']
+};
+function habKey(e){
+ try{if(window.AH&&AH[e])return AH[e]}catch(_){}
+ try{if(typeof MAP==='object'){for(const k of Object.keys(MAP))if((MAP[k]||[]).includes(e))return k}}catch(_){}
+ const d=BY[e];if(!d)return '_';
+ const w=(d.wohnt||'').toLowerCase();
+ if(/wüste|wueste|sand/.test(w))return 'wueste';
+ if(/arkt|eis|nordpol|antark|tundra|schnee/.test(w))return 'eis';
+ if(/regenwald|dschungel|baum/.test(w))return 'dschungel';
+ if(/meer|ozean|küste|kueste|riff/.test(w))return 'meer';
+ if(/fluss|see|teich|sumpf/.test(w))return 'see';
+ if(/berg|fels/.test(w))return 'berg';
+ if(/wald|hecke/.test(w))return 'wald';
+ if(/wiese|garten|feld/.test(w))return 'wiese';
+ if(/vulkan|lava/.test(w))return 'vulkan';
+ if(/bonbon|zucker|schoko/.test(w))return 'suess';
+ if(/himmel|stern|mond|rakete/.test(w))return 'sterne';
+ if(/dino|millionen jahren/.test(w))return 'dino';
+ return '_';
+}
+
+let Q=[],cur=null,raf=0,duck=0,vid=null;
+
+function killVid(){if(!vid)return;try{vid.pause();vid.removeAttribute('src');vid.load()}catch(_){}vid=null}
+function unduck(){if(!duck)return;duck=0;try{if(window.SND&&SND.duckM)SND.duckM(1)}catch(_){}}
+function duckNow(){if(duck)return;duck=1;try{if(window.SND&&SND.duckM)SND.duckM(.35)}catch(_){}}
+
+function stopStage(){if(raf){cancelAnimationFrame(raf);raf=0}}
+
+function paintHab(cv,e,t0){
+ const hk=habKey(e),bg=HABBG[hk]||HABBG._;
+ const W=cv.width,H=cv.height,dpr=Math.min(2.5,window.devicePixelRatio||1);
+ const w=W/dpr,h=H/dpr;
+ const x=cv.getContext('2d');
+ x.setTransform(dpr,0,0,dpr,0,0);
+ const g=x.createLinearGradient(0,0,0,h);g.addColorStop(0,bg[0]);g.addColorStop(1,bg[1]);
+ x.fillStyle=g;x.fillRect(0,0,w,h);
+ /* soft ground oval */
+ x.fillStyle='rgba(255,255,255,.22)';x.beginPath();x.ellipse(w/2,h*.78,w*.38,h*.1,0,0,Math.PI*2);x.fill();
+ /* floating habitat emoji accent */
+ x.globalAlpha=.55;x.font=(Math.min(28,h*.14)|0)+'px sans-serif';x.textAlign='center';
+ x.fillText(bg[2],w*.18,h*.22);x.fillText(bg[2],w*.82,h*.28);x.globalAlpha=1;
+ /* sparkles */
+ const now=performance.now();
+ for(let i=0;i<8;i++){const a=(now/900+i*1.7)%1,px=w*(.12+((i*37)%76)/100),py=h*(.1+a*.55);
+  x.globalAlpha=.35+Math.sin(now/200+i)*.25;x.fillStyle='#fff';x.beginPath();x.arc(px,py,1.6+i%3,0,Math.PI*2);x.fill()}
+ x.globalAlpha=1;
+ /* animal via drawAnimal (global X) */
+ try{
+  const oX=window.X,t=now-t0;
+  window.X=x;
+  const sc=Math.min(w,h)/52;
+  if(typeof drawAnimal==='function')drawAnimal(e,w/2,h*.62,sc*1.15,t,t/1000,false);
+  else{x.font=(Math.min(64,h*.4)|0)+'px sans-serif';x.textAlign='center';x.textBaseline='middle';x.fillText(e,w/2,h*.55)}
+  window.X=oX;
+ }catch(err){try{window.X=window.X}catch(_){}
+  x.font=(Math.min(64,h*.4)|0)+'px sans-serif';x.textAlign='center';x.textBaseline='middle';x.fillText(e,w/2,h*.55)}
+}
+
+function startStage(cv,e){
+ stopStage();
+ const dpr=Math.min(2.5,window.devicePixelRatio||1);
+ const r=cv.getBoundingClientRect();
+ cv.width=Math.max(2,Math.round(r.width*dpr));cv.height=Math.max(2,Math.round(r.height*dpr));
+ const t0=performance.now();
+ const tick=()=>{if(!$('v50sb')||!cv.isConnected){raf=0;return}paintHab(cv,e,t0);raf=requestAnimationFrame(tick)};
+ raf=requestAnimationFrame(tick);
+}
+
+function closeFang(then){
+ stopStage();killVid();unduck();
+ const el=$('v50sb');if(el)el.remove();
+ cur=null;
+ if(Q.length){const n=Q.shift();setTimeout(()=>showFang([n.e],n.opt),80)}
+ else if(then)try{then()}catch(_){}
+}
+
+function factBlock(d){
+ /* Companion-language: 🏠 🍽️ 💡 — kurz, kinderfreundlich */
+ let rows=[];
+ if(d.wohnt)rows.push(`🏠 Wohnt: ${d.wohnt}`);
+ if(d.frisst)rows.push(`🍽️ Frisst: ${d.frisst}`);
+ if(d.wusstest_du){
+  let tip=d.wusstest_du;
+  /* keep short: first 1–2 sentences max ~140 chars for kids */
+  let cut=tip.match(/[^.!?]+[.!?]+|[^.!?]+$/g)||[tip];tip=cut.slice(0,2).join(' ').trim();
+  if(tip.length>160)tip=tip.slice(0,157).replace(/\s+\S*$/,'')+'…';
+  rows.push(`💡 Wusstest du? ${tip}`);
+ }
+ return rows.join('<br>');
+}
+
+function typBadge(d){
+ if(!d||!d.typ)return '';
+ if(d.typ==='echt')return '<span class="c9fbadge">🌿 Echt</span>';
+ if(d.typ==='angelehnt')return '<span class="c9fbadge">✨ Angelehnt</span>';
+ return '<span class="c9fbadge">🌈 Fantasie</span>';
+}
+
+function showFang(list,opt){
+ opt=opt||{};refreshBY();
+ if(!list||!list.length)return false;
+ const es=list.filter(e=>BY[e]||(typeof NM==='function'&&NM(e)));
+ if(!es.length)return false;
+ if($('v50sb')){
+  /* queue remaining; if another fang open, append */
+  es.forEach((e,i)=>{if(i||$('v50sb'))Q.push({e,opt})});
+  if($('v50sb'))return true;
+ }
+ const e=es[0];
+ es.slice(1).forEach(x=>Q.push({e:x,opt}));
+ const d=BY[e]||{emoji:e,name:(typeof NM==='function'?NM(e):e),wohnt:'',frisst:'',wusstest_du:'',video:'',poster:''};
+ cur=e;
+ 
+ try{document.querySelectorAll('#v421').forEach(n=>n.remove())}catch(_){}
+
+ if(!document.getElementById('c9fangCSS')){
+  const st=document.createElement('style');st.id='c9fangCSS';
+  st.textContent=`
+#v50sb.c9fang,#c9fang{position:fixed;inset:0;z-index:9600;display:flex;align-items:center;justify-content:center;
+ background:rgba(40,30,70,.45);padding:14px;animation:c9fIn .28s ease}
+@keyframes c9fIn{from{opacity:0}to{opacity:1}}
+@keyframes c9fPop{from{transform:scale(.82);opacity:0}to{transform:scale(1);opacity:1}}
+@keyframes c9fBob{to{transform:translateY(-5px)}}
+#v50sb.c9fang .sheet{background:#fff;border-radius:24px;padding:14px 14px 12px;max-width:360px;width:100%;
+ box-shadow:0 8px 28px rgba(70,51,122,.28);animation:c9fPop .34s cubic-bezier(.2,1.1,.4,1);text-align:left}
+#v50sb.c9fang .stage{position:relative;border-radius:18px;overflow:hidden;height:min(42vw,210px);min-height:160px;
+ background:linear-gradient(180deg,#8ad0ff,#e8fff0);box-shadow:inset 0 0 0 2px rgba(70,51,122,.08)}
+#v50sb.c9fang .stage canvas,#v50sb.c9fang .stage video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+#v50sb.c9fang .stage video{z-index:2;background:#000}
+#v50sb.c9fang .stage canvas{z-index:1}
+#v50sb.c9fang .fangtag{position:absolute;left:10px;top:10px;z-index:3;background:linear-gradient(135deg,#ff8ec4,#a87aff);
+ color:#fff;font:800 12px Nunito,sans-serif;padding:4px 10px;border-radius:12px;box-shadow:0 3px 0 rgba(70,51,122,.25)}
+#v50sb.c9fang h2{margin:10px 0 2px;font:800 20px Nunito,sans-serif;color:#46337a;display:flex;align-items:center;gap:8px}
+#v50sb.c9fang h2 .em{font-size:28px;animation:c9fBob 1.2s ease-in-out infinite alternate;display:inline-block}
+#v50sb.c9fang .c9sb{font-size:13px;line-height:1.45;margin:8px 0;color:#46337a}
+#v50sb.c9fang .c9fbadge{display:inline-block;font:800 11px Nunito,sans-serif;background:#f3eeff;color:#6a55c8;
+ border-radius:10px;padding:2px 8px;margin-left:4px}
+#v50sb.c9fang .c9btns{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:6px}
+#v50sb.c9fang button{font:800 15px Nunito,sans-serif;border:0;border-radius:16px;padding:10px 18px;cursor:pointer;
+ background:linear-gradient(135deg,#a87aff,#ff8ec4);color:#fff;box-shadow:0 5px 0 #7a5ac8}
+#v50sb.c9fang button.later{background:#eee;color:#666;box-shadow:0 4px 0 #ccc}
+#v50sb.c9fang .more{font:800 12px Nunito,sans-serif;color:#8a7ab0;text-align:center;margin-top:4px}`;
+  document.head.appendChild(st);
+ }
+
+ const neu=!!opt.neu;
+ const title=neu?'🎉 Gefangen!':'📋 Steckbrief';
+ const rest=Q.length;
+ const el=document.createElement('div');el.id='v50sb';el.className='c9fang';
+ el.innerHTML=`<div class="sheet" role="dialog" aria-label="Fang Steckbrief">
+  <div class="stage" id="c9fst">
+   <canvas id="c9fcv"></canvas>
+   ${neu?'<div class="fangtag">Neu entdeckt!</div>':''}
+  </div>
+  <h2><span class="em">${e}</span><span>${d.name||e} ${typBadge(d)}</span></h2>
+  <div class="c9sb"><b>📋 Steckbrief</b><br>${factBlock(d)||'Gleich erfährst du mehr über dieses Tier.'}</div>
+  <div class="c9btns"><button type="button" id="c9fok">${rest?'Weiter ✨':'Super! 👋'}</button></div>
+  ${rest?`<div class="more">Noch ${rest} Tier${rest>1?'e':''}</div>`:''}
+ </div>`;
+ document.body.appendChild(el);
+
+ const cv=$('c9fcv');
+ startStage(cv,e);
+
+ /* Prefer habitat video as 3D cinematic when available */
+ if(d.video){
+  const v=document.createElement('video');
+  v.setAttribute('playsinline','');v.setAttribute('webkit-playsinline','');
+  v.muted=true;v.loop=true;v.preload='auto';v.poster=d.poster||'';
+  v.src=d.video;v.style.opacity='0';v.style.transition='opacity .35s';
+  $('c9fst').appendChild(v);vid=v;
+  const tryPlay=()=>{v.play().then(()=>{v.style.opacity='1';duckNow()}).catch(()=>{})};
+  v.addEventListener('loadeddata',tryPlay,{once:true});
+  tryPlay();
+ }else duckNow();
+
+ try{if(window.SND){if(neu&&SND.sfx)SND.sfx('celebrate');else if(SND.sfx)SND.sfx('star')}}catch(_){}
+ try{if(opt.say!==0&&window.C9&&C9.v31&&C9.v31.say){
+  const bits=[`Hallo, ich bin ${d.name||e}!`];
+  if(d.wohnt)bits.push(`Ich wohne ${d.wohnt.replace(/^./,c=>c.toLowerCase())}`);
+  if(d.frisst)bits.push(`Ich esse ${d.frisst.replace(/^./,c=>c.toLowerCase())}`);
+  C9.v31.say(bits.join(' '));
+ }}catch(_){}
+
+ const go=()=>{try{if(window.SND&&SND.sfx)SND.sfx('tap')}catch(_){};try{speechSynthesis.cancel()}catch(_){};closeFang(opt.onDone)};
+ $('c9fok').onclick=go;
+ el.addEventListener('click',ev=>{if(ev.target===el)go()});
+ return true;
+}
+
+/* Patch C9SB.show to use Fang card (same API) */
+function install(){
+ refreshBY();
+ const api=window.C9SB||(window.C9SB={});
+ api.show=function(list,opt){return showFang(list,opt)};
+ api.close=function(){Q=[];closeFang()};
+ window.C9FANG={show:showFang,habKey,BY};
+ /* Finish-hook: neu gefangene Tiere → Fang (ersetzt/überstimmt Timing-Rennen mit v421) */
+ if(!window._c9fangFin){
+  window._c9fangFin=1;
+  const wrap=()=>{
+   if(typeof finish!=='function')return;
+   const oF=finish;
+   finish=function(){
+    let g=G,mode=g&&g.mode,nw=(g&&g.newAL)?g.newAL.slice():[];
+    let r=oF.apply(this,arguments);
+    if(mode==='level'&&nw.length){
+     setTimeout(()=>{
+      try{document.querySelectorAll('#v421').forEach(n=>n.remove())}catch(_){}
+      if($('v50sb'))return;
+      showFang(nw,{neu:1,say:1});
+     },950);
+    }
+    return r;
+   };
+   try{if(window.C9)C9.finish=finish}catch(_){}
+  };
+  wrap();
+ }
+ /* Album: 🎬 buttons already use C9SB.show → now Fang */
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install);
+else install();
+})();
 </script></body></html>
