@@ -1760,9 +1760,17 @@ const oHD=homeDraw;homeDraw=function(n,dt){if(n-lastU>1000){lastU=n;DK_=dayK();b
  if(window.C9W51?C9W51.wet(wet):wet()){let sn=(window.C9W51?C9W51.k(WX):WX.k)=='snow';X.strokeStyle='rgba(170,200,255,.55)';X.lineWidth=1.2;RD.forEach(d=>{d.y+=dt*(sn?.08:.9)*d.v;d.x+=sn?Math.sin(t+d.v*9)*dt*.02:dt*.05;if(d.y>1){d.y=0;d.x=R()}if(d.x>1)d.x-=1;let x=d.x*HW,y=d.y*HH;if(sn)dE(x,y,2*d.v,2*d.v,'rgba(255,255,255,.85)');else{X.beginPath();X.moveTo(x,y);X.lineTo(x-2,y+11);X.stroke()}})}
  })};
 // ---- watering pointer (capture, before island handlers) ----
-(()=>{let c=$('hc');c.addEventListener('pointerdown',e=>{if(!WM)return;e.stopImmediatePropagation();try{c.setPointerCapture(e.pointerId)}catch(_){}WC=Object.assign(s2w(cvPt(e)),{acc:0,id:e.pointerId,bed:null,lt:performance.now()})},true);
- c.addEventListener('pointermove',e=>{if(!WM||!WC)return;e.stopImmediatePropagation();Object.assign(WC,s2w(cvPt(e)))},true);
- ['pointerup','pointercancel'].forEach(k=>c.addEventListener(k,e=>{if(!WM)return;e.stopImmediatePropagation();WC=null},true));
+(()=>{let c=$('hc'),WPT=new Map();
+window.C9V5615W={WPT,clear(){WPT.clear()}};
+c.addEventListener('pointerdown',e=>{if(!WM)return;let p=cvPt(e);WPT.set(e.pointerId,p);
+ if(WPT.size>=2){WC=null;HDR=null;HPAN=null;for(let[id,q]of WPT)HPT.set(id,q);let vs=[...HPT.values()],A=vs[0],B=vs[1];HPN={d:Math.hypot(A.x-B.x,A.y-B.y)||1,z:HV.z};try{c.setPointerCapture(e.pointerId)}catch(_){}e.stopImmediatePropagation();return}
+ e.stopImmediatePropagation();try{c.setPointerCapture(e.pointerId)}catch(_){}WC=Object.assign(s2w(p),{acc:0,id:e.pointerId,bed:null,lt:performance.now()})},true);
+c.addEventListener('pointermove',e=>{if(!WM||!WPT.has(e.pointerId))return;let p=cvPt(e);WPT.set(e.pointerId,p);
+ if(WPT.size>=2){HPT.set(e.pointerId,p);if(!HPN&&HPT.size>=2){let vs=[...HPT.values()],A=vs[0],B=vs[1];HPN={d:Math.hypot(A.x-B.x,A.y-B.y)||1,z:HV.z}}if(HPN&&HPT.size>=2){let vs=[...HPT.values()],A=vs[0],B=vs[1],d=Math.hypot(A.x-B.x,A.y-B.y);hZoomAt((A.x+B.x)/2,(A.y+B.y)/2,HPN.z*d/HPN.d)}e.stopImmediatePropagation();return}
+ if(!WC||e.pointerId!==WC.id)return;e.stopImmediatePropagation();Object.assign(WC,s2w(p))},true);
+['pointerup','pointercancel'].forEach(k=>c.addEventListener(k,e=>{if(!WM)return;WPT.delete(e.pointerId);HPT.delete(e.pointerId);if(HPN&&HPT.size<2)HPN=null;if(WC&&e.pointerId===WC.id)WC=null;if(WPT.size===1){let[[id,p]]=[...WPT.entries()];WC=Object.assign(s2w(p),{acc:0,id,bed:null,lt:performance.now()})}e.stopImmediatePropagation()},true));
+const _sw0=setWM;setWM=function(on){try{WPT.clear()}catch(_){}_sw0(on)};
+
  setInterval(()=>{if(document.hidden||!WC||!HOMEON)return;let now=performance.now(),dt=(now-WC.lt)/1000;WC.lt=now;let g=hGeo(),bed=null;H.deco.forEach(d=>{if(d.k!='feld')return;let[x,y]=cellXY(g,d.c,d.r);if(Math.hypot(x-WC.x,y-8-WC.y)<g.cw*.6)bed=d});if(bed!==WC.bed){WC.bed=bed;WC.acc=0}if(!bed)return;WC.acc+=dt;if(WC.acc>=.6&&!WC.done2){let p=bed.pl,nw=Date.now();if(p){bedUpd(bed,nw);let was=(p.w||0)>nw+36e5*1.5;p.w=nw+2*36e5;save();if(!was){wishEv('water');let[x,y]=cellXY(g,bed.c,bed.r);HFT.push({x,y:y-40,s:'💧 gegossen!',l:1.2});SND.sfx('splash');vib(10)}}else{toast('Erst etwas pflanzen – tippe aufs Beet 🌱')}WC.acc=-99}},100)})();
 // ---- UI ----
 const css=document.createElement('style');css.textContent=`#v2rad{position:fixed;inset:0;z-index:6;pointer-events:none}#v2rad.hide{display:none}.v2rc{position:fixed;width:0;height:0;pointer-events:none}.v2rc button{position:absolute;left:0;top:0;width:48px;height:48px;border-radius:50%;padding:0;margin:0;pointer-events:auto;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#fff;color:#5a46c0;box-shadow:0 3px 10px rgba(90,70,170,.35);animation:v2pop .18s ease-out}.v2rc button b{font-size:20px;line-height:1}.v2rc button small{font-size:8.5px;font-weight:800;line-height:1;margin-top:1px;white-space:nowrap;max-width:60px;overflow:hidden}.v2rc button.dim{opacity:.55}.v2rh{position:absolute;transform:translate(-50%,14px);white-space:nowrap;font-size:10px;background:rgba(255,255,255,.9);border-radius:10px;padding:1px 6px;pointer-events:none}@keyframes v2pop{from{opacity:0;scale:.4}}.v2grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:8px 0}.v2c{display:flex;flex-direction:column;align-items:center;padding:8px 4px;margin:0;font-size:13px}.v2c b{font-size:26px}.v2c small{font-size:10.5px;opacity:.85}.v2c.poor{opacity:.55}.v2bar{height:8px;border-radius:5px;background:#eee;overflow:hidden;margin:4px 0}.v2bar i{display:block;height:100%;background:linear-gradient(90deg,#9ee08a,#5fc070);border-radius:5px}.v2fr{display:flex;align-items:center;gap:6px;padding:5px 0;border-bottom:1px solid #eee}.v2fr>b{font-size:24px;width:32px;text-align:center}.v2fr>span{flex:1;font-weight:800;font-size:13px;min-width:0}.v2fr small{display:block;font-weight:600;opacity:.7;font-size:11px}.v2fr em{color:#e0508a;font-style:normal;font-size:11px}.v2fr.fav{background:#fff4fa;border-radius:10px}.v2fr.done{opacity:.6}.v2fr button{margin:0;padding:6px 8px;font-size:12px}.v2fr button:disabled{opacity:.4}.v2card img{width:84px;height:84px}.v2card h3{margin:0}.v2hearts{font-size:15px;letter-spacing:-1px}#hbot .v2b{position:relative;min-width:40px;padding-left:8px;padding-right:8px}#hbot .v2b i{position:absolute;top:-5px;right:-5px;background:#ff5a8a;color:#fff;border-radius:9px;font-size:11px;font-style:normal;padding:0 5px;line-height:17px}#v2w.on{background:#5fa8f0;color:#fff}#v2w.pulse{animation:v2pl .5s 3}@keyframes v2pl{50%{transform:scale(1.18)}}`;document.head.appendChild(css);
@@ -11761,7 +11769,7 @@ function unlockAllSilvForTest(){
 
 window.C9=window.C9||{};
 window.C9.v55=window.C9_V55={
- version:'56.14',
+ version:'56.15',
  LV_H,PRIZES_H,UNLOCK_AT_H,SV_H,
  LV_S,PRIZES_S,UNLOCK_AT_S,SV_S,
  isHalloweenThemeActive,isSilvesterThemeActive,
@@ -13209,4 +13217,6 @@ placeSpk();
 setInterval(placeSpk,600);
 console.info('v56.14 fang+spk ok');
 })();
+</script><script>/* v56.15: Pinch-Zoom während Gießen — Handler ersetzt in mk54 (v5615water-block.js). */
+(function(){'use strict'; console.info('v56.15 water-pinch ok');})();
 </script></body></html>
