@@ -3726,13 +3726,12 @@ if(!Array.isArray(V.order)||V.order.length!==16||DEF.some(k=>!V.order.includes(k
 const WATER={see:1,teich:1,riff:1,meer:1};
 const COL={wiese:'#b6eaa0',wald:'#86cf86',wueste:'#f6dfa4',eis:'#eef7ff',nest:'#f1ecff',see:'#86ccf2',teich:'#92d4c2',riff:'#72d2e6',meer:'#5aa6e6',berg:'#cfc3ae',sterne:'#bdb4f2',hoehle:'#a898b6',vulkan:'#9a8090',dino:'#cddc98',suess:'#ffd6f2',dschungel:'#62bf72'};
 const N=17,SPX=170,SPY=140,ROWS=[3,5,5,3],LAY=[[-255,-210],[-85,-210],[255,-210],[-340,-70],[-170,-70],[85,-210],[170,-70],[340,-70],[-340,70],[-170,70],[-85,210],[170,70],[340,70],[-255,210],[85,210],[255,210],[0,0]],PZ=16;// v44: Dorfplatz = Knoten 16
-window.C9LAYSC=function(){let sec=Math.max(1,Math.min(SECS.length,(S&&S.home&&(S.home.sec|0))||1));return .70+.30*(sec-1)/Math.max(1,SECS.length-1)};
-const slotCR=i=>{let s=C9LAYSC(),[x,y]=LAY[i];x*=s;y*=s;return[x/56+7.5,(y+46*.15)/46+7.5]};
+const slotCR=i=>{let[x,y]=LAY[i];return[x/56+7.5,(y+46*.15)/46+7.5]};
 const BR=[[0,1],[1,5],[5,2],[13,10],[10,14],[14,15],[3,4],[6,7],[8,9],[11,12],[3,8],[7,12],[0,4],[2,6],[13,9],[15,11],[1,16],[5,16],[4,16],[6,16],[9,16],[11,16],[10,16],[14,16]];
-hGeo=function(){let sec=Math.max(1,Math.min(SECS.length,(S&&S.home&&S.home.sec)||1)),ls=C9LAYSC(),cw=56,ch=46;return{cols:N,rows:N,cw,ch,cx:0,cy:-ch*.35,rx:cw*8.9*ls,ry:ch*8.9*ls,sec,secScale:ls}};
+hGeo=function(){let sec=Math.max(1,Math.min(SECS.length,(S&&S.home&&S.home.sec)||1)),sc=1+(sec-1)*.032,cw=56,ch=46;return{cols:N,rows:N,cw,ch,cx:0,cy:-ch*.35,rx:cw*8.9*sc,ry:ch*8.9*sc,sec,secScale:sc}};
 hFit=function(){let g=hGeo();return Math.min(1.9,(HW*.98)/(2*g.rx+8),(HH*.93)/(2*g.ry*1.3+30))};
 let SK='',SV=null;
-function slots(g){let k=V.order.join()+'|'+S.home.hab.map(h=>h.on?h.k+h.lv:'').join(',')+'|'+((S.home.sec)|0)+'|'+C9LAYSC().toFixed(3);if(k===SK)return SV;let m={},cells={};let g0=hGeo();V.order.forEach((h,i)=>{let[c,r]=slotCR(i);m[h]=[c,r];let q=habGeo(g0,{c,r,lv:1});for(let a=0;a<N;a++)for(let b=0;b<N;b++){let[x,y]=cellXY(g0,a,b);if(((x-q.x)/(q.rx*1.3))**2+((y-q.y)/(q.ry*1.45))**2<1)cells[a+','+b]=h}});SK=k;return SV={m,cells}}
+function slots(g){let k=V.order.join()+'|'+S.home.hab.map(h=>h.on?h.k+h.lv:'').join(',');if(k===SK)return SV;let m={},cells={};let g0=hGeo();V.order.forEach((h,i)=>{let[c,r]=slotCR(i);m[h]=[c,r];let q=habGeo(g0,{c,r,lv:1});for(let a=0;a<N;a++)for(let b=0;b<N;b++){let[x,y]=cellXY(g0,a,b);if(((x-q.x)/(q.rx*1.3))**2+((y-q.y)/(q.ry*1.45))**2<1)cells[a+','+b]=h}});SK=k;return SV={m,cells}}
 const own=k=>S.home.hab.find(h=>h.on&&h.k==k);
 // ---------- Zonen: jedes Tier lebt in seinem Feld (auch wenn der Lebensraum noch nicht gekauft ist) ----------
 function homeZ(g,e){let k=AH[e];if(!k)return null;let s=slots().m[k];if(!s)return null;let q=habGeo(g,{c:s[0],r:s[1]});return{x:q.x,y:q.y,rx:q.rx*.7,ry:q.ry*.6,m:HABS[k].m,h:own(k)||null,k}}
@@ -11770,7 +11769,7 @@ function unlockAllSilvForTest(){
 
 window.C9=window.C9||{};
 window.C9.v55=window.C9_V55={
- version:'56.16',
+ version:'56.17',
  LV_H,PRIZES_H,UNLOCK_AT_H,SV_H,
  LV_S,PRIZES_S,UNLOCK_AT_S,SV_S,
  isHalloweenThemeActive,isSilvesterThemeActive,
@@ -13220,92 +13219,130 @@ console.info('v56.14 fang+spk ok');
 })();
 </script><script>/* v56.15: Pinch-Zoom während Gießen — Handler ersetzt in mk54 (v5615water-block.js). */
 (function(){'use strict'; console.info('v56.15 water-pinch ok');})();
-</script><script>/* v56.16: Startinsel-Layout dichter – LAY/Gras skalieren mit Inselstufe;
-   verirrte Default-Deko (ohne Gestalten-mv) einmalig zum Dorfplatz ziehen. */
+</script><script>/* v56.17: REVERT Layout-Schrumpf (C9LAYSC bleibt aus).
+   Nur Deko: Brunnen + Staffelei (mal*) näher an den Dorfplatz;
+   v56.16-Massen-Cluster rückgängig für Nicht-Dorfplatz-Deko. */
 (function(){
 'use strict';
 try{
+  if(window.C9LAYSC){ try{ window.C9LAYSC=function(){return 1}; }catch(_){ } }
   const X2=window.C9V42; if(!X2) return;
-  const S=window.C9&&C9.S; if(!S) return;
+  const S=(window.C9&&C9.S)||window.S; if(!S) return;
   S.v56=S.v56||{};
 
-  // Mark player-moved deco in Gestalten so we never auto-relocate them
+  // Keep marking Gestalten moves
   try{
-    const oU=hUp;
-    hUp=function(e){
-      let was=HDR&&!HDR.hab&&HDR.d;
-      let r=oU.apply(this,arguments);
-      try{ if(was&&S.home.deco.includes(was)) was.mv=1; }catch(_){}
-      return r;
-    };
+    if(!hUp._v5617){
+      const oU=hUp;
+      hUp=function(e){
+        let was=HDR&&!HDR.hab&&HDR.d;
+        let r=oU.apply(this,arguments);
+        try{ if(was&&S.home.deco.includes(was)) was.mv=1; }catch(_){}
+        return r;
+      };
+      hUp._v5617=1;
+    }
   }catch(_){}
 
-  function villageRing(){
-    let g=hGeo(), P=(C9.v44&&C9.v44.PR)?C9.v44.PR():{x:0,y:6,rx:74,ry:51};
-    let out=[], lim=Math.max(P.rx,P.ry)*3.2;
+  function plaza(){
+    try{ return (C9.v44&&C9.v44.PR)?C9.v44.PR():{x:0,y:6,rx:74,ry:51}; }
+    catch(_){ return {x:0,y:6,rx:74,ry:51}; }
+  }
+  function isStaff(k){ return k==='brunnen' || /^mal\d+$/.test(k||''); }
+  function distToP(d,g,P){ let[x,y]=cellXY(g,d.c,d.r); return Math.hypot(x-P.x,y-P.y); }
+
+  function freeNear(g,P,dMin,dMax,used,skip){
+    let best=null, bd=1e9;
     for(let r=0;r<g.rows;r++)for(let c=0;c<g.cols;c++){
+      if(used.has(c+','+r)) continue;
       if(!X2.cin(c,r,g)) continue;
       let[x,y]=cellXY(g,c,r);
       if(window.C9PLBLK&&C9PLBLK(g,x,y)) continue;
+      try{ if(typeof cellFree==='function'&&!cellFree(c,r,skip)) continue; }catch(_){}
       let d=Math.hypot(x-P.x,y-P.y);
-      if(d<P.rx*0.7||d>lim) continue;
-      // Prefer open grass (not on habitat footprint)
-      let onHab=false; try{ onHab=!!C9V42.slots().cells[c+','+r]; }catch(_){}
-      out.push({c,r,d,x,y,onHab});
+      if(d<dMin||d>dMax) continue;
+      let score=Math.abs(d-(dMin+dMax)/2);
+      if(score<bd){ bd=score; best={c,r,d}; }
     }
-    out.sort((a,b)=>(a.onHab-b.onHab)||(a.d-b.d));
-    return {P,g,spots:out};
+    return best;
   }
 
-  function clusterDeco(force){
-    if(!force && S.v56.d16) return 0;
-    S.v56.d16=1;
+  function freeFar(g,P,dMin,used,skip){
+    // Natural scatter: prefer mid-island grass away from packed plaza ring
+    let cands=[];
+    for(let r=0;r<g.rows;r++)for(let c=0;c<g.cols;c++){
+      if(used.has(c+','+r)) continue;
+      if(!X2.cin(c,r,g)) continue;
+      let[x,y]=cellXY(g,c,r);
+      if(window.C9PLBLK&&C9PLBLK(g,x,y)) continue;
+      try{ if(typeof cellFree==='function'&&!cellFree(c,r,skip)) continue; }catch(_){}
+      let d=Math.hypot(x-P.x,y-P.y);
+      if(d<dMin) continue;
+      // avoid habitat footprints when possible
+      let onHab=false; try{ onHab=!!X2.slots().cells[c+','+r]; }catch(_){}
+      cands.push({c,r,d,onHab});
+    }
+    cands.sort((a,b)=>(a.onHab-b.onHab)||(a.d-b.d));
+    return cands[0]||null;
+  }
+
+  function fixDeco(){
+    if(S.v56.d17) return 0;
+    S.v56.d17=1;
     let H=S.home; if(!H||!H.deco) return 0;
-    let {P,g,spots}=villageRing();
+    let g=hGeo(), P=plaza(), n=0;
     let used=new Set(H.deco.map(d=>d.c+','+d.r));
-    let n=0;
+    let hadCluster=!!S.v56.d16;
+    let nearMin=Math.max(P.rx,P.ry)*1.05;
+    let nearMax=Math.max(P.rx,P.ry)*1.85;
+    let farMin=Math.max(P.rx,P.ry)*2.4;
+
+    // 1) Undo v56.16 mass-cluster: non-brunnen/non-mal unmarked deco sitting on plaza ring → scatter out
+    if(hadCluster){
+      H.deco.forEach(d=>{
+        if(!d||d.mv||d.k==='feld'||isStaff(d.k)) return;
+        let dist=distToP(d,g,P);
+        if(dist>farMin) return; // already not packed on plaza
+        let spot=freeFar(g,P,farMin,used,d);
+        if(!spot) return;
+        used.delete(d.c+','+d.r);
+        d.c=spot.c; d.r=spot.r;
+        used.add(d.c+','+d.r);
+        n++;
+      });
+    }
+
+    // 2) Brunnen + Staffelei (mal*): only if unmarked and stranded far from plaza
     H.deco.forEach(d=>{
-      if(!d||d.k==='feld'||d.mv) return;
-      let[x,y]=cellXY(g,d.c,d.r);
-      let dist=Math.hypot(x-P.x,y-P.y);
-      let ok=X2.cin(d.c,d.r,g) && dist<=Math.max(P.rx,P.ry)*2.6;
-      try{ if(ok && cellFree(d.c,d.r,d)) return; }catch(_){ if(ok) return; }
-      let spot=spots.find(s=>!used.has(s.c+','+s.r)&&(!(typeof cellFree==='function')||cellFree(s.c,s.r,d)));
-      if(!spot) spot=spots.find(s=>!used.has(s.c+','+s.r));
+      if(!d||d.mv||!isStaff(d.k)) return;
+      let dist=distToP(d,g,P);
+      // already near village → leave
+      if(dist<=nearMax) return;
+      let spot=freeNear(g,P,nearMin,nearMax,used,d);
+      if(!spot) spot=freeNear(g,P,nearMin,nearMax*1.35,used,d);
       if(!spot) return;
       used.delete(d.c+','+d.r);
       d.c=spot.c; d.r=spot.r;
       used.add(d.c+','+d.r);
       n++;
     });
-    if(n){ try{save()}catch(_){ } try{C9BASEC&&C9BASEC.inval()}catch(_){ } }
+
+    if(n){ try{save()}catch(_){} try{C9BASEC&&C9BASEC.inval()}catch(_){} }
     return n;
   }
 
-  // Run after island is ready; also when opening home / expanding
-  function kick(){ try{ clusterDeco(false); }catch(e){ console.warn('v5616cluster',e); } }
-  setTimeout(kick, 600);
+  function kick(){ try{ fixDeco(); }catch(e){ console.warn('v5617deco',e); } }
+  setTimeout(kick, 700);
   try{
     const oOpen=openHome;
-    openHome=function(){ let r=oOpen.apply(this,arguments); setTimeout(kick,200); return r; };
-  }catch(_){}
-  try{
-    const oG=window.C9GROW;
-    if(typeof oG==='function'){
-      window.C9GROW=function(){
-        let r=oG.apply(this,arguments);
-        try{ /* layout scale changes with sec – refresh hab cells */ 
-          const sl=X2.slots();
-          S.home.hab.forEach(h=>{ if(h.on&&sl.m[h.k]){ h.c=sl.m[h.k][0]; h.r=sl.m[h.k][1]; } });
-        }catch(_){}
-        try{C9BASEC&&C9BASEC.inval()}catch(_){}
-        return r;
-      };
+    if(!openHome._v5617){
+      openHome=function(){ let r=oOpen.apply(this,arguments); setTimeout(kick,250); return r; };
+      openHome._v5617=1;
     }
   }catch(_){}
 
-  window.C9V5616={clusterDeco,villageRing,laySc:()=> (window.C9LAYSC?C9LAYSC():1)};
-  console.info('v56.16 layout ok');
-}catch(e){ console.warn('v5616layout',e); }
+  window.C9V5617={fixDeco,plaza};
+  console.info('v56.17 deco-only ok');
+}catch(e){ console.warn('v5617deco',e); }
 })();
 </script></body></html>
