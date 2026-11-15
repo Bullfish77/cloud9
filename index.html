@@ -3660,7 +3660,7 @@ const TPL={
  katze:['🐱',x=>{x.beginPath();x.arc(48,52,26,0,7);x.moveTo(26,40);x.lineTo(28,16);x.lineTo(42,28);x.moveTo(70,40);x.lineTo(68,16);x.lineTo(54,28);x.stroke();x.beginPath();x.arc(38,48,4,0,7);x.moveTo(62,48);x.arc(58,48,4,0,7);x.stroke();x.beginPath();x.moveTo(44,58);x.lineTo(52,58);x.lineTo(48,62);x.closePath();x.stroke();x.beginPath();x.moveTo(30,60);x.lineTo(16,58);x.moveTo(30,64);x.lineTo(16,68);x.moveTo(66,60);x.lineTo(80,58);x.moveTo(66,64);x.lineTo(80,68);x.stroke()}],
  stern:['⭐',x=>{x.beginPath();for(let i=0;i<10;i++){let a=-Math.PI/2+i*Math.PI/5,r=i%2?16:36;x.lineTo(48+Math.cos(a)*r,52+Math.sin(a)*r)}x.closePath();x.stroke();x.beginPath();x.arc(48,52,7,0,7);x.stroke()}]};
 const WALL={};function wall(t){if(WALL[t])return WALL[t];let c=document.createElement('canvas');c.width=c.height=N;let x=c.getContext('2d');x.lineWidth=2.6;x.lineJoin=x.lineCap='round';x.strokeStyle='#000';TPL[t][1](x);let d=x.getImageData(0,0,N,N).data,w=new Uint8Array(N*N);for(let i=0;i<N*N;i++)w[i]=d[i*4+3]>90&&d[i*4]<128?1:0;return WALL[t]=w}
-function render(pic,c){let w=wall(pic.t),col=new Int8Array(N*N).fill(-1);(pic.o||[]).forEach(([i,ci])=>{if(w[i]||i<0||i>=N*N)return;let tgt=col[i];if(tgt===ci)return;let st=[i];while(st.length){let j=st.pop();if(w[j]||col[j]!==tgt)continue;col[j]=ci;let x=j%N;if(x>0)st.push(j-1);if(x<N-1)st.push(j+1);if(j>=N)st.push(j-N);if(j<N*N-N)st.push(j+N)}});
+function render(pic,c){if(pic&&(pic.t==='frei'||pic.free)){if(window.C9V5619&&C9V5619.renderFree)return C9V5619.renderFree(pic,c);c=c||document.createElement('canvas');c.width=c.height=N;let x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,N,N);return c}let w=wall(pic.t),col=new Int8Array(N*N).fill(-1);(pic.o||[]).forEach(([i,ci])=>{if(w[i]||i<0||i>=N*N)return;let tgt=col[i];if(tgt===ci)return;let st=[i];while(st.length){let j=st.pop();if(w[j]||col[j]!==tgt)continue;col[j]=ci;let x=j%N;if(x>0)st.push(j-1);if(x<N-1)st.push(j+1);if(j>=N)st.push(j-N);if(j<N*N-N)st.push(j+N)}});
  c=c||document.createElement('canvas');c.width=c.height=N;let x=c.getContext('2d'),im=x.createImageData(N,N);for(let i=0;i<N*N;i++){let k=i*4;if(w[i]){im.data[k]=58;im.data[k+1]=48;im.data[k+2]=90;im.data[k+3]=255}else if(col[i]>=0){let h=PAL[col[i]];im.data[k]=parseInt(h.slice(1,3),16);im.data[k+1]=parseInt(h.slice(3,5),16);im.data[k+2]=parseInt(h.slice(5,7),16);im.data[k+3]=255}else{im.data[k]=im.data[k+1]=im.data[k+2]=255;im.data[k+3]=255}}x.putImageData(im,0,0);return c}
 const MAXO=80,PC={},LSMAX=5e6;
 // v51: beliebig viele Bilder, kompakt gespeichert (eine Füllung pro Fläche), Bearbeiten/Kopie/Löschen ohne stilles Überschreiben
@@ -3702,14 +3702,14 @@ function paint(){let cur={t:'wolke',o:[]},ci=0,ed=-1,base='[]',o=ov(`<h3>🎨 Au
  o.onclick=e=>{if(e.target===o||e.target.dataset.x){if(dirty())ask(o,'Du hast noch nicht gespeichert. Trotzdem schließen?',[['💾 Speichern & schließen',()=>{if(ed>=0)over();else if(saveNew()<0)return;o.remove()},''],['🧽 Ohne Speichern',()=>o.remove()],['↩️ Weitermalen']]);else o.remove()}};
  gal();re();return o}
 // Laden: kompakt machen, alle Bilder registrieren (auch Deko/Lager-Schlüssel)
-V.pics=V.pics.map(p=>p&&TPL[p.t]?{t:p.t,o:compact(p.t,(p.o||[]).map(a=>[a[0]|0,Math.max(0,Math.min(PAL.length-1,a[1]|0))])),v:p.v|0}:null);
+V.pics=V.pics.map(p=>{if(!p)return null;if(p.t==='frei'||p.free)return{t:'frei',o:Array.isArray(p.o)?p.o:[],v:p.v|0,tpl:p.tpl&&TPL[p.tpl]?p.tpl:''};return TPL[p.t]?{t:p.t,o:compact(p.t,(p.o||[]).map(a=>[a[0]|0,Math.max(0,Math.min(PAL.length-1,a[1]|0))])),v:p.v|0}:null});
 while(V.pics.length&&!V.pics[V.pics.length-1]&&!S.home.deco.some(d=>d.k=='mal'+(V.pics.length-1))&&!(S.home.inv['mal'+(V.pics.length-1)]>0))V.pics.pop();
 for(let i=0;i<Math.max(6,V.pics.length);i++)reg(i);S.home.deco.forEach(d=>{if(d&&isMal(d.k))reg(+d.k.slice(3))});Object.keys(S.home.inv||{}).forEach(k=>{if(isMal(k))reg(+k.slice(3))});
 {const c2=document.createElement('style');c2.textContent='.v51gal{display:flex;gap:6px;overflow-x:auto;padding:4px 2px 8px;margin-bottom:4px;scrollbar-width:thin}.v51gal>button{flex:0 0 auto}.v51th{width:46px;height:46px;padding:2px;border-radius:12px;background:#fff;border:3px solid #e4dcff;box-shadow:0 2px 6px rgba(80,60,160,.15)}.v51th.on{border-color:#7c5cff;transform:scale(1.06)}.v51th canvas{display:block;border-radius:8px;image-rendering:pixelated}.v51new{height:46px;border-radius:12px}.v51new.on{outline:3px solid #7c5cff}.v41tp button:disabled{opacity:.4}#v41pinfo{display:block;margin-top:6px}#v41pinfo.v51warn{color:#c0392b;font-weight:800}.v51ask{position:absolute;inset:0;background:rgba(255,255,255,.88);border-radius:inherit;display:flex;align-items:center;justify-content:center;z-index:5}.v51ask>div{background:#fff;border-radius:18px;padding:14px;box-shadow:0 6px 24px rgba(60,40,140,.25);max-width:280px}.v51ask p{margin:0 0 10px;font-weight:800;color:#4a3a8a}.v51ask button{margin:3px}.v41p{position:relative}';document.head.appendChild(c2)}
 // ---------- Menü-Knöpfe ----------
 let g=document.querySelector('#menu .mgrid');if(g){g.insertAdjacentHTML('beforeend','<button class="sec" id="bWk"><b>📅</b>Woche<span class="badge" id="v41wkB" style="display:none"></span></button><button class="sec" id="bPaint"><b>🎨</b>Malen</button>');$('bWk').onclick=wkSheet;$('bPaint').onclick=paint}
 wk();badge();
-window.C9.v41={page,wk,wev,wkSheet,paint,render,cheer,petUpd,TASKS,F,wall,V:()=>V};
+window.C9.v41={page,wk,wev,wkSheet,paint,render,cheer,petUpd,TASKS,F,wall,V:()=>V,TPL,PAL,N,ov,ask,lsUse,LSMAX,nPics,PC,reg,isMal};
 })();
 </script><script>
 // ===== v42: Insel 4×4 – 16 Lebensräume, weiche Übergänge, Wege & Brücken, jedes Tier hat genau ein Zuhause =====
@@ -11769,7 +11769,7 @@ function unlockAllSilvForTest(){
 
 window.C9=window.C9||{};
 window.C9.v55=window.C9_V55={
- version:'56.18',
+ version:'56.19',
  LV_H,PRIZES_H,UNLOCK_AT_H,SV_H,
  LV_S,PRIZES_S,UNLOCK_AT_S,SV_S,
  isHalloweenThemeActive,isSilvesterThemeActive,
@@ -13390,5 +13390,391 @@ try{
   window.C9V5618={migrate, ROFF:1};
   console.info('v56.18 shift+1 ok');
 }catch(e){ console.warn('v5618shift',e); }
+})();
+</script><script>/* v56.19: Freies Malen mit gestrichelten Motiv-Vorlagen (unter der Zeichnung, nicht mitgespeichert). */
+(function(){
+'use strict';
+try{
+const FN=192, TPLN={wolke:'Wolke',fisch:'Fisch',schmetterling:'Falter',katze:'Katze',stern:'Stern'};
+const DASH={};
+function isFree(p){return !!(p&&(p.t==='frei'||p.free));}
+function wrapDash(x){
+  return new Proxy(x,{
+    get(o,k){
+      if(k==='fill') return function(){ try{o.stroke()}catch(_){} };
+      if(k==='fillRect') return function(a,b,c,d){ try{o.strokeRect(a,b,c,d)}catch(_){} };
+      const v=o[k];
+      return typeof v==='function'?v.bind(o):v;
+    },
+    set(o,k,v){
+      if(k==='globalCompositeOperation') return true;
+      if(k==='fillStyle') return true;
+      o[k]=v; return true;
+    }
+  });
+}
+function dashTpl(t){
+  if(!t||!C9.v41.TPL[t]) return null;
+  if(DASH[t]) return DASH[t];
+  const c=document.createElement('canvas');
+  c.width=c.height=FN;
+  const x=c.getContext('2d'), sc=FN/96;
+  x.save(); x.scale(sc,sc);
+  x.lineJoin=x.lineCap='round';
+  x.strokeStyle='rgba(90,80,140,.5)';
+  x.setLineDash([5,4]);
+  x.lineWidth=2.4;
+  try{ C9.v41.TPL[t][1](wrapDash(x)); }catch(e){ try{console.warn('tpl',t,e)}catch(_){} }
+  x.restore();
+  return DASH[t]=c;
+}
+function strokeInk(ctx,st){
+  const p=st&&st.p; if(!p||p.length<2) return;
+  ctx.save();
+  ctx.lineJoin=ctx.lineCap='round';
+  ctx.lineWidth=Math.max(1,st.s||7);
+  if(st.e){ ctx.globalCompositeOperation='destination-out'; ctx.strokeStyle='#000'; }
+  else{ ctx.globalCompositeOperation='source-over'; ctx.strokeStyle=(st.c>=0&&C9.v41.PAL[st.c])?C9.v41.PAL[st.c]:'#3a3a4a'; }
+  ctx.beginPath();
+  ctx.moveTo(p[0],p[1]);
+  if(p.length===2) ctx.lineTo(p[0]+.05,p[1]);
+  else for(let i=2;i<p.length;i+=2) ctx.lineTo(p[i],p[i+1]);
+  ctx.stroke();
+  ctx.restore();
+}
+function bake(strokes, size){
+  const c=document.createElement('canvas');
+  c.width=c.height=size||FN;
+  const x=c.getContext('2d');
+  const sc=c.width/FN;
+  if(sc!==1) x.scale(sc,sc);
+  (strokes||[]).forEach(st=>strokeInk(x,st));
+  return c;
+}
+function renderFree(pic,c){
+  c=c||document.createElement('canvas');
+  c.width=c.height=C9.v41.N;
+  const x=c.getContext('2d');
+  x.fillStyle='#fff'; x.fillRect(0,0,C9.v41.N,C9.v41.N);
+  try{
+    const ink=bake(pic.o,C9.v41.N);
+    x.imageSmoothingEnabled=true;
+    x.drawImage(ink,0,0,C9.v41.N,C9.v41.N);
+  }catch(e){ try{console.warn('renderFree',e)}catch(_){} }
+  return c;
+}
+function normFree(p){
+  return {t:'frei', o:Array.isArray(p.o)?p.o:[], v:p.v|0, tpl: (p.tpl&&C9.v41.TPL[p.tpl])?p.tpl:''};
+}
+
+function css(){
+  if($('v5619css')) return;
+  const s=document.createElement('style'); s.id='v5619css';
+  s.textContent=`
+.v41p.v5619p{max-width:min(392px,96vw)!important;width:min(392px,96vw);padding:8px 10px 8px!important;padding-bottom:max(16px,calc(env(safe-area-inset-bottom) + 10px))!important;max-height:min(96dvh,calc(100dvh - 4px));overflow-y:auto;-webkit-overflow-scrolling:touch;box-sizing:border-box;text-align:center}
+#v5619go{width:100%;margin:4px 0 8px;font-size:20px;padding:12px 10px;border-radius:18px}
+.v5619row{display:flex;flex-wrap:wrap;gap:5px;justify-content:center;margin:4px 0}
+.v5619row button{min-height:40px;min-width:40px;padding:6px 10px;font-size:15px;font-weight:800;border-radius:14px}
+.v5619row button.on{outline:3px solid #8d7bf0}
+#v5619stage{position:relative;width:min(236px,64vw);height:min(236px,64vw);margin:4px auto;border-radius:16px;box-shadow:inset 0 0 0 2px #e4ddff;background:#fff;touch-action:none;overflow:hidden}
+#v5619stage canvas{position:absolute;inset:0;width:100%;height:100%;touch-action:none;display:block}
+#v5619tplcv{pointer-events:none;z-index:0}
+#v5619cv{z-index:1}
+.v5619sz button{min-width:52px}
+.v5619hint{display:block;margin:2px 0 4px;font-weight:700;color:#6a5a9a;font-size:12px;line-height:1.25}
+.v5619p .v41pal{margin:4px 0}
+.v5619p .v41pal i{width:34px;height:34px}
+.v5619p h3{margin:2px 0 4px}
+.v5619p .v51gal{margin-bottom:2px;padding:2px 2px 4px}
+.v5619p > button.sec[data-x]{position:sticky;bottom:0;background:#fff;z-index:3;margin-top:6px}
+`;
+  document.head.appendChild(s);
+}
+
+function freePaint(opts){
+  css();
+  opts=opts||{};
+  const V=C9.v41.V();
+  let ed=opts.ed!=null?opts.ed:-1;
+  let src=ed>=0?V.pics[ed]:null;
+  if(ed>=0&&!isFree(src)) src=null, ed=-1;
+  let strokes=src&&Array.isArray(src.o)?src.o.map(s=>({e:s.e|0,c:s.c|0,s:s.s|0,p:(s.p||[]).slice()})):[];
+  let tpl=src&&src.tpl&&C9.v41.TPL[src.tpl]?src.tpl:(opts.tpl||'');
+  let showTpl=!!tpl, ci=0, sz=7, erase=0, base=JSON.stringify(strokes);
+  const o=C9.v41.ov(`<h3>🖌️ Freies Malen</h3>
+    <div class="v51gal" id="v5619gal"></div>
+    <div class="v5619row" id="v5619tpls">
+      <button type="button" class="sec" data-blank="1" id="v5619blank">⬜ Leere Fläche</button>
+      ${Object.entries(C9.v41.TPL).map(([k,v])=>`<button type="button" class="sec" data-tpl="${k}" title="${TPLN[k]||k}">${v[0]} ${TPLN[k]||k}</button>`).join('')}
+    </div>
+    <button type="button" class="sec" id="v5619tog" style="margin:2px 0 4px">🙈 Vorlage aus</button>
+    <small class="v5619hint" id="v5619hint">Die gestrichelte Vorlage liegt unter deinem Bild und wird nicht mitgespeichert.</small>
+    <div id="v5619stage"><canvas id="v5619tplcv" width="${FN}" height="${FN}"></canvas><canvas id="v5619cv" width="${FN}" height="${FN}"></canvas></div>
+    <div class="v41pal" id="v5619pal">${C9.v41.PAL.map((c,i)=>`<i data-c="${i}" class="${i?'':'on'}" style="background:${c}"></i>`).join('')}</div>
+    <div class="v5619row v5619sz">
+      <button type="button" class="sec" data-s="3">dünn</button>
+      <button type="button" class="sec on" data-s="7">mittel</button>
+      <button type="button" class="sec" data-s="14">dick</button>
+      <button type="button" class="sec" id="v5619ers">🧹 Radierer</button>
+    </div>
+    <div class="v5619row v51bt">
+      <button type="button" class="sec" id="v5619undo">↩️ Zurück</button>
+      <button type="button" class="sec" id="v5619clr">🧽 Alles löschen</button>
+      <button type="button" class="sm" id="v5619save">🏝️ Auf die Insel</button>
+      <button type="button" class="sm hide" id="v5619over">💾 Speichern</button>
+      <button type="button" class="sec sm hide" id="v5619copy">📄 Als Kopie</button>
+      <button type="button" class="sec sm hide" id="v5619del">🗑️</button>
+    </div>
+    <small id="v41pinfo"></small>`);
+  const panel=o.querySelector('.v41p');
+  if(panel) panel.classList.add('v5619p');
+  const ink=o.querySelector('#v5619cv'), tcv=o.querySelector('#v5619tplcv');
+  const ix=ink.getContext('2d'), tx=tcv.getContext('2d');
+  const pts=new Map();
+  let cur=null, pinching=false, dirtyDraw=1;
+
+  const sig=()=>JSON.stringify(strokes);
+  const dirty=()=>sig()!==base;
+  const hasInk=()=>strokes.some(s=>s&&s.p&&s.p.length>=2&&!s.e);
+
+  function gal(){
+    const g=o.querySelector('#v5619gal'); if(!g) return;
+    g.innerHTML=`<button class="sec sm v51new ${ed<0?'on':''}" data-n="1">➕ Neu</button>`+V.pics.map((p,i)=>p?`<button class="v51th ${ed==i?'on':''}" data-p="${i}" title="Bild ${i+1} bearbeiten"></button>`:'').join('');
+    g.querySelectorAll('[data-p]').forEach(b=>{
+      const p=V.pics[+b.dataset.p], c=C9.v41.render(p);
+      c.style.width=c.style.height='100%'; b.appendChild(c);
+      b.onclick=()=>{ if(isFree(p)) load(+b.dataset.p); else { if(dirty()&&hasInk()){ C9.v41.ask(o,'Dein Bild ist noch nicht gespeichert. Trotzdem schließen?',[['💾 Speichern',()=>{over();openMotif(+b.dataset.p)},''],['🧽 Verwerfen',()=>openMotif(+b.dataset.p)],['↩️ Weitermalen']]); } else openMotif(+b.dataset.p); } };
+    });
+    const n=g.querySelector('[data-n]'); if(n) n.onclick=()=>fresh();
+  }
+  function openMotif(i){ o.remove(); const p=C9.v41.paint(); try{
+    const th=p&&p.querySelector(`[data-p="${i}"]`); if(th) th.click();
+  }catch(_){} }
+  function info(){
+    const inf=o.querySelector('#v41pinfo');
+    let u=C9.v41.lsUse(), pc=Math.round(u/C9.v41.LSMAX*100);
+    inf.textContent=(C9.v41.nPics())+' Bilder · Speicher '+(u/C9.v41.LSMAX<.01?'unter 1':pc)+' % belegt';
+    inf.classList.toggle('v51warn',u>C9.v41.LSMAX*.8);
+    const E=ed>=0;
+    o.querySelector('#v5619save').classList.toggle('hide',E);
+    ['#v5619over','#v5619copy','#v5619del'].forEach(s=>o.querySelector(s).classList.toggle('hide',!E));
+    const tog=o.querySelector('#v5619tog');
+    tog.style.display=tpl?'':'none';
+    tog.textContent=showTpl?'🙈 Vorlage aus':'👻 Vorlage an';
+    o.querySelectorAll('#v5619tpls [data-tpl]').forEach(b=>b.classList.toggle('on',b.dataset.tpl===tpl));
+    o.querySelector('#v5619blank').classList.toggle('on',!tpl);
+    o.querySelector('#v5619hint').textContent=tpl
+      ? (showTpl?'Die gestrichelte Linie kannst du nachzeichnen – sie wird nicht mitgespeichert.':'Vorlage ist ausgeblendet. Dein Bild bleibt.')
+      : 'Leere Fläche. Oder wähl eine Vorlage zum Nachzeichnen.';
+  }
+  function drawTpl(){
+    tx.clearRect(0,0,FN,FN);
+    if(showTpl&&tpl){ const d=dashTpl(tpl); if(d) tx.drawImage(d,0,0); }
+  }
+  function redrawInk(){
+    ix.clearRect(0,0,FN,FN);
+    strokes.forEach(st=>strokeInk(ix,st));
+  }
+  function re(){ drawTpl(); redrawInk(); info(); gal(); }
+
+  function load(i){
+    const p=V.pics[i]; if(!p||!isFree(p)) return;
+    ed=i; strokes=(p.o||[]).map(s=>({e:s.e|0,c:s.c|0,s:s.s|0,p:(s.p||[]).slice()}));
+    tpl=p.tpl&&C9.v41.TPL[p.tpl]?p.tpl:''; showTpl=!!tpl; base=sig(); re();
+  }
+  function fresh(){
+    ed=-1; strokes=[]; tpl=''; showTpl=false; base=sig(); re();
+  }
+
+  function store(i,p){
+    V.pics[i]=p; try{C9.v41.reg(i)}catch(_){} delete C9.v41.PC[i];
+    try{save()}catch(e){ toast('Speicher voll! Lösch ein altes Bild',3500); return false; }
+    return true;
+  }
+  function pack(){ return {t:'frei', o:strokes.map(s=>({e:s.e|0,c:s.c|0,s:s.s|0,p:s.p.slice()})), v:Date.now()%1e6, tpl:tpl||''}; }
+  function saveNew(){
+    if(!hasInk()){ toast('Male zuerst etwas'); return -1; }
+    if(C9.v41.lsUse()>C9.v41.LSMAX*.97){ toast('Dein Speicher ist voll – lösch ein altes Bild, dann klappt es.',3800); return -1; }
+    let slot=V.pics.findIndex(p=>!p); if(slot<0) slot=V.pics.length;
+    const pic=pack(); pic.v=Date.now()%1e6;
+    if(!store(slot,pic)) return -1;
+    const k='mal'+slot;
+    if(!S.home.deco.some(d=>d.k==k)) S.home.inv[k]=Math.max(1,S.home.inv[k]|0);
+    try{save()}catch(_){}
+    try{C9.v41.wev('paint')}catch(_){}
+    try{SND.sfx('star')}catch(_){}
+    return slot;
+  }
+  function over(){
+    if(ed<0) return;
+    const pic=pack(); pic.v=((V.pics[ed].v|0)+1)%1e6;
+    store(ed,pic); base=sig();
+    try{SND.sfx('star')}catch(_){}
+    toast('Bild gespeichert – auch auf deiner Insel!',2600);
+  }
+  function copy(){
+    const i=saveNew();
+    if(i>=0){ toast('Kopie liegt im Lager – das alte Bild bleibt wie es war.',3400); ed=i; base=sig(); re(); }
+  }
+
+  o.querySelector('#v5619blank').onclick=()=>{ tpl=''; showTpl=false; re(); };
+  o.querySelectorAll('#v5619tpls [data-tpl]').forEach(b=>b.onclick=()=>{ tpl=b.dataset.tpl; showTpl=true; re(); });
+  o.querySelector('#v5619tog').onclick=()=>{ if(!tpl) return; showTpl=!showTpl; re(); };
+  o.querySelectorAll('#v5619pal [data-c]').forEach(b=>b.onclick=()=>{
+    o.querySelectorAll('#v5619pal [data-c]').forEach(x=>x.classList.remove('on'));
+    b.classList.add('on'); ci=+b.dataset.c; erase=0; o.querySelector('#v5619ers').classList.remove('on');
+  });
+  o.querySelectorAll('.v5619sz [data-s]').forEach(b=>b.onclick=()=>{
+    o.querySelectorAll('.v5619sz [data-s]').forEach(x=>x.classList.remove('on'));
+    b.classList.add('on'); sz=+b.dataset.s;
+  });
+  o.querySelector('#v5619ers').onclick=()=>{
+    erase=!erase;
+    o.querySelector('#v5619ers').classList.toggle('on',!!erase);
+  };
+  o.querySelector('#v5619undo').onclick=()=>{ strokes.pop(); re(); };
+  o.querySelector('#v5619clr').onclick=()=>{
+    if(!strokes.length) return;
+    C9.v41.ask(o,'Alles auf dem Blatt löschen?',[['Ja, löschen',()=>{strokes=[]; re();},''],['Lieber nicht']]);
+  };
+  o.querySelector('#v5619save').onclick=()=>{ const i=saveNew(); if(i>=0){ toast('Dein Bild liegt im Lager – stell es auf deine Insel!',3500); o.remove(); } };
+  o.querySelector('#v5619over').onclick=()=>{ over(); re(); };
+  o.querySelector('#v5619copy').onclick=()=>copy();
+  o.querySelector('#v5619del').onclick=()=>C9.v41.ask(o,'Dieses Bild wirklich löschen? Es verschwindet auch von deiner Insel.',[['Ja, löschen',()=>{ const k='mal'+ed; V.pics[ed]=null; delete C9.v41.PC[ed]; S.home.deco=S.home.deco.filter(d=>d.k!=k); delete S.home.inv[k]; try{save()}catch(_){} toast('Bild gelöscht'); fresh(); },''],['Nein, behalten']]);
+
+  function pos(e){
+    const r=ink.getBoundingClientRect();
+    let x=(e.clientX-r.left)/r.width*FN, y=(e.clientY-r.top)/r.height*FN;
+    return [Math.max(0,Math.min(FN,x)), Math.max(0,Math.min(FN,y))];
+  }
+  function endStroke(){
+    if(cur){ if(cur.p.length>=2) strokes.push(cur); cur=null; info(); }
+  }
+  ink.addEventListener('pointerdown',e=>{
+    e.preventDefault();
+    try{ink.setPointerCapture(e.pointerId)}catch(_){}
+    pts.set(e.pointerId,1);
+    if(pts.size>=2){ pinching=true; if(cur){ cur=null; redrawInk(); } return; }
+    if(pinching) return;
+    const [x,y]=pos(e);
+    cur={e:erase?1:0,c:ci,s:sz,p:[+x.toFixed(1),+y.toFixed(1)]};
+    strokeInk(ix,cur);
+  },{passive:false});
+  ink.addEventListener('pointermove',e=>{
+    if(pinching||pts.size>=2){ cur=null; return; }
+    if(!cur||!pts.has(e.pointerId)) return;
+    const [x,y]=pos(e);
+    const p=cur.p, lx=p[p.length-2], ly=p[p.length-1];
+    if(Math.hypot(x-lx,y-ly)<0.8) return;
+    p.push(+x.toFixed(1),+y.toFixed(1));
+    strokeInk(ix,{e:cur.e,c:cur.c,s:cur.s,p:[lx,ly,x,y]});
+  });
+  const up=e=>{
+    pts.delete(e.pointerId);
+    if(pts.size<2) pinching=false;
+    if(!pts.size) endStroke();
+  };
+  ink.addEventListener('pointerup',up);
+  ink.addEventListener('pointercancel',up);
+  ink.addEventListener('pointerleave',e=>{ if(pts.has(e.pointerId)) up(e); });
+
+  const prevClose=o.onclick;
+  o.onclick=e=>{
+    if(!(e.target===o||e.target.dataset.x)) return;
+    if(dirty()&&hasInk()){
+      e.stopPropagation();
+      C9.v41.ask(o,'Du hast noch nicht gespeichert. Trotzdem schließen?',[
+        ['Speichern & schließen',()=>{ if(ed>=0) over(); else if(saveNew()<0) return; o.remove(); },''],
+        ['Ohne Speichern',()=>o.remove()],
+        ['Weitermalen']
+      ]);
+      return;
+    }
+    o.remove();
+  };
+
+  re();
+  return o;
+}
+
+function enhancePaint(sheet){
+  if(!sheet||sheet.querySelector('#v5619go')) return;
+  css();
+  const h=sheet.querySelector('h3');
+  const b=document.createElement('button');
+  b.id='v5619go'; b.type='button'; b.className='big';
+  b.textContent='🖌️ Freies Malen';
+  b.onclick=ev=>{ ev.stopPropagation(); sheet.remove(); freePaint(); };
+  if(h&&h.parentNode) h.after(b);
+  sheet.addEventListener('click',ev=>{
+    const th=ev.target.closest('[data-p]');
+    if(!th||!sheet.contains(th)) return;
+    const i=+th.dataset.p, p=C9.v41.V().pics[i];
+    if(!isFree(p)) return;
+    ev.stopPropagation(); ev.preventDefault();
+    sheet.remove(); freePaint({ed:i});
+  },true);
+}
+
+function hookPaint(){
+  try{
+    const V41=window.C9&&C9.v41; if(!V41||!V41.paint||V41.paint._v5619) return;
+    const oP=V41.paint;
+    const wrap=function(){ const o=oP.apply(this,arguments); try{enhancePaint(o)}catch(e){console.warn('v5619 enh',e)} return o; };
+    wrap._v5619=1; V41.paint=wrap;
+    const btn=$('bPaint'); if(btn) btn.onclick=wrap;
+  }catch(e){ console.warn('v5619 hook',e); }
+}
+
+function hookRender(){
+  try{
+    const V41=window.C9&&C9.v41; if(!V41||!V41.render||V41.render._v5619) return;
+    const oR=V41.render;
+    const wrap=function(pic,c){ if(isFree(pic)) return renderFree(pic,c); return oR(pic,c); };
+    wrap._v5619=1; V41.render=wrap;
+  }catch(e){ console.warn('v5619 render',e); }
+}
+
+function hookIsland(){
+  if(hookIsland._on) return; hookIsland._on=1;
+  const c=$('hc'); if(!c) return;
+  let lp=null;
+  function nearMal(p){
+    try{
+      const g=hGeo(); let best=null, bd=1e9;
+      (S.home.deco||[]).forEach(d=>{
+        if(!d||!C9.v41.isMal(d.k)) return;
+        const [x,y]=cellXY(g,d.c,d.r);
+        const dd=Math.hypot(x-p.x,y-(y-18)-p.y+18);
+        const dist=Math.hypot(x-p.x,(y-18)-p.y);
+        if(dist<bd){ bd=dist; best=d; }
+      });
+      return best&&bd<((hGeo().cw)||46)*0.85?best:null;
+    }catch(e){ return null; }
+  }
+  c.addEventListener('pointerdown',e=>{
+    try{
+      if(HED||window.C9VIS||HPT.size>1) { if(lp){clearTimeout(lp.t);lp=null;} return; }
+      const p=hPos(e), d=nearMal(p); if(!d) return;
+      lp={x:e.clientX,y:e.clientY,d,t:setTimeout(()=>{
+        const dd=lp&&lp.d; lp=null; if(!dd) return;
+        const i=+String(dd.k).slice(3);
+        const pic=C9.v41.V().pics[i]; if(!pic) return;
+        try{vib(20)}catch(_){}
+        if(isFree(pic)) freePaint({ed:i}); else { const sh=C9.v41.paint(); const th=sh&&sh.querySelector(`[data-p="${i}"]`); if(th) th.click(); }
+      },480)};
+    }catch(_){}
+  },true);
+  c.addEventListener('pointermove',e=>{ if(lp&&Math.hypot(e.clientX-lp.x,e.clientY-lp.y)>12){clearTimeout(lp.t);lp=null;} });
+  ['pointerup','pointercancel'].forEach(k=>c.addEventListener(k,()=>{ if(lp){clearTimeout(lp.t);lp=null;} },true));
+}
+
+hookRender(); hookPaint();
+setTimeout(()=>{ hookPaint(); hookIsland(); },0);
+setTimeout(hookIsland,800);
+
+window.C9V5619={isFree,renderFree,dashTpl,freePaint,open:freePaint,FN,TPLN,normFree,bake};
+console.info('v56.19 free-paint ok');
+}catch(e){ try{console.warn('v5619free',e)}catch(_){} }
 })();
 </script></body></html>
